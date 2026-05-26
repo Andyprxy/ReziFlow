@@ -64,11 +64,45 @@
             70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
             100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.95) translateY(20px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .portal-card {
+            transition: all 0.3s ease;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body class="text-gray-800 antialiased">
 
-    <!-- Navbar -->
     <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
@@ -80,15 +114,13 @@
                     <a href="#architecture" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Architecture</a>
                     <a href="#automation" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Integration Engine</a>
                     <a href="#roi" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">ROI Dashboard</a>
-                    <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg">Partner With Us</a>
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg">Deploy ReziFlow</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="bg-hero text-white pt-32 pb-24 lg:pt-48 lg:pb-32 px-4 relative overflow-hidden">
-        <!-- Abstract Background Elements -->
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
             <div class="absolute top-48 -left-24 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -106,9 +138,9 @@
                 ReziFlow automates the friction out of property management. We connect your front-of-house student experience with your back-of-house financial engines through seamless, real-time data pipelines.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#contact" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/30">
-                    Calculate Your ROI
-                </a>
+                <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/30">
+                    Deploy ReziFlow
+                </button>
                 <a href="#architecture" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
                     Explore Architecture <i class="fa-solid fa-arrow-right ml-2"></i>
                 </a>
@@ -116,7 +148,6 @@
         </div>
     </section>
 
-    <!-- Architecture Section -->
     <section id="architecture" class="py-24 bg-white px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
@@ -125,7 +156,6 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
                 <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
                     <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
                         <i class="fa-solid fa-id-card"></i>
@@ -137,7 +167,6 @@
                     </ul>
                 </div>
 
-                <!-- Feature 2 -->
                 <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
                     <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
                         <i class="fa-solid fa-microchip"></i>
@@ -149,7 +178,6 @@
                     </ul>
                 </div>
 
-                <!-- Feature 3 -->
                 <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
                     <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
                         <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -164,7 +192,6 @@
         </div>
     </section>
 
-    <!-- Automation Engine Section -->
     <section id="automation" class="py-24 bg-slate-900 text-white px-4 relative overflow-hidden">
         <div class="max-w-7xl mx-auto relative z-10">
             <div class="grid lg:grid-cols-2 gap-16 items-center">
@@ -196,10 +223,8 @@
                     </div>
                 </div>
 
-                <!-- Workflow Diagram -->
                 <div class="glass-card p-8 rounded-2xl relative">
                     <div class="space-y-6">
-                        <!-- Step 1 -->
                         <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl flex items-center gap-4">
                             <div class="bg-blue-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-mobile-screen text-white"></i></div>
                             <div>
@@ -210,7 +235,6 @@
                         
                         <div class="workflow-line my-2"></div>
 
-                        <!-- Step 2 -->
                         <div class="bg-slate-800/80 border border-cyan-500/30 p-4 rounded-xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.15)] relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full"></div>
                             <div class="bg-cyan-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-gears text-white"></i></div>
@@ -222,7 +246,6 @@
 
                         <div class="workflow-line my-2"></div>
 
-                        <!-- Step 3 -->
                         <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl flex items-center gap-4">
                             <div class="bg-indigo-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-server text-white"></i></div>
                             <div>
@@ -236,7 +259,6 @@
         </div>
     </section>
 
-    <!-- ROI / Value Section -->
     <section id="roi" class="py-24 bg-slate-50 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
@@ -245,25 +267,21 @@
             </div>
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Metric 1 -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
                     <div class="text-4xl font-black text-blue-600 mb-2">90%</div>
                     <div class="text-sm font-semibold text-slate-800 mb-1">Faster Turnaround</div>
                     <div class="text-xs text-gray-500">Lease execution reduced from days to minutes.</div>
                 </div>
-                <!-- Metric 2 -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
                     <div class="text-4xl font-black text-cyan-600 mb-2">Live</div>
                     <div class="text-sm font-semibold text-slate-800 mb-1">Utility Tracking</div>
                     <div class="text-xs text-gray-500">Real-time alerts prevent catastrophic wastage.</div>
                 </div>
-                <!-- Metric 3 -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
                     <div class="text-4xl font-black text-indigo-600 mb-2">Zero</div>
                     <div class="text-sm font-semibold text-slate-800 mb-1">Manual Dispatch</div>
                     <div class="text-xs text-gray-500">Automated routing limits asset degradation.</div>
                 </div>
-                <!-- Metric 4 -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
                     <div class="text-4xl font-black text-emerald-500 mb-2">+40%</div>
                     <div class="text-sm font-semibold text-slate-800 mb-1">Tenant Retention</div>
@@ -273,14 +291,13 @@
         </div>
     </section>
 
-    <!-- Footer CTA & Footer -->
     <footer id="contact" class="bg-slate-950 text-white pt-20 pb-10 px-4">
         <div class="max-w-4xl mx-auto text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to turn your property into a self-running asset?</h2>
             <p class="text-slate-400 text-lg mb-8">Stop fighting fragmented software and manual data entry. Build an automated operational pipeline that protects your margins and elevates your community.</p>
-            <a href="#" class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/20">
-                Partner With Automania <i class="fa-solid fa-arrow-right ml-2"></i>
-            </a>
+            <button onclick="openModal()" class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/20">
+                Deploy ReziFlow <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
         </div>
         
         <div class="max-w-7xl mx-auto border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -298,5 +315,82 @@
         </div>
     </footer>
 
+    <div id="demoModal" class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden relative">
+            
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition-colors z-10">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="p-8 md:p-12 text-center border-b border-slate-100 bg-slate-50">
+                <h2 class="text-3xl font-bold text-slate-900 mb-3">Experience the Pipeline</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto">Select a portal below to experience ReziFlow from both sides of the operational divide. See how data moves seamlessly from the tenant to the ledger.</p>
+            </div>
+
+            <div class="p-8 md:p-12">
+                <div class="grid md:grid-cols-2 gap-8">
+                    
+                    <a href="/student/" class="portal-card block bg-white rounded-2xl border-2 border-slate-100 overflow-hidden relative group">
+                        <div class="h-40 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                            <i class="fa-solid fa-mobile-screen text-5xl text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                        </div>
+                        <div class="p-6 text-center">
+                            <div class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Front-End</div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Student Web-App</h3>
+                            <p class="text-sm text-slate-600 mb-4">Self-service mobile portal. Log maintenance, check utilities, and view digital leases.</p>
+                            <span class="text-blue-600 font-semibold text-sm flex items-center justify-center gap-2 group-hover:translate-x-1 transition-transform">Launch Demo <i class="fa-solid fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+
+                    <a href="/admin/" class="portal-card block bg-white rounded-2xl border-2 border-slate-100 overflow-hidden relative group">
+                        <div class="h-40 bg-slate-900 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-cyan-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                            <i class="fa-solid fa-chart-line text-5xl text-slate-700 group-hover:text-cyan-400 transition-colors"></i>
+                        </div>
+                        <div class="p-6 text-center">
+                            <div class="inline-block px-3 py-1 bg-cyan-50 text-cyan-600 text-xs font-bold uppercase tracking-wider rounded-full mb-3">Back-End</div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Operator Dashboard</h3>
+                            <p class="text-sm text-slate-600 mb-4">Automated data flow. Watch student interactions route into live analytics and ledgers.</p>
+                            <span class="text-cyan-600 font-semibold text-sm flex items-center justify-center gap-2 group-hover:translate-x-1 transition-transform">Launch Demo <i class="fa-solid fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+            
+            <div class="bg-slate-900 p-6 text-center">
+                <p class="text-slate-400 text-sm">Need a custom implementation for your portfolio? <a href="mailto:contact@automania.com" class="text-blue-400 hover:text-blue-300 underline font-medium">Contact Automania Engineering</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('demoModal');
+        
+        function openModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close on clicking outside the modal content
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>
