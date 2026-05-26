@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReziFlow | The High-Performance PBSA Operating System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            scroll-behavior: smooth; 
+            background-color: #f8fafc;
+        }
+        
+        .gradient-text { 
+            background: linear-gradient(90deg, #3b82f6, #06b6d4); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .bg-hero { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+        }
+        
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .workflow-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+            position: relative;
+        }
+
+        .workflow-line::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #06b6d4;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #06b6d4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-blue-600 text-2xl"></i>
+                    <span class="font-bold text-2xl tracking-tight text-slate-900">Rezi<span class="text-blue-600">Flow</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#architecture" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Architecture</a>
+                    <a href="#automation" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Integration Engine</a>
+                    <a href="#roi" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">ROI Dashboard</a>
+                    <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg">Partner With Us</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-hero text-white pt-32 pb-24 lg:pt-48 lg:pb-32 px-4 relative overflow-hidden">
+        <!-- Abstract Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+            <div class="absolute top-48 -left-24 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700 mb-8 text-sm font-medium text-cyan-400">
+                <i class="fa-solid fa-bolt"></i> The Next Generation PBSA Platform
+            </div>
+            <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+                Engineered for Scale.<br>
+                <span class="gradient-text">Built for Living.</span>
+            </h1>
+            <p class="text-xl lg:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
+                ReziFlow automates the friction out of property management. We connect your front-of-house student experience with your back-of-house financial engines through seamless, real-time data pipelines.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#contact" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/30">
+                    Calculate Your ROI
+                </a>
+                <a href="#architecture" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
+                    Explore Architecture <i class="fa-solid fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-24 bg-white px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">One Ecosystem. Zero Friction.</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Traditional software isolates your data. ReziFlow merges physical property operations with automated digital workflows.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Digital Onboarding</h3>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Frictionless Apps:</strong> Paperless vetting, document verification, and digital leases.</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Instant Allocation:</strong> Smart algorithms match room vacancies in real-time.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
+                    <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Smart Integrations</h3>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Live Infrastructure:</strong> Direct APIs for pre-paid meters, laundry, and Wi-Fi.</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Biometric Access:</strong> Automated turnstile permissions upon financial clearance.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl">
+                    <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Automated Routing</h3>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Smart Snagging:</strong> Mobile dashboard reporting with instant photo uploads.</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Dynamic Dispatch:</strong> Priority evaluation and contractor routing with zero admin touch.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Automation Engine Section -->
+    <section id="automation" class="py-24 bg-slate-900 text-white px-4 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="text-cyan-400 font-semibold tracking-wider uppercase text-sm mb-3">The Engineering Edge</div>
+                    <h2 class="text-4xl font-bold mb-6 leading-tight">Bridging the Legacy Gap</h2>
+                    <p class="text-slate-300 text-lg mb-8 leading-relaxed">
+                        The biggest drain on PBSA margins is manual data entry. We don't just build a pretty app; we deploy robust n8n-powered workflows and custom VBA bridges that connect modern student interfaces directly to your rigid, back-end financial ERPs.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 text-blue-400 border border-slate-700">
+                                <i class="fa-solid fa-network-wired"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold mb-1">Event-Driven Workflows</h4>
+                                <p class="text-slate-400">Checkout events trigger security, maintenance, and accounting modules simultaneously.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 text-blue-400 border border-slate-700">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold mb-1">Eliminate Manual Reconciliation</h4>
+                                <p class="text-slate-400">Track incoming cash flows and instantly update financial ledgers without CSV downloads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow Diagram -->
+                <div class="glass-card p-8 rounded-2xl relative">
+                    <div class="space-y-6">
+                        <!-- Step 1 -->
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl flex items-center gap-4">
+                            <div class="bg-blue-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-mobile-screen text-white"></i></div>
+                            <div>
+                                <div class="font-semibold text-slate-100">Student App Action</div>
+                                <div class="text-sm text-slate-400">Rent payment or maintenance log</div>
+                            </div>
+                        </div>
+                        
+                        <div class="workflow-line my-2"></div>
+
+                        <!-- Step 2 -->
+                        <div class="bg-slate-800/80 border border-cyan-500/30 p-4 rounded-xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.15)] relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-bl-full"></div>
+                            <div class="bg-cyan-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-gears text-white"></i></div>
+                            <div>
+                                <div class="font-semibold text-cyan-400">ReziFlow Automation Engine</div>
+                                <div class="text-sm text-slate-400">n8n / API Real-time Pipeline</div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-line my-2"></div>
+
+                        <!-- Step 3 -->
+                        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl flex items-center gap-4">
+                            <div class="bg-indigo-500 w-10 h-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-server text-white"></i></div>
+                            <div>
+                                <div class="font-semibold text-slate-100">Legacy Enterprise ERP</div>
+                                <div class="text-sm text-slate-400">Automated VBA / Ledger Sync</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI / Value Section -->
+    <section id="roi" class="py-24 bg-slate-50 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Data-Driven Margins</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">We price our solutions strictly based on the measurable ROI we deliver to your property portfolio. See the impact.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Metric 1 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-4xl font-black text-blue-600 mb-2">90%</div>
+                    <div class="text-sm font-semibold text-slate-800 mb-1">Faster Turnaround</div>
+                    <div class="text-xs text-gray-500">Lease execution reduced from days to minutes.</div>
+                </div>
+                <!-- Metric 2 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-4xl font-black text-cyan-600 mb-2">Live</div>
+                    <div class="text-sm font-semibold text-slate-800 mb-1">Utility Tracking</div>
+                    <div class="text-xs text-gray-500">Real-time alerts prevent catastrophic wastage.</div>
+                </div>
+                <!-- Metric 3 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-4xl font-black text-indigo-600 mb-2">Zero</div>
+                    <div class="text-sm font-semibold text-slate-800 mb-1">Manual Dispatch</div>
+                    <div class="text-xs text-gray-500">Automated routing limits asset degradation.</div>
+                </div>
+                <!-- Metric 4 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-4xl font-black text-emerald-500 mb-2">+40%</div>
+                    <div class="text-sm font-semibold text-slate-800 mb-1">Tenant Retention</div>
+                    <div class="text-xs text-gray-500">Behavioral loops lower acquisition costs.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA & Footer -->
+    <footer id="contact" class="bg-slate-950 text-white pt-20 pb-10 px-4">
+        <div class="max-w-4xl mx-auto text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to turn your property into a self-running asset?</h2>
+            <p class="text-slate-400 text-lg mb-8">Stop fighting fragmented software and manual data entry. Build an automated operational pipeline that protects your margins and elevates your community.</p>
+            <a href="#" class="inline-block bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-600/20">
+                Partner With Automania <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        <div class="max-w-7xl mx-auto border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
+                <span class="font-bold text-xl tracking-tight text-white">Rezi<span class="text-blue-500">Flow</span></span>
+            </div>
+            <div class="text-slate-500 text-sm">
+                &copy; 2026 ReziFlow. A product engineered by Automania. All rights reserved.
+            </div>
+            <div class="flex gap-4 text-slate-400">
+                <a href="#" class="hover:text-blue-400 transition-colors"><i class="fa-brands fa-linkedin text-xl"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors"><i class="fa-brands fa-github text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
