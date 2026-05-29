@@ -32,7 +32,7 @@
         }
 
         .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
 
         .feature-card:hover {
@@ -156,19 +156,20 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- Card 1: Active -->
-                <div class="feature-card bg-slate-50 border border-slate-100 p-8 rounded-2xl shadow-sm">
-                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
+                <a href="register/" class="feature-card block bg-slate-50 border border-slate-100 p-8 rounded-2xl shadow-sm relative group cursor-pointer transition-all hover:border-blue-400">
+                    <div class="absolute top-6 right-6 text-slate-300 group-hover:text-blue-500 transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
                         <i class="fa-solid fa-id-card"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Digital Onboarding</h3>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">Digital Onboarding</h3>
                     <ul class="space-y-3 text-gray-600">
                         <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Frictionless Apps:</strong> Paperless vetting, document verification, and digital leases.</span></li>
                         <li class="flex items-start gap-3"><i class="fa-solid fa-check text-green-500 mt-1"></i> <span><strong>Instant Allocation:</strong> Smart algorithms match room vacancies in real-time.</span></li>
                     </ul>
-                </div>
+                </a>
 
-                <!-- Card 2: Locked/Blurred -->
                 <div class="relative rounded-2xl overflow-hidden group border border-slate-100 shadow-sm cursor-not-allowed">
                     <div class="bg-slate-50 p-8 h-full filter blur-[3px] opacity-60 select-none transition-all duration-300">
                         <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
@@ -188,7 +189,6 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Locked/Blurred -->
                 <div class="relative rounded-2xl overflow-hidden group border border-slate-100 shadow-sm cursor-not-allowed">
                     <div class="bg-slate-50 p-8 h-full filter blur-[3px] opacity-60 select-none transition-all duration-300">
                         <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-inner">
@@ -330,7 +330,6 @@
         </div>
     </footer>
 
-    <!-- HIGH-END DEMO GATEWAY MODAL -->
     <div id="demoModal" class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
         <div class="modal-content bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden relative">
             
@@ -347,18 +346,13 @@
             <div class="p-8 md:p-10 bg-white">
                 <div class="grid md:grid-cols-2 gap-8">
                     
-                    <!-- PREMIUM STUDENT WEB APP CARD -->
                     <a href="student/" class="portal-card block bg-white rounded-3xl border-2 border-slate-100 overflow-hidden group">
                         
-                        <!-- Visual Preview Area -->
                         <div class="h-56 bg-slate-100 relative overflow-hidden group-hover:bg-blue-50 transition-colors duration-500 flex items-end justify-center pt-8">
-                            <!-- Background abstract blobs -->
                             <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
                             <div class="absolute top-10 -left-10 w-40 h-40 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
                             
-                            <!-- Liquid Glass Miniature Phone UI -->
                             <div class="relative z-10 w-52 h-full bg-white/70 backdrop-blur-xl rounded-t-3xl border-t border-l border-r border-white shadow-2xl transform translate-y-6 group-hover:translate-y-2 transition-transform duration-500 ease-out flex flex-col p-4 gap-3">
-                                <!-- Mini Profile Header -->
                                 <div class="flex items-center gap-2">
                                     <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-white shadow-sm">
                                         <img src="https://ui-avatars.com/api/?name=Andile+M&background=0D8ABC&color=fff" alt="Profile" class="w-full h-full object-cover">
@@ -368,12 +362,10 @@
                                         <div class="h-1 w-10 bg-slate-200 rounded-full"></div>
                                     </div>
                                 </div>
-                                <!-- Mini Wallet -->
                                 <div class="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl p-3 text-white shadow-sm transform group-hover:scale-105 transition-transform duration-500 delay-75">
                                     <div class="text-[8px] opacity-80 uppercase tracking-wider font-bold mb-1">Utility Balance</div>
                                     <div class="text-sm font-bold">R 340.50</div>
                                 </div>
-                                <!-- Mini Snag Action -->
                                 <div class="bg-white rounded-xl p-2 border border-slate-100 shadow-sm flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-500 delay-150">
                                     <div class="w-6 h-6 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-wrench"></i></div>
                                     <div>
@@ -384,7 +376,6 @@
                             </div>
                         </div>
 
-                        <!-- Card Footer -->
                         <div class="p-6 text-center border-t border-slate-50">
                             <h3 class="text-xl font-bold text-slate-900 mb-1">Student Web-App</h3>
                             <p class="text-sm text-slate-500 mb-4">Mobile-first self-service. Log snags, check R-balances, and view Wi-Fi limits natively.</p>
@@ -394,18 +385,13 @@
                         </div>
                     </a>
 
-                    <!-- PREMIUM OPERATOR DASHBOARD CARD -->
                     <a href="admin/" class="portal-card block bg-white rounded-3xl border-2 border-slate-100 overflow-hidden group">
                         
-                        <!-- Visual Preview Area -->
                         <div class="h-56 bg-slate-900 relative overflow-hidden group-hover:bg-slate-800 transition-colors duration-500 flex items-center justify-center">
-                            <!-- Cyber/Industrial Background Grid -->
                             <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:16px_16px]"></div>
                             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500 rounded-full mix-blend-screen filter blur-[50px] opacity-10 group-hover:opacity-30 transition-opacity duration-700"></div>
                             
-                            <!-- Dark Mode Command Center Mini UI -->
                             <div class="relative z-10 w-64 h-40 flex flex-col gap-2 transform group-hover:scale-105 transition-transform duration-500 ease-out">
-                                <!-- Top Bar -->
                                 <div class="w-full h-4 bg-slate-800/80 backdrop-blur-md rounded-full border border-slate-700 flex items-center px-3 justify-between">
                                     <div class="flex items-center gap-1.5">
                                         <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_#34d399]"></div>
@@ -415,15 +401,12 @@
                                 </div>
                                 
                                 <div class="flex gap-2 flex-1">
-                                    <!-- Mini Sidebar -->
                                     <div class="w-12 bg-slate-800/50 backdrop-blur-md rounded-xl border border-slate-700 p-2 flex flex-col gap-2">
                                         <div class="w-full h-2 bg-slate-600 rounded-full"></div>
                                         <div class="w-full h-2 bg-slate-700 rounded-full"></div>
                                         <div class="w-full h-2 bg-slate-700 rounded-full"></div>
                                     </div>
-                                    <!-- Mini Main Content -->
                                     <div class="flex-1 flex flex-col gap-2">
-                                        <!-- Chart Widget -->
                                         <div class="flex-1 bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700 p-3 relative overflow-hidden flex flex-col justify-end">
                                             <div class="absolute top-2 left-2 text-[6px] text-slate-400 font-mono">AUTOMATION_LOG</div>
                                             <div class="flex items-end gap-1.5 h-8 w-full">
@@ -433,7 +416,6 @@
                                                 <div class="w-full bg-slate-600/50 rounded-t-sm h-[20%] group-hover:h-[40%] transition-all duration-700 delay-200"></div>
                                             </div>
                                         </div>
-                                        <!-- Notification Widget -->
                                         <div class="h-8 bg-cyan-900/30 backdrop-blur-md rounded-lg border border-cyan-500/30 p-2 flex items-center gap-2 transform group-hover:-translate-y-1 transition-transform duration-500 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]">
                                             <i class="fa-solid fa-network-wired text-cyan-400 text-[8px]"></i>
                                             <div class="h-1.5 w-20 bg-cyan-400/50 rounded-full"></div>
@@ -443,7 +425,6 @@
                             </div>
                         </div>
 
-                        <!-- Card Footer -->
                         <div class="p-6 text-center border-t border-slate-50">
                             <h3 class="text-xl font-bold text-slate-900 mb-1">Operator Dashboard</h3>
                             <p class="text-sm text-slate-500 mb-4">Command center view. Watch live n8n workflows, API routing, and legacy ERP ledger syncs.</p>
