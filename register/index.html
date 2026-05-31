@@ -77,6 +77,11 @@
             background-color: #eff6ff;
         }
 
+        .upload-zone.success-state {
+            border: 2px solid #10b981;
+            background-color: #ecfdf5;
+        }
+
         .funding-card {
             transition: all 0.2s ease;
         }
@@ -117,7 +122,7 @@
             </div>
             <span class="font-bold text-2xl tracking-tight text-white">Rezi<span class="text-blue-200">Flow</span></span>
         </div>
-        <a href="index.html" class="text-white hover:text-blue-100 text-sm font-medium transition-colors flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
+        <a href="../index.html" class="text-white hover:text-blue-100 text-sm font-medium transition-colors flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">
             <i class="fa-solid fa-arrow-left"></i> Back to Site
         </a>
     </header>
@@ -137,23 +142,32 @@
                 <div class="grid md:grid-cols-2 gap-5 mb-8">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">First Name</label>
-                        <input type="text" class="input-field" placeholder="e.g. Andile" required>
+                        <input type="text" name="First_Name" class="input-field" placeholder="e.g. Andile" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Surname</label>
-                        <input type="text" class="input-field" placeholder="e.g. Maphumulo" required>
+                        <input type="text" name="Surname" class="input-field" placeholder="e.g. Maphumulo" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
-                        <input type="email" class="input-field" placeholder="student@email.com" required>
+                        <input type="email" name="Email_Address" class="input-field" placeholder="student@email.com" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone Number</label>
-                        <input type="tel" class="input-field" placeholder="081 234 5678" required>
+                        <input type="tel" name="Mobile_Number" class="input-field" placeholder="081 234 5678" required>
                     </div>
+                    
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Home Address</label>
-                        <input type="text" class="input-field" placeholder="Street address, Suburb, City, Code" required>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Street Address</label>
+                        <input type="text" name="Street_Address" class="input-field" placeholder="123 Main Street, Suburb" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">City</label>
+                        <input type="text" name="City" class="input-field" placeholder="e.g. Pretoria" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Postal Code</label>
+                        <input type="text" name="Postal_Code" class="input-field" placeholder="e.g. 0001" required>
                     </div>
                 </div>
 
@@ -161,7 +175,7 @@
                 <div class="grid md:grid-cols-3 gap-5 mb-8">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Campus</label>
-                        <select class="input-field bg-white" required>
+                        <select name="Campus_Hub" class="input-field bg-white" required>
                             <option value="" disabled selected>Select Campus</option>
                             <option>TUT Pretoria West</option>
                             <option>TUT Arcadia</option>
@@ -171,11 +185,11 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Course</label>
-                        <input type="text" class="input-field" placeholder="e.g. Industrial Engineering" required>
+                        <input type="text" name="Course" class="input-field" placeholder="e.g. Industrial Engineering" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Year of Study</label>
-                        <select class="input-field bg-white" required>
+                        <select name="Year_Level" class="input-field bg-white" required>
                             <option value="" disabled selected>Select Year</option>
                             <option>1st Year</option>
                             <option>2nd Year</option>
@@ -189,15 +203,15 @@
                 <div class="grid md:grid-cols-3 gap-5 mb-10">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Guardian Name</label>
-                        <input type="text" class="input-field" placeholder="Full Name" required>
+                        <input type="text" name="Guardian_Name" class="input-field" placeholder="Full Name" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Contact Number</label>
-                        <input type="tel" class="input-field" placeholder="081 234 5678" required>
+                        <input type="tel" name="Guardian_Number" class="input-field" placeholder="081 234 5678" required>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Relationship</label>
-                        <select class="input-field bg-white" required>
+                        <select name="Guardian_Relationship" class="input-field bg-white" required>
                             <option value="" disabled selected>Select Relationship</option>
                             <option>Parent</option>
                             <option>Sibling</option>
@@ -381,7 +395,7 @@
                         </div>
                     </div>
                     
-                    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold transition-colors shadow-lg shadow-blue-600/30">
+                    <button id="finalSubmitBtn" onclick="submitApplication()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold transition-colors shadow-lg shadow-blue-600/30">
                         Submit Application
                     </button>
                 </div>
@@ -392,9 +406,10 @@
 
     <script>
         const modal = document.getElementById('fundingModal');
+        let activeFundingType = 'none';
 
         function openFundingModal(e) {
-            e.preventDefault(); // Stop form from refreshing page
+            e.preventDefault(); 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -407,55 +422,111 @@
             document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
             document.querySelectorAll('.doc-section').forEach(section => section.classList.remove('active'));
             document.getElementById('req-default').classList.add('active');
+            activeFundingType = 'none';
         }
 
         function selectFunding(type) {
-            // 1. Reset all button styles
-            document.querySelectorAll('.funding-card').forEach(card => {
-                card.classList.remove('active');
-            });
-
-            // 2. Highlight clicked button
+            activeFundingType = type;
+            document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
             document.getElementById('btn-' + type).classList.add('active');
-
-            // 3. Hide all document sections
-            document.querySelectorAll('.doc-section').forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // 4. Show the correct document section
+            document.querySelectorAll('.doc-section').forEach(section => section.classList.remove('active'));
             document.getElementById('req-' + type).classList.add('active');
         }
 
-        // Handle functional file selection and UI update
         function handleFileUpload(input) {
             if (input.files && input.files[0]) {
                 const fileName = input.files[0].name;
                 const zone = input.closest('.upload-zone');
                 
-                // Get elements to update
                 const iconContainer = zone.querySelector('.icon-container');
                 const titleText = zone.querySelector('.title-text');
                 const subtitleText = zone.querySelector('.subtitle-text');
                 const badge = zone.querySelector('.status-badge');
 
-                // Apply success state styling
                 zone.classList.add('success-state');
                 
-                // Update Icon to green checkmark
                 iconContainer.className = 'icon-container w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center transition-colors';
                 iconContainer.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
 
-                // Update Text to show successful attachment
                 titleText.textContent = 'Document Attached';
                 titleText.className = 'title-text text-sm font-bold text-emerald-600';
                 
                 subtitleText.textContent = fileName;
                 subtitleText.className = 'subtitle-text text-xs text-slate-600 truncate max-w-[200px] block mt-0.5';
 
-                // Update Action Badge
                 badge.textContent = 'Change';
                 badge.className = 'status-badge text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg hover:bg-slate-200 transition-colors shadow-sm';
+            }
+        }
+
+        // ==========================================
+        // n8n WEBHOOK TRANSMISSION ENGINE
+        // ==========================================
+        async function submitApplication() {
+            if (activeFundingType === 'none') {
+                alert("Please select a funding pipeline.");
+                return;
+            }
+
+            const submitBtn = document.getElementById('finalSubmitBtn');
+            
+            // Switch to processing state
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pushing to Server...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            // Initialize FormData for multipart transmission
+            const formData = new FormData();
+            
+            // Gather all text inputs
+            const formElement = document.getElementById('registrationForm');
+            const inputs = formElement.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.name) {
+                    formData.append(input.name, input.value);
+                }
+            });
+
+            // Append Funding Pipeline type
+            formData.append('Funding_Type', activeFundingType);
+
+            // Gather the active files based on funding selection
+            const activeSection = document.getElementById('req-' + activeFundingType);
+            const fileInputs = activeSection.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach((input, index) => {
+                if (input.files.length > 0) {
+                    // Send actual file binary data
+                    formData.append(`Document_${index + 1}`, input.files[0]);
+                }
+            });
+
+            try {
+                // Automania n8n Webhook Target
+                const webhookUrl = 'https://n8n.automania.cloud/webhook-test/ReziFlowReg'; 
+
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Vetting Initiated';
+                    submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    submitBtn.classList.add('bg-emerald-500');
+                    
+                    setTimeout(() => {
+                        window.location.href = "../student/index.html";
+                    }, 1500);
+                } else {
+                    throw new Error("Server rejected payload");
+                }
+            } catch (error) {
+                console.error("Pipeline Error:", error);
+                submitBtn.innerHTML = 'Transmission Failed - Retry';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                alert("Failed to connect to ReziFlow OS. Please check your connection.");
             }
         }
     </script>
