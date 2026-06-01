@@ -163,6 +163,9 @@
                     </div>
                 </div>
 
+                <!-- Webhook Response Error Display -->
+                <p id="apiError" class="text-xs text-rose-500 font-bold text-center mb-4 hidden"></p>
+
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
                     Create Account <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -226,10 +229,19 @@
         async function handleSignup(e) {
             e.preventDefault();
 
+            const studentNumber = document.getElementById('studentNumber').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            
             const errorMsg = document.getElementById('passwordError');
+            const apiError = document.getElementById('apiError');
             const submitBtn = document.getElementById('submitBtn');
+
+            // Reset Error States
+            apiError.classList.add('hidden');
+            submitBtn.classList.remove('bg-rose-500');
+            submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
 
             // 1. Password Matching Validation
             if (password !== confirmPassword) {
@@ -246,13 +258,25 @@
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
 
-            // 3. n8n Transmission Logic (Placeholder logic for your user-creation webhook)
+            // 3. n8n Transmission Logic
             try {
-                // Here is where you will add your n8n webhook URL to save the user credentials securely
-                // const webhookUrl = 'https://n8n.automania.cloud/webhook/reziflow-create-user';
-                
-                // Simulate server handshake delay
-                await new Promise(resolve => setTimeout(resolve, 1500)); 
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-create-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Student_Number: studentNumber,
+                        Email_Address: email,
+                        Password: password
+                    })
+                });
+
+                // Check for rejection (e.g., Not Vetted or 403 Forbidden)
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Account creation denied by system.");
+                }
 
                 // 4. Trigger Success Modal
                 submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
@@ -263,9 +287,15 @@
 
             } catch (error) {
                 console.error("Transmission Error:", error);
-                submitBtn.innerHTML = 'Connection Failed - Retry';
+                
+                // Display the specific n8n error directly on the UI
+                apiError.innerHTML = `<i class="fa-solid fa-shield-xmark mr-1"></i> ${error.message}`;
+                apiError.classList.remove('hidden');
+
+                // Revert button to error state
+                submitBtn.innerHTML = 'Action Required - Retry';
                 submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed', 'bg-blue-600');
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed', 'bg-blue-600', 'hover:bg-blue-700');
                 submitBtn.classList.add('bg-rose-500');
             }
         }
