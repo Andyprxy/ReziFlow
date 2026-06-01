@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReziFlow OS | Automania Command Center</title>
+    <title>ReziFlow OS | Premium Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,40 +11,39 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f4f7f9; /* Softer, premium light gray */
+            background-color: #f8fafc; /* Ultra-light airy slate */
             color: #0f172a; 
         }
 
-        /* Premium Glass/Card Utilities */
+        /* Premium Soft Shadows */
         .glass-panel {
             background: #ffffff;
             border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
         }
 
+        /* Left Sidebar Active Tab */
         .active-tab-btn {
-            background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
-            border-left: 4px solid #2563eb; 
-            color: #1d4ed8; 
-            box-shadow: inset 1px 0 0 rgba(255,255,255,1);
+            background-color: #eff6ff;
+            color: #2563eb; 
+            font-weight: 700;
         }
+        .active-tab-btn i { color: #3b82f6; }
 
+        /* Dynamic Panes */
         .dashboard-tab {
             display: none;
             animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        .dashboard-tab.active {
-            display: block;
-        }
+        .dashboard-tab.active { display: block; }
 
         @keyframes paneFade {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Premium Telemetry Log Animation */
+        /* Premium Telemetry Animations */
         @keyframes logSlideIn {
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
@@ -53,199 +52,227 @@
             animation: logSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Minimalist Scrollbars */
-        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* Custom Soft Scrollbars */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        .dark-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
-        .dark-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        .blue-scroll::-webkit-scrollbar { width: 4px; }
+        .blue-scroll::-webkit-scrollbar-track { background: transparent; }
+        .blue-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .blue-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
     </style>
 </head>
-<body class="min-h-screen flex overflow-hidden antialiased">
+<body class="min-h-screen flex overflow-hidden antialiased relative">
 
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-20 flex-shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+    <!-- Subtle Background Orbs to tie the theme together -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.03] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[20%] w-[30%] h-[30%] bg-cyan-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-[0.04] z-0 pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- SIDEBAR: NAVIGATION -->
+    <!-- ========================================== -->
+    <aside class="w-64 bg-white/80 backdrop-blur-xl border-r border-slate-200/80 flex flex-col justify-between z-20 flex-shrink-0 relative">
         <div>
-            <div class="px-6 py-8 border-b border-slate-100 flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30 text-white">
-                    <i class="fa-solid fa-bolt text-lg"></i>
+            <!-- Branding -->
+            <div class="px-8 py-8 flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-black text-xl tracking-tight text-slate-900 leading-none">Rezi<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Flow</span></span>
-                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Admin Portal</span>
+                    <span class="font-black text-2xl tracking-tight text-slate-800 leading-none">Rezi<span class="text-blue-500">Flow</span></span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Command Center</span>
                 </div>
             </div>
 
-            <nav class="mt-6 px-4 space-y-1.5">
-                <button onclick="switchTab('vetting', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50">
-                    <i class="fa-solid fa-layer-group text-lg w-5 opacity-80"></i> Vetting Queue
+            <!-- Navigation Matrix -->
+            <nav class="mt-4 px-4 space-y-2">
+                <button onclick="switchTab('vetting', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-blue-50/50">
+                    <i class="fa-solid fa-shield-halved text-lg w-5"></i> Vetting Queue
                 </button>
-                <button onclick="switchTab('financials', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 text-slate-500 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50 hover:text-blue-600">
-                    <i class="fa-solid fa-chart-line text-lg w-5 opacity-80"></i> Financial Ledger
+                <button onclick="switchTab('financials', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-wallet text-lg w-5"></i> Financial Ledger
                 </button>
-                <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 text-slate-500 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50 hover:text-blue-600">
-                    <i class="fa-solid fa-microchip text-lg w-5 opacity-80"></i> System Ops
+                <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-screwdriver-wrench text-lg w-5"></i> System Ops
                 </button>
             </nav>
         </div>
 
-        <div class="p-6 border-t border-slate-100 bg-gradient-to-b from-transparent to-slate-50">
-            <div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <i class="fa-solid fa-a text-sm"></i>
+        <!-- Automania Signature -->
+        <div class="p-6">
+            <div class="flex items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-a text-xs"></i>
                 </div>
                 <div class="flex flex-col">
                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Engineered By</span>
-                    <span class="text-xs font-black text-slate-800 tracking-tight">AUTOMANIA</span>
+                    <span class="text-xs font-black text-slate-700 tracking-tight">AUTOMANIA</span>
                 </div>
             </div>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+    <!-- ========================================== -->
+    <!-- MAIN APPLICATION WORKSPACE -->
+    <!-- ========================================== -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         
-        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 z-10 sticky top-0">
+        <!-- Header -->
+        <header class="h-24 bg-transparent flex items-center justify-between px-10">
             <div class="flex items-center gap-4">
-                <h1 id="matrixTitle" class="text-2xl font-black tracking-tight text-slate-900">Vetting Engine</h1>
-                <div class="h-5 w-px bg-slate-300"></div>
-                <p id="matrixSub" class="text-sm text-slate-500 font-medium">Live Database Synchronization</p>
+                <h1 id="matrixTitle" class="text-3xl font-black tracking-tight text-slate-800">Verification Engine</h1>
+                <div class="h-6 w-px bg-slate-300"></div>
+                <p id="matrixSub" class="text-sm text-slate-500 font-medium pt-1">Automated POPIA Database Sync</p>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    n8n Pipeline Active
+            <div class="flex items-center gap-3">
+                <button class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors shadow-sm">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
+                <div class="h-10 px-4 rounded-full bg-white border border-slate-200 flex items-center gap-2 shadow-sm text-sm font-bold text-slate-700">
+                    <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+                    Admin Desk
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-10 custom-scroll relative z-0">
+        <!-- Dynamic Panes Content Container -->
+        <main class="flex-1 overflow-y-auto px-10 pb-10 custom-scroll">
 
+            <!-- TAB 1: VETTING QUEUE -->
             <div id="pane-vetting" class="dashboard-tab active space-y-8">
                 
+                <!-- Premium KPI Cards -->
                 <div class="grid grid-cols-3 gap-6">
-                    <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors"></div>
-                        <div class="flex justify-between items-start relative z-10">
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Pending Vetting</p>
-                                <p class="text-4xl font-black text-slate-900 tracking-tight" id="kpi-pending">--</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Pending Vetting</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight" id="kpi-pending">--</p>
                             </div>
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm border border-amber-100"><i class="fa-solid fa-hourglass-half"></i></div>
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-clock-rotate-left"></i></div>
                         </div>
                     </div>
                     
-                    <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-                        <div class="flex justify-between items-start relative z-10">
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Processed Today</p>
-                                <p class="text-4xl font-black text-slate-900 tracking-tight">--</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Approved Today</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">--</p>
                             </div>
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm border border-blue-100"><i class="fa-solid fa-file-circle-check"></i></div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-user-check"></i></div>
                         </div>
                     </div>
 
-                    <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group hover:-translate-y-1">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
-                        <div class="flex justify-between items-start relative z-10">
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">System Health</p>
-                                <p class="text-4xl font-black text-emerald-600 tracking-tight">100<span class="text-2xl text-emerald-500">%</span></p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">System Health</p>
+                                <p class="text-4xl font-black text-emerald-500 tracking-tight">100<span class="text-2xl text-emerald-400">%</span></p>
                             </div>
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm border border-emerald-100"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-shield-check"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-panel rounded-2xl overflow-hidden shadow-lg shadow-slate-200/50">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-sm">
+                <!-- Database Table -->
+                <div class="glass-panel rounded-3xl overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-900/20">
-                                <i class="fa-solid fa-database text-xs"></i>
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <i class="fa-solid fa-database text-sm"></i>
                             </div>
-                            <h3 class="font-bold text-slate-900 text-lg">Verification Hub</h3>
+                            <h3 class="font-bold text-slate-800 text-lg">Registration Database Hub</h3>
                         </div>
-                        <button onclick="loadVettingQueue()" class="text-sm bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow">
-                            <i class="fa-solid fa-rotate text-blue-600"></i> Sync Database
+                        <button onclick="loadVettingQueue()" class="text-sm bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-rotate text-blue-500"></i> Sync Data
                         </button>
                     </div>
                     <div class="overflow-x-auto custom-scroll bg-white">
                         <table class="w-full text-left text-sm border-collapse">
                             <thead>
-                                <tr class="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-bold text-[10px] border-b border-slate-200">
-                                    <th class="p-5">Student Identity</th>
-                                    <th class="p-5">Academic Profile</th>
-                                    <th class="p-5">Pipeline</th>
-                                    <th class="p-5 text-center">Compliance Vault</th>
-                                    <th class="p-5 text-right">Execute</th>
+                                <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-100">
+                                    <th class="p-6">Student Identity</th>
+                                    <th class="p-6">Academic Profile</th>
+                                    <th class="p-6">Funding Pipeline</th>
+                                    <th class="p-6 text-center">Compliance Vault</th>
+                                    <th class="p-6 text-right">Execute</th>
                                 </tr>
                             </thead>
-                            <tbody id="vetting-queue-body" class="divide-y divide-slate-100">
-                                </tbody>
+                            <tbody id="vetting-queue-body" class="divide-y divide-slate-50">
+                                <!-- Data injected here dynamically -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <!-- TAB 2: FINANCIALS PLACEHOLDER -->
             <div id="pane-financials" class="dashboard-tab space-y-6">
-                <div class="glass-panel rounded-2xl p-16 text-center border-dashed border-2 border-slate-300 bg-slate-50/50">
-                    <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i class="fa-solid fa-wallet"></i></div>
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-wallet"></i></div>
                     <h2 class="text-2xl font-black text-slate-800 mb-2">Financial Ledger Matrix</h2>
-                    <p class="text-slate-500 max-w-md mx-auto">VBA synchronization engine pending connection. Awaiting ledger routing instructions from ReziFlow core.</p>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">VBA synchronization engine pending connection. Awaiting ledger routing instructions from ReziFlow core.</p>
                 </div>
             </div>
 
+            <!-- TAB 3: MAINTENANCE PLACEHOLDER -->
             <div id="pane-maintenance" class="dashboard-tab space-y-6">
-                <div class="glass-panel rounded-2xl p-16 text-center border-dashed border-2 border-slate-300 bg-slate-50/50">
-                    <div class="w-20 h-20 bg-slate-200 text-slate-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner"><i class="fa-solid fa-microchip"></i></div>
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-microchip"></i></div>
                     <h2 class="text-2xl font-black text-slate-800 mb-2">System Operations</h2>
-                    <p class="text-slate-500 max-w-md mx-auto">Hardware telemetry and facility ticketing infrastructure offline. Connect endpoints to view live facility status.</p>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">Hardware telemetry and facility ticketing infrastructure offline. Connect endpoints to view live facility status.</p>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <aside class="w-[340px] relative flex flex-col z-20 flex-shrink-0 bg-slate-900 overflow-hidden shadow-[-10px_0_30px_rgba(0,0,0,0.1)]">
+    <!-- ========================================== -->
+    <!-- PREMIUM TELEMETRY SIDEBAR (THE "BOUT OF BLUE") -->
+    <!-- ========================================== -->
+    <!-- Soft, translucent blue gradient matching the student portal aesthetic -->
+    <aside class="w-[360px] relative flex flex-col z-20 flex-shrink-0 bg-gradient-to-br from-blue-600/85 to-cyan-500/85 backdrop-blur-xl border-l border-white/20 shadow-[-20px_0_40px_rgba(37,99,235,0.05)]">
         
-        <div class="absolute -top-32 -right-32 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] opacity-40"></div>
-        <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950/90 z-0"></div>
-
-        <div class="relative z-10 flex flex-col h-full p-6">
-            <div class="flex items-center justify-between pb-6 border-b border-white/10 mb-6 mt-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-                        <i class="fa-solid fa-satellite-dish text-cyan-400 text-xs animate-pulse"></i>
-                    </div>
-                    <h3 class="font-bold text-xs tracking-widest uppercase text-white">Live Telemetry</h3>
+        <div class="relative z-10 flex flex-col h-full p-8">
+            
+            <!-- Header with Premium Badge from Image -->
+            <div class="flex items-center justify-between mb-8 mt-2">
+                <h3 class="font-black text-lg tracking-tight text-white">Live Telemetry</h3>
+                
+                <!-- The exact "Active" badge from the uploaded image -->
+                <div class="bg-white/20 backdrop-blur-md text-white font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-sm">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                    Active
                 </div>
-                <span class="text-[9px] font-mono text-cyan-500 border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 rounded">SECURE</span>
             </div>
 
-            <div class="flex-1 space-y-4 overflow-y-auto dark-scroll pr-2 font-mono text-[11px] leading-relaxed" id="telemetry-feed">
+            <!-- Telemetry Cards Stack -->
+            <div class="flex-1 space-y-4 overflow-y-auto blue-scroll pr-2 font-mono text-xs leading-relaxed" id="telemetry-feed">
                 
-                <div class="p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl relative overflow-hidden group">
-                    <div class="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-400 to-cyan-400"></div>
-                    <div class="flex justify-between text-[9px] font-bold text-slate-400 mb-2">
-                        <span>SYS_AUTH</span><span class="text-blue-400">ONLINE</span>
+                <!-- Premium Glass Log Cards -->
+                <div class="p-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5">
+                    <div class="flex justify-between text-[10px] font-bold text-white/60 mb-3 tracking-widest uppercase">
+                        <span>System Auth</span><span class="text-emerald-300">Online</span>
                     </div>
-                    <p class="text-slate-200">ReziFlow Command Center authenticated. Encrypted connection established.</p>
+                    <p class="text-white/90">ReziFlow Command Center authenticated. Encrypted webhook connection established.</p>
                 </div>
 
-                <div class="p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl relative overflow-hidden group opacity-70">
-                    <div class="absolute left-0 top-0 h-full w-1 bg-slate-600"></div>
-                    <div class="flex justify-between text-[9px] font-bold text-slate-500 mb-2">
-                        <span>WEBHOOK_NODE</span><span>LISTENING</span>
+                <div class="p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5">
+                    <div class="flex justify-between text-[10px] font-bold text-white/50 mb-3 tracking-widest uppercase">
+                        <span>n8n_Webhook</span><span>Listening</span>
                     </div>
-                    <p class="text-slate-400">Port opened for payload synchronization from Google Sheets architecture.</p>
+                    <p class="text-white/70">Port opened for payload synchronization from Google Sheets architecture.</p>
                 </div>
                 
             </div>
         </div>
     </aside>
 
+    <!-- ========================================== -->
+    <!-- OPERATIONAL SCRIPTS -->
+    <!-- ========================================== -->
     <script>
         // Sidebar Navigation Logic
         function switchTab(tabId, btnElement) {
@@ -253,22 +280,22 @@
             document.getElementById('pane-' + tabId).classList.add('active');
 
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 text-slate-500 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50 hover:text-blue-600";
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800";
             });
-            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all hover:bg-slate-50";
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-blue-50/50";
 
             const title = document.getElementById('matrixTitle');
             const sub = document.getElementById('matrixSub');
 
             if (tabId === 'vetting') {
-                title.textContent = "Vetting Engine";
-                sub.textContent = "Live Database Synchronization";
+                title.textContent = "Verification Engine";
+                sub.textContent = "Automated POPIA Database Sync";
             } else if (tabId === 'financials') {
                 title.textContent = "Financial Ledger";
-                sub.textContent = "VBA Sync Engine";
+                sub.textContent = "Automated VBA Reconciliation";
             } else if (tabId === 'maintenance') {
                 title.textContent = "System Operations";
-                sub.textContent = "Asset Issue Routing";
+                sub.textContent = "Facility Asset Routing";
             }
         }
 
@@ -277,7 +304,7 @@
             const tableBody = document.getElementById('vetting-queue-body');
             const kpiPending = document.getElementById('kpi-pending');
             
-            tableBody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-2xl mb-3"></i><br>Synchronizing Database Payload...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Synchronizing Database Payload...</span></td></tr>';
 
             try {
                 // Automania Webhook EndPoint
@@ -295,37 +322,37 @@
                 kpiPending.innerHTML = `${data.length}`;
 
                 if(data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-500 bg-slate-50/50"><div class="w-12 h-12 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-inbox"></i></div>No applications pending in the database.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400 bg-slate-50/30"><div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-inbox"></i></div><span class="font-medium">No applications pending in the database.</span></td></tr>';
                     return;
                 }
 
                 data.forEach(student => {
                     let docsHtml = '';
-                    if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:bg-blue-500 hover:border-blue-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Primary ID"><i class="fa-solid fa-id-card"></i></a>`;
-                    if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:bg-indigo-500 hover:border-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Reg Proof"><i class="fa-solid fa-graduation-cap"></i></a>`;
-                    if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:bg-emerald-500 hover:border-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Funding Statement"><i class="fa-solid fa-landmark"></i></a>`;
-                    if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:bg-orange-500 hover:border-orange-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Secondary Doc"><i class="fa-solid fa-file-contract"></i></a>`;
+                    if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:bg-blue-500 hover:border-blue-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Primary ID"><i class="fa-solid fa-id-card"></i></a>`;
+                    if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:bg-indigo-500 hover:border-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Reg Proof"><i class="fa-solid fa-graduation-cap"></i></a>`;
+                    if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:bg-emerald-500 hover:border-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Funding Statement"><i class="fa-solid fa-landmark"></i></a>`;
+                    if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 hover:bg-orange-500 hover:border-orange-500 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Secondary Doc"><i class="fa-solid fa-file-contract"></i></a>`;
 
                     const row = `
-                        <tr class="hover:bg-blue-50/50 transition-colors group">
-                            <td class="p-5">
-                                <div class="font-black text-slate-900">${student.Student_Number || 'Unassigned'}</div>
-                                <div class="text-xs font-semibold text-slate-500 mt-0.5">${student.First_Name || ''} ${student.Surname || ''}</div>
+                        <tr class="hover:bg-blue-50/30 transition-colors group">
+                            <td class="p-6">
+                                <div class="font-black text-slate-800 text-base">${student.Student_Number || 'Unassigned'}</div>
+                                <div class="text-xs font-semibold text-slate-500 mt-1">${student.First_Name || ''} ${student.Surname || ''}</div>
                             </td>
-                            <td class="p-5">
-                                <div class="text-slate-800 font-bold text-xs">${student.Course || 'Unknown Course'}</div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>${student.Campus_Hub || 'N/A'}</div>
+                            <td class="p-6">
+                                <div class="text-slate-700 font-bold text-sm">${student.Course || 'Unknown Course'}</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase mt-1"><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i>${student.Campus_Hub || 'N/A'}</div>
                             </td>
-                            <td class="p-5">
-                                <span class="px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm group-hover:bg-white transition-colors">${student.Funding_Type || 'Pending'}</span>
+                            <td class="p-6">
+                                <span class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider group-hover:bg-white group-hover:shadow-sm transition-all border border-slate-200/50">${student.Funding_Type || 'Pending'}</span>
                             </td>
-                            <td class="p-5 text-center">
+                            <td class="p-6 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    ${docsHtml || '<span class="text-[10px] font-bold text-slate-400 uppercase border border-dashed border-slate-300 px-3 py-1.5 rounded-lg">Awaiting Uploads</span>'}
+                                    ${docsHtml || '<span class="text-[10px] font-bold text-slate-400 uppercase border border-dashed border-slate-200 px-4 py-2 rounded-xl">Awaiting Uploads</span>'}
                                 </div>
                             </td>
-                            <td class="p-5 text-right">
-                                <button onclick="simulateApproval(this)" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/20">Process</button>
+                            <td class="p-6 text-right">
+                                <button onclick="simulateApproval(this)" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transform hover:-translate-y-0.5">Process</button>
                             </td>
                         </tr>
                     `;
@@ -336,7 +363,7 @@
 
             } catch (error) {
                 console.error("Database sync failed:", error);
-                tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-rose-500 bg-rose-50 border border-rose-100"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><br>Connection to n8n backend failed. Ensure webhooks are active.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-rose-500 bg-rose-50/50"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i><br><span class="font-medium">Connection to n8n backend failed. Ensure webhooks are active.</span></td></tr>';
                 addTelemetryLog("DB_SYNC", "ERROR", "Failed to reach endpoint. Handshake refused.");
             }
         }
@@ -347,11 +374,11 @@
             const studentId = row.querySelector('.font-black').textContent;
             
             button.disabled = true;
-            button.className = "bg-slate-100 text-slate-400 border border-slate-200 font-bold text-xs px-5 py-2.5 rounded-xl cursor-not-allowed shadow-inner";
+            button.className = "bg-slate-100 text-slate-400 font-bold text-xs px-6 py-3 rounded-xl cursor-not-allowed shadow-inner border border-slate-200";
             button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
             setTimeout(() => {
-                addTelemetryLog("VET_ENGINE", "APPROVED", `Payload processed. Access authorized for Student ID: <span class="text-white">${studentId}</span>.`);
+                addTelemetryLog("VET_ENGINE", "APPROVED", `Payload processed. Access authorized for Student ID: <span class="text-white bg-white/20 px-1 rounded">${studentId}</span>.`);
 
                 row.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
                 row.style.opacity = "0";
@@ -360,30 +387,26 @@
             }, 1000);
         }
 
-        // Dynamic Telemetry Logger for Dark Theme Sidebar
+        // Dynamic Telemetry Logger for the Glass Blue Sidebar
         function addTelemetryLog(process, status, message) {
             const logContainer = document.getElementById('telemetry-feed');
             const newLog = document.createElement('div');
             
-            let statusColorClass = 'from-blue-400 to-cyan-400';
-            let statusTextColor = 'text-cyan-400';
+            let statusTextColor = 'text-white/60';
             
             if(status === 'APPROVED' || status === 'SUCCESS') {
-                statusColorClass = 'from-emerald-400 to-teal-400';
-                statusTextColor = 'text-emerald-400';
+                statusTextColor = 'text-emerald-300';
             }
             if(status === 'ERROR') {
-                statusColorClass = 'from-rose-500 to-red-500';
-                statusTextColor = 'text-rose-400';
+                statusTextColor = 'text-rose-300';
             }
 
-            newLog.className = `p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl relative overflow-hidden group animate-logSlide`;
+            newLog.className = `p-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5 animate-logSlide`;
             newLog.innerHTML = `
-                <div class="absolute left-0 top-0 h-full w-1 bg-gradient-to-b ${statusColorClass}"></div>
-                <div class="flex justify-between text-[9px] font-bold text-slate-400 mb-2">
+                <div class="flex justify-between text-[10px] font-bold text-white/60 mb-3 tracking-widest uppercase">
                     <span>${process}</span><span class="${statusTextColor}">${status}</span>
                 </div>
-                <p class="text-slate-200">${message}</p>
+                <p class="text-white/90">${message}</p>
             `;
             logContainer.insertBefore(newLog, logContainer.firstChild);
         }
