@@ -23,6 +23,17 @@
             transition: all 0.3s ease;
         }
 
+        /* Liquid Glass Effect for Telemetry Logs */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            border-left: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
         /* Left Sidebar Active Tab */
         .active-tab-btn {
             background-color: #eff6ff;
@@ -60,8 +71,8 @@
         
         .blue-scroll::-webkit-scrollbar { width: 4px; }
         .blue-scroll::-webkit-scrollbar-track { background: transparent; }
-        .blue-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
-        .blue-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+        .blue-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
+        .blue-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.7); }
     </style>
 </head>
 <body class="min-h-screen flex overflow-hidden antialiased relative">
@@ -230,20 +241,19 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- PREMIUM TELEMETRY SIDEBAR (THE "BOUT OF BLUE") -->
+    <!-- PREMIUM TELEMETRY SIDEBAR (THE "LIQUID GLASS" ZONE) -->
     <!-- ========================================== -->
-    <!-- Soft, translucent blue gradient matching the student portal aesthetic -->
-    <aside class="w-[360px] relative flex flex-col z-20 flex-shrink-0 bg-gradient-to-br from-blue-600/85 to-cyan-500/85 backdrop-blur-xl border-l border-white/20 shadow-[-20px_0_40px_rgba(37,99,235,0.05)]">
+    <!-- Opacity dropped to 65% on the gradient to let the light page background bleed through softly -->
+    <aside class="w-[360px] relative flex flex-col z-20 flex-shrink-0 bg-gradient-to-br from-blue-600/65 to-cyan-500/65 backdrop-blur-2xl border-l border-white/40 shadow-[-20px_0_40px_rgba(37,99,235,0.08)]">
         
         <div class="relative z-10 flex flex-col h-full p-8">
             
-            <!-- Header with Premium Badge from Image -->
+            <!-- Header with Premium Badge -->
             <div class="flex items-center justify-between mb-8 mt-2">
-                <h3 class="font-black text-lg tracking-tight text-white">Live Telemetry</h3>
+                <h3 class="font-black text-lg tracking-tight text-white drop-shadow-sm">Live Telemetry</h3>
                 
-                <!-- The exact "Active" badge from the uploaded image -->
-                <div class="bg-white/20 backdrop-blur-md text-white font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-sm">
-                    <div class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                <div class="liquid-glass text-white font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,0.9)]"></div>
                     Active
                 </div>
             </div>
@@ -251,19 +261,20 @@
             <!-- Telemetry Cards Stack -->
             <div class="flex-1 space-y-4 overflow-y-auto blue-scroll pr-2 font-mono text-xs leading-relaxed" id="telemetry-feed">
                 
-                <!-- Premium Glass Log Cards -->
-                <div class="p-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5">
-                    <div class="flex justify-between text-[10px] font-bold text-white/60 mb-3 tracking-widest uppercase">
-                        <span>System Auth</span><span class="text-emerald-300">Online</span>
+                <!-- Liquid Glass Log Card -->
+                <div class="p-5 rounded-2xl relative overflow-hidden group liquid-glass">
+                    <div class="flex justify-between text-[10px] font-bold text-white/80 mb-3 tracking-widest uppercase">
+                        <span>System Auth</span><span class="text-emerald-300 drop-shadow-sm">Online</span>
                     </div>
-                    <p class="text-white/90">ReziFlow Command Center authenticated. Encrypted webhook connection established.</p>
+                    <p class="text-white font-medium">ReziFlow Command Center authenticated. Encrypted webhook connection established.</p>
                 </div>
 
-                <div class="p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5">
-                    <div class="flex justify-between text-[10px] font-bold text-white/50 mb-3 tracking-widest uppercase">
-                        <span>n8n_Webhook</span><span>Listening</span>
+                <!-- Liquid Glass Log Card -->
+                <div class="p-5 rounded-2xl relative overflow-hidden group liquid-glass opacity-90">
+                    <div class="flex justify-between text-[10px] font-bold text-white/70 mb-3 tracking-widest uppercase">
+                        <span>n8n_Webhook</span><span class="text-white/90">Listening</span>
                     </div>
-                    <p class="text-white/70">Port opened for payload synchronization from Google Sheets architecture.</p>
+                    <p class="text-white/90 font-medium">Port opened for payload synchronization from Google Sheets architecture.</p>
                 </div>
                 
             </div>
@@ -378,7 +389,7 @@
             button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
             setTimeout(() => {
-                addTelemetryLog("VET_ENGINE", "APPROVED", `Payload processed. Access authorized for Student ID: <span class="text-white bg-white/20 px-1 rounded">${studentId}</span>.`);
+                addTelemetryLog("VET_ENGINE", "APPROVED", `Payload processed. Access authorized for Student ID: <span class="bg-white/20 px-1.5 py-0.5 rounded drop-shadow-sm">${studentId}</span>.`);
 
                 row.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
                 row.style.opacity = "0";
@@ -387,12 +398,12 @@
             }, 1000);
         }
 
-        // Dynamic Telemetry Logger for the Glass Blue Sidebar
+        // Dynamic Telemetry Logger utilizing Liquid Glass CSS
         function addTelemetryLog(process, status, message) {
             const logContainer = document.getElementById('telemetry-feed');
             const newLog = document.createElement('div');
             
-            let statusTextColor = 'text-white/60';
+            let statusTextColor = 'text-white/80';
             
             if(status === 'APPROVED' || status === 'SUCCESS') {
                 statusTextColor = 'text-emerald-300';
@@ -401,12 +412,12 @@
                 statusTextColor = 'text-rose-300';
             }
 
-            newLog.className = `p-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl relative overflow-hidden group shadow-lg shadow-black/5 animate-logSlide`;
+            newLog.className = `p-5 rounded-2xl relative overflow-hidden group liquid-glass animate-logSlide`;
             newLog.innerHTML = `
-                <div class="flex justify-between text-[10px] font-bold text-white/60 mb-3 tracking-widest uppercase">
-                    <span>${process}</span><span class="${statusTextColor}">${status}</span>
+                <div class="flex justify-between text-[10px] font-bold text-white/80 mb-3 tracking-widest uppercase drop-shadow-sm">
+                    <span>${process}</span><span class="${statusTextColor} drop-shadow-sm">${status}</span>
                 </div>
-                <p class="text-white/90">${message}</p>
+                <p class="text-white font-medium">${message}</p>
             `;
             logContainer.insertBefore(newLog, logContainer.firstChild);
         }
