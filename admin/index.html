@@ -79,15 +79,10 @@
 </head>
 <body class="min-h-screen flex overflow-hidden antialiased relative">
 
-    <!-- Subtle Background Orbs to tie the theme together -->
     <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.03] z-0 pointer-events-none"></div>
 
-    <!-- ========================================== -->
-    <!-- SIDEBAR: NAVIGATION -->
-    <!-- ========================================== -->
     <aside class="w-64 bg-white/80 backdrop-blur-xl border-r border-slate-200/80 flex flex-col justify-between z-20 flex-shrink-0 relative">
         <div>
-            <!-- Branding -->
             <div class="px-8 py-8 flex items-center gap-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
                     <i class="fa-solid fa-layer-group text-lg"></i>
@@ -98,7 +93,6 @@
                 </div>
             </div>
 
-            <!-- Navigation Matrix -->
             <nav class="mt-4 px-4 space-y-2">
                 <button onclick="switchTab('vetting', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-blue-50/50">
                     <i class="fa-solid fa-shield-halved text-lg w-5"></i> Vetting Queue
@@ -112,7 +106,6 @@
             </nav>
         </div>
 
-        <!-- Automania Signature -->
         <div class="p-6">
             <div class="flex items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
                 <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-white shadow-md">
@@ -126,12 +119,8 @@
         </div>
     </aside>
 
-    <!-- ========================================== -->
-    <!-- MAIN APPLICATION WORKSPACE -->
-    <!-- ========================================== -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         
-        <!-- Header -->
         <header class="h-24 bg-transparent flex items-center justify-between px-10">
             <div class="flex items-center gap-4">
                 <h1 id="matrixTitle" class="text-3xl font-black tracking-tight text-slate-800">Verification Engine</h1>
@@ -149,13 +138,10 @@
             </div>
         </header>
 
-        <!-- Dynamic Panes Content Container -->
         <main class="flex-1 overflow-y-auto px-10 pb-10 custom-scroll">
 
-            <!-- TAB 1: VETTING QUEUE -->
             <div id="pane-vetting" class="dashboard-tab active space-y-8">
                 
-                <!-- Premium KPI Cards -->
                 <div class="grid grid-cols-3 gap-6">
                     <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
                         <div class="flex justify-between items-start">
@@ -188,7 +174,6 @@
                     </div>
                 </div>
 
-                <!-- Database Table -->
                 <div class="glass-panel rounded-3xl overflow-hidden">
                     <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                         <div class="flex items-center gap-3">
@@ -213,14 +198,12 @@
                                 </tr>
                             </thead>
                             <tbody id="vetting-queue-body" class="divide-y divide-slate-50">
-                                <!-- Data injected here dynamically -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: FINANCIALS PLACEHOLDER -->
             <div id="pane-financials" class="dashboard-tab space-y-6">
                 <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
                     <div class="w-24 h-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-wallet"></i></div>
@@ -229,7 +212,6 @@
                 </div>
             </div>
 
-            <!-- TAB 3: MAINTENANCE PLACEHOLDER -->
             <div id="pane-maintenance" class="dashboard-tab space-y-6">
                 <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
                     <div class="w-24 h-24 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-microchip"></i></div>
@@ -241,19 +223,14 @@
         </main>
     </div>
 
-    <!-- ========================================== -->
-    <!-- PREMIUM TELEMETRY SIDEBAR (LIQUID GLASS ZONE) -->
-    <!-- ========================================== -->
     <aside class="w-[380px] relative flex flex-col z-20 flex-shrink-0 bg-slate-50/40 backdrop-blur-3xl border-l border-white shadow-[-20px_0_40px_rgba(37,99,235,0.03)] overflow-hidden">
         
-        <!-- Vibrant Ambient Orbs (These provide color for the liquid glass to distort) -->
         <div class="absolute -top-10 -right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-[70px] opacity-[0.15] pointer-events-none"></div>
         <div class="absolute bottom-20 -left-10 w-64 h-64 bg-cyan-400 rounded-full mix-blend-multiply filter blur-[70px] opacity-[0.15] pointer-events-none"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-[90px] opacity-[0.1] pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col h-full p-8">
             
-            <!-- Header with Liquid Glass Badge -->
             <div class="flex items-center justify-between mb-8 mt-2 pb-6">
                 <h3 class="font-black text-lg tracking-tight text-slate-800">Live Telemetry</h3>
                 
@@ -263,10 +240,8 @@
                 </div>
             </div>
 
-            <!-- Telemetry Cards Stack -->
             <div class="flex-1 space-y-5 overflow-y-auto blue-scroll pr-2 font-mono text-xs leading-relaxed" id="telemetry-feed">
                 
-                <!-- Premium Liquid Glass Log Card -->
                 <div class="p-5 relative overflow-hidden group liquid-glass-card rounded-2xl">
                     <div class="absolute left-0 top-0 h-full w-1.5 bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
                     <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-3 tracking-widest uppercase pl-1">
@@ -275,7 +250,6 @@
                     <p class="text-slate-800 font-medium leading-relaxed pl-1">ReziFlow Command Center authenticated. Encrypted webhook connection established.</p>
                 </div>
 
-                <!-- Premium Liquid Glass Log Card -->
                 <div class="p-5 relative overflow-hidden group liquid-glass-card rounded-2xl opacity-90">
                     <div class="absolute left-0 top-0 h-full w-1.5 bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]"></div>
                     <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-3 tracking-widest uppercase pl-1">
@@ -288,9 +262,6 @@
         </div>
     </aside>
 
-    <!-- ========================================== -->
-    <!-- OPERATIONAL SCRIPTS -->
-    <!-- ========================================== -->
     <script>
         // Sidebar Navigation Logic
         function switchTab(tabId, btnElement) {
@@ -321,6 +292,7 @@
         async function loadVettingQueue() {
             const tableBody = document.getElementById('vetting-queue-body');
             const kpiPending = document.getElementById('kpi-pending');
+            const kpiApproved = document.getElementById('kpi-approved');
             
             tableBody.innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Synchronizing Database Payload...</span></td></tr>';
 
@@ -332,16 +304,25 @@
                 
                 const allData = await response.json();
                 
-                // FILTER: Only keep rows where Vetting_Status is missing or blank
-                const pendingStudents = allData.filter(student => !student.Vetting_Status || student.Vetting_Status.trim() === '');
+                // BULLETPROOF FILTERING: Catching any variations in Google Sheets formatting
+                const pendingStudents = allData.filter(student => {
+                    const status = student.Vetting_Status || student['Vetting_Status '] || student['Vetting Status'] || '';
+                    return String(status).trim() === '';
+                });
+
+                const approvedStudents = allData.filter(student => {
+                    const status = student.Vetting_Status || student['Vetting_Status '] || student['Vetting Status'] || '';
+                    return String(status).toLowerCase().trim() === 'approved';
+                });
                 
                 tableBody.innerHTML = ''; 
                 
-                // Update KPI counter to show only pending
-                kpiPending.innerHTML = `${pendingStudents.length}`;
+                // Update KPI counters
+                if (kpiPending) kpiPending.innerHTML = `${pendingStudents.length}`;
+                if (kpiApproved) kpiApproved.innerHTML = `${approvedStudents.length}`;
 
                 if(pendingStudents.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400 bg-slate-50/30"><div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-inbox"></i></div><span class="font-medium">No applications pending vetting.</span></td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400 bg-slate-50/30"><div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-check-double"></i></div><span class="font-medium">All applications have been processed.</span></td></tr>';
                     return;
                 }
 
@@ -378,7 +359,7 @@
                     tableBody.insertAdjacentHTML('beforeend', row);
                 });
 
-                addTelemetryLog("DB_SYNC", "SUCCESS", `Pulled ${allData.length} records. Found ${pendingStudents.length} pending operations.`);
+                addTelemetryLog("DB_SYNC", "SUCCESS", `Pulled ${allData.length} total records. ${approvedStudents.length} operational.`);
 
             } catch (error) {
                 console.error("Database sync failed:", error);
@@ -392,7 +373,6 @@
             const row = button.closest('tr');
             const studentId = row.querySelector('.font-black').textContent;
             
-            // Set UI to loading
             button.disabled = true;
             button.className = "bg-slate-100 text-slate-400 font-bold text-xs px-6 py-3 rounded-xl cursor-not-allowed shadow-inner border border-slate-200";
             button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
@@ -410,23 +390,20 @@
 
                 if (!response.ok) throw new Error("Failed to write to database.");
 
-                // If successful, log it
                 addTelemetryLog("VET_ENGINE", "APPROVED", `Database updated. Access authorized for Student ID: <span class="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded border border-slate-200 shadow-sm">${studentId}</span>.`);
 
-                // Dynamically update KPIs without reloading page
+                // Dynamically update KPIs
                 const kpiPending = document.getElementById('kpi-pending');
                 const kpiApproved = document.getElementById('kpi-approved');
                 
-                kpiPending.textContent = Math.max(0, parseInt(kpiPending.textContent || 0) - 1);
-                kpiApproved.textContent = parseInt(kpiApproved.textContent || 0) + 1;
+                if (kpiPending) kpiPending.textContent = Math.max(0, parseInt(kpiPending.textContent || 0) - 1);
+                if (kpiApproved) kpiApproved.textContent = parseInt(kpiApproved.textContent || 0) + 1;
 
-                // Animate row removal
                 row.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
                 row.style.opacity = "0";
                 row.style.transform = "translateX(30px)";
                 setTimeout(() => {
                     row.remove();
-                    // Check if table is empty after removal
                     if(document.querySelectorAll('#vetting-queue-body tr').length === 0) {
                         document.getElementById('vetting-queue-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400 bg-slate-50/30"><div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-check-double"></i></div><span class="font-medium">All applications have been processed.</span></td></tr>';
                     }
@@ -436,7 +413,6 @@
                 console.error("Vetting failure:", error);
                 addTelemetryLog("VET_ENGINE", "ERROR", `Database lock. Failed to update status for ID: ${studentId}.`);
                 
-                // Revert button state if failed
                 button.disabled = false;
                 button.className = "bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20";
                 button.textContent = 'Process';
@@ -471,7 +447,6 @@
             logContainer.insertBefore(newLog, logContainer.firstChild);
         }
 
-        // Initialize Fetch on load
         document.addEventListener('DOMContentLoaded', loadVettingQueue);
 
     </script>
