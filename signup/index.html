@@ -210,6 +210,9 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
     <script>
         // Toggle Password Visibility
         function togglePassword(inputId, iconElement) {
@@ -254,12 +257,13 @@
             }
 
             // 2. Loading State UI
-            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Provisioning Account...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying Clearance...';
             submitBtn.disabled = true;
             submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
 
             // 3. n8n Transmission Logic
             try {
+                // Ensure this matches your test or production webhook URL
                 const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-create-user', {
                     method: 'POST',
                     headers: {
@@ -272,13 +276,15 @@
                     })
                 });
 
-                // Check for rejection (e.g., Not Vetted or 403 Forbidden)
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || "Account creation denied by system.");
+                // BULLETPROOF CHECK: Parse the JSON response first
+                const responseData = await response.json();
+
+                // If n8n explicitly says "error" OR the HTTP status is not ok, trigger the rejection
+                if (responseData.status === 'error' || !response.ok) {
+                    throw new Error(responseData.message || "Account pending vetting or Student Number not found.");
                 }
 
-                // 4. Trigger Success Modal
+                // 4. Trigger Success Modal (Only if the above check passes)
                 submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
                 submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                 submitBtn.classList.add('bg-emerald-500');
@@ -286,14 +292,14 @@
                 document.getElementById('successModal').classList.add('active');
 
             } catch (error) {
-                console.error("Transmission Error:", error);
+                console.error("Clearance Denied:", error);
                 
                 // Display the specific n8n error directly on the UI
                 apiError.innerHTML = `<i class="fa-solid fa-shield-xmark mr-1"></i> ${error.message}`;
                 apiError.classList.remove('hidden');
 
                 // Revert button to error state
-                submitBtn.innerHTML = 'Action Required - Retry';
+                submitBtn.innerHTML = 'Access Denied - Retry';
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('opacity-80', 'cursor-not-allowed', 'bg-blue-600', 'hover:bg-blue-700');
                 submitBtn.classList.add('bg-rose-500');
