@@ -51,7 +51,7 @@
             transition: opacity 0.3s ease;
             background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(8px);
-            z-index: 100;
+            z-index: 1000;
         }
         .modal-overlay.active {
             opacity: 1;
@@ -127,10 +127,11 @@
                 
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Facility Routing</p>
                 <button onclick="switchTab('inspections', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
-                    <i class="fa-solid fa-clipboard-check text-lg w-5 text-center"></i> Room Inspections
+                    <i class="fa-solid fa-clipboard-check text-lg w-5 text-center"></i> Inspections
                 </button>
-                <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
-                    <i class="fa-solid fa-screwdriver-wrench text-lg w-5 text-center"></i> Maintenance Log
+                <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800 flex justify-between">
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-screwdriver-wrench text-lg w-5 text-center"></i> Maintenance</div>
+                    <span class="bg-indigo-100 text-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Ops</span>
                 </button>
                 <button onclick="switchTab('security', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800 flex justify-between">
                     <div class="flex items-center gap-3"><i class="fa-solid fa-light-emergency-on text-lg w-5 text-center"></i> Security Ops</div>
@@ -169,16 +170,13 @@
                 </button>
                 <div class="h-10 px-4 rounded-full bg-white border border-slate-200 flex items-center gap-2 shadow-sm text-sm font-bold text-slate-700">
                     <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-user-shield"></i></div>
-                    Admin Desk
+                    Master Admin
                 </div>
             </div>
         </header>
 
         <main class="flex-1 overflow-y-auto px-10 pb-10 custom-scroll">
 
-            <!-- ========================================== -->
-            <!-- VETTING TAB                                -->
-            <!-- ========================================== -->
             <div id="pane-vetting" class="dashboard-tab active space-y-8">
                 <div class="grid grid-cols-3 gap-6">
                     <div id="kpi-card-pending" onclick="setFilter('pending')" class="glass-panel kpi-active rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-blue-300">
@@ -235,7 +233,8 @@
                                     <th class="p-6 text-right">Execute Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="vetting-queue-body" class="divide-y divide-slate-50"></tbody>
+                            <tbody id="vetting-queue-body" class="divide-y divide-slate-50">
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -259,15 +258,13 @@
                                     <th class="p-6 text-right">Assignment Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="allocation-body" class="divide-y divide-slate-50"></tbody>
+                            <tbody id="allocation-body" class="divide-y divide-slate-50">
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- INSPECTIONS TAB                            -->
-            <!-- ========================================== -->
             <div id="pane-inspections" class="dashboard-tab space-y-6">
                 <div class="glass-panel rounded-3xl overflow-hidden border border-teal-100">
                     <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
@@ -291,23 +288,19 @@
                             </tr>
                         </thead>
                         <tbody id="inspections-body" class="divide-y divide-slate-50">
-                            <!-- JS Injection -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- MAINTENANCE TAB                            -->
-            <!-- ========================================== -->
             <div id="pane-maintenance" class="dashboard-tab space-y-6">
-                <div class="glass-panel rounded-3xl overflow-hidden">
+                <div class="glass-panel rounded-3xl overflow-hidden border border-indigo-100">
                     <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                                 <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
                             </div>
-                            <h3 class="font-bold text-slate-800 text-lg">Active Snag Log</h3>
+                            <h3 class="font-bold text-slate-800 text-lg">Facility Maintenance Ops</h3>
                         </div>
                         <button onclick="fetchMaintenanceData()" class="text-sm bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all">
                             <i class="fa-solid fa-rotate"></i>
@@ -320,17 +313,15 @@
                                 <th class="p-6">Location</th>
                                 <th class="p-6">Category</th>
                                 <th class="p-6">Description</th>
-                                <th class="p-6 text-right">Status</th>
+                                <th class="p-6 text-right">Ops Action</th>
                             </tr>
                         </thead>
-                        <tbody id="maintenance-body" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="maintenance-body" class="divide-y divide-slate-50">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- SECURITY TAB                               -->
-            <!-- ========================================== -->
             <div id="pane-security" class="dashboard-tab space-y-6">
                 <div class="glass-panel rounded-3xl overflow-hidden border border-rose-100 shadow-[0_0_40px_rgba(225,29,72,0.05)]">
                     <div class="px-8 py-6 border-b border-rose-50 flex justify-between items-center bg-white">
@@ -338,7 +329,7 @@
                             <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
                                 <i class="fa-solid fa-light-emergency-on text-sm"></i>
                             </div>
-                            <h3 class="font-bold text-slate-800 text-lg">Live Security Feeds</h3>
+                            <h3 class="font-bold text-slate-800 text-lg">Live Security Feeds & Dispatch</h3>
                         </div>
                         <button onclick="fetchSecurityData()" class="text-sm bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold px-4 py-2 rounded-xl transition-all">
                             <i class="fa-solid fa-rotate"></i>
@@ -351,22 +342,20 @@
                                 <th class="p-6">Location</th>
                                 <th class="p-6">Alert Level</th>
                                 <th class="p-6">Details</th>
-                                <th class="p-6 text-right">Dispatch Status</th>
+                                <th class="p-6 text-right">Dispatch Action</th>
                             </tr>
                         </thead>
-                        <tbody id="security-body" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="security-body" class="divide-y divide-slate-50">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ========================================== -->
-            <!-- ACCESS CONTROL TAB                         -->
-            <!-- ========================================== -->
             <div id="pane-access" class="dashboard-tab space-y-6">
                 <div class="glass-panel rounded-3xl overflow-hidden">
                     <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
                                 <i class="fa-solid fa-door-open text-sm"></i>
                             </div>
                             <h3 class="font-bold text-slate-800 text-lg">Visitor Gateway Log</h3>
@@ -384,7 +373,8 @@
                                 <th class="p-6 text-right">Gate Status</th>
                             </tr>
                         </thead>
-                        <tbody id="visitor-body" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="visitor-body" class="divide-y divide-slate-50">
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -400,7 +390,6 @@
         </main>
     </div>
 
-    <!-- Telemetry Sidebar -->
     <aside class="w-[380px] relative flex flex-col z-20 flex-shrink-0 bg-slate-50/40 backdrop-blur-3xl border-l border-white shadow-[-20px_0_40px_rgba(37,99,235,0.03)] overflow-hidden">
         <div class="absolute -top-10 -right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-[70px] opacity-[0.15] pointer-events-none"></div>
         <div class="absolute bottom-20 -left-10 w-64 h-64 bg-cyan-400 rounded-full mix-blend-multiply filter blur-[70px] opacity-[0.15] pointer-events-none"></div>
@@ -425,7 +414,6 @@
         </div>
     </aside>
 
-    <!-- Modals -->
     <div id="rejectModal" class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
         <div class="modal-content glass-panel w-full max-w-md rounded-[32px] shadow-2xl p-8 relative">
             <button onclick="closeRejectModal()" class="absolute top-6 right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
@@ -503,9 +491,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- LOGIC SCRIPTS                              -->
-    <!-- ========================================== -->
     <script>
         let globalStudentData = [];
         let currentFilter = 'pending';
@@ -513,10 +498,12 @@
         let activeAllocationStudentId = null;
         let selectedRoomId = null;
 
+        // Start engines on load
         document.addEventListener('DOMContentLoaded', () => {
             fetchDatabaseData();
         });
 
+        // Tab Navigation Router
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
@@ -530,32 +517,26 @@
             const sub = document.getElementById('matrixSub');
 
             if (tabId === 'vetting') {
-                title.textContent = "Verification Engine";
-                sub.textContent = "Automated POPIA Database Sync";
+                title.textContent = "Verification Engine"; sub.textContent = "Automated POPIA Database Sync";
             } else if (tabId === 'financials') {
-                title.textContent = "Financial Ledger";
-                sub.textContent = "Automated VBA Reconciliation";
+                title.textContent = "Financial Ledger"; sub.textContent = "Automated VBA Reconciliation";
             } else if (tabId === 'inspections') {
-                title.textContent = "Facility Inspections";
-                sub.textContent = "Pre-Occupancy Binding Ledger";
+                title.textContent = "Facility Inspections"; sub.textContent = "Pre-Occupancy Binding Ledger";
                 fetchInspectionsData();
             } else if (tabId === 'maintenance') {
-                title.textContent = "Maintenance Log";
-                sub.textContent = "Facility Asset Routing";
+                title.textContent = "Facility Maintenance Ops"; sub.textContent = "Ticket Resolution & Asset Routing";
                 fetchMaintenanceData(); 
             } else if (tabId === 'security') {
-                title.textContent = "Security Ops Center";
-                sub.textContent = "Live Dispatch & Threat Monitoring";
+                title.textContent = "Security Ops Center"; sub.textContent = "Live Dispatch & Threat Monitoring";
                 fetchSecurityData(); 
             } else if (tabId === 'access') {
-                title.textContent = "Access Control";
-                sub.textContent = "Visitor Gateway Activity";
+                title.textContent = "Access Control"; sub.textContent = "Visitor Gateway Activity";
                 fetchVisitorData(); 
             }
         }
 
         // ==========================================
-        // VETTING ENGINE (FULLY RESTORED)
+        // VETTING ENGINE (FULLY REPAIRED)
         // ==========================================
         async function fetchDatabaseData() {
             const tableBody = document.getElementById('vetting-queue-body');
@@ -666,8 +647,56 @@
             }
         }
 
+        function openRejectModal(studentId) {
+            currentRejectStudentId = studentId;
+            document.getElementById('reject-student-id').textContent = studentId;
+            document.getElementById('rejectForm').reset();
+            document.getElementById('rejectModal').classList.add('active');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('active');
+            currentRejectStudentId = null;
+        }
+
+        async function submitRejection(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-reject');
+            const checkboxes = document.querySelectorAll('input[name="reason"]:checked');
+            const reasons = Array.from(checkboxes).map(cb => cb.value);
+
+            if (reasons.length === 0) {
+                alert("Please select at least one reason for rejection.");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-reject', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
+                });
+
+                addTelemetryLog("VET_ENGINE", "REJECTED", `Application returned for ID: ${currentRejectStudentId}.`);
+                closeRejectModal();
+                
+                const studentIndex = globalStudentData.findIndex(s => s.Student_Number == currentRejectStudentId);
+                if (studentIndex > -1) globalStudentData[studentIndex].Vetting_Status = 'Rejected';
+                renderUI();
+            } catch(error) {
+                addTelemetryLog("VET_ENGINE", "ERROR", "Failed to process rejection packet.");
+            } finally {
+                btn.innerHTML = 'Confirm Rejection';
+                btn.disabled = false;
+            }
+        }
+
+
         // ==========================================
-        // ROOM ALLOCATION ENGINE (FULLY RESTORED)
+        // ROOM ALLOCATION ENGINE
         // ==========================================
         function renderRoomAllocationTable(approvedStudents) {
             const allocationBody = document.getElementById('allocation-body');
@@ -857,7 +886,7 @@
         }
 
         // ==========================================
-        // NEW: ROOM INSPECTIONS DATA FETCH (WITH CROSS-REFERENCE)
+        // FACILITY INSPECTIONS (CROSS-REFERENCED)
         // ==========================================
         async function fetchInspectionsData() {
             const body = document.getElementById('inspections-body');
@@ -874,11 +903,9 @@
                 }
                 
                 data.reverse().forEach(log => {
-                    // Smart Cross-Reference: Find Student Name in globalStudentData
                     const student = globalStudentData.find(s => s.Student_Number == log.Student_Number);
                     const residentName = student ? `${student.First_Name || ''} ${student.Surname || ''}`.trim() : 'Unknown Resident';
                     
-                    // Smart Room Logic: Fallback to global database if webhook room is missing or 'TEST-01'
                     let roomNo = log.Room_Allocation;
                     if (!roomNo || roomNo === 'TEST-01' || roomNo === '--') {
                         roomNo = student ? (student.Room_Allocation || 'Unassigned') : 'Unassigned';
@@ -915,7 +942,7 @@
         }
 
         // ==========================================
-        // EXISTING MANAGEMENT TABS FETCH DATA
+        // MAINTENANCE LOGIC (UPGRADED WITH ACTIONS)
         // ==========================================
         async function fetchMaintenanceData() {
             const body = document.getElementById('maintenance-body');
@@ -932,13 +959,25 @@
                 }
                 
                 data.reverse().forEach(log => {
+                    const isResolved = String(log.Repair_Status).toLowerCase().includes('resolved');
+                    const statusBadge = isResolved 
+                        ? `<span class="text-emerald-500 font-bold"><i class="fa-solid fa-check-double mr-1"></i> Resolved</span>`
+                        : `<span class="text-amber-500 font-bold"><i class="fa-solid fa-clock mr-1"></i> Pending</span>`;
+                    
+                    const actionBtn = isResolved 
+                        ? `<span class="text-slate-300 text-xs font-bold uppercase tracking-widest border border-slate-100 bg-slate-50 px-4 py-2 rounded-xl">Closed</span>`
+                        : `<button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">Mark Resolved</button>`;
+
                     body.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors group">
                             <td class="p-6 font-mono font-bold text-slate-700">${log.Ticket_ID || '--'}</td>
                             <td class="p-6 font-bold text-slate-800">${log.Room || '--'}</td>
                             <td class="p-6"><span class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold">${log.Category || '--'}</span></td>
-                            <td class="p-6 text-xs text-slate-600 max-w-[200px] truncate">${log.Description || '--'}</td>
-                            <td class="p-6 text-right"><span class="text-xs font-bold text-amber-500">${log.Repair_Status || 'Pending'}</span></td>
+                            <td class="p-6 text-xs text-slate-600 max-w-[200px] truncate group-hover:whitespace-normal group-hover:break-words">${log.Description || '--'}</td>
+                            <td class="p-6 text-right flex items-center justify-end gap-4 h-full">
+                                <div class="text-xs">${statusBadge}</div>
+                                ${actionBtn}
+                            </td>
                         </tr>
                     `;
                 });
@@ -947,6 +986,30 @@
             }
         }
 
+        async function resolveMaintenance(ticketId, btnElement) {
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                // Point to new Webhook for updating snag to Resolved
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-resolve-snag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Ticket_ID: ticketId, Repair_Status: "Resolved" })
+                });
+
+                addTelemetryLog("MAINTENANCE", "SUCCESS", `Ticket ${ticketId} successfully closed.`);
+                fetchMaintenanceData(); // Refresh grid
+            } catch(e) {
+                addTelemetryLog("MAINTENANCE", "ERROR", `Failed to resolve Ticket ${ticketId}.`);
+                btnElement.innerHTML = 'Mark Resolved';
+                btnElement.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // SECURITY LOGIC (UPGRADED WITH ACTIONS)
+        // ==========================================
         async function fetchSecurityData() {
             const body = document.getElementById('security-body');
             body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-slate-400 text-2xl"></i></td></tr>';
@@ -963,17 +1026,30 @@
                 
                 data.reverse().forEach(alert => {
                     const isCritical = String(alert.Alert_Level).includes("CRITICAL");
+                    const isResolved = String(alert.Dispatch_Status).toLowerCase().includes('resolved') || String(alert.Dispatch_Status).toLowerCase().includes('cleared');
+                    
                     const levelBadge = isCritical 
-                        ? `<span class="bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider animate-pulse">${alert.Alert_Level}</span>`
+                        ? `<span class="bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${!isResolved ? 'animate-pulse' : ''}">${alert.Alert_Level}</span>`
                         : `<span class="bg-amber-50 text-amber-600 border border-amber-100 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider">${alert.Alert_Level}</span>`;
                         
+                    const statusText = isResolved 
+                        ? `<span class="text-slate-400 font-bold"><i class="fa-solid fa-shield-check mr-1"></i> Area Cleared</span>`
+                        : `<span class="text-rose-500 font-bold"><i class="fa-solid fa-person-running mr-1"></i> Dispatched</span>`;
+
+                    const actionBtn = isResolved 
+                        ? `<span class="text-slate-300 text-xs font-bold uppercase tracking-widest border border-slate-100 bg-slate-50 px-4 py-2 rounded-xl">Closed</span>`
+                        : `<button onclick="resolveSecurity('${alert.Timestamp}', '${alert.Room}', this)" class="bg-slate-900 hover:bg-rose-600 hover:text-white text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-slate-900/20">Clear Alert</button>`;
+
                     body.innerHTML += `
-                        <tr class="${isCritical ? 'hover:bg-rose-50/30' : 'hover:bg-slate-50'} transition-colors">
+                        <tr class="${isCritical && !isResolved ? 'bg-rose-50/50' : 'hover:bg-slate-50'} transition-colors">
                             <td class="p-6 text-slate-500 text-xs font-medium">${alert.Timestamp || '--'}</td>
                             <td class="p-6 font-bold text-slate-800">${alert.Room || '--'}</td>
                             <td class="p-6">${levelBadge}</td>
                             <td class="p-6 text-xs text-slate-600 font-medium max-w-[200px] truncate"><span class="font-bold mr-1 text-slate-800">${alert.Alert_Type}:</span> ${alert.Notes || ''}</td>
-                            <td class="p-6 text-right"><span class="text-xs font-bold ${isCritical ? 'text-rose-500' : 'text-slate-500'}">${alert.Dispatch_Status || 'Queued'}</span></td>
+                            <td class="p-6 text-right flex items-center justify-end gap-4 h-full">
+                                <div class="text-xs">${statusText}</div>
+                                ${actionBtn}
+                            </td>
                         </tr>
                     `;
                 });
@@ -982,6 +1058,30 @@
             }
         }
 
+        async function resolveSecurity(timestamp, room, btnElement) {
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                // Point to new Webhook for updating security alert to Resolved
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-resolve-security', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Timestamp: timestamp, Room: room, Dispatch_Status: "Area Cleared" })
+                });
+
+                addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared/Resolved.`);
+                fetchSecurityData(); // Refresh grid
+            } catch(e) {
+                addTelemetryLog("SECURITY_OPS", "ERROR", `Failed to resolve alert for ${room}.`);
+                btnElement.innerHTML = 'Clear Alert';
+                btnElement.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // ACCESS CONTROL FETCH
+        // ==========================================
         async function fetchVisitorData() {
             const body = document.getElementById('visitor-body');
             body.innerHTML = '<tr><td colspan="4" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-slate-400 text-2xl"></i></td></tr>';
@@ -1011,49 +1111,9 @@
             }
         }
 
-        function closeRejectModal() { document.getElementById('rejectModal').classList.remove('active'); }
-        function openRejectModal(studentId) {
-            currentRejectStudentId = studentId;
-            document.getElementById('reject-student-id').textContent = studentId;
-            document.getElementById('rejectForm').reset();
-            document.getElementById('rejectModal').classList.add('active');
-        }
-
-        async function submitRejection(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-reject');
-            const checkboxes = document.querySelectorAll('input[name="reason"]:checked');
-            const reasons = Array.from(checkboxes).map(cb => cb.value);
-
-            if (reasons.length === 0) {
-                alert("Please select at least one reason for rejection.");
-                return;
-            }
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-            btn.disabled = true;
-
-            try {
-                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-reject', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
-                });
-
-                addTelemetryLog("VET_ENGINE", "REJECTED", `Application returned for ID: ${currentRejectStudentId}.`);
-                closeRejectModal();
-                
-                const studentIndex = globalStudentData.findIndex(s => s.Student_Number == currentRejectStudentId);
-                if (studentIndex > -1) globalStudentData[studentIndex].Vetting_Status = 'Rejected';
-                renderUI();
-            } catch(error) {
-                addTelemetryLog("VET_ENGINE", "ERROR", "Failed to process rejection packet.");
-            } finally {
-                btn.innerHTML = 'Confirm Rejection';
-                btn.disabled = false;
-            }
-        }
-
+        // ==========================================
+        // SHARED SYSTEM TELEMETRY
+        // ==========================================
         function addTelemetryLog(process, status, message) {
             const logContainer = document.getElementById('telemetry-feed');
             const newLog = document.createElement('div');
