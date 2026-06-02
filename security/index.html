@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReziFlow OS | Security Command</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a; 
+        }
+
+        /* Glass & Shadows */
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .liquid-glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Security Accent (Crimson/Rose) */
+        .active-tab-btn {
+            background-color: #fff1f2;
+            color: #e11d48; 
+            font-weight: 700;
+            box-shadow: inset 3px 0 0 0 #e11d48;
+        }
+
+        /* Tab Routing Animations */
+        .dashboard-tab {
+            display: none;
+            animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .dashboard-tab.active { display: block; }
+
+        @keyframes paneFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .kpi-active {
+            border: 2px solid #e11d48 !important;
+            box-shadow: 0 10px 40px -10px rgba(225, 29, 72, 0.25) !important;
+        }
+
+        /* PIN Input Styling */
+        .pin-input {
+            letter-spacing: 1.5em;
+            font-variant-numeric: tabular-nums;
+        }
+        .pin-input:focus { outline: none; }
+        
+        /* Threat Pulse */
+        @keyframes radarPulse {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        .radar-active {
+            animation: radarPulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex overflow-hidden antialiased relative">
+
+    <!-- Ops Background Gradient (Rose/Slate tint for Security) -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-rose-500 rounded-full mix-blend-multiply filter blur-[140px] opacity-[0.03] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-800 rounded-full mix-blend-multiply filter blur-[140px] opacity-[0.04] z-0 pointer-events-none"></div>
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white/90 backdrop-blur-xl border-r border-slate-200/80 flex flex-col justify-between z-20 flex-shrink-0 relative">
+        <div>
+            <div class="px-8 py-8 flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-900/20 text-white relative">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white radar-active"></div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-2xl tracking-tight text-slate-800 leading-none">Rezi<span class="text-rose-600">Guard</span></span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Tactical Ops</span>
+                </div>
+            </div>
+
+            <nav class="mt-2 px-4 space-y-1.5">
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-4">Command Post</p>
+                <button onclick="switchTab('overwatch', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-rose-50/50">
+                    <i class="fa-solid fa-satellite-dish text-lg w-5 text-center text-rose-600"></i> Live Overwatch
+                </button>
+                <button onclick="switchTab('gateway', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-door-open text-lg w-5 text-center"></i> Visitor Gateway
+                </button>
+                
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Field Operations</p>
+                <button onclick="switchTab('patrols', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-person-military-pointing text-lg w-5 text-center"></i> Patrol Logs
+                </button>
+                <button onclick="switchTab('systems', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-server text-lg w-5 text-center"></i> System Health
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <div class="flex items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-bolt text-xs"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Engineered By</span>
+                    <span class="text-xs font-black text-slate-700 tracking-tight">AUTOMANIA</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+        
+        <!-- Header -->
+        <header class="h-24 bg-transparent flex items-center justify-between px-10">
+            <div class="flex items-center gap-4">
+                <h1 id="matrixTitle" class="text-3xl font-black tracking-tight text-slate-800">Live Overwatch</h1>
+                <div class="h-6 w-px bg-slate-300"></div>
+                <p id="matrixSub" class="text-sm text-slate-500 font-medium pt-1">Active Threats & Facility Status</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="w-10 h-10 rounded-full bg-white border border-rose-200 flex items-center justify-center text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-sm radar-active">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
+                <div class="h-10 px-4 rounded-full bg-slate-900 border border-slate-700 flex items-center gap-2 shadow-lg text-sm font-bold text-white">
+                    <div class="w-6 h-6 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-user-police"></i></div>
+                    Guard Desk 01
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-10 pb-10 custom-scroll">
+
+            <!-- ========================================== -->
+            <!-- LIVE OVERWATCH TAB                         -->
+            <!-- ========================================== -->
+            <div id="pane-overwatch" class="dashboard-tab active space-y-8">
+                
+                <!-- Tactical KPIs -->
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="glass-panel kpi-active bg-rose-50/30 rounded-3xl p-6 relative overflow-hidden group cursor-pointer border-rose-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-rose-500 font-bold uppercase tracking-widest mb-1">Active SOS Alerts</p>
+                                <p class="text-4xl font-black text-rose-600 tracking-tight">1</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl radar-active"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-slate-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Active Visitors</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">24</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Gates / Turnstiles</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">Secure</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-lock"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-indigo-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Cameras Online</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">42<span class="text-xl text-slate-400 font-bold ml-1">/42</span></p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-video"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Dispatch Board -->
+                <div class="glass-panel rounded-3xl overflow-hidden border border-rose-100 shadow-[0_0_40px_rgba(225,29,72,0.05)]">
+                    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                                <i class="fa-solid fa-tower-observation text-sm"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg">Incoming Alerts & Dispatch</h3>
+                        </div>
+                        <button class="text-sm bg-slate-900 hover:bg-rose-600 text-white font-bold px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Refresh Feed
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto custom-scroll bg-white">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-100">
+                                    <th class="p-6 w-40">Time Logged</th>
+                                    <th class="p-6">Location</th>
+                                    <th class="p-6">Threat Vector</th>
+                                    <th class="p-6 text-right">Unit Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                
+                                <!-- Critical Alert -->
+                                <tr class="bg-rose-50/30 hover:bg-rose-50/50 transition-colors group">
+                                    <td class="p-6">
+                                        <div class="font-mono font-bold text-slate-800 text-sm">18:42:05</div>
+                                        <div class="text-[10px] text-rose-500 font-bold mt-1 animate-pulse">JUST NOW</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="font-black text-slate-800 text-lg">Block C - Corridor 3</div>
+                                        <div class="text-xs font-semibold text-slate-500 mt-1"><i class="fa-solid fa-mobile-screen-button text-slate-300 mr-1"></i> Triggered by Student App</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="inline-block px-3 py-1.5 bg-rose-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider mb-2 shadow-md shadow-rose-500/30"><i class="fa-solid fa-land-mine-on mr-1"></i> CRITICAL SOS</span>
+                                        <p class="text-xs text-slate-700 font-medium">Student triggered emergency panic button. Immediate dispatch required.</p>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-6 py-3 rounded-xl transition-all w-full flex items-center justify-center gap-2 shadow-lg shadow-rose-500/30">
+                                            <i class="fa-solid fa-person-running"></i> Dispatch Unit
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Standard Alert -->
+                                <tr class="hover:bg-slate-50 transition-colors group">
+                                    <td class="p-6">
+                                        <div class="font-mono font-bold text-slate-800 text-sm">17:15:22</div>
+                                        <div class="text-[10px] text-slate-400 font-bold mt-1">1 HR AGO</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="font-black text-slate-800 text-base">Main Gate Boom 02</div>
+                                        <div class="text-xs font-semibold text-slate-500 mt-1"><i class="fa-solid fa-camera text-slate-300 mr-1"></i> Camera AI Flag</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="inline-block px-3 py-1 bg-amber-50 text-amber-600 border border-amber-100 rounded-lg text-[10px] font-bold uppercase tracking-wider mb-2"><i class="fa-solid fa-eye mr-1"></i> Suspicious Activity</span>
+                                        <p class="text-xs text-slate-600 font-medium">Unidentified vehicle lingering near drop-off zone for > 15 mins.</p>
+                                    </td>
+                                    <td class="p-6 text-right flex items-center justify-end gap-3 h-full">
+                                        <span class="text-emerald-500 text-xs font-bold"><i class="fa-solid fa-check-double mr-1"></i> Area Cleared</span>
+                                        <span class="text-slate-300 text-xs font-bold uppercase tracking-widest border border-slate-100 bg-slate-50 px-4 py-2 rounded-xl">Closed</span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VISITOR GATEWAY TAB                        -->
+            <!-- ========================================== -->
+            <div id="pane-gateway" class="dashboard-tab space-y-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- The Digital PIN Terminal -->
+                    <div class="lg:col-span-2">
+                        <div class="glass-panel rounded-[32px] p-10 text-center relative overflow-hidden bg-white">
+                            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+                            
+                            <h2 class="text-xl font-black text-slate-800 mb-2 uppercase tracking-widest mt-4">Visitor Authentication</h2>
+                            <p class="text-sm text-slate-500 mb-8 font-medium">Enter the 6-digit access PIN provided by the guest.</p>
+                            
+                            <div class="max-w-md mx-auto">
+                                <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 mb-6 shadow-inner focus-within:border-blue-500 focus-within:bg-blue-50/30 transition-all">
+                                    <input type="text" id="terminal-pin" maxlength="6" class="pin-input w-full bg-transparent text-center text-5xl font-black text-slate-800 py-6 rounded-xl" placeholder="••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                </div>
+                                
+                                <button onclick="verifyVisitorPIN()" id="btn-verify-pin" class="w-full bg-slate-900 hover:bg-blue-600 text-white text-lg font-bold py-5 rounded-2xl transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3">
+                                    <i class="fa-solid fa-fingerprint"></i> Validate Access
+                                </button>
+                            </div>
+
+                            <!-- Validation Response Area (Hidden by default) -->
+                            <div id="pin-response" class="mt-8 hidden p-6 rounded-2xl border text-left">
+                                <!-- JS injects success/fail UI here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Access Logs Widget -->
+                    <div class="glass-panel rounded-[32px] p-6 bg-slate-50/50 flex flex-col">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+                            <h3 class="font-black text-slate-800">Recent Scans</h3>
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full radar-active"></div>
+                        </div>
+                        
+                        <div class="flex-1 space-y-4 overflow-y-auto custom-scroll pr-2">
+                            <!-- Mock Scans -->
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+                                <div>
+                                    <p class="font-bold text-slate-800 text-sm">Granted: J. Mason</p>
+                                    <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Host: Room A31-2</p>
+                                    <p class="text-[10px] text-slate-400 mt-1">10:45 AM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-ban"></i></div>
+                                <div>
+                                    <p class="font-bold text-rose-600 text-sm">Denied: Invalid PIN</p>
+                                    <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Unknown Subject</p>
+                                    <p class="text-[10px] text-slate-400 mt-1">09:12 AM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Static Placeholders for other tabs -->
+            <div id="pane-patrols" class="dashboard-tab space-y-6">
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-shoe-prints"></i></div>
+                    <h2 class="text-2xl font-black text-slate-800 mb-2">Tactical Patrol Logs</h2>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">Connect to physical guard baton scanners to download live patrol routing data.</p>
+                </div>
+            </div>
+            
+            <div id="pane-systems" class="dashboard-tab space-y-6">
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-slate-800 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl shadow-slate-900/20"><i class="fa-solid fa-server"></i></div>
+                    <h2 class="text-2xl font-black text-slate-800 mb-2">Hardware & Server Health</h2>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">Telemetry links to biometric scanners, turnstile motors, and perimeter electric fencing.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Quick Actions Right Sidebar -->
+    <aside class="w-[320px] relative flex flex-col z-20 flex-shrink-0 bg-slate-50/60 backdrop-blur-3xl border-l border-white shadow-[-20px_0_40px_rgba(225,29,72,0.03)] overflow-hidden">
+        
+        <div class="relative z-10 flex flex-col h-full p-8">
+            <div class="flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4">
+                <h3 class="font-black text-lg tracking-tight text-slate-800">Tactical Actions</h3>
+            </div>
+
+            <div class="space-y-4">
+                <button class="w-full liquid-glass-card hover:border-rose-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer border-rose-100 bg-rose-50/30">
+                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md shadow-rose-500/30">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-rose-700">Facility Lockdown</p>
+                        <p class="text-[10px] text-rose-500 font-medium mt-0.5">Seal all electronic gates</p>
+                    </div>
+                </button>
+
+                <button class="w-full liquid-glass-card hover:border-slate-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer mt-4">
+                    <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">Log Incident</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">File physical report</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="mt-auto pt-8">
+                <div class="p-5 rounded-2xl bg-slate-900 text-white relative overflow-hidden shadow-xl shadow-slate-900/20 border border-slate-700">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-600 rounded-full filter blur-xl opacity-30"></div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Current Shift</p>
+                    <p class="text-lg font-black tracking-tight mb-4">Bravo Team (Night)</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=Guard+1&background=e2e8f0&color=0f172a" class="w-8 h-8 rounded-full border-2 border-slate-700">
+                            <div class="text-xs">
+                                <p class="font-bold text-white">Cmdr. V. Ndlovu</p>
+                                <p class="text-[10px] text-emerald-400">On Patrol - Block A</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=Guard+2&background=e2e8f0&color=0f172a" class="w-8 h-8 rounded-full border-2 border-slate-700">
+                            <div class="text-xs">
+                                <p class="font-bold text-white">Sgt. P. Mokoena</p>
+                                <p class="text-[10px] text-blue-400">Desk Duty (Main)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('pane-' + tabId).classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800";
+                
+                const icon = btn.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('text-rose-600');
+                    icon.classList.add('text-slate-400');
+                }
+            });
+
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-rose-50/50";
+            const activeIcon = btnElement.querySelector('i');
+            if(activeIcon) {
+                activeIcon.classList.remove('text-slate-400');
+                activeIcon.classList.add('text-rose-600');
+            }
+
+            const title = document.getElementById('matrixTitle');
+            const sub = document.getElementById('matrixSub');
+
+            if (tabId === 'overwatch') {
+                title.textContent = "Live Overwatch"; sub.textContent = "Active Threats & Facility Status";
+            } else if (tabId === 'gateway') {
+                title.textContent = "Visitor Gateway"; sub.textContent = "Identity Authentication Terminal";
+                document.getElementById('terminal-pin').focus();
+            } else if (tabId === 'patrols') {
+                title.textContent = "Tactical Patrols"; sub.textContent = "Guard Routing & Checkpoints";
+            } else if (tabId === 'systems') {
+                title.textContent = "System Health"; sub.textContent = "Hardware Telemetry Logs";
+            }
+        }
+
+        // Mock Validation Logic for Terminal
+        function verifyVisitorPIN() {
+            const input = document.getElementById('terminal-pin').value;
+            const btn = document.getElementById('btn-verify-pin');
+            const responseBox = document.getElementById('pin-response');
+            
+            if(input.length !== 6) {
+                alert("Please enter a valid 6-digit PIN.");
+                return;
+            }
+
+            // Simulate Network Request
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+            btn.disabled = true;
+            responseBox.classList.add('hidden');
+
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-fingerprint"></i> Validate Access';
+                btn.disabled = false;
+                document.getElementById('terminal-pin').value = ''; // Reset input
+
+                // Mock Success Logic (You would replace this with actual n8n fetch logic)
+                responseBox.classList.remove('hidden', 'bg-rose-50', 'border-rose-200');
+                responseBox.classList.add('bg-emerald-50', 'border-emerald-200');
+                
+                responseBox.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-emerald-500/40 flex-shrink-0">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-emerald-700 font-black text-lg mb-1 uppercase tracking-widest">Access Granted</p>
+                            <div class="text-sm font-bold text-slate-800 bg-white px-4 py-2 rounded-lg border border-emerald-100 shadow-sm inline-block">
+                                Host: Student 221227330 <br>
+                                Location: Room A01-1 <br>
+                                Visitor: Maps
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-3 uppercase font-bold tracking-widest">Gate 01 Unlocked. Proceed.</p>
+                        </div>
+                    </div>
+                `;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
