@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ReziFlow | Room Inspection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mobile-container {
+            max-width: 480px; 
+            margin: 0 auto;
+            background: #f0f4f8;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tap-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
+        
+        .card-shadow { box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04); }
+        .soft-border { border: 1px solid rgba(226, 232, 240, 0.6); }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        /* Custom Status Toggles */
+        .status-btn {
+            transition: all 0.2s ease;
+        }
+        .status-btn.selected-good {
+            background-color: #ecfdf5; border-color: #10b981; color: #059669; font-weight: 700;
+            box-shadow: 0 0 0 1px #10b981;
+        }
+        .status-btn.selected-damaged {
+            background-color: #fffbeb; border-color: #f59e0b; color: #d97706; font-weight: 700;
+            box-shadow: 0 0 0 1px #f59e0b;
+        }
+        .status-btn.selected-missing {
+            background-color: #fff1f2; border-color: #f43f5e; color: #e11d48; font-weight: 700;
+            box-shadow: 0 0 0 1px #f43f5e;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="mobile-container pb-6">
+        
+        <!-- Header -->
+        <header class="pt-6 px-5 z-40 sticky top-0 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
+            <div class="bg-white rounded-2xl px-5 py-4 flex items-center justify-between card-shadow soft-border relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pre-Occupancy</span>
+                    </div>
+                    <h1 class="text-xl font-black tracking-tight text-slate-800">Digital Inspection</h1>
+                </div>
+                
+                <div class="relative z-10 text-right">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Unit Allocated</p>
+                    <div class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-sm font-bold font-mono tracking-wider shadow-md" id="dyn-room-id">
+                        --
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar px-5 z-10">
+            
+            <div class="mb-6">
+                <p class="text-sm text-slate-500 font-medium leading-relaxed">Please verify the condition of all assets in your room. This legally binds your occupancy state.</p>
+            </div>
+
+            <!-- Inspection Form -->
+            <form id="inspectionForm" class="space-y-4">
+                
+                <!-- JS Will Inject Items Here -->
+                <div id="inspection-items-container" class="space-y-4"></div>
+
+                <!-- Notes Section -->
+                <div class="bg-white rounded-2xl p-5 card-shadow soft-border mt-6">
+                    <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i class="fa-regular fa-comment-dots text-blue-500"></i> Additional Notes
+                    </h3>
+                    <p class="text-[10px] text-slate-500 mb-3">Please detail any specific damages reported above.</p>
+                    <textarea id="inspection-notes" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 resize-none transition-colors" placeholder="e.g. The study chair has a tear on the seat..."></textarea>
+                </div>
+
+                <!-- Security Pill -->
+                <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100 my-6">
+                    <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">Legally Binding Signature</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">By submitting, you agree to ReziFlow's facility terms. You will be held liable for unreported damages at year-end.</p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="button" id="btn-submit" onclick="submitInspection()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-2xl py-4 shadow-lg shadow-slate-900/20 transition-all flex justify-center items-center gap-2 tap-effect">
+                    Sign Off & Submit <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+        </main>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 modal-overlay flex items-end justify-center sm:items-center sm:p-4">
+        <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] sm:rounded-[32px] shadow-2xl p-8 text-center pb-12">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Inspection Complete</h2>
+            <p class="text-sm text-slate-500 mb-8 font-medium">Your room condition log has been securely synced to the Automania facility engine.</p>
+            <a href="https://reziflow.online/student/" class="block w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect">
+                Go to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // The Master Inventory Checklist
+        const inventoryItems = [
+            { id: "bed", name: "Bed Frame & Base", icon: "fa-bed", color: "text-indigo-500" },
+            { id: "mattress", name: "Mattress", icon: "fa-layer-group", color: "text-cyan-500" },
+            { id: "wardrobe", name: "Wardrobe / Cupboards", icon: "fa-door-closed", color: "text-amber-500" },
+            { id: "desk", name: "Study Desk", icon: "fa-table", color: "text-blue-500" },
+            { id: "chair", name: "Study Chair", icon: "fa-chair", color: "text-rose-500" },
+            { id: "mirror", name: "Wall Mirror", icon: "fa-border-all", color: "text-teal-500" },
+            { id: "curtains", name: "Curtains / Blinds", icon: "fa-person-booth", color: "text-purple-500" },
+            { id: "door_lock", name: "Main Door & Lock", icon: "fa-lock", color: "text-slate-600" },
+            { id: "window", name: "Windows & Glass", icon: "fa-window-maximize", color: "text-sky-500" },
+            { id: "electrical", name: "Lights & Plug Points", icon: "fa-plug", color: "text-yellow-500" }
+        ];
+
+        let inspectionData = {};
+        let studentSession = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Authenticate Session
+            const rawSession = localStorage.getItem('reziflow_session');
+            if (rawSession) {
+                studentSession = JSON.parse(rawSession);
+                document.getElementById('dyn-room-id').textContent = studentSession.Room_Allocation || 'N/A';
+            } else {
+                // Fallback for testing if no session
+                document.getElementById('dyn-room-id').textContent = 'TEST-01';
+            }
+
+            // 2. Render Checklist
+            const container = document.getElementById('inspection-items-container');
+            
+            inventoryItems.forEach(item => {
+                inspectionData[item.id] = null; // Initialize state as empty
+
+                const cardHtml = `
+                    <div class="bg-white rounded-2xl p-4 card-shadow soft-border flex flex-col gap-3">
+                        <div class="flex items-center gap-3 border-b border-slate-100 pb-2">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center ${item.color}">
+                                <i class="fa-solid ${item.icon}"></i>
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-800">${item.name}</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" onclick="setAssetStatus('${item.id}', 'Good', this)" class="status-btn border border-slate-200 bg-slate-50 text-slate-500 rounded-xl py-2 text-[11px] font-semibold flex flex-col items-center justify-center gap-1 tap-effect">
+                                <i class="fa-solid fa-check"></i> Good
+                            </button>
+                            <button type="button" onclick="setAssetStatus('${item.id}', 'Damaged', this)" class="status-btn border border-slate-200 bg-slate-50 text-slate-500 rounded-xl py-2 text-[11px] font-semibold flex flex-col items-center justify-center gap-1 tap-effect">
+                                <i class="fa-solid fa-crack"></i> Damaged
+                            </button>
+                            <button type="button" onclick="setAssetStatus('${item.id}', 'Missing', this)" class="status-btn border border-slate-200 bg-slate-50 text-slate-500 rounded-xl py-2 text-[11px] font-semibold flex flex-col items-center justify-center gap-1 tap-effect">
+                                <i class="fa-solid fa-xmark"></i> Missing
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        });
+
+        // 3. Handle Status Selection
+        function setAssetStatus(itemId, status, btnElement) {
+            // Update Data Object
+            inspectionData[itemId] = status;
+
+            // Reset sibling buttons
+            const siblingBtns = btnElement.parentElement.querySelectorAll('.status-btn');
+            siblingBtns.forEach(btn => {
+                btn.className = "status-btn border border-slate-200 bg-slate-50 text-slate-500 rounded-xl py-2 text-[11px] font-semibold flex flex-col items-center justify-center gap-1 tap-effect";
+            });
+
+            // Apply selected class
+            let activeClass = "selected-good";
+            if(status === 'Damaged') activeClass = "selected-damaged";
+            if(status === 'Missing') activeClass = "selected-missing";
+            
+            btnElement.classList.add(activeClass);
+            btnElement.classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
+        }
+
+        // 4. Submission Engine
+        async function submitInspection() {
+            const btn = document.getElementById('btn-submit');
+            
+            // Poka-Yoke: Validation Check
+            const missingSelections = inventoryItems.filter(item => inspectionData[item.id] === null);
+            if (missingSelections.length > 0) {
+                alert(`Please select a status for all items. You missed: ${missingSelections[0].name}`);
+                return;
+            }
+
+            // Switch to loading state
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...';
+            btn.disabled = true;
+
+            // Compile Final Payload
+            const payload = {
+                Student_Number: studentSession ? studentSession.Student_Number : 'TEST_USER',
+                Room_Allocation: studentSession ? studentSession.Room_Allocation : 'TEST-01',
+                Checklist: inspectionData,
+                Notes: document.getElementById('inspection-notes').value || "None"
+            };
+
+            try {
+                // Post to n8n backend
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-room-inspection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('successModal').classList.add('active');
+                } else {
+                    throw new Error("Backend Refusal");
+                }
+            } catch (error) {
+                console.error("Submission failed:", error);
+                alert("Connection failed. Please ensure you have internet access and try again.");
+                btn.innerHTML = 'Sign Off & Submit <i class="fa-solid fa-arrow-right"></i>';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
