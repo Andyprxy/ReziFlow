@@ -148,6 +148,23 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Surname</label>
                         <input type="text" name="Surname" class="input-field" placeholder="e.g. Maphumulo" required>
                     </div>
+                    
+                    <!-- NEW: Poka-Yoke ID Number Field -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">ID Number</label>
+                        <input type="text" name="ID_Number" class="input-field" placeholder="13-digit ID Number" required minlength="13" maxlength="13" pattern="\d{13}" title="Please enter exactly 13 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)">
+                    </div>
+                    
+                    <!-- NEW: Gender Field -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender</label>
+                        <select name="Gender" class="input-field bg-white" required>
+                            <option value="" disabled selected>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
                         <input type="email" name="Email_Address" class="input-field" placeholder="student@email.com" required>
