@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReziFlow OS | Maintenance Crew</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a; 
+        }
+
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .liquid-glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        .active-tab-btn {
+            background-color: #eef2ff; /* Indigo tint */
+            color: #4f46e5; 
+            font-weight: 700;
+            box-shadow: inset 3px 0 0 0 #4f46e5;
+        }
+
+        .dashboard-tab {
+            display: none;
+            animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .dashboard-tab.active { display: block; }
+
+        @keyframes paneFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .kpi-active {
+            border: 2px solid #4f46e5 !important;
+            box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.25) !important;
+        }
+
+        .inventory-progress {
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex overflow-hidden antialiased relative">
+
+    <!-- Ops Background Gradient (Indigo/Amber tint for Maintenance) -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500 rounded-full mix-blend-multiply filter blur-[130px] opacity-[0.04] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500 rounded-full mix-blend-multiply filter blur-[130px] opacity-[0.03] z-0 pointer-events-none"></div>
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white/90 backdrop-blur-xl border-r border-slate-200/80 flex flex-col justify-between z-20 flex-shrink-0 relative">
+        <div>
+            <div class="px-8 py-8 flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
+                    <i class="fa-solid fa-toolbox text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-2xl tracking-tight text-slate-800 leading-none">Rezi<span class="text-indigo-500">Ops</span></span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Facility Crew</span>
+                </div>
+            </div>
+
+            <nav class="mt-2 px-4 space-y-1.5">
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-4">Work Orders</p>
+                <button onclick="switchTab('snags', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-indigo-50/50">
+                    <i class="fa-solid fa-clipboard-list text-lg w-5 text-center text-indigo-500"></i> Active Snags
+                </button>
+                <button onclick="switchTab('history', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i> Repair History
+                </button>
+                
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Supply Chain</p>
+                <button onclick="switchTab('inventory', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-boxes-stacked text-lg w-5 text-center"></i> Parts Inventory
+                </button>
+                <button onclick="switchTab('vendors', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
+                    <i class="fa-solid fa-truck-fast text-lg w-5 text-center"></i> Vendor Directory
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <div class="flex items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-bolt text-xs"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Engineered By</span>
+                    <span class="text-xs font-black text-slate-700 tracking-tight">AUTOMANIA</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+        
+        <!-- Header -->
+        <header class="h-24 bg-transparent flex items-center justify-between px-10">
+            <div class="flex items-center gap-4">
+                <h1 id="matrixTitle" class="text-3xl font-black tracking-tight text-slate-800">Snag Board</h1>
+                <div class="h-6 w-px bg-slate-300"></div>
+                <p id="matrixSub" class="text-sm text-slate-500 font-medium pt-1">Live Ticket Resolution Routing</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors shadow-sm">
+                    <i class="fa-solid fa-walkie-talkie"></i>
+                </button>
+                <div class="h-10 px-4 rounded-full bg-white border border-slate-200 flex items-center gap-2 shadow-sm text-sm font-bold text-slate-700">
+                    <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-hard-hat"></i></div>
+                    Maintenance Crew
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-10 pb-10 custom-scroll">
+
+            <!-- ========================================== -->
+            <!-- ACTIVE SNAGS TAB                           -->
+            <!-- ========================================== -->
+            <div id="pane-snags" class="dashboard-tab active space-y-8">
+                
+                <!-- KPI Filter Cards -->
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="glass-panel kpi-active rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-indigo-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Open Tickets</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">12</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-ticket"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-rose-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-rose-400 font-bold uppercase tracking-widest mb-1">High Priority</p>
+                                <p class="text-4xl font-black text-rose-600 tracking-tight">3</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-fire"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Resolved Today</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">8</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-check-double"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-amber-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Avg Resolution</p>
+                                <p class="text-4xl font-black text-slate-800 tracking-tight">4<span class="text-xl text-slate-400 font-bold ml-1">hrs</span></p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-stopwatch"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Snag Grid (Mockup Data) -->
+                <div class="glass-panel rounded-3xl overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                <i class="fa-solid fa-list-check text-sm"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg">Live Ticket Queue</h3>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" placeholder="Search Room or ID..." class="text-sm bg-slate-50 border border-slate-200 text-slate-600 font-medium px-4 py-2.5 rounded-xl outline-none focus:border-indigo-400 transition-colors w-64">
+                            <button class="text-sm bg-slate-900 hover:bg-indigo-600 text-white font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-slate-900/20">
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto custom-scroll bg-white">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-100">
+                                    <th class="p-6 w-32">Ticket ID</th>
+                                    <th class="p-6 w-48">Location & Reporter</th>
+                                    <th class="p-6">Fault Description</th>
+                                    <th class="p-6 w-40 text-center">Severity</th>
+                                    <th class="p-6 w-48 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                
+                                <!-- Mock Ticket 1: High Priority -->
+                                <tr class="hover:bg-indigo-50/30 transition-colors group">
+                                    <td class="p-6">
+                                        <div class="font-mono font-bold text-slate-800 text-sm">#TKT-9042</div>
+                                        <div class="text-[10px] text-slate-400 font-bold mt-1">10 MINS AGO</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="font-black text-slate-800 text-sm"><i class="fa-solid fa-door-closed text-slate-300 mr-1"></i> A31-5</div>
+                                        <div class="text-xs font-semibold text-slate-500 mt-1">S. Maphumulo</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="inline-block px-2.5 py-1 bg-rose-50 text-rose-600 rounded text-[10px] font-bold uppercase tracking-wider mb-2 border border-rose-100"><i class="fa-solid fa-faucet-drip mr-1"></i> Plumbing</span>
+                                        <p class="text-xs text-slate-600 font-medium leading-relaxed">Major leak under the bathroom sink. Water is pooling on the floor near electrical outlets.</p>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-rose-600"></div> Critical
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-indigo-100 text-xs font-bold px-5 py-2.5 rounded-xl transition-all w-full flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-wrench"></i> Start Work
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Mock Ticket 2: Standard -->
+                                <tr class="hover:bg-indigo-50/30 transition-colors group">
+                                    <td class="p-6">
+                                        <div class="font-mono font-bold text-slate-800 text-sm">#TKT-9038</div>
+                                        <div class="text-[10px] text-slate-400 font-bold mt-1">2 HOURS AGO</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="font-black text-slate-800 text-sm"><i class="fa-solid fa-door-closed text-slate-300 mr-1"></i> C12-2</div>
+                                        <div class="text-xs font-semibold text-slate-500 mt-1">J. Doe</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="inline-block px-2.5 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold uppercase tracking-wider mb-2 border border-amber-100"><i class="fa-solid fa-bolt mr-1"></i> Electrical</span>
+                                        <p class="text-xs text-slate-600 font-medium leading-relaxed">Main ceiling light bulb has blown out. Needs replacement.</p>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div> Routine
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-600 border border-emerald-100 text-xs font-bold px-5 py-2.5 rounded-xl transition-all w-full flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-check"></i> Resolve
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Mock Ticket 3: Asset -->
+                                <tr class="hover:bg-indigo-50/30 transition-colors group">
+                                    <td class="p-6">
+                                        <div class="font-mono font-bold text-slate-800 text-sm">#TKT-9021</div>
+                                        <div class="text-[10px] text-slate-400 font-bold mt-1">1 DAY AGO</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="font-black text-slate-800 text-sm"><i class="fa-solid fa-door-closed text-slate-300 mr-1"></i> B05-1</div>
+                                        <div class="text-xs font-semibold text-slate-500 mt-1">T. Ndlovu</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="inline-block px-2.5 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase tracking-wider mb-2 border border-blue-100"><i class="fa-solid fa-chair mr-1"></i> Furniture</span>
+                                        <p class="text-xs text-slate-600 font-medium leading-relaxed">Study chair wheel is broken. Requires swap out from inventory.</p>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div> Routine
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-indigo-100 text-xs font-bold px-5 py-2.5 rounded-xl transition-all w-full flex items-center justify-center gap-2">
+                                            <i class="fa-solid fa-wrench"></i> Start Work
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- INVENTORY HUB TAB                          -->
+            <!-- ========================================== -->
+            <div id="pane-inventory" class="dashboard-tab space-y-6">
+                
+                <div class="grid grid-cols-3 gap-6 mb-6">
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Asset Value</p>
+                            <i class="fa-solid fa-vault text-slate-300"></i>
+                        </div>
+                        <p class="text-3xl font-black text-slate-800 tracking-tight">R 45,250</p>
+                    </div>
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group bg-rose-50/30 border-rose-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-xs font-bold text-rose-500 uppercase tracking-widest">Low Stock Alerts</p>
+                            <i class="fa-solid fa-triangle-exclamation text-rose-300"></i>
+                        </div>
+                        <p class="text-3xl font-black text-rose-600 tracking-tight">4 Items</p>
+                    </div>
+                    <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group bg-indigo-50/30 border-indigo-100 flex items-center justify-center cursor-pointer hover:bg-indigo-100/50 transition-colors">
+                        <div class="text-center">
+                            <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg shadow-indigo-500/30">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <p class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Log New Delivery</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-3xl overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                                <i class="fa-solid fa-boxes-stacked text-sm"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg">Parts & Hardware Vault</h3>
+                        </div>
+                        <div class="flex gap-2">
+                            <select class="text-sm bg-slate-50 border border-slate-200 text-slate-600 font-medium px-4 py-2.5 rounded-xl outline-none focus:border-indigo-400">
+                                <option>All Categories</option>
+                                <option>Electrical</option>
+                                <option>Plumbing</option>
+                                <option>Furniture</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scroll bg-white">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-100">
+                                    <th class="p-6">SKU / Item Name</th>
+                                    <th class="p-6">Category</th>
+                                    <th class="p-6 w-64">Stock Level</th>
+                                    <th class="p-6 text-center">Status</th>
+                                    <th class="p-6 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                
+                                <!-- Inventory Item 1 -->
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="p-6">
+                                        <div class="font-bold text-slate-800 text-sm">LED Ceiling Bulb (B22)</div>
+                                        <div class="text-[10px] font-mono text-slate-400 mt-1">SKU: EL-0042</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="text-xs font-bold text-amber-500"><i class="fa-solid fa-bolt mr-1"></i> Electrical</span>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
+                                            <span>45 Units</span>
+                                            <span class="text-slate-400">Cap: 50</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div class="bg-emerald-500 h-1.5 rounded-full inventory-progress" style="width: 90%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">Healthy</span>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="text-slate-400 hover:text-indigo-600 transition-colors p-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Inventory Item 2 (Low Stock) -->
+                                <tr class="hover:bg-rose-50/30 transition-colors bg-rose-50/10">
+                                    <td class="p-6">
+                                        <div class="font-bold text-slate-800 text-sm">Mortise Door Lock (Internal)</div>
+                                        <div class="text-[10px] font-mono text-slate-400 mt-1">SKU: HW-0118</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="text-xs font-bold text-slate-500"><i class="fa-solid fa-lock mr-1"></i> Hardware</span>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="flex items-center justify-between text-xs font-bold text-rose-600 mb-1.5">
+                                            <span>2 Units</span>
+                                            <span class="text-slate-400">Cap: 20</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div class="bg-rose-500 h-1.5 rounded-full inventory-progress animate-pulse" style="width: 10%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <span class="bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">Low Stock</span>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="bg-slate-900 hover:bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-lg transition-all shadow-sm">
+                                            <i class="fa-solid fa-cart-shopping mr-1"></i> Reorder
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Inventory Item 3 -->
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="p-6">
+                                        <div class="font-bold text-slate-800 text-sm">Shower Head (Standard Chrome)</div>
+                                        <div class="text-[10px] font-mono text-slate-400 mt-1">SKU: PL-0092</div>
+                                    </td>
+                                    <td class="p-6">
+                                        <span class="text-xs font-bold text-blue-500"><i class="fa-solid fa-faucet-drip mr-1"></i> Plumbing</span>
+                                    </td>
+                                    <td class="p-6">
+                                        <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
+                                            <span>12 Units</span>
+                                            <span class="text-slate-400">Cap: 25</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div class="bg-amber-400 h-1.5 rounded-full inventory-progress" style="width: 48%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <span class="bg-slate-100 text-slate-600 border border-slate-200 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">Adequate</span>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="text-slate-400 hover:text-indigo-600 transition-colors p-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Static Placeholders for other tabs -->
+            <div id="pane-history" class="dashboard-tab space-y-6">
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h2 class="text-2xl font-black text-slate-800 mb-2">Repair History Archive</h2>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">Connect to n8n database to view closed tickets and historical maintenance data.</p>
+                </div>
+            </div>
+            
+            <div id="pane-vendors" class="dashboard-tab space-y-6">
+                <div class="glass-panel rounded-3xl p-20 text-center bg-white/50">
+                    <div class="w-24 h-24 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"><i class="fa-solid fa-address-book"></i></div>
+                    <h2 class="text-2xl font-black text-slate-800 mb-2">Vendor & Contractor Directory</h2>
+                    <p class="text-slate-500 max-w-md mx-auto leading-relaxed">Centralized contact list for plumbers, electricians, and hardware suppliers.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Quick Actions Right Sidebar -->
+    <aside class="w-[320px] relative flex flex-col z-20 flex-shrink-0 bg-slate-50/60 backdrop-blur-3xl border-l border-white shadow-[-20px_0_40px_rgba(79,70,229,0.03)] overflow-hidden">
+        
+        <div class="relative z-10 flex flex-col h-full p-8">
+            <div class="flex items-center justify-between mb-6 border-b border-slate-200/50 pb-4">
+                <h3 class="font-black text-lg tracking-tight text-slate-800">Quick Actions</h3>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Action Buttons -->
+                <button class="w-full liquid-glass-card hover:border-indigo-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">Log Manual Ticket</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Report facility damage</p>
+                    </div>
+                </button>
+
+                <button class="w-full liquid-glass-card hover:border-emerald-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">Generate PO</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Purchase order for parts</p>
+                    </div>
+                </button>
+
+                <button class="w-full liquid-glass-card hover:border-rose-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer mt-8">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">Trigger Emergency</p>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Broadcast to management</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="mt-auto pt-8">
+                <div class="p-5 rounded-2xl bg-slate-800 text-white relative overflow-hidden shadow-xl shadow-slate-900/20">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-500 rounded-full filter blur-xl opacity-50"></div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1">Crew Shift</p>
+                    <p class="text-lg font-black tracking-tight mb-4">Day Shift Active</p>
+                    <div class="flex items-center gap-2 text-xs font-medium text-slate-300">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                        3 Technicians On Duty
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        function switchTab(tabId, btnElement) {
+            // Hide all tabs
+            document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
+            // Show selected tab
+            document.getElementById('pane-' + tabId).classList.add('active');
+
+            // Reset all buttons
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800";
+                
+                // Keep specific icons their default color when inactive
+                const icon = btn.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('text-indigo-500');
+                    if(!btn.innerHTML.includes('Security Ops')) icon.classList.add('text-slate-400');
+                }
+            });
+
+            // Set active button style
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-indigo-50/50";
+            const activeIcon = btnElement.querySelector('i');
+            if(activeIcon) {
+                activeIcon.classList.remove('text-slate-400');
+                activeIcon.classList.add('text-indigo-500');
+            }
+
+            // Update Header Titles
+            const title = document.getElementById('matrixTitle');
+            const sub = document.getElementById('matrixSub');
+
+            if (tabId === 'snags') {
+                title.textContent = "Snag Board"; sub.textContent = "Live Ticket Resolution Routing";
+            } else if (tabId === 'inventory') {
+                title.textContent = "Parts Inventory"; sub.textContent = "Facility Asset & Supply Chain";
+                // Trigger CSS animation for bars
+                setTimeout(() => {
+                    document.querySelectorAll('.inventory-progress').forEach(bar => {
+                        const w = bar.style.width;
+                        bar.style.width = '0';
+                        setTimeout(() => bar.style.width = w, 50);
+                    });
+                }, 100);
+            } else if (tabId === 'history') {
+                title.textContent = "Repair Archive"; sub.textContent = "Historical Maintenance Data";
+            } else if (tabId === 'vendors') {
+                title.textContent = "Vendor Directory"; sub.textContent = "Contractor Contacts & SLAs";
+            }
+        }
+    </script>
+</body>
+</html>
