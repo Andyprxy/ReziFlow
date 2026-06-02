@@ -27,6 +27,7 @@
             flex-direction: column;
         }
 
+        /* Smooth tab transitions */
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn {
@@ -37,10 +38,44 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .tap-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
+        
+        /* Premium Soft Shadows & Borders */
         .card-shadow { box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04); }
+        .soft-border { border: 1px solid rgba(226, 232, 240, 0.6); }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        /* Toast Notifications */
+        #toast-container {
+            transform: translateY(-150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #toast-container.show { transform: translateY(0); }
     </style>
 </head>
 <body class="text-slate-800">
+
+    <!-- Global Toast Notification -->
+    <div id="toast-container" class="fixed top-6 left-0 right-0 z-[1000] flex justify-center px-4 pointer-events-none">
+        <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-text">Action completed successfully.</span>
+        </div>
+    </div>
 
     <!-- Protection Screen Overlay -->
     <div id="authGuard" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-opacity duration-500">
@@ -55,7 +90,7 @@
         
         <!-- Floating Header -->
         <header class="pt-6 px-5 z-40 sticky top-0 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
-            <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow">
+            <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
                     <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
@@ -69,18 +104,19 @@
         <main class="flex-1 overflow-y-auto no-scrollbar px-5 pb-6 relative z-10">
 
             <!-- ========================================== -->
-            <!-- TAB 1: HOME                                -->
+            <!-- TAB 1: HOME (BENCHMARKED)                  -->
             <!-- ========================================== -->
-            <div id="tab-home" class="tab-content active space-y-5">
-                <!-- Hero Card -->
+            <div id="tab-home" class="tab-content active space-y-6">
+                
+                <!-- Premium Hero Card -->
                 <section class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
                     <div class="relative z-10 flex justify-between items-start mb-8">
                         <div>
                             <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Verified Resident</p>
-                            <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight">Loading...</h1>
+                            <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight tracking-tight">Loading...</h1>
                         </div>
-                        <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5">
+                        <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
                             <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse"></span> Active
                         </div>
                     </div>
@@ -95,26 +131,35 @@
                         </div>
                     </div>
                 </section>
+
                 <!-- Building Access -->
                 <section>
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 ml-1">Building Access</h3>
+                    <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
                     <div class="flex gap-3">
-                        <button class="flex-1 bg-blue-50 hover:bg-blue-100 py-4 rounded-3xl flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-100/50">
+                        <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm">
                             <i class="fa-solid fa-key text-blue-500 text-xl"></i>
                             <span class="text-xs font-semibold text-slate-700">Turnstiles</span>
                         </button>
-                        <button class="flex-1 bg-blue-50 hover:bg-blue-100 py-4 rounded-3xl flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-100/50">
-                            <i class="fa-solid fa-user-plus text-blue-500 text-xl"></i>
+                        <button onclick="requestVisitorPin()" id="btn-visitor-pin" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm">
+                            <i class="fa-solid fa-plus text-blue-500 text-xl"></i>
                             <span class="text-xs font-semibold text-slate-700">Visitor PIN</span>
                         </button>
                     </div>
                 </section>
+                
+                <!-- Display Area for Generated PIN -->
+                <div id="pin-display-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center mt-2">
+                    <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
+                    <p id="generated-pin" class="text-2xl font-mono font-bold text-slate-800 tracking-widest">------</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
+                </div>
+
                 <!-- Lease & Funding -->
                 <section>
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 ml-1">Lease & Funding</h3>
-                    <div class="bg-white rounded-3xl p-4 card-shadow flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-circle-check text-2xl"></i>
+                    <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Lease & Funding</h3>
+                    <div class="bg-[#eef8f3] rounded-[24px] p-4 border border-emerald-100/50 flex items-center gap-4 shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
+                            <i class="fa-solid fa-check text-lg"></i>
                         </div>
                         <div>
                             <p class="text-sm font-bold text-slate-800">Semester 1 Lease</p>
@@ -122,112 +167,254 @@
                         </div>
                     </div>
                 </section>
-            </div>
 
-            <!-- ========================================== -->
-            <!-- TAB 2 & 3: WI-FI & SNAGS (Collapsed for brevity, keep your existing logic here) -->
-            <!-- ========================================== -->
-            <div id="tab-wifi" class="tab-content space-y-5">
-                 <div class="bg-white card-shadow rounded-[28px] p-6 text-center">
-                    <h2 class="text-xl font-bold text-slate-900 mb-1">ReziFlow_5G</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-4 mb-2">Your Unique Password</p>
-                    <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest">------</p>
+                <!-- Upcoming Activities (NEW) -->
+                <section>
+                    <div class="flex justify-between items-center mb-3 ml-2 mr-1">
+                        <h3 class="text-sm font-bold text-slate-800">Upcoming Activities</h3>
+                        <span class="bg-[#e8f1fb] text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-50">4 this week</span>
+                    </div>
+                    
+                    <div class="bg-white rounded-[28px] p-3 card-shadow soft-border space-y-2">
+                        
+                        <!-- Event 1 -->
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-glass-cheers"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">Res Welcome Mixer</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-0.5">Fri - 18:00 - Common Room</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Event 2 -->
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">Group Study — Calculus</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-0.5">Sat - 10:00 - Study Pod 2</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Event 3 -->
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-regular fa-calendar"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">House Meeting</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-0.5">Mon - 19:30 - Main Lounge</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Event 4 -->
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">Laundry Day Special</p>
+                                <p class="text-[11px] text-slate-500 font-medium mt-0.5">Wed - all day - 50% off</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="pt-2 text-center opacity-60 flex flex-col items-center justify-center">
+                    <p class="text-[9px] font-semibold text-slate-500">Engineered by Automania</p>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- TAB 4: PROFILE & DIGITAL VAULT (UPGRADED)  -->
+            <!-- TAB 2: WI-FI                               -->
+            <!-- ========================================== -->
+            <div id="tab-wifi" class="tab-content space-y-5">
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">ReziFlow_5G</h2>
+                    <p class="text-sm text-slate-500 mb-6 font-medium">High-Speed Campus Network</p>
+                    
+                    <div class="bg-slate-50 rounded-[20px] p-4 text-left border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Your Unique Password</p>
+                        <div class="flex items-center justify-between">
+                            <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest blur-sm transition-all duration-300">------</p>
+                            <button onclick="togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 tap-effect hover:bg-slate-100 shadow-sm transition-all">
+                                <i id="eye-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: SNAGS                               -->
+            <!-- ========================================== -->
+            <div id="tab-snags" class="tab-content space-y-5">
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
+                    <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">Maintenance</h2>
+                    <p class="text-sm text-slate-500 mb-6 font-medium">Report issues for your room</p>
+                    
+                    <button onclick="openModal('snagModal')" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-4 flex items-center justify-center gap-3 tap-effect shadow-md shadow-blue-500/20 transition-colors font-bold mb-6">
+                        <i class="fa-solid fa-plus"></i> Log New Snag
+                    </button>
+                    
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-slate-800 mb-3">Active Tickets</p>
+                        <div class="p-4 bg-slate-50 rounded-[20px] border border-slate-100 text-center text-slate-500 text-sm py-8 font-medium">
+                            No active maintenance requests.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 4: SECURITY                            -->
+            <!-- ========================================== -->
+            <div id="tab-security" class="tab-content space-y-5">
+                <section class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Emergency SOS</h2>
+                    <p class="text-[11px] text-slate-500 mb-6 font-medium">Tap to alert on-site security immediately</p>
+                    
+                    <div class="relative w-36 h-36 mx-auto mb-6 flex items-center justify-center">
+                        <div class="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-70"></div>
+                        <div class="absolute inset-4 bg-red-200 rounded-full"></div>
+                        <button id="btn-sos" onclick="triggerSOS()" class="relative z-10 w-24 h-24 bg-red-600 text-white rounded-full flex flex-col items-center justify-center tap-effect shadow-xl shadow-red-500/30 active:scale-90 transition-all duration-300">
+                            <i id="sos-icon" class="fa-solid fa-light-emergency-on text-2xl mb-1"></i>
+                            <span id="sos-text" class="font-bold text-sm">SOS</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-medium">Your room and ID are shared with security.</p>
+                </section>
+
+                <section class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h2 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">Ping Security</h2>
+                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Choose the type of help you need</p>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
+                            <i class="fa-regular fa-eye text-blue-500 mb-2 block"></i>
+                            <span class="text-xs font-semibold text-slate-700">Suspicious Person</span>
+                        </button>
+                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option">
+                            <i class="fa-solid fa-location-dot text-blue-600 mb-2 block"></i>
+                            <span class="text-xs font-semibold text-slate-900">Escort Request</span>
+                        </button>
+                        <button type="button" onclick="selectSecurityOption(this, 'Disturbance')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
+                            <i class="fa-solid fa-triangle-exclamation text-blue-500 mb-2 block"></i>
+                            <span class="text-xs font-semibold text-slate-700">Disturbance</span>
+                        </button>
+                        <button type="button" onclick="selectSecurityOption(this, 'Medical Help')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
+                            <i class="fa-solid fa-phone text-blue-500 mb-2 block"></i>
+                            <span class="text-xs font-semibold text-slate-700">Medical Help</span>
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="selected-security-type" value="Escort Request">
+                    <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all" placeholder="Add details for 'Escort Request'..."></textarea>
+                    
+                    <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-blue-500/20 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-paper-plane"></i> Send Alert
+                    </button>
+                </section>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 5: PROFILE & DIGITAL VAULT             -->
             <!-- ========================================== -->
             <div id="tab-profile" class="tab-content space-y-5">
-                
-                <!-- Profile Header Card -->
-                <div class="bg-white card-shadow rounded-[28px] p-5 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl flex-shrink-0" id="profile-initials">--</div>
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-5 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl flex-shrink-0 shadow-inner" id="profile-initials">--</div>
                     <div>
-                        <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight">--</h2>
+                        <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight tracking-tight">--</h2>
                         <p id="dyn-details-profile" class="text-xs font-medium text-blue-500 mt-0.5">--</p>
                     </div>
                 </div>
 
-                <!-- Expanded Personal Details -->
-                <div class="bg-white card-shadow rounded-[28px] p-6">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
+                <!-- Personal Information -->
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">ID Number</span>
+                            <span class="text-xs text-slate-500 font-medium">ID Number</span>
                             <span id="dyn-id-number" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Gender</span>
+                            <span class="text-xs text-slate-500 font-medium">Gender</span>
                             <span id="dyn-gender" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Contact Number</span>
+                            <span class="text-xs text-slate-500 font-medium">Contact Number</span>
                             <span id="dyn-mobile" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Home Address</span>
+                            <span class="text-xs text-slate-500 font-medium">Home Address</span>
                             <span id="dyn-address" class="text-xs font-bold text-slate-800 text-right max-w-[180px] truncate">--</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Guardian Details -->
-                <div class="bg-white card-shadow rounded-[28px] p-6">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3"><i class="fa-solid fa-shield-heart text-indigo-500 mr-2"></i> Guardian Details</h3>
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-shield-heart text-indigo-500 mr-2"></i> Guardian Details</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Name</span>
+                            <span class="text-xs text-slate-500 font-medium">Name</span>
                             <span id="dyn-guardian-name" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Relationship</span>
+                            <span class="text-xs text-slate-500 font-medium">Relationship</span>
                             <span id="dyn-guardian-rel" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-xs text-slate-500">Contact Number</span>
+                            <span class="text-xs text-slate-500 font-medium">Contact Number</span>
                             <span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Digital Vault Document Section -->
-                <div class="bg-white card-shadow rounded-[28px] p-6">
-                    <h3 class="text-base font-bold text-slate-900 mb-1">Digital Vault</h3>
-                    <p class="text-[11px] text-slate-500 mb-5">Access your securely uploaded compliance files.</p>
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Digital Vault</h3>
+                    <p class="text-[11px] text-slate-500 mb-5 font-medium">Access your securely uploaded compliance files.</p>
                     
                     <div class="space-y-3 mb-6">
                         <!-- Identity Document -->
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-id-card"></i></div>
                                 <div>
-                                    <p class="text-sm font-semibold text-slate-800">Identity Document</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">ID / Passport</p>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p>
                                 </div>
                             </div>
                             <div id="doc-btn-id"></div>
                         </div>
 
                         <!-- Proof of Registration -->
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
                                 <div>
-                                    <p class="text-sm font-semibold text-slate-800">Academic Registration</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5" id="dyn-course-name">--</p>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p>
                                 </div>
                             </div>
                             <div id="doc-btn-reg"></div>
                         </div>
 
                         <!-- Proof of Funding -->
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-landmark"></i></div>
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-landmark"></i></div>
                                 <div>
-                                    <p class="text-sm font-semibold text-slate-800">Funding Pipeline</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 capitalize" id="dyn-funding-type">--</p>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p>
                                 </div>
                             </div>
                             <div id="doc-btn-fund"></div>
@@ -239,7 +426,7 @@
                         <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
                         <div>
                             <p class="text-xs font-bold text-slate-800">Automania Architecture</p>
-                            <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed">Files are stored securely in encrypted cloud nodes.</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">Files are stored securely in encrypted cloud nodes.</p>
                         </div>
                     </div>
                 </div>
@@ -248,15 +435,21 @@
         </main>
 
         <!-- Bottom Navigation Bar -->
-        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
             <div class="flex justify-between items-center text-slate-400">
-                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 tap-effect">
+                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 tap-effect transition-colors">
                     <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
                 </button>
-                <button onclick="switchTab('wifi', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500">
+                <button onclick="switchTab('wifi', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
                     <i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span>
                 </button>
-                <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500">
+                <button onclick="switchTab('snags', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                    <i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span>
+                </button>
+                <button onclick="switchTab('security', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                    <i class="fa-regular fa-shield text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span>
+                </button>
+                <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
                     <i class="fa-regular fa-user text-lg mb-0.5"></i><span class="text-[10px] font-medium">Profile</span>
                 </button>
             </div>
@@ -264,8 +457,41 @@
         </nav>
     </div>
 
+    <!-- Modals -->
+    <div id="snagModal" class="fixed inset-0 z-[100] modal-overlay flex items-end sm:items-center justify-center sm:p-4">
+        <div class="modal-content bg-white w-full max-w-md sm:rounded-[32px] rounded-t-[32px] shadow-2xl p-6 pb-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Log Maintenance</h2>
+                <button onclick="closeModal('snagModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="snagForm" onsubmit="submitSnag(event)">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
+                    <select id="snag-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 transition-colors" required>
+                        <option value="" disabled selected>Select issue type...</option>
+                        <option value="Plumbing">Plumbing (Leaks, Toilets)</option>
+                        <option value="Electrical">Electrical (Lights, Plugs)</option>
+                        <option value="Furniture">Furniture & Fittings</option>
+                        <option value="Locks">Doors & Locks</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description</label>
+                    <textarea id="snag-desc" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 resize-none transition-colors" placeholder="Provide details about the issue..." required></textarea>
+                </div>
+                <button type="submit" id="btn-submit-snag" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-4 shadow-lg shadow-slate-900/20 transition-all flex justify-center items-center gap-2">
+                    Submit Ticket <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- ========================================== -->
-    <!-- COMPREHENSIVE DATA INJECTION SCRIPT        -->
+    <!-- LOGIC SCRIPTS                              -->
     <!-- ========================================== -->
     <script>
         function getSessionData() {
@@ -282,25 +508,25 @@
             if(!session) return;
 
             try {
-                // Parsing Primary Variables
                 const fName = session.First_Name || 'Resident';
                 const sName = session.Surname || '';
                 const fullName = `${fName} ${sName}`.trim();
-                const initials = (fName.charAt(0) + (sName.charAt(0) || '')).toUpperCase();
+                const initials = (fName.charAt(0) + (sName.charAt(0) || '')).toUpperCase() || 'RF';
                 const studentId = session.Student_Number || '--';
                 const room = session.Room_Allocation || 'Unassigned';
                 const funding = session.Funding_Type || 'Pending';
 
-                // 1. Inject Headers & Core Identity
                 document.getElementById('header-initials').textContent = initials;
                 document.getElementById('profile-initials').textContent = initials;
                 document.getElementById('dyn-fullname-home').textContent = fullName;
                 document.getElementById('dyn-id-home').textContent = studentId;
                 document.getElementById('dyn-room-home').textContent = room;
-                document.getElementById('dyn-funding-home').textContent = `${funding} Cleared`;
+                
+                const fundingText = `${funding} Cleared`;
+                document.getElementById('dyn-funding-home').textContent = fundingText;
+                
                 document.getElementById('dyn-vetting-badge').textContent = session.Vetting_Status === 'Approved' ? 'Verified Resident' : 'Vetting Pending';
                 
-                // 2. Inject Extensive Profile Data
                 document.getElementById('dyn-fullname-profile').textContent = fullName;
                 document.getElementById('dyn-details-profile').textContent = `${session.Year_Level || 'Student'} • ${session.Campus_Hub || 'Campus'}`;
                 
@@ -316,11 +542,10 @@
                 document.getElementById('dyn-course-name').textContent = session.Course || '--';
                 document.getElementById('dyn-funding-type').textContent = funding;
 
-                // 3. Inject Dynamic Document Vault Links
                 const renderDocButton = (containerId, url) => {
                     const container = document.getElementById(containerId);
                     if (url && url.length > 5) {
-                        container.innerHTML = `<a href="${url}" target="_blank" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-xl transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>`;
+                        container.innerHTML = `<a href="${url}" target="_blank" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>`;
                     } else {
                         container.innerHTML = `<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Awaiting</span>`;
                     }
@@ -330,10 +555,8 @@
                 renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
                 renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
 
-                // 4. Inject Wi-Fi
                 document.getElementById('wifi-pass').textContent = `${initials}-${studentId.substring(0,6)}`;
 
-                // Remove Protection Guard Smoothly
                 setTimeout(() => {
                     const guard = document.getElementById('authGuard');
                     guard.style.opacity = '0';
@@ -345,6 +568,191 @@
                 handleLogout();
             }
         });
+
+        async function requestVisitorPin() {
+            const session = getSessionData();
+            const btn = document.getElementById('btn-visitor-pin');
+            const ogText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl text-blue-500"></i><span class="text-xs font-semibold text-slate-700">Generating...</span>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-visitor-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number,
+                        Room_Allocation: session.Room_Allocation
+                    })
+                });
+                const data = await res.json();
+                
+                document.getElementById('pin-display-container').classList.remove('hidden');
+                document.getElementById('generated-pin').textContent = data.pin || Math.floor(100000 + Math.random() * 900000); 
+                
+                showToast("Visitor PIN Generated", "success");
+                btn.innerHTML = ogText;
+                btn.disabled = false;
+            } catch (error) {
+                showToast("Failed to connect to access system.", "error");
+                btn.innerHTML = ogText;
+                btn.disabled = false;
+            }
+        }
+
+        async function submitSnag(e) {
+            e.preventDefault();
+            const session = getSessionData();
+            const btn = document.getElementById('btn-submit-snag');
+            const category = document.getElementById('snag-category').value;
+            const desc = document.getElementById('snag-desc').value;
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-log-snag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number,
+                        Room_Allocation: session.Room_Allocation,
+                        Category: category,
+                        Description: desc
+                    })
+                });
+                closeModal('snagModal');
+                showToast("Ticket submitted. Maintenance notified.", "success");
+                document.getElementById('snagForm').reset();
+            } catch(error) {
+                showToast("Submission failed. Try again.", "error");
+            } finally {
+                btn.innerHTML = 'Submit Ticket <i class="fa-solid fa-arrow-right"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        async function triggerSOS() {
+            const session = getSessionData();
+            const btn = document.getElementById('btn-sos');
+            const icon = document.getElementById('sos-icon');
+            const text = document.getElementById('sos-text');
+
+            btn.classList.replace('bg-red-600', 'bg-orange-500');
+            icon.classList.replace('fa-light-emergency-on', 'fa-circle-notch');
+            icon.classList.add('fa-spin');
+            text.textContent = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-sos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number,
+                        Room_Allocation: session.Room_Allocation,
+                        Type: "EMERGENCY_SOS"
+                    })
+                });
+
+                btn.classList.replace('bg-orange-500', 'bg-emerald-500');
+                icon.classList.remove('fa-circle-notch', 'fa-spin');
+                icon.classList.add('fa-check');
+                text.textContent = 'Dispatched';
+                showToast("Security Dispatched to your location.", "success");
+
+                setTimeout(() => {
+                    btn.classList.replace('bg-emerald-500', 'bg-red-600');
+                    icon.classList.replace('fa-check', 'fa-light-emergency-on');
+                    text.textContent = 'SOS';
+                    btn.disabled = false;
+                }, 5000);
+
+            } catch(error) {
+                showToast("Connection error. Call security directly.", "error");
+                btn.classList.replace('bg-orange-500', 'bg-red-600');
+                icon.classList.replace('fa-circle-notch', 'fa-light-emergency-on');
+                icon.classList.remove('fa-spin');
+                text.textContent = 'SOS';
+                btn.disabled = false;
+            }
+        }
+
+        async function sendSecurityPing() {
+            const session = getSessionData();
+            const btn = document.getElementById('btn-security-ping');
+            const pingType = document.getElementById('selected-security-type').value;
+            const notes = document.getElementById('security-notes').value;
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-security-ping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number,
+                        Room_Allocation: session.Room_Allocation,
+                        Ping_Type: pingType,
+                        Notes: notes
+                    })
+                });
+                showToast(`Alert sent for: ${pingType}`, "success");
+                document.getElementById('security-notes').value = '';
+            } catch(error) {
+                showToast("Transmission failed.", "error");
+            } finally {
+                btn.innerHTML = '<i class="fa-regular fa-paper-plane"></i> Send Alert';
+                btn.disabled = false;
+            }
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const text = document.getElementById('toast-text');
+            const icon = document.getElementById('toast-icon');
+
+            text.textContent = message;
+            if(type === 'error') {
+                icon.className = 'fa-solid fa-triangle-exclamation text-rose-500';
+            } else {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            container.classList.add('show');
+            setTimeout(() => { container.classList.remove('show'); }, 3500);
+        }
+
+        function selectSecurityOption(element, optionName) {
+            document.querySelectorAll('.sec-option').forEach(btn => {
+                btn.className = 'sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all';
+                btn.querySelector('i').className = btn.querySelector('i').className.replace('text-blue-600', 'text-blue-500');
+                btn.querySelector('span').className = 'text-xs font-semibold text-slate-700';
+            });
+            element.className = 'sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option';
+            element.querySelector('i').className = element.querySelector('i').className.replace('text-blue-500', 'text-blue-600');
+            element.querySelector('span').className = 'text-xs font-semibold text-slate-900';
+            
+            document.getElementById('selected-security-type').value = optionName;
+            document.getElementById('security-notes').placeholder = `Add details for "${optionName}"...`;
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function togglePasswordVisibility() {
+            const passEl = document.getElementById('wifi-pass');
+            const iconEl = document.getElementById('eye-icon');
+            if (passEl.classList.contains('blur-sm')) {
+                passEl.classList.remove('blur-sm');
+                iconEl.className = 'fa-solid fa-eye-slash text-blue-500';
+            } else {
+                passEl.classList.add('blur-sm');
+                iconEl.className = 'fa-solid fa-eye text-slate-600';
+            }
+        }
 
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
