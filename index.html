@@ -67,8 +67,8 @@
 
         /* Modal Styles */
         .modal-overlay {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -95,10 +95,13 @@
         }
 
         .portal-card:hover {
-            transform: translateY(-8px);
-            border-color: #3b82f6;
+            transform: translateY(-6px);
             box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.15);
         }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="text-gray-800 antialiased">
@@ -330,116 +333,131 @@
         </div>
     </footer>
 
+    <!-- REZIFLOW DEPLOYMENT MODAL -->
     <div id="demoModal" class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
-        <div class="modal-content bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden relative">
+        <div class="modal-content bg-slate-50 w-full max-w-6xl rounded-[32px] shadow-2xl overflow-hidden relative flex flex-col max-h-[95vh]">
             
-            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition-colors z-20">
+            <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 bg-white hover:bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 transition-colors z-20 shadow-sm">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <div class="p-8 md:p-10 text-center border-b border-slate-100 bg-slate-50 relative z-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3">Live Demo Environment</div>
-                <h2 class="text-3xl font-bold text-slate-900 mb-2">Experience the Pipeline</h2>
-                <p class="text-slate-600 max-w-xl mx-auto text-sm">Select a portal below to experience ReziFlow from both sides of the operational divide. Watch the data move seamlessly from the tenant's app to the backend ledger.</p>
+            <!-- Header & Operational Guide -->
+            <div class="p-8 md:p-10 text-center border-b border-slate-200 bg-white relative z-10 flex-shrink-0">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Live Deployment</div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2 tracking-tight">Experience the ReziFlow Pipeline</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-sm mb-8 font-medium">Follow the sequence below to experience the ecosystem from end-to-end, or jump directly into any operational dashboard.</p>
+                
+                <!-- The Workflow Steps -->
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 bg-slate-50 rounded-2xl p-4 border border-slate-100 max-w-3xl mx-auto">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md">1</div>
+                        <span class="text-sm font-bold text-slate-800">Create Student Account</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">2</div>
+                        <span class="text-sm font-bold text-slate-800">Approve Vetting on Admin</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-md">3</div>
+                        <span class="text-sm font-bold text-slate-800">Test Live Operations</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="p-8 md:p-10 bg-white">
-                <div class="grid md:grid-cols-2 gap-8">
-                    
-                    <a href="student/" class="portal-card block bg-white rounded-3xl border-2 border-slate-100 overflow-hidden group">
-                        
-                        <div class="h-56 bg-slate-100 relative overflow-hidden group-hover:bg-blue-50 transition-colors duration-500 flex items-end justify-center pt-8">
-                            <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                            <div class="absolute top-10 -left-10 w-40 h-40 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+            <!-- Scrollable Cards Area -->
+            <div class="p-8 md:p-10 overflow-y-auto custom-scroll bg-slate-50">
+                
+                <!-- 1. The Hub: Admin OS (Full Width) -->
+                <a href="admin/" class="portal-card block bg-white rounded-[24px] border-2 border-slate-200 overflow-hidden group mb-8 shadow-sm hover:border-cyan-400">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Content -->
+                        <div class="p-8 md:p-10 md:w-1/2 flex flex-col justify-center">
+                            <div class="w-12 h-12 bg-slate-900 text-cyan-400 rounded-xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa-solid fa-chess-board"></i></div>
+                            <h3 class="text-2xl font-black text-slate-900 mb-2">Master Command Center</h3>
+                            <p class="text-sm text-slate-500 mb-6 leading-relaxed">The operational brain of ReziFlow. Approve student vetting, allocate rooms, monitor live telemetry, and oversee the entire facility ecosystem.</p>
+                            <span class="inline-flex items-center gap-2 text-cyan-600 font-bold text-sm group-hover:text-cyan-500 transition-colors">
+                                Access Admin Portal <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                        </div>
+                        <!-- Abstract Visual -->
+                        <div class="h-64 md:h-auto md:w-1/2 bg-slate-900 relative overflow-hidden group-hover:bg-slate-800 transition-colors duration-500 border-l border-slate-100 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:16px_16px]"></div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500 rounded-full mix-blend-screen filter blur-[70px] opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
                             
-                            <div class="relative z-10 w-52 h-full bg-white/70 backdrop-blur-xl rounded-t-3xl border-t border-l border-r border-white shadow-2xl transform translate-y-6 group-hover:translate-y-2 transition-transform duration-500 ease-out flex flex-col p-4 gap-3">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-white shadow-sm">
-                                        <img src="https://ui-avatars.com/api/?name=Andile+M&background=0D8ABC&color=fff" alt="Profile" class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <div class="h-1.5 w-16 bg-slate-300 rounded-full mb-1.5"></div>
-                                        <div class="h-1 w-10 bg-slate-200 rounded-full"></div>
+                            <div class="relative z-10 w-3/4 flex flex-col gap-3 transform group-hover:scale-105 transition-transform duration-500 ease-out">
+                                <div class="w-full h-5 bg-slate-800/80 backdrop-blur-md rounded-full border border-slate-700 flex items-center px-4 justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></div>
+                                        <div class="h-1.5 w-16 bg-slate-500 rounded-full"></div>
                                     </div>
                                 </div>
-                                <div class="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl p-3 text-white shadow-sm transform group-hover:scale-105 transition-transform duration-500 delay-75">
-                                    <div class="text-[8px] opacity-80 uppercase tracking-wider font-bold mb-1">Utility Balance</div>
-                                    <div class="text-sm font-bold">R 340.50</div>
-                                </div>
-                                <div class="bg-white rounded-xl p-2 border border-slate-100 shadow-sm flex items-center gap-2 transform group-hover:scale-105 transition-transform duration-500 delay-150">
-                                    <div class="w-6 h-6 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-wrench"></i></div>
-                                    <div>
-                                        <div class="h-1.5 w-20 bg-slate-700 rounded-full mb-1"></div>
-                                        <div class="h-1 w-12 bg-slate-300 rounded-full"></div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="h-20 bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700 p-3 flex flex-col justify-between">
+                                        <div class="h-1.5 w-10 bg-slate-500 rounded-full"></div>
+                                        <div class="h-4 w-16 bg-blue-500 rounded-full"></div>
+                                    </div>
+                                    <div class="h-20 bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700 p-3 flex flex-col justify-between relative overflow-hidden">
+                                        <div class="absolute -right-2 -bottom-2 w-12 h-12 bg-cyan-500 rounded-full blur-xl opacity-50"></div>
+                                        <div class="h-1.5 w-12 bg-slate-500 rounded-full relative z-10"></div>
+                                        <div class="h-4 w-12 bg-cyan-400 rounded-full relative z-10"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </a>
 
-                        <div class="p-6 text-center border-t border-slate-50">
-                            <h3 class="text-xl font-bold text-slate-900 mb-1">Student Web-App</h3>
-                            <p class="text-sm text-slate-500 mb-4">Mobile-first self-service. Log snags, check R-balances, and view Wi-Fi limits natively.</p>
-                            <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-700 font-semibold text-sm rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors w-full">
-                                Launch Front-End <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                            </span>
+                <!-- 2. The Spokes: Operations Grid -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    
+                    <!-- Student App -->
+                    <a href="student/" class="portal-card block bg-white rounded-2xl border-2 border-slate-200 overflow-hidden group shadow-sm flex flex-col hover:border-blue-400">
+                        <div class="h-32 bg-blue-50 relative overflow-hidden flex items-center justify-center group-hover:bg-blue-100 transition-colors border-b border-slate-100">
+                             <i class="fa-solid fa-mobile-screen text-4xl text-blue-500 transform group-hover:scale-110 transition-transform"></i>
+                             <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-blue-400 rounded-full blur-2xl opacity-30"></div>
+                        </div>
+                        <div class="p-6 text-center flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-900 mb-2">Student Portal</h4>
+                            <p class="text-xs text-slate-500 mb-5 flex-1 leading-relaxed">Account registration, room inspections, utility tracking, and SOS triggering.</p>
+                            <span class="inline-flex items-center justify-center gap-2 bg-slate-50 group-hover:bg-blue-50 text-blue-600 font-bold text-xs uppercase tracking-widest px-4 py-2.5 rounded-lg transition-colors">Enter Portal <i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     </a>
 
-                    <a href="admin/" class="portal-card block bg-white rounded-3xl border-2 border-slate-100 overflow-hidden group">
-                        
-                        <div class="h-56 bg-slate-900 relative overflow-hidden group-hover:bg-slate-800 transition-colors duration-500 flex items-center justify-center">
-                            <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:16px_16px]"></div>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500 rounded-full mix-blend-screen filter blur-[50px] opacity-10 group-hover:opacity-30 transition-opacity duration-700"></div>
-                            
-                            <div class="relative z-10 w-64 h-40 flex flex-col gap-2 transform group-hover:scale-105 transition-transform duration-500 ease-out">
-                                <div class="w-full h-4 bg-slate-800/80 backdrop-blur-md rounded-full border border-slate-700 flex items-center px-3 justify-between">
-                                    <div class="flex items-center gap-1.5">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_#34d399]"></div>
-                                        <div class="h-1 w-12 bg-slate-600 rounded-full"></div>
-                                    </div>
-                                    <div class="h-1 w-8 bg-slate-600 rounded-full"></div>
-                                </div>
-                                
-                                <div class="flex gap-2 flex-1">
-                                    <div class="w-12 bg-slate-800/50 backdrop-blur-md rounded-xl border border-slate-700 p-2 flex flex-col gap-2">
-                                        <div class="w-full h-2 bg-slate-600 rounded-full"></div>
-                                        <div class="w-full h-2 bg-slate-700 rounded-full"></div>
-                                        <div class="w-full h-2 bg-slate-700 rounded-full"></div>
-                                    </div>
-                                    <div class="flex-1 flex flex-col gap-2">
-                                        <div class="flex-1 bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700 p-3 relative overflow-hidden flex flex-col justify-end">
-                                            <div class="absolute top-2 left-2 text-[6px] text-slate-400 font-mono">AUTOMATION_LOG</div>
-                                            <div class="flex items-end gap-1.5 h-8 w-full">
-                                                <div class="w-full bg-blue-500/80 rounded-t-sm h-[30%] group-hover:h-[60%] transition-all duration-700"></div>
-                                                <div class="w-full bg-cyan-400/80 rounded-t-sm h-[50%] group-hover:h-[95%] transition-all duration-700 delay-75 shadow-[0_0_8px_rgba(34,211,238,0.4)]"></div>
-                                                <div class="w-full bg-indigo-500/80 rounded-t-sm h-[40%] group-hover:h-[80%] transition-all duration-700 delay-150"></div>
-                                                <div class="w-full bg-slate-600/50 rounded-t-sm h-[20%] group-hover:h-[40%] transition-all duration-700 delay-200"></div>
-                                            </div>
-                                        </div>
-                                        <div class="h-8 bg-cyan-900/30 backdrop-blur-md rounded-lg border border-cyan-500/30 p-2 flex items-center gap-2 transform group-hover:-translate-y-1 transition-transform duration-500 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]">
-                                            <i class="fa-solid fa-network-wired text-cyan-400 text-[8px]"></i>
-                                            <div class="h-1.5 w-20 bg-cyan-400/50 rounded-full"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Maintenance Crew -->
+                    <a href="maintenance/" class="portal-card block bg-white rounded-2xl border-2 border-slate-200 overflow-hidden group shadow-sm flex flex-col hover:border-indigo-400">
+                        <div class="h-32 bg-indigo-50 relative overflow-hidden flex items-center justify-center group-hover:bg-indigo-100 transition-colors border-b border-slate-100">
+                             <i class="fa-solid fa-screwdriver-wrench text-4xl text-indigo-500 transform group-hover:scale-110 transition-transform"></i>
+                             <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-amber-400 rounded-full blur-2xl opacity-20"></div>
                         </div>
+                        <div class="p-6 text-center flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-900 mb-2">Facility Maintenance</h4>
+                            <p class="text-xs text-slate-500 mb-5 flex-1 leading-relaxed">Live dynamic snag board and parts inventory management for the repair crew.</p>
+                            <span class="inline-flex items-center justify-center gap-2 bg-slate-50 group-hover:bg-indigo-50 text-indigo-600 font-bold text-xs uppercase tracking-widest px-4 py-2.5 rounded-lg transition-colors">Enter Ops <i class="fa-solid fa-arrow-right"></i></span>
+                        </div>
+                    </a>
 
-                        <div class="p-6 text-center border-t border-slate-50">
-                            <h3 class="text-xl font-bold text-slate-900 mb-1">Operator Dashboard</h3>
-                            <p class="text-sm text-slate-500 mb-4">Command center view. Watch live n8n workflows, API routing, and legacy ERP ledger syncs.</p>
-                            <span class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 font-semibold text-sm rounded-xl group-hover:bg-slate-900 group-hover:text-cyan-400 transition-colors w-full">
-                                Launch Back-End <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                            </span>
+                    <!-- Security Tactical -->
+                    <a href="security/" class="portal-card block bg-white rounded-2xl border-2 border-slate-200 overflow-hidden group shadow-sm flex flex-col hover:border-rose-400">
+                        <div class="h-32 bg-rose-50 relative overflow-hidden flex items-center justify-center group-hover:bg-rose-100 transition-colors border-b border-slate-100">
+                             <i class="fa-solid fa-shield-halved text-4xl text-rose-500 transform group-hover:scale-110 transition-transform"></i>
+                             <div class="absolute -bottom-4 -right-4 w-20 h-20 bg-rose-500 rounded-full blur-2xl opacity-20"></div>
+                        </div>
+                        <div class="p-6 text-center flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-900 mb-2">Security Command</h4>
+                            <p class="text-xs text-slate-500 mb-5 flex-1 leading-relaxed">Live overwatch for SOS dispatch alerts and the visitor PIN validation terminal.</p>
+                            <span class="inline-flex items-center justify-center gap-2 bg-slate-50 group-hover:bg-rose-50 text-rose-600 font-bold text-xs uppercase tracking-widest px-4 py-2.5 rounded-lg transition-colors">Enter Guard <i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     </a>
 
                 </div>
             </div>
             
-            <div class="bg-slate-900 p-5 text-center flex items-center justify-center gap-2">
-                <i class="fa-solid fa-bolt text-cyan-500 text-sm"></i>
-                <p class="text-slate-400 text-xs font-medium uppercase tracking-widest">Engineered by Automania</p>
+            <!-- Automania Footer -->
+            <div class="bg-slate-900 p-4 text-center flex items-center justify-center gap-2 flex-shrink-0">
+                <i class="fa-solid fa-bolt text-cyan-500 text-[10px]"></i>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Engineered by Automania</p>
             </div>
         </div>
     </div>
