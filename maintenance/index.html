@@ -36,11 +36,15 @@
             box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.05);
         }
 
+        /* Nav Pills Animation */
+        .nav-tab-btn { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .active-tab-btn {
-            background-color: #eef2ff; /* Indigo tint */
-            color: #4f46e5; 
-            font-weight: 700;
-            box-shadow: inset 3px 0 0 0 #4f46e5;
+            background-color: #ffffff;
+            color: #4f46e5 !important; 
+            font-weight: 700 !important;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12), inset 0 1px 0 rgba(255,255,255,1);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            transform: scale(1.02);
         }
 
         .dashboard-tab {
@@ -48,6 +52,28 @@
             animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .dashboard-tab.active { display: block; }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
 
         @keyframes paneFade {
             from { opacity: 0; transform: translateY(15px); }
@@ -62,6 +88,7 @@
             animation: logSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        /* Scrollbars */
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -80,73 +107,110 @@
         .inventory-progress {
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        /* Translucent Inputs for Modal */
+        .input-field {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), inset 0 2px 4px rgba(0,0,0,0.01);
+        }
     </style>
 </head>
 <body class="flex flex-col lg:flex-row min-h-screen overflow-hidden relative">
 
-    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.08] z-0 pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-400 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.08] z-0 pointer-events-none"></div>
+    <!-- Premium Background Blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.12] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-400 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.10] z-0 pointer-events-none"></div>
 
+    <!-- Mobile Top Navigation -->
     <div class="lg:hidden flex items-center justify-between p-4 bg-white/80 backdrop-blur-xl border-b border-slate-200 z-50 sticky top-0">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-toolbox text-indigo-600 text-xl"></i>
             <span class="font-black text-xl tracking-tight text-slate-800">Rezi<span class="text-indigo-500">Ops</span></span>
         </div>
-        <button onclick="toggleSidebar()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+        <button onclick="toggleSidebar()" class="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-600">
             <i class="fa-solid fa-bars"></i>
         </button>
     </div>
 
-    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[100] lg:z-20 w-72 bg-white/80 backdrop-blur-2xl border-r border-white flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.03)] lg:shadow-none h-full">
+    <!-- PREMIUM SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[100] lg:z-20 w-72 bg-white/30 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.05)] lg:shadow-none h-full">
         
-        <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+        <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500">
             <i class="fa-solid fa-xmark"></i>
         </button>
 
-        <div class="overflow-y-auto custom-scroll flex-1">
-            <div class="px-8 py-8 hidden lg:flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
-                    <i class="fa-solid fa-toolbox text-lg"></i>
+        <div class="overflow-y-auto custom-scroll flex-1 px-4 py-6">
+            
+            <!-- Floating Logo Card -->
+            <div class="hidden lg:flex items-center gap-3 bg-white/50 backdrop-blur-md p-4 rounded-[24px] border border-white shadow-[0_4px_15px_rgba(0,0,0,0.02)] mb-8">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white flex-shrink-0">
+                    <i class="fa-solid fa-toolbox text-xl"></i>
                 </div>
                 <div class="flex flex-col">
                     <span class="font-black text-2xl tracking-tight text-slate-800 leading-none">Rezi<span class="text-indigo-500">Ops</span></span>
-                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Facility Crew</span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-500 uppercase mt-1">Facility Crew</span>
                 </div>
             </div>
 
-            <nav class="px-4 space-y-1.5 mt-8 lg:mt-2">
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Work Orders</p>
-                <button onclick="switchTab('snags', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all hover:bg-indigo-50/50">
-                    <i class="fa-solid fa-clipboard-list text-lg w-5 text-center text-indigo-500"></i> Active Snags
-                </button>
-                <button onclick="switchTab('history', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
-                    <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i> Repair History
-                </button>
+            <nav class="space-y-6">
+                <!-- Frosted Glass Well 1 -->
+                <div class="bg-slate-50/40 backdrop-blur-md border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] p-2 rounded-[24px]">
+                    <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Work Orders</p>
+                    <div class="space-y-1">
+                        <button onclick="switchTab('snags', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                            <i class="fa-solid fa-clipboard-list text-lg w-5 text-center"></i> Active Snags
+                        </button>
+                        <button onclick="switchTab('history', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                            <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i> Repair History
+                        </button>
+                    </div>
+                </div>
                 
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-8">Supply Chain</p>
-                <button onclick="switchTab('inventory', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
-                    <i class="fa-solid fa-boxes-stacked text-lg w-5 text-center"></i> Parts Inventory
-                </button>
-                <button onclick="switchTab('vendors', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl text-sm font-medium transition-all hover:bg-slate-50 hover:text-slate-800">
-                    <i class="fa-solid fa-truck-fast text-lg w-5 text-center"></i> Vendor Directory
-                </button>
+                <!-- Frosted Glass Well 2 -->
+                <div class="bg-slate-50/40 backdrop-blur-md border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] p-2 rounded-[24px]">
+                    <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Supply Chain</p>
+                    <div class="space-y-1">
+                        <button onclick="switchTab('inventory', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                            <i class="fa-solid fa-boxes-stacked text-lg w-5 text-center"></i> Parts Inventory
+                        </button>
+                        <button onclick="switchTab('vendors', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                            <i class="fa-solid fa-truck-fast text-lg w-5 text-center"></i> Vendor Directory
+                        </button>
+                    </div>
+                </div>
             </nav>
         </div>
 
-        <div class="p-6">
-            <div class="flex items-center gap-3 bg-white/60 p-4 rounded-2xl border border-white shadow-sm">
-                <div class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-white shadow-md">
-                    <i class="fa-solid fa-bolt text-xs"></i>
+        <!-- Premium Dark Widget Bottom -->
+        <div class="p-4">
+            <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-[24px] border border-slate-700 shadow-xl shadow-slate-900/20 flex items-center gap-4">
+                <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-500 rounded-full blur-2xl opacity-40"></div>
+                <div class="w-10 h-10 rounded-[14px] bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-inner flex-shrink-0">
+                    <i class="fa-solid fa-bolt text-sm"></i>
                 </div>
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Engineered By</span>
-                    <span class="text-xs font-black text-slate-700 tracking-tight">AUTOMANIA</span>
+                <div class="flex flex-col relative z-10">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Engineered By</span>
+                    <span class="text-sm font-black text-white tracking-tight">AUTOMANIA</span>
                 </div>
             </div>
         </div>
     </aside>
 
-    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
 
     <div class="flex-1 flex flex-col xl:flex-row min-w-0 h-[calc(100vh-72px)] lg:h-screen relative z-10 overflow-hidden">
         
@@ -240,7 +304,8 @@
                                     </tr>
                                 </thead>
                                 <tbody id="maintenance-body" class="divide-y divide-white/50">
-                                    </tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -389,7 +454,7 @@
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <button class="w-full liquid-glass-card hover:border-indigo-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer shadow-sm">
+                    <button onclick="openModal('snagModal')" class="w-full liquid-glass-card hover:border-indigo-300 transition-all p-4 rounded-2xl flex items-center gap-4 text-left group cursor-pointer shadow-sm">
                         <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-plus"></i>
                         </div>
@@ -431,6 +496,45 @@
 
     </div>
 
+    <!-- Log Manual Ticket Modal -->
+    <div id="snagModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4">
+        <div class="modal-content glass-panel w-full max-w-md sm:rounded-[32px] rounded-t-[32px] shadow-2xl p-6 sm:p-8 relative">
+            <button onclick="closeModal('snagModal')" class="absolute top-6 right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-5 shadow-inner">
+                <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Log Manual Ticket</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mb-6">Manually dispatch an incident reported by staff or walk-ins.</p>
+            
+            <form id="snagForm" onsubmit="submitManualSnag(event)">
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Room / Location</label>
+                    <input type="text" id="snag-room" class="input-field" placeholder="e.g. A01-1 or Corridor B" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Category</label>
+                    <select id="snag-category" class="input-field" required>
+                        <option value="" disabled selected>Select issue type...</option>
+                        <option value="Plumbing">Plumbing (Leaks, Toilets)</option>
+                        <option value="Electrical">Electrical (Lights, Plugs)</option>
+                        <option value="Furniture">Furniture & Fittings</option>
+                        <option value="Locks">Doors & Locks</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-8">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Description</label>
+                    <textarea id="snag-desc" rows="3" class="input-field resize-none" placeholder="Provide details about the issue..." required></textarea>
+                </div>
+                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-indigo-600/20 transition-all flex justify-center items-center gap-2">
+                    Submit Ticket <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetchMaintenanceData();
@@ -451,26 +555,17 @@
             }
         }
 
-        // Tab Navigation Router
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
 
+            // Reset buttons to unselected state
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 text-slate-500 rounded-2xl text-sm font-medium transition-all hover:bg-white/60 hover:text-slate-800";
-                const icon = btn.querySelector('i');
-                if(icon) {
-                    icon.classList.remove('text-indigo-500');
-                    if(!btn.innerHTML.includes('Security Ops')) icon.classList.add('text-slate-400');
-                }
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent transition-all";
             });
 
-            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all hover:bg-indigo-50/50 bg-white/80 shadow-sm border border-white";
-            const activeIcon = btnElement.querySelector('i');
-            if(activeIcon) {
-                activeIcon.classList.remove('text-slate-400');
-                activeIcon.classList.add('text-indigo-500');
-            }
+            // Set clicked button to selected state
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-bold transition-all bg-white shadow-[0_8px_20px_rgba(79,70,229,0.12)] border border-white text-indigo-600 transform scale-[1.02]";
 
             const title = document.getElementById('matrixTitle');
             const sub = document.getElementById('matrixSub');
@@ -497,6 +592,10 @@
                 toggleSidebar();
             }
         }
+
+        // Modal Handlers
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         // ==========================================
         // MAINTENANCE LOGIC (LIVE WEBHOOKS)
@@ -583,6 +682,48 @@
                 addTelemetryLog("MAINTENANCE", "ERROR", `Failed to resolve Ticket ${ticketId}.`);
                 btnElement.innerHTML = originalHTML;
                 btnElement.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // MANUAL TICKET ENGINE
+        // ==========================================
+        async function submitManualSnag(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-snag');
+            const ogText = btn.innerHTML;
+            const room = document.getElementById('snag-room').value;
+            const category = document.getElementById('snag-category').value;
+            const desc = document.getElementById('snag-desc').value;
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: "STAFF-LOG",
+                        Room: room,
+                        Category: category,
+                        Description: desc
+                    })
+                });
+                
+                closeModal('snagModal');
+                addTelemetryLog("MAINTENANCE", "SUCCESS", `Manual ticket logged for ${room}.`);
+                document.getElementById('snagForm').reset();
+                
+                // Immediately refresh the grid to show the new ticket
+                fetchMaintenanceData(); 
+                
+            } catch(error) {
+                addTelemetryLog("MAINTENANCE", "ERROR", "Failed to connect to logging server.");
+                alert("Failed to submit ticket. Please check connection.");
+            } finally {
+                btn.innerHTML = ogText;
+                btn.disabled = false;
             }
         }
 
