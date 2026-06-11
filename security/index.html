@@ -109,7 +109,8 @@
 </head>
 <body class="flex flex-col lg:flex-row min-h-screen overflow-hidden relative">
 
-    <!-- Preload Audio Asset -->
+    <!-- Preload Audio Assets -->
+    <audio id="standard-alert" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
     <audio id="sos-alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
 
     <!-- Premium Background Blobs -->
@@ -393,8 +394,10 @@
     <!-- LIVE LOGIC ENGINE -->
     <script>
         // Global variables for Audio Alarm logic
-        let previousCriticalCount = 0;
+        let previousTotalAlerts = 0;
         let isFirstLoad = true;
+        let isSOSPlaying = false;
+        let lastSOSPlayTime = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchSecurityData();
@@ -402,24 +405,46 @@
             setInterval(fetchSecurityData, 10000); 
         });
 
-        // Alarm Trigger Function
+        // Audio Trigger Functions
+        function playStandardAlert() {
+            const audio = document.getElementById('standard-alert');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Autoplay blocked. User must interact with document first.'));
+            }
+        }
+
         function triggerAudioAlarm() {
+            const now = Date.now();
+            // 10s play + 30s wait = 40000ms loop. Prevents overlapping and enforces the 30s silence rule.
+            if (isSOSPlaying || (now - lastSOSPlayTime < 40000)) return;
+
             const audio = document.getElementById('sos-alarm');
             if (audio) {
-                audio.play().catch(e => console.log('Autoplay blocked by browser. User must click screen first.'));
+                isSOSPlaying = true;
+                lastSOSPlayTime = Date.now();
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Autoplay blocked. User must interact with document first.'));
+                
+                // Stop after 10 seconds
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    isSOSPlaying = false;
+                }, 10000);
             }
             
-            // Visual Flash (Works even if audio is blocked)
+            // Visual Flash (Works even if audio is blocked by the browser)
             const flashOverlay = document.createElement('div');
             flashOverlay.className = 'screen-flash';
             document.body.appendChild(flashOverlay);
             
-            // Remove flash after 4 seconds
+            // Remove flash after 10 seconds to sync with audio
             setTimeout(() => {
                 if(flashOverlay.parentNode) {
                     flashOverlay.parentNode.removeChild(flashOverlay);
                 }
-            }, 4000);
+            }, 10000);
         }
 
         // Mobile Sidebar Toggle
@@ -478,7 +503,7 @@
         }
 
         // ==========================================
-        // SECURITY LOGIC (AUTO-POLLING + ALARM)
+        // SECURITY LOGIC (AUTO-POLLING + ALARMS)
         // ==========================================
         async function fetchSecurityData() {
             const body = document.getElementById('security-body');
@@ -502,12 +527,16 @@
                 }
                 
                 let activeCriticalCount = 0;
+                let totalActiveAlerts = 0;
 
                 data.reverse().forEach(alert => {
-                    const isCritical = String(alert.Alert_Level).includes("CRITICAL");
+                    const isCritical = String(alert.Alert_Level).toUpperCase().includes("CRITICAL") || String(alert.Alert_Level).toUpperCase().includes("SOS");
                     const isResolved = String(alert.Dispatch_Status).toLowerCase().includes('resolved') || String(alert.Dispatch_Status).toLowerCase().includes('cleared');
                     
-                    if (isCritical && !isResolved) activeCriticalCount++;
+                    if (!isResolved) {
+                        totalActiveAlerts++;
+                        if (isCritical) activeCriticalCount++;
+                    }
 
                     const levelBadge = isCritical 
                         ? `<span class="bg-white border border-rose-200 shadow-sm text-rose-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${!isResolved ? 'animate-pulse' : ''}">${alert.Alert_Level}</span>`
@@ -517,9 +546,19 @@
                         ? `<span class="text-slate-400 font-bold"><i class="fa-solid fa-shield-check mr-1"></i> Area Cleared</span>`
                         : `<span class="text-rose-500 font-bold"><i class="fa-solid fa-person-running mr-1"></i> Dispatched</span>`;
 
+                    // Safe ID for targeting the comment input
+                    const safeId = (alert.Room + alert.Timestamp).replace(/\W/g, '');
+
+                    // Upgraded Action Button Area with Comment Input & Submit Logic
                     const actionBtn = isResolved 
                         ? `<span class="text-slate-400 text-xs font-bold uppercase tracking-widest border border-slate-200 bg-white px-4 py-2 rounded-xl shadow-sm">Closed</span>`
-                        : `<button onclick="resolveSecurity('${alert.Timestamp}', '${alert.Room}', this)" class="bg-slate-900 hover:bg-rose-600 hover:text-white text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-slate-900/20 whitespace-nowrap">Clear Alert</button>`;
+                        : `<div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2 w-full mt-2 sm:mt-0">
+                              <input type="text" id="comment-${safeId}" placeholder="Resolution comment..." class="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:border-rose-400 focus:outline-none w-full sm:w-40 bg-white/80 shadow-inner text-slate-700">
+                              <div class="flex gap-2">
+                                  <button onclick="resolveSecurity('${alert.Timestamp}', '${alert.Room}', this, false)" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap">Clear Alert</button>
+                                  <button onclick="resolveSecurity('${alert.Timestamp}', '${alert.Room}', this, true)" class="bg-slate-900 hover:bg-rose-600 hover:text-white text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-slate-900/20 whitespace-nowrap">Submit</button>
+                              </div>
+                           </div>`;
 
                     body.innerHTML += `
                         <tr class="${isCritical && !isResolved ? 'bg-rose-50/50' : 'hover:bg-white/60'} transition-colors group">
@@ -547,12 +586,18 @@
 
                 document.getElementById('kpi-active-sos').textContent = activeCriticalCount;
 
-                // Trigger Alarm if new SOS is detected during polling
-                if (!isFirstLoad && activeCriticalCount > previousCriticalCount) {
-                    triggerAudioAlarm();
+                // Audio Trigger Logic Pipeline
+                if (!isFirstLoad) {
+                    if (activeCriticalCount > 0) {
+                        // Triggers the 10s loop / 30s wait cooldown sequence
+                        triggerAudioAlarm();
+                    } else if (totalActiveAlerts > previousTotalAlerts) {
+                        // Standard notification for any new non-critical alerts
+                        playStandardAlert();
+                    }
                 }
                 
-                previousCriticalCount = activeCriticalCount;
+                previousTotalAlerts = totalActiveAlerts;
                 isFirstLoad = false;
 
             } catch (e) {
@@ -563,19 +608,32 @@
             }
         }
 
-        async function resolveSecurity(timestamp, room, btnElement) {
+        async function resolveSecurity(timestamp, room, btnElement, isSubmit) {
             const ogHtml = btnElement.innerHTML;
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
             btnElement.disabled = true;
+
+            // Capture the comment if the 'Submit' button was clicked
+            let commentText = "";
+            if (isSubmit) {
+                const safeId = (room + timestamp).replace(/\W/g, '');
+                const inputEl = document.getElementById('comment-' + safeId);
+                if (inputEl) commentText = inputEl.value;
+            }
 
             try {
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-security', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Timestamp: timestamp, Room: room, Dispatch_Status: "Area Cleared" })
+                    body: JSON.stringify({ 
+                        Timestamp: timestamp, 
+                        Room: room, 
+                        Dispatch_Status: "Area Cleared",
+                        Comment: commentText
+                    })
                 });
 
-                addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared.`);
+                addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared. ${commentText ? 'Comment recorded.' : ''}`);
                 fetchSecurityData(); 
             } catch(e) {
                 addTelemetryLog("SECURITY_OPS", "ERROR", `Failed to resolve alert for ${room}.`);
