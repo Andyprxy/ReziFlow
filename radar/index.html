@@ -23,7 +23,7 @@
 
         #map { width: 100%; height: 450px; border-radius: 20px; z-index: 10; }
         
-        /* Shuttle Marker */
+        /* Shuttle Marker (Cyan/Teal) */
         .shuttle-marker {
             background: #06b6d4; border: 3px solid white; border-radius: 50%;
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); transition: all 1s ease-in-out;
@@ -33,7 +33,7 @@
             border-radius: 50%; border: 2px solid #06b6d4; animation: radar 2s infinite ease-out;
         }
 
-        /* Student Marker */
+        /* Student Marker (Blue) */
         .student-marker {
             background: #3b82f6; border: 3px solid white; border-radius: 50%;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
@@ -104,13 +104,21 @@
             }, { enableHighAccuracy: true });
         }
 
-        // 2. Fetch Shuttle Location from n8n
+        // 2. Fetch Shuttle Location from n8n (With Anti-Cache and Array Unwrapping)
         async function fetchDriverLocation() {
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-shuttle');
-                const data = await response.json();
+                const timeBuster = Date.now();
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-shuttle?t=' + timeBuster, {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
                 
-                if (data.Latitude && data.Longitude) {
+                const rawData = await response.json();
+                
+                // Safely unwrap the data if n8n passes it as an array [ { ... } ]
+                const data = Array.isArray(rawData) ? rawData[0] : rawData;
+                
+                if (data && data.Latitude && data.Longitude) {
                     const lat = parseFloat(data.Latitude);
                     const lng = parseFloat(data.Longitude);
                     const shuttleCoords = [lat, lng];
@@ -132,7 +140,7 @@
                     updateETA();
                 }
             } catch (error) {
-                console.log("Awaiting driver telemetry...");
+                console.log("Awaiting driver telemetry connection...", error);
             }
         }
 
@@ -145,7 +153,6 @@
             const lat2 = shuttleMarker.getLatLng().lat;
             const lon2 = shuttleMarker.getLatLng().lng;
 
-            // Earth Radius in km
             const R = 6371; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -155,7 +162,6 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const distanceKm = R * c; 
 
-            // Calculate Time: Avg City Speed = 35km/h, Routing Factor = 1.4 (roads aren't straight lines)
             const speedKmh = 35;
             const routingFactor = 1.4;
             const timeHours = (distanceKm * routingFactor) / speedKmh;
