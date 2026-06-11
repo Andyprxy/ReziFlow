@@ -1,259 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReziFlow OS | Driver Command</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Leaflet Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; overflow: hidden; }
+// --- Inbox Engine: Fully Activated ---
         
-        /* Light Liquid Glass Aesthetics */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5);
-        }
-        
-        .pulse-ring { animation: pulsate 1.5s infinite ease-out; }
-        @keyframes pulsate {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            100% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
-        }
-        
-        /* Premium Blue Map Marker */
-        .driver-marker {
-            background: #2563eb; border: 4px solid white; border-radius: 50%;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.6); transition: all 0.5s ease-out;
-        }
+        // This Set keeps track of messages already on the screen so they don't duplicate or cause the screen to flash every 15 seconds
+        let renderedMessageIds = new Set();
 
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .msg-card { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    </style>
-</head>
-<body class="p-3 lg:p-6 flex flex-col lg:flex-row h-screen max-h-screen gap-4 lg:gap-6 relative">
-
-    <!-- Ambient Background Lighting -->
-    <div class="fixed top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.4] z-0 pointer-events-none"></div>
-
-    <!-- MAIN MAP SECTION (Tesla Style - Dominates Screen) -->
-    <div class="flex-1 relative rounded-[32px] overflow-hidden shadow-xl border border-white flex flex-col z-10 bg-white">
-        
-        <!-- Floating Telemetry HUD -->
-        <div class="absolute top-6 left-6 z-[400] bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl flex items-center gap-3 shadow-lg border border-slate-100">
-            <div id="gps-indicator" class="w-2.5 h-2.5 bg-slate-300 rounded-full"></div>
-            <span id="gps-status" class="font-black text-slate-800 tracking-tight text-sm uppercase">GPS Offline</span>
-        </div>
-
-        <div id="driver-map" class="w-full h-full z-10"></div>
-    </div>
-
-    <!-- COMMAND SIDEBAR (Dispatch & Controls) -->
-    <div class="w-full lg:w-[420px] flex flex-col gap-4 lg:gap-6 z-20 flex-shrink-0 h-full">
-        
-        <!-- Top Control Widget -->
-        <div class="glass-panel rounded-[32px] p-6 lg:p-8 flex flex-col flex-shrink-0 relative overflow-hidden">
-            <!-- Decorative gradient stripe -->
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-400 to-blue-600"></div>
-
-            <div class="flex justify-between items-start mb-8 mt-2">
-                <div>
-                    <h1 class="text-3xl font-black tracking-tight text-slate-800">Shuttle 01</h1>
-                    <p class="text-[10px] text-cyan-600 font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-link"></i> Network Linked
-                    </p>
-                </div>
-                <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200 text-center min-w-[80px]">
-                    <span id="system-clock" class="text-xl font-black text-slate-800 font-mono">00:00</span>
-                </div>
-            </div>
-
-            <!-- Massive Driver Broadcast Button -->
-            <button id="btn-broadcast" onclick="toggleBroadcast()" class="w-full bg-slate-900 hover:bg-emerald-500 border border-slate-800 text-white font-black py-6 rounded-[24px] transition-all duration-300 shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 text-lg uppercase tracking-wide">
-                <i class="fa-solid fa-satellite-dish text-xl"></i> <span id="btn-text">Initiate Broadcast</span>
-            </button>
-        </div>
-
-        <!-- Inbox Widget -->
-        <div class="glass-panel rounded-[32px] p-6 lg:p-8 flex flex-col flex-1 min-h-0 border-b-4 border-b-cyan-500">
-            <div class="flex items-center justify-between mb-5 pb-4 border-b border-slate-200 flex-shrink-0">
-                <h3 class="font-black text-slate-800 text-xl flex items-center gap-2">
-                    <i class="fa-solid fa-inbox text-cyan-500"></i> Dispatch
-                </h3>
-                <div class="px-3 py-1 bg-rose-50 border border-rose-100 text-rose-600 rounded-full text-[10px] uppercase tracking-widest font-bold shadow-sm">
-                    Live Feed
-                </div>
-            </div>
-            
-            <div id="message-feed" class="flex-1 overflow-y-auto custom-scroll space-y-4 pr-2 pb-2">
-                <!-- Static Example Message Card -->
-                <div class="msg-card bg-white border border-slate-200 rounded-[24px] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm border border-cyan-100 shadow-inner">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <div>
-                                <p class="font-black text-slate-800 text-base leading-tight">Stop Request</p>
-                                <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mt-0.5">From: Thabo M.</p>
-                            </div>
-                        </div>
-                        <span class="text-xs font-mono text-slate-500 font-bold bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">14:02</span>
-                    </div>
-                    
-                    <!-- The Message Content -->
-                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 relative">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 rounded-l-xl"></div>
-                        <p class="text-slate-700 text-sm font-semibold italic">"Please pass by Quagga Centre on the next route."</p>
-                    </div>
-
-                    <!-- Large Action Button -->
-                    <button onclick="clearMessage(this, 'REQ-001')" class="w-full py-3.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 border border-slate-200 hover:border-emerald-200 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-check-double"></i> Acknowledge
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Automania Signature -->
-        <div class="text-center py-1 flex-shrink-0">
-            <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Engineered by Automania</span>
-        </div>
-    </div>
-
-    <script>
-        // --- System Clock ---
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-        }, 1000);
-
-        // --- Map Initialization (Tesla Light Mode) ---
-        const map = L.map('driver-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
-        // Using Voyager tiles for a clean, bright, modern look with clear roads
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
-        }).addTo(map);
-        
-        const driverIcon = L.divIcon({ className: 'driver-marker', iconSize: [18, 18], iconAnchor: [9, 9] });
-        let marker = null;
-
-        // --- Telemetry Broadcasting ---
-        let watchId;
-        let isBroadcasting = false;
-
-        function toggleBroadcast() {
-            const btn = document.getElementById('btn-broadcast');
-            const btnText = document.getElementById('btn-text');
-            const gpsIndicator = document.getElementById('gps-indicator');
-            const gpsStatus = document.getElementById('gps-status');
-
-            if (!isBroadcasting) {
-                if ("geolocation" in navigator) {
-                    // Update Button UI
-                    btn.classList.add('bg-emerald-500', 'border-emerald-500', 'pulse-ring');
-                    btn.classList.remove('bg-slate-900', 'border-slate-800');
-                    btnText.innerText = 'Transmission Active';
-                    
-                    // Update Floating HUD
-                    gpsIndicator.classList.replace('bg-slate-300', 'bg-emerald-500');
-                    gpsIndicator.classList.add('animate-pulse');
-                    gpsStatus.innerText = 'Tracking Active';
-                    gpsStatus.classList.replace('text-slate-800', 'text-emerald-600');
-
-                    isBroadcasting = true;
-
-                    watchId = navigator.geolocation.watchPosition(
-                        sendLocationToN8n, 
-                        (err) => alert("GPS Error: Check location permissions."),
-                        { enableHighAccuracy: true, maximumAge: 0 }
-                    );
-                }
-            } else {
-                navigator.geolocation.clearWatch(watchId);
-                
-                // Revert Button UI
-                btn.classList.remove('bg-emerald-500', 'border-emerald-500', 'pulse-ring');
-                btn.classList.add('bg-slate-900', 'border-slate-800');
-                btnText.innerText = 'Initiate Broadcast';
-                
-                // Revert Floating HUD
-                gpsIndicator.classList.replace('bg-emerald-500', 'bg-slate-300');
-                gpsIndicator.classList.remove('animate-pulse');
-                gpsStatus.innerText = 'GPS Offline';
-                gpsStatus.classList.replace('text-emerald-600', 'text-slate-800');
-
-                isBroadcasting = false;
-            }
-        }
-
-        async function sendLocationToN8n(position) {
-            const newLatLng = [position.coords.latitude, position.coords.longitude];
-
-            // Update Map Visuals
-            if (!marker) {
-                marker = L.marker(newLatLng, { icon: driverIcon }).addTo(map);
-            } else {
-                marker.setLatLng(newLatLng);
-            }
-            map.setView(newLatLng, 17); // Keep tightly zoomed on the driver
-
-            // POST to n8n Ingest Webhook
-            fetch('https://n8n.automania.cloud/webhook/reziflow-driver-gps', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    Driver_ID: "SHUTTLE-01",
-                    Latitude: position.coords.latitude,
-                    Longitude: position.coords.longitude,
-                    Timestamp: new Date().toISOString()
-                })
-            }).catch(e => console.log("Cloud sync failed."));
-        }
-
-        // --- Inbox Engine ---
         async function fetchStudentRequests() {
             try {
                 const timeBuster = Date.now();
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-driver-msgs?t=' + timeBuster, { cache: 'no-store' });
-                const requests = await response.json();
-                const feed = document.getElementById('message-feed');
                 
-                // Future Implementation: Render requests here automatically
+                // If the sheet is empty, n8n might return nothing or a 404. Handle gracefully.
+                if (!response.ok) return; 
+                
+                let rawData = await response.json();
+                
+                // Handle if n8n returns a single object instead of an array
+                const requests = Array.isArray(rawData) ? rawData : [rawData];
+                
+                const feed = document.getElementById('message-feed');
+
+                // Remove the "Static Example" card if it's still there
+                if (feed.innerHTML.includes('Static Example Message Card')) {
+                    feed.innerHTML = '';
+                }
+                
+                requests.forEach(req => {
+                    // Only render if we haven't seen this Message_ID yet and it has valid data
+                    if (req.Message_ID && !renderedMessageIds.has(req.Message_ID)) {
+                        
+                        // Select an icon based on the Type of request
+                        let iconHtml = '<i class="fa-solid fa-message"></i>';
+                        if (String(req.Type).includes('Stop')) iconHtml = '<i class="fa-solid fa-map-pin"></i>';
+                        if (String(req.Type).includes('Delay')) iconHtml = '<i class="fa-solid fa-hourglass-half"></i>';
+
+                        const cardHtml = `
+                            <div class="msg-card bg-white border border-slate-200 rounded-[24px] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow" id="msg-${req.Message_ID}">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm border border-cyan-100 shadow-inner">
+                                            ${iconHtml}
+                                        </div>
+                                        <div>
+                                            <p class="font-black text-slate-800 text-base leading-tight">${req.Type || 'Dispatch Note'}</p>
+                                            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mt-0.5">From: ${req.Student_Name || 'Resident'}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-mono text-slate-500 font-bold bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">${req.Time || '--:--'}</span>
+                                </div>
+                                
+                                <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 relative">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 rounded-l-xl"></div>
+                                    <p class="text-slate-700 text-sm font-semibold italic">"${req.Message || ''}"</p>
+                                </div>
+
+                                <button onclick="clearMessage(this, '${req.Message_ID}')" class="w-full py-3.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 border border-slate-200 hover:border-emerald-200 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                    <i class="fa-solid fa-check-double"></i> Acknowledge
+                                </button>
+                            </div>
+                        `;
+                        
+                        feed.insertAdjacentHTML('afterbegin', cardHtml);
+                        renderedMessageIds.add(req.Message_ID);
+                    }
+                });
             } catch (e) {
                 console.log("Awaiting new dispatch messages...");
             }
         }
 
-        // Acknowledge and remove message from UI
+        // Acknowledge and remove message from UI AND the Google Sheet
         async function clearMessage(btnElement, messageId) {
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-emerald-600"></i>';
             btnElement.disabled = true;
 
+            try {
+                // Post to the n8n Resolution Engine to change status in the sheet
+                await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-msg', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ID: messageId, Status: 'Acknowledged' })
+                });
+            } catch(e) {
+                console.log("Failed to sync resolution to cloud.");
+            }
+
+            // Animate card shrinking and removing it from the DOM
             const card = btnElement.closest('.msg-card');
             card.style.transition = "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
             card.style.opacity = "0";
             card.style.transform = "translateY(-10px) scale(0.95)";
             
-            setTimeout(() => card.remove(), 400);
+            setTimeout(() => {
+                card.remove();
+                // Optionally remove from Set if you want it to reappear if the server sends it again
+                renderedMessageIds.delete(messageId); 
+            }, 400);
         }
 
+        // Poll for new messages every 15 seconds
         setInterval(fetchStudentRequests, 15000);
-    </script>
-</body>
-</html>
+        
+        // Initial fetch on load
+        fetchStudentRequests();
