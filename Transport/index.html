@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReziFlow | Driver Telemetry</title>
+    <title>ReziFlow OS | Driver Dispatch Command</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -11,61 +11,137 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7fb; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
         
-        .liquid-glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        /* Dark Liquid Glass Aesthetics */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
         }
         
-        #driver-map { height: 250px; border-radius: 20px; z-index: 10; }
+        #driver-map { height: 180px; border-radius: 20px; z-index: 10; filter: brightness(0.8) contrast(1.2); }
         
         .pulse-ring { animation: pulsate 1.5s infinite ease-out; }
         @keyframes pulsate {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             100% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
         }
         
         .driver-marker {
-            background: #10b981;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
-            transition: all 0.5s ease-out;
+            background: #06b6d4; border: 3px solid #1e293b; border-radius: 50%;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); transition: all 0.5s ease-out;
         }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        /* Message Slide Animation */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .msg-card { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
+<body class="p-4 lg:p-8 flex flex-col h-screen max-h-screen">
 
-    <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0"></div>
+    <div class="fixed top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-900 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.4] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-900 rounded-full mix-blend-screen filter blur-[120px] opacity-[0.4] z-0 pointer-events-none"></div>
 
-    <div class="liquid-glass rounded-[32px] p-6 max-w-sm w-full text-center relative z-10">
-        <h2 class="text-xl font-black text-slate-800 tracking-tight mb-1">Shuttle Ops</h2>
-        <p class="text-[10px] text-slate-500 mb-4 font-bold uppercase tracking-widest">Active Transmission Relay</p>
+    <div class="max-w-3xl mx-auto w-full flex flex-col h-full relative z-10 gap-4">
+        
+        <div class="glass-panel rounded-[32px] p-6 flex-shrink-0">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-van-shuttle"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-tight text-white">Shuttle 01</h1>
+                        <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mt-1">ReziFlow Dispatch Link</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="system-clock" class="text-xl font-black text-slate-200 font-mono">00:00</span>
+                </div>
+            </div>
 
-        <div class="p-1.5 bg-white border border-slate-200 rounded-[24px] shadow-sm mb-6">
-            <div id="driver-map"></div>
+            <button id="btn-broadcast" onclick="toggleBroadcast()" class="w-full bg-slate-800 hover:bg-emerald-600 border border-slate-700 hover:border-emerald-500 text-white font-bold py-5 rounded-2xl transition-all duration-300 shadow-xl flex items-center justify-center gap-3 text-lg">
+                <i class="fa-solid fa-satellite-dish"></i> <span id="btn-text">Initiate Broadcast</span>
+            </button>
         </div>
 
-        <button id="btn-broadcast" onclick="toggleBroadcast()" class="w-full bg-slate-900 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-xl flex items-center justify-center gap-3">
-            <i class="fa-solid fa-satellite-dish"></i> <span id="btn-text">Start Broadcasting</span>
-        </button>
+        <div class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+            
+            <div class="glass-panel rounded-[32px] p-6 flex flex-col flex-1 min-h-0 border-l-4 border-l-cyan-500">
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-700 flex-shrink-0">
+                    <h3 class="font-bold text-slate-200 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-inbox text-cyan-400"></i> Dispatch Requests
+                    </h3>
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                </div>
+                
+                <div id="message-feed" class="flex-1 overflow-y-auto custom-scroll space-y-3 pr-2 pb-2">
+                    <div class="msg-card bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-cyan-900/50 text-cyan-400 flex items-center justify-center text-xs border border-cyan-800"><i class="fa-solid fa-location-dot"></i></div>
+                                <div>
+                                    <p class="font-bold text-sm text-slate-200">Stop Request</p>
+                                    <p class="text-[10px] text-slate-400 uppercase tracking-wider">From: Thabo M.</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono text-slate-500">14:02</span>
+                        </div>
+                        <p class="text-slate-300 text-sm font-medium pl-10 border-l-2 border-slate-600 ml-4 py-1">"Please pass by Quagga Centre on the next route."</p>
+                        <button onclick="clearMessage(this, 'REQ-001')" class="mt-1 w-full py-2.5 bg-slate-700/50 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-slate-600 hover:border-emerald-500/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-double"></i> Acknowledge
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-[32px] p-4 w-full lg:w-[350px] flex flex-col flex-shrink-0">
+                <div class="flex items-center justify-between mb-3 px-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GPS Array</span>
+                    <i class="fa-solid fa-crosshairs text-slate-500"></i>
+                </div>
+                <div class="p-1 bg-slate-800 border border-slate-700 rounded-[24px] flex-1 min-h-[180px]">
+                    <div id="driver-map" class="h-full w-full"></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="text-center py-2 flex-shrink-0">
+            <span class="text-[9px] font-bold text-slate-600 uppercase tracking-[0.3em]">Engineered by Automania</span>
+        </div>
     </div>
 
     <script>
-        let watchId;
-        let isBroadcasting = false;
-        
-        // Initialize Map
-        const map = L.map('driver-map').setView([-25.7479, 28.2293], 15);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        // --- System Clock ---
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        }, 1000);
+
+        // --- Map Initialization (Dark Mode) ---
+        const map = L.map('driver-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
+        // Using DarkMatter tiles for driving safety (reduces glare)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
         
         const driverIcon = L.divIcon({ className: 'driver-marker', iconSize: [16, 16], iconAnchor: [8, 8] });
         let marker = null;
+
+        // --- Telemetry Broadcasting ---
+        let watchId;
+        let isBroadcasting = false;
 
         function toggleBroadcast() {
             const btn = document.getElementById('btn-broadcast');
@@ -73,40 +149,35 @@
 
             if (!isBroadcasting) {
                 if ("geolocation" in navigator) {
-                    btn.classList.add('bg-emerald-500', 'pulse-ring');
-                    btn.classList.remove('bg-slate-900');
-                    btnText.innerText = 'Transmitting Live...';
+                    btn.classList.add('bg-emerald-600', 'border-emerald-500', 'pulse-ring');
+                    btn.classList.remove('bg-slate-800', 'border-slate-700');
+                    btnText.innerText = 'Transmission Active';
                     isBroadcasting = true;
 
                     watchId = navigator.geolocation.watchPosition(
                         sendLocationToN8n, 
-                        (err) => alert("GPS Error: Ensure location permissions are allowed."),
+                        (err) => alert("GPS Error: Check location permissions."),
                         { enableHighAccuracy: true, maximumAge: 0 }
                     );
-                } else {
-                    alert("Geolocation is not supported by this browser.");
                 }
             } else {
                 navigator.geolocation.clearWatch(watchId);
-                btn.classList.remove('bg-emerald-500', 'pulse-ring');
-                btn.classList.add('bg-slate-900');
-                btnText.innerText = 'Start Broadcasting';
+                btn.classList.remove('bg-emerald-600', 'border-emerald-500', 'pulse-ring');
+                btn.classList.add('bg-slate-800', 'border-slate-700');
+                btnText.innerText = 'Initiate Broadcast';
                 isBroadcasting = false;
             }
         }
 
         async function sendLocationToN8n(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const newLatLng = [lat, lng];
+            const newLatLng = [position.coords.latitude, position.coords.longitude];
 
-            // Update local map visually
             if (!marker) {
                 marker = L.marker(newLatLng, { icon: driverIcon }).addTo(map);
             } else {
                 marker.setLatLng(newLatLng);
             }
-            map.setView(newLatLng, 17);
+            map.setView(newLatLng, 16);
 
             // POST to n8n Ingest Webhook
             fetch('https://n8n.automania.cloud/webhook/reziflow-driver-gps', {
@@ -114,12 +185,77 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     Driver_ID: "SHUTTLE-01",
-                    Latitude: lat,
-                    Longitude: lng,
+                    Latitude: position.coords.latitude,
+                    Longitude: position.coords.longitude,
                     Timestamp: new Date().toISOString()
                 })
             }).catch(e => console.log("Cloud sync failed."));
         }
+
+        // --- Inbox Engine: Fetching Student Requests ---
+        async function fetchStudentRequests() {
+            try {
+                // To activate, build an n8n webhook (GET): /webhook/reziflow-get-driver-msgs
+                const timeBuster = Date.now();
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-driver-msgs?t=' + timeBuster, { cache: 'no-store' });
+                const requests = await response.json();
+                
+                const feed = document.getElementById('message-feed');
+                
+                // Only render if new requests arrive. (In production, compare IDs to prevent re-rendering).
+                // Example renderer:
+                /*
+                feed.innerHTML = '';
+                requests.forEach(req => {
+                    feed.innerHTML += `
+                        <div class="msg-card bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-cyan-900/50 text-cyan-400 flex items-center justify-center text-xs border border-cyan-800"><i class="fa-solid fa-comment-dots"></i></div>
+                                    <div>
+                                        <p class="font-bold text-sm text-slate-200">${req.Type}</p>
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-wider">From: ${req.Student_Name}</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-500">${req.Time}</span>
+                            </div>
+                            <p class="text-slate-300 text-sm font-medium pl-10 border-l-2 border-slate-600 ml-4 py-1">"${req.Message}"</p>
+                            <button onclick="clearMessage(this, '${req.ID}')" class="mt-1 w-full py-2.5 bg-slate-700/50 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-slate-600 hover:border-emerald-500/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check-double"></i> Acknowledge
+                            </button>
+                        </div>
+                    `;
+                });
+                */
+            } catch (e) {
+                console.log("Awaiting new dispatch messages...");
+            }
+        }
+
+        // Acknowledge and remove message from UI
+        async function clearMessage(btnElement, messageId) {
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btnElement.disabled = true;
+
+            // In production, send POST to n8n to mark as "Resolved" in the database
+            /*
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-msg', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ID: messageId, Status: 'Acknowledged' })
+            });
+            */
+
+            // Visually collapse and remove the card
+            const card = btnElement.closest('.msg-card');
+            card.style.transition = "all 0.3s ease";
+            card.style.opacity = "0";
+            card.style.transform = "scale(0.95)";
+            setTimeout(() => card.remove(), 300);
+        }
+
+        // Poll for new messages every 15 seconds
+        setInterval(fetchStudentRequests, 15000);
     </script>
 </body>
 </html>
