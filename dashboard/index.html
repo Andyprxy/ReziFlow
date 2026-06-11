@@ -732,7 +732,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-log-snag', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -772,7 +772,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-log-security', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
