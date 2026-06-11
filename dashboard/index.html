@@ -6,6 +6,11 @@
     <title>ReziFlow | Student Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet Map Integration for Live Telemetry Tracking -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -95,6 +100,25 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #toast-container.show { transform: translateY(0); }
+
+        /* Telemetry Custom Markers Styling */
+        #telemetry-map { width: 100%; height: 380px; border-radius: 24px; }
+        .shuttle-marker {
+            background: #06b6d4; border: 3px solid white; border-radius: 50%;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
+        }
+        .shuttle-marker::after {
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border-radius: 50%; border: 2px solid #06b6d4; animation: radarPulse 2s infinite ease-out;
+        }
+        .student-marker {
+            background: #2563eb; border: 3px solid white; border-radius: 50%;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+        @keyframes radarPulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -476,6 +500,11 @@
 
         </main>
 
+        <!-- Hovering Movable Bus Bubble (Positioned Right Above Profile Nav Target) -->
+        <div id="floating-bus-btn" class="absolute z-[450] bg-gradient-to-tr from-cyan-500 to-blue-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-cyan-500/30 cursor-grab active:cursor-grabbing border-2 border-white select-none transition-transform active:scale-95" style="bottom: 90px; right: 24px;">
+            <i class="fa-solid fa-van-shuttle text-xl pointer-events-none"></i>
+        </div>
+
         <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
             <div class="flex justify-between items-center text-slate-400">
                 <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 tap-effect transition-colors">
@@ -560,6 +589,72 @@
         </div>
     </div>
 
+    <!-- PREMIUM TELEMETRY MAP OVERLAY MODAL -->
+    <div id="shuttleMapModal" class="absolute inset-0 z-[500] modal-overlay flex items-end justify-center">
+        <div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-sm border border-cyan-100"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div>
+                        <h2 class="text-base font-black text-slate-900 tracking-tight">Live Transit Tracker</h2>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Active Loop
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeShuttleMap()" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Dynamic HUD Layer -->
+            <div class="my-3 flex justify-between items-center bg-slate-50 border border-slate-100 rounded-2xl p-3 shadow-sm flex-shrink-0">
+                <span class="text-xs text-slate-600 font-semibold"><i class="fa-solid fa-route text-blue-500 mr-1"></i> Destination Status</span>
+                <span id="shuttle-eta" class="text-xs font-black text-white bg-slate-900 px-3 py-1 rounded-lg">Calculating...</span>
+            </div>
+
+            <!-- Map Viewport -->
+            <div class="flex-1 bg-slate-100 border border-slate-200 rounded-[28px] overflow-hidden relative shadow-inner p-1">
+                <div id="telemetry-map" class="h-full w-full"></div>
+            </div>
+
+            <!-- Dispatch Communications Bar -->
+            <div class="mt-4 grid grid-cols-2 gap-3 flex-shrink-0">
+                <button onclick="sendShuttleRequest('Stop Request', 'Please pass by Quagga Centre on the next route.', this)" class="py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-map-pin text-cyan-500"></i> Quagga Stop
+                </button>
+                <button onclick="openCustomMessagePrompt()" class="py-3.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-comment-dots text-cyan-400"></i> Custom Msg
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM DISPATCH PROMPT MODAL -->
+    <div id="customMsgModal" class="absolute inset-0 z-[600] modal-overlay flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
+            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-message text-blue-500"></i> Dispatch options
+            </h3>
+            <p class="text-xs text-slate-500 font-medium mb-4">Would you like to request the driver to wait 5 minutes, or type a custom note?</p>
+            
+            <div class="space-y-2.5">
+                <button onclick="sendShuttleRequest('Delay Request', 'Please hold the shuttle for 5 minutes. I am on my way.', this)" class="w-full py-3.5 bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-hourglass-half"></i> Ask Driver to Wait 5 Mins
+                </button>
+                
+                <div class="border-t border-slate-100 my-3 pt-3">
+                    <textarea id="custom-driver-text" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-blue-500 mb-3 resize-none transition-all" placeholder="Type custom dispatch payload..."></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="closeModal('customMsgModal')" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all">Cancel</button>
+                        <button onclick="submitCustomDriverMsg(this)" class="py-3 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all">Send Note</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- LIVE LOGIC ENGINE -->
     <script>
         function getSessionData() {
@@ -570,6 +665,13 @@
             }
             return JSON.parse(rawSession);
         }
+
+        // --- GLOBAL TELEMETRY ENGINE STATE ---
+        let mapObj = null;
+        let shuttleMarker = null;
+        let studentMarker = null;
+        let studentCoords = null;
+        let telemetryInterval = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             const session = getSessionData();
@@ -638,6 +740,9 @@
                 const wifiPassStr = studentId !== '--' ? studentId.substring(0,6) : 'PASS';
                 document.getElementById('wifi-pass').textContent = `${initials}-${wifiPassStr}`;
 
+                // --- DETACHED INJECTION: DRAGGABLE BUBBLE SYSTEM ---
+                setupDraggableBus();
+
                 // Remove Protection Guard Smoothly
                 setTimeout(() => {
                     const guard = document.getElementById('authGuard');
@@ -664,6 +769,201 @@
                 }
             }
         });
+
+        // --- DRAGGABLE GRAPHICS LOGIC ENGINE ---
+        function setupDraggableBus() {
+            const el = document.getElementById('floating-bus-btn');
+            const container = document.querySelector('.mobile-container');
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+            let dragThreshold = false;
+
+            // Multi-platform tracking helpers
+            const startDrag = (e) => {
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                isDragging = true;
+                dragThreshold = false;
+                startX = clientX;
+                startY = clientY;
+                initialLeft = el.offsetLeft;
+                initialTop = el.offsetTop;
+            };
+
+            const doDrag = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+
+                if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) dragThreshold = true;
+
+                let newLeft = initialLeft + deltaX;
+                let newTop = initialTop + deltaY;
+
+                // Screen Boundary Constraint Array
+                const maxLeft = container.clientWidth - el.clientWidth - 10;
+                const maxTop = container.clientHeight - el.clientHeight - 90; // Avoid overlapping nav block
+                
+                newLeft = Math.max(10, Math.min(newLeft, maxLeft));
+                newTop = Math.max(70, Math.min(newTop, maxTop));
+
+                el.style.left = `${newLeft}px`;
+                el.style.top = `${newTop}px`;
+                el.style.bottom = 'auto';
+                el.style.right = 'auto';
+            };
+
+            const endDrag = () => {
+                isDragging = false;
+                if (!dragThreshold) openShuttleMap(); // If mouse didn't offset significantly, treat as direct click.
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', endDrag);
+
+            el.addEventListener('touchstart', startDrag, { passive: true });
+            window.addEventListener('touchmove', doDrag, { passive: false });
+            window.addEventListener('touchend', endDrag);
+        }
+
+        // --- RADAR MAP MODAL LOGIC ENGINE ---
+        function openShuttleMap() {
+            openModal('shuttleMapModal');
+            
+            // Generate Leaflet Viewport if first initialization loop
+            setTimeout(() => {
+                if (!mapObj) {
+                    mapObj = L.map('telemetry-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapObj);
+                }
+                
+                // Track Student Locally via Browser API Array
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        studentCoords = [pos.coords.latitude, pos.coords.longitude];
+                        const studentIcon = L.divIcon({ className: 'student-marker', iconSize: [14, 14], iconAnchor: [7, 7] });
+                        
+                        if (!studentMarker) {
+                            studentMarker = L.marker(studentCoords, { icon: studentIcon }).addTo(mapObj);
+                        } else {
+                            studentMarker.setLatLng(studentCoords);
+                        }
+                    });
+                }
+                
+                fetchLiveShuttleData();
+                telemetryInterval = setInterval(fetchLiveShuttleData, 5000); // Continuous Background Polling Array
+            }, 300);
+        }
+
+        function closeShuttleMap() {
+            closeModal('shuttleMapModal');
+            if (telemetryInterval) {
+                clearInterval(telemetryInterval);
+                telemetryInterval = null;
+            }
+        }
+
+        async function fetchLiveShuttleData() {
+            try {
+                const timeBuster = Date.now();
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-shuttle?t=' + timeBuster, { method: 'GET', cache: 'no-store' });
+                const rawData = await response.json();
+                const data = Array.isArray(rawData) ? rawData[0] : rawData;
+
+                if (data && data.Latitude && data.Longitude) {
+                    const shuttleCoords = [parseFloat(data.Latitude), parseFloat(data.Longitude)];
+                    const shuttleIcon = L.divIcon({ className: 'shuttle-marker', iconSize: [16, 16], iconAnchor: [8, 8] });
+
+                    if (!shuttleMarker) {
+                        shuttleMarker = L.marker(shuttleCoords, { icon: shuttleIcon }).addTo(mapObj);
+                    } else {
+                        shuttleMarker.setLatLng(shuttleCoords);
+                    }
+
+                    // Dynamically position camera array to fit matrix bounds
+                    if (studentCoords) {
+                        const bounds = L.latLngBounds([studentCoords, shuttleCoords]);
+                        mapObj.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+                        
+                        // Execute Haversine Engineering Distance Formula
+                        calculateSpatialETA(studentCoords[0], studentCoords[1], shuttleCoords[0], shuttleCoords[1]);
+                    } else {
+                        mapObj.setView(shuttleCoords, 16);
+                    }
+                }
+            } catch(e) {
+                console.log("Awaiting transit link sync...");
+            }
+        }
+
+        function calculateSpatialETA(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's Radius
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+
+            const speed = 35; // City routing avg speed (km/h)
+            const routingSkew = 1.4; // Curve coefficient matrix adjustment
+            const timeMins = Math.ceil(((distance * routingSkew) / speed) * 60);
+
+            document.getElementById('shuttle-eta').innerText = timeMins <= 1 ? "Arriving Now" : `~${timeMins} Mins Away`;
+        }
+
+        // --- TWO-WAY DRIVER DISPATCH LOGIC SYSTEM ---
+        function openCustomMessagePrompt() {
+            openModal('customMsgModal');
+        }
+
+        async function submitCustomDriverMsg(btnElement) {
+            const textEl = document.getElementById('custom-driver-text');
+            if(!textEl || !textEl.value.trim()) {
+                alert("Please enter a message note first.");
+                return;
+            }
+            await sendShuttleRequest('Custom Message', textEl.value.trim(), btnElement);
+            textEl.value = '';
+            closeModal('customMsgModal');
+        }
+
+        async function sendShuttleRequest(type, msgText, btnElement) {
+            const session = getSessionData();
+            const ogHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+            btnElement.disabled = true;
+
+            try {
+                // Outbound POST Telemetry Webhook Target
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-student-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number || 'Unknown',
+                        Student_Name: session.First_Name || 'Resident',
+                        Room: session.Room_Allocation || 'Unassigned',
+                        Type: type,
+                        Message: msgText,
+                        Time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    })
+                });
+
+                if (!res.ok) throw new Error();
+                showToast("Request dispatched to driver portal.", "success");
+            } catch(e) {
+                showToast("Transmission failed to reach dispatch.", "error");
+            } finally {
+                btnElement.innerHTML = ogHtml;
+                btnElement.disabled = false;
+            }
+        }
 
         // Visitor PIN Engine
         async function submitVisitorPin(e) {
