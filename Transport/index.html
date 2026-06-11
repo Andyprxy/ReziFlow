@@ -6,6 +6,10 @@
     <title>ReziFlow | Driver Telemetry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f4f7fb; }
@@ -13,74 +17,72 @@
         .liquid-glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
         }
         
-        .pulse-ring { animation: pulsate 1.5s infinite ease-out; }
+        #driver-map { height: 250px; border-radius: 20px; z-index: 10; }
         
+        .pulse-ring { animation: pulsate 1.5s infinite ease-out; }
         @keyframes pulsate {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
             100% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
         }
         
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .driver-marker {
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+            transition: all 0.5s ease-out;
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6 relative overflow-hidden">
+<body class="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
 
-    <!-- Premium Background Gradients -->
-    <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0 pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0 pointer-events-none"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.15] z-0"></div>
 
-    <div class="liquid-glass rounded-[32px] p-8 max-w-sm w-full text-center relative z-10">
-        <div class="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-2xl mx-auto flex items-center justify-center text-2xl mb-4 shadow-lg shadow-slate-900/20">
-            <i class="fa-solid fa-van-shuttle"></i>
+    <div class="liquid-glass rounded-[32px] p-6 max-w-sm w-full text-center relative z-10">
+        <h2 class="text-xl font-black text-slate-800 tracking-tight mb-1">Shuttle Ops</h2>
+        <p class="text-[10px] text-slate-500 mb-4 font-bold uppercase tracking-widest">Active Transmission Relay</p>
+
+        <div class="p-1.5 bg-white border border-slate-200 rounded-[24px] shadow-sm mb-6">
+            <div id="driver-map"></div>
         </div>
-        <h2 class="text-2xl font-black text-slate-800 tracking-tight mb-1">Shuttle Ops</h2>
-        <p class="text-xs text-slate-500 mb-8 font-bold uppercase tracking-widest">Live GPS Telemetry Link</p>
 
-        <button id="btn-broadcast" onclick="toggleBroadcast()" class="w-full bg-slate-900 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3">
+        <button id="btn-broadcast" onclick="toggleBroadcast()" class="w-full bg-slate-900 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-xl flex items-center justify-center gap-3">
             <i class="fa-solid fa-satellite-dish"></i> <span id="btn-text">Start Broadcasting</span>
         </button>
-
-        <div class="mt-6 bg-white/50 backdrop-blur-sm border border-white rounded-2xl p-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Logs</span>
-                <div id="status-indicator" class="w-2 h-2 rounded-full bg-slate-300"></div>
-            </div>
-            <div id="status-log" class="text-[10px] font-mono text-slate-500 h-24 overflow-y-auto custom-scroll text-left leading-relaxed">
-                <div>> Terminal Ready. Awaiting command.</div>
-            </div>
-        </div>
     </div>
 
     <script>
         let watchId;
         let isBroadcasting = false;
+        
+        // Initialize Map
+        const map = L.map('driver-map').setView([-25.7479, 28.2293], 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        
+        const driverIcon = L.divIcon({ className: 'driver-marker', iconSize: [16, 16], iconAnchor: [8, 8] });
+        let marker = null;
 
         function toggleBroadcast() {
             const btn = document.getElementById('btn-broadcast');
             const btnText = document.getElementById('btn-text');
-            const indicator = document.getElementById('status-indicator');
 
             if (!isBroadcasting) {
                 if ("geolocation" in navigator) {
                     btn.classList.add('bg-emerald-500', 'pulse-ring');
                     btn.classList.remove('bg-slate-900');
-                    indicator.classList.remove('bg-slate-300');
-                    indicator.classList.add('bg-emerald-500', 'animate-pulse');
                     btnText.innerText = 'Transmitting Live...';
                     isBroadcasting = true;
 
                     watchId = navigator.geolocation.watchPosition(
                         sendLocationToN8n, 
-                        (err) => addLog("GPS Error: " + err.message),
+                        (err) => alert("GPS Error: Ensure location permissions are allowed."),
                         { enableHighAccuracy: true, maximumAge: 0 }
                     );
-                    addLog("GPS Hook Established. Acquiring satellite lock...");
                 } else {
                     alert("Geolocation is not supported by this browser.");
                 }
@@ -88,19 +90,23 @@
                 navigator.geolocation.clearWatch(watchId);
                 btn.classList.remove('bg-emerald-500', 'pulse-ring');
                 btn.classList.add('bg-slate-900');
-                indicator.classList.remove('bg-emerald-500', 'animate-pulse');
-                indicator.classList.add('bg-slate-300');
                 btnText.innerText = 'Start Broadcasting';
                 isBroadcasting = false;
-                addLog("Transmission offline. Connection severed.");
             }
         }
 
         async function sendLocationToN8n(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
+            const newLatLng = [lat, lng];
 
-            addLog(`Ping: [${lat.toFixed(5)}, ${lng.toFixed(5)}]`);
+            // Update local map visually
+            if (!marker) {
+                marker = L.marker(newLatLng, { icon: driverIcon }).addTo(map);
+            } else {
+                marker.setLatLng(newLatLng);
+            }
+            map.setView(newLatLng, 17);
 
             // POST to n8n Ingest Webhook
             fetch('https://n8n.automania.cloud/webhook/reziflow-driver-gps', {
@@ -113,11 +119,6 @@
                     Timestamp: new Date().toISOString()
                 })
             }).catch(e => console.log("Cloud sync failed."));
-        }
-
-        function addLog(msg) {
-            const logBox = document.getElementById('status-log');
-            logBox.innerHTML = `<div>> ${msg}</div>` + logBox.innerHTML;
         }
     </script>
 </body>
