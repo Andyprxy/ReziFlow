@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Leaflet Map Integration -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
@@ -18,30 +17,26 @@
         .liquid-glass {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 12px 40px -10px rgba(0,0,0,0.05);
         }
 
         #map { width: 100%; height: 450px; border-radius: 20px; z-index: 10; }
         
-        /* Custom Glowing Map Marker */
-        .live-marker {
-            background: #06b6d4;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
-            transition: all 1s ease-in-out;
+        /* Shuttle Marker */
+        .shuttle-marker {
+            background: #06b6d4; border: 3px solid white; border-radius: 50%;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); transition: all 1s ease-in-out;
         }
-        
-        /* Pulse effect behind the marker */
-        .live-marker::after {
-            content: '';
-            position: absolute;
-            top: -5px; left: -5px; right: -5px; bottom: -5px;
-            border-radius: 50%;
-            border: 2px solid #06b6d4;
-            animation: radar 2s infinite ease-out;
+        .shuttle-marker::after {
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border-radius: 50%; border: 2px solid #06b6d4; animation: radar 2s infinite ease-out;
+        }
+
+        /* Student Marker */
+        .student-marker {
+            background: #3b82f6; border: 3px solid white; border-radius: 50%;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
         
         @keyframes radar {
@@ -54,59 +49,62 @@
 
     <div class="max-w-4xl mx-auto liquid-glass rounded-[32px] p-6 lg:p-8">
         
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pb-6 border-b border-slate-200 gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg shadow-cyan-500/30">
+                <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg">
                     <i class="fa-solid fa-location-crosshairs"></i>
                 </div>
                 <div>
                     <h2 class="text-xl font-black text-slate-800 tracking-tight">Campus Shuttle</h2>
                     <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                        <span class="w-2 h-2 inline-block bg-emerald-500 rounded-full animate-pulse"></span> Live GPS Tracking
+                        <span class="w-2 h-2 inline-block bg-emerald-500 rounded-full animate-pulse"></span> Target Acquired
                     </p>
                 </div>
             </div>
-            <div class="px-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-2">
-                <i class="fa-solid fa-clock text-cyan-400"></i> ETA: ~4 Mins
+            
+            <div class="px-5 py-3 bg-slate-900 text-white rounded-xl shadow-md flex items-center gap-3">
+                <i class="fa-solid fa-clock text-cyan-400"></i> 
+                <div class="flex flex-col">
+                    <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold leading-none mb-1">Estimated Arrival</span>
+                    <span id="eta-text" class="text-sm font-black leading-none">Calculating...</span>
+                </div>
             </div>
         </div>
 
-        <!-- Map Container -->
         <div class="p-2 bg-white border border-slate-200 rounded-[24px] shadow-sm">
             <div id="map"></div>
         </div>
         
-        <div class="mt-6 flex justify-between items-center px-2">
-            <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
-                <i class="fa-solid fa-circle-info text-blue-500"></i> Auto-refreshing every 5s
-            </div>
-            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                Engineered by Automania
-            </div>
-        </div>
     </div>
 
     <script>
-        // Initialize Map (Centered on TUT Pretoria coordinates)
         const map = L.map('map').setView([-25.7479, 28.2293], 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
 
-        // Load premium light-themed map tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap & Carto',
-            maxZoom: 19
-        }).addTo(map);
-
-        // Define the Custom ReziFlow Marker
-        const shuttleIcon = L.divIcon({
-            className: 'live-marker',
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
-        });
+        const shuttleIcon = L.divIcon({ className: 'shuttle-marker', iconSize: [16, 16], iconAnchor: [8, 8] });
+        const studentIcon = L.divIcon({ className: 'student-marker', iconSize: [14, 14], iconAnchor: [7, 7] });
 
         let shuttleMarker = null;
+        let studentMarker = null;
+        let studentCoords = null;
 
-        // Fetch location from n8n
+        // 1. Get the Student's Location
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition((position) => {
+                studentCoords = [position.coords.latitude, position.coords.longitude];
+                
+                if (!studentMarker) {
+                    studentMarker = L.marker(studentCoords, { icon: studentIcon }).addTo(map);
+                } else {
+                    studentMarker.setLatLng(studentCoords);
+                }
+                updateETA();
+            }, (error) => {
+                document.getElementById('eta-text').innerText = "Location Off";
+            }, { enableHighAccuracy: true });
+        }
+
+        // 2. Fetch Shuttle Location from n8n
         async function fetchDriverLocation() {
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-shuttle');
@@ -115,18 +113,59 @@
                 if (data.Latitude && data.Longitude) {
                     const lat = parseFloat(data.Latitude);
                     const lng = parseFloat(data.Longitude);
-                    const newLatLng = [lat, lng];
+                    const shuttleCoords = [lat, lng];
 
                     if (!shuttleMarker) {
-                        shuttleMarker = L.marker(newLatLng, { icon: shuttleIcon }).addTo(map);
-                        map.setView(newLatLng, 16); 
+                        shuttleMarker = L.marker(shuttleCoords, { icon: shuttleIcon }).addTo(map);
                     } else {
-                        // Smoothly move the marker to the new coordinates
-                        shuttleMarker.setLatLng(newLatLng);
+                        shuttleMarker.setLatLng(shuttleCoords);
                     }
+
+                    // Auto-adjust map bounds to fit both student and shuttle if both exist
+                    if (studentCoords && shuttleMarker) {
+                        const bounds = L.latLngBounds([studentCoords, shuttleCoords]);
+                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+                    } else {
+                        map.setView(shuttleCoords, 16);
+                    }
+
+                    updateETA();
                 }
             } catch (error) {
-                console.log("Awaiting driver telemetry connection...");
+                console.log("Awaiting driver telemetry...");
+            }
+        }
+
+        // 3. The ETA Math Engine (Haversine Formula)
+        function updateETA() {
+            if (!studentCoords || !shuttleMarker) return;
+
+            const lat1 = studentCoords[0];
+            const lon1 = studentCoords[1];
+            const lat2 = shuttleMarker.getLatLng().lat;
+            const lon2 = shuttleMarker.getLatLng().lng;
+
+            // Earth Radius in km
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distanceKm = R * c; 
+
+            // Calculate Time: Avg City Speed = 35km/h, Routing Factor = 1.4 (roads aren't straight lines)
+            const speedKmh = 35;
+            const routingFactor = 1.4;
+            const timeHours = (distanceKm * routingFactor) / speedKmh;
+            const timeMins = Math.ceil(timeHours * 60);
+
+            const etaDisplay = document.getElementById('eta-text');
+            if (timeMins < 1) {
+                etaDisplay.innerText = "Arriving Now";
+            } else {
+                etaDisplay.innerText = `~${timeMins} Mins`;
             }
         }
 
