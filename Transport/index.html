@@ -110,9 +110,8 @@
             document.getElementById('system-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
         }, 1000);
 
-        // --- Map Initialization (Tesla Light Mode) ---
+        // --- Map Initialization ---
         const map = L.map('driver-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
-        // Using Voyager tiles for a clean, bright, modern look with clear roads
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 19
         }).addTo(map);
@@ -132,12 +131,10 @@
 
             if (!isBroadcasting) {
                 if ("geolocation" in navigator) {
-                    // Update Button UI
                     btn.classList.add('bg-emerald-500', 'border-emerald-500', 'pulse-ring');
                     btn.classList.remove('bg-slate-900', 'border-slate-800');
                     btnText.innerText = 'Transmission Active';
                     
-                    // Update Floating HUD
                     gpsIndicator.classList.replace('bg-slate-300', 'bg-emerald-500');
                     gpsIndicator.classList.add('animate-pulse');
                     gpsStatus.innerText = 'Tracking Active';
@@ -154,12 +151,10 @@
             } else {
                 navigator.geolocation.clearWatch(watchId);
                 
-                // Revert Button UI
                 btn.classList.remove('bg-emerald-500', 'border-emerald-500', 'pulse-ring');
                 btn.classList.add('bg-slate-900', 'border-slate-800');
                 btnText.innerText = 'Initiate Broadcast';
                 
-                // Revert Floating HUD
                 gpsIndicator.classList.replace('bg-emerald-500', 'bg-slate-300');
                 gpsIndicator.classList.remove('animate-pulse');
                 gpsStatus.innerText = 'GPS Offline';
@@ -172,15 +167,13 @@
         async function sendLocationToN8n(position) {
             const newLatLng = [position.coords.latitude, position.coords.longitude];
 
-            // Update Map Visuals
             if (!marker) {
                 marker = L.marker(newLatLng, { icon: driverIcon }).addTo(map);
             } else {
                 marker.setLatLng(newLatLng);
             }
-            map.setView(newLatLng, 17); // Keep tightly zoomed on the driver
+            map.setView(newLatLng, 17); 
 
-            // POST to n8n Ingest Webhook
             fetch('https://n8n.automania.cloud/webhook/reziflow-driver-gps', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -193,7 +186,7 @@
             }).catch(e => console.log("Cloud sync failed."));
         }
 
-        // --- Inbox Engine: Advanced Flattening System ---
+        // --- Inbox Engine: Dual-Action System ---
         let renderedMessageIds = new Set();
 
         async function fetchStudentRequests() {
@@ -203,15 +196,12 @@
                 
                 if (!response.ok) return; 
                 
-                // Read the raw text first to prevent JSON parse crashes on empty responses
                 const rawText = await response.text();
                 if (!rawText || rawText.trim() === "") return;
                 
                 let rawData = JSON.parse(rawText);
-                
                 let requests = [];
                 
-                // Aggressive Array Flattener: Strips n8n wrappers regardless of version
                 if (Array.isArray(rawData)) {
                     requests = rawData.map(item => item.json ? item.json : item);
                 } else if (rawData && rawData.data && Array.isArray(rawData.data)) {
@@ -223,7 +213,6 @@
                 const feed = document.getElementById('message-feed');
                 const emptyState = document.getElementById('empty-state');
 
-                // Filter out blank Google Sheet rows and ensure it only shows Pending items
                 const validRequests = requests.filter(req => req && req.Message_ID && String(req.Message_ID).includes('REQ'));
 
                 if (validRequests.length > 0 && emptyState) {
@@ -231,7 +220,7 @@
                 }
                 
                 validRequests.forEach(req => {
-                    // Only render if we haven't seen this Message_ID yet and it is still Pending
+                    // Feed only renders Pending items
                     if (!renderedMessageIds.has(req.Message_ID) && String(req.Status).trim() === 'Pending') {
                         
                         let iconHtml = '<i class="fa-solid fa-message text-cyan-500"></i>';
@@ -258,9 +247,14 @@
                                     <p class="text-slate-700 text-sm font-semibold italic">"${req.Message || ''}"</p>
                                 </div>
 
-                                <button onclick="clearMessage(this, '${req.Message_ID}')" class="w-full py-3.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 border border-slate-200 hover:border-emerald-200 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
-                                    <i class="fa-solid fa-check-double"></i> Acknowledge
-                                </button>
+                                <div class="grid grid-cols-2 gap-3 mt-1 action-buttons-container">
+                                    <button onclick="resolveMessage(this, '${req.Message_ID}', 'Rejected')" class="w-full py-3.5 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                        <i class="fa-solid fa-xmark"></i> Reject
+                                    </button>
+                                    <button onclick="resolveMessage(this, '${req.Message_ID}', 'Approved')" class="w-full py-3.5 bg-slate-900 hover:bg-emerald-600 text-white border border-slate-800 hover:border-emerald-500 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                                        <i class="fa-solid fa-check"></i> Approve
+                                    </button>
+                                </div>
                             </div>
                         `;
                         
@@ -273,21 +267,30 @@
             }
         }
 
-        async function clearMessage(btnElement, messageId) {
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-emerald-600"></i> Resolving...';
-            btnElement.disabled = true;
+        async function resolveMessage(btnElement, messageId, newStatus) {
+            const card = btnElement.closest('.msg-card');
+            const buttonsContainer = btnElement.closest('.action-buttons-container');
+            
+            // Render seamless loading state based on action taken
+            const loaderColor = newStatus === 'Approved' ? 'emerald' : 'rose';
+            buttonsContainer.innerHTML = `
+                <div class="col-span-2 w-full py-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center gap-2 text-slate-500 text-xs font-bold shadow-inner">
+                    <i class="fa-solid fa-circle-notch fa-spin text-${loaderColor}-500"></i> 
+                    ${newStatus === 'Approved' ? 'Approving Dispatch...' : 'Rejecting Dispatch...'}
+                </div>
+            `;
 
             try {
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-msg', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ID: messageId, Status: 'Acknowledged' })
+                    body: JSON.stringify({ ID: messageId, Status: newStatus })
                 });
             } catch(e) {
                 console.log("Failed to sync resolution to cloud.");
             }
 
-            const card = btnElement.closest('.msg-card');
+            // Execute shrinking animation
             card.style.transition = "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
             card.style.opacity = "0";
             card.style.transform = "translateY(-10px) scale(0.95)";
@@ -296,6 +299,7 @@
                 card.remove();
                 renderedMessageIds.delete(messageId); 
                 
+                // Return empty state if feed is cleared
                 const feed = document.getElementById('message-feed');
                 if (feed.children.length === 0) {
                     feed.innerHTML = `<div class="text-center text-slate-400 font-medium text-sm py-8" id="empty-state">No active dispatch requests.</div>`;
