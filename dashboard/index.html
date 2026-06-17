@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Leaflet Map Integration for Live Telemetry Tracking -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -127,7 +126,6 @@
 
     <div class="mobile-container">
         
-        <!-- Absolute constraints ensure elements stay inside the phone shell on desktop -->
         <div id="toast-container" class="absolute top-6 left-0 right-0 z-[1000] flex justify-center px-4 pointer-events-none">
             <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm">
                 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -205,7 +203,7 @@
                 <section>
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Lease & Funding</h3>
                     <div class="bg-[#eef8f3] rounded-[24px] p-4 border border-emerald-100/50 flex items-center gap-4 shadow-sm">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
                             <i class="fa-solid fa-check text-lg"></i>
                         </div>
                         <div>
@@ -500,34 +498,36 @@
 
         </main>
 
-        <!-- Hovering Movable Bus Bubble (Positioned Right Above Profile Nav Target) -->
-        <div id="floating-bus-btn" class="absolute z-[450] bg-gradient-to-tr from-cyan-500 to-blue-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-cyan-500/30 cursor-grab active:cursor-grabbing border-2 border-white select-none transition-transform active:scale-95" style="bottom: 90px; right: 24px;">
-            <i class="fa-solid fa-van-shuttle text-xl pointer-events-none"></i>
+        <div class="absolute bottom-[90px] left-0 w-full flex justify-center gap-1.5 z-40 pointer-events-none">
+            <div id="nav-dot-1" class="w-1.5 h-1.5 rounded-full bg-blue-500 transition-colors duration-300"></div>
+            <div id="nav-dot-2" class="w-1.5 h-1.5 rounded-full bg-slate-300 transition-colors duration-300"></div>
         </div>
 
-        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
-            <div class="flex justify-between items-center text-slate-400">
-                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 tap-effect transition-colors">
+        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] flex flex-col">
+            <div id="nav-scroll-container" class="flex items-center overflow-x-auto no-scrollbar px-6 gap-5 snap-x snap-mandatory w-full scroll-smooth">
+                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect transition-colors">
                     <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
                 </button>
-                <button onclick="switchTab('wifi', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                <button onclick="switchTab('wifi', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
                     <i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span>
                 </button>
-                <button onclick="switchTab('snags', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                <button onclick="switchTab('snags', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
                     <i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span>
                 </button>
-                <button onclick="switchTab('security', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                <button onclick="switchTab('security', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
                     <i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span>
                 </button>
-                <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 w-14 tap-effect hover:text-blue-500 transition-colors">
+                <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
                     <i class="fa-regular fa-user text-lg mb-0.5"></i><span class="text-[10px] font-medium">Profile</span>
                 </button>
+                <button onclick="openShuttleMap()" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
+                    <i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transport</span>
+                </button>
             </div>
-            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-6"></div>
+            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4 flex-shrink-0"></div>
         </nav>
     </div>
 
-    <!-- Modals -->
     <div id="visitorModal" class="absolute inset-0 z-[100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -589,7 +589,6 @@
         </div>
     </div>
 
-    <!-- PREMIUM TELEMETRY MAP OVERLAY MODAL -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[500] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
@@ -607,18 +606,15 @@
                 </button>
             </div>
 
-            <!-- Dynamic HUD Layer -->
             <div class="my-3 flex justify-between items-center bg-slate-50 border border-slate-100 rounded-2xl p-3 shadow-sm flex-shrink-0">
                 <span class="text-xs text-slate-600 font-semibold"><i class="fa-solid fa-route text-blue-500 mr-1"></i> Destination Status</span>
                 <span id="shuttle-eta" class="text-xs font-black text-white bg-slate-900 px-3 py-1 rounded-lg">Calculating...</span>
             </div>
 
-            <!-- Map Viewport -->
             <div class="flex-1 bg-slate-100 border border-slate-200 rounded-[28px] overflow-hidden relative shadow-inner p-1">
                 <div id="telemetry-map" class="h-full w-full"></div>
             </div>
 
-            <!-- Dispatch Communications Bar -->
             <div class="mt-4 grid grid-cols-2 gap-3 flex-shrink-0">
                 <button onclick="sendShuttleRequest('Stop Request', 'Please pass by Quagga Centre on the next route.', this)" class="py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
                     <i class="fa-solid fa-map-pin text-cyan-500"></i> Quagga Stop
@@ -630,7 +626,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM DISPATCH PROMPT MODAL -->
     <div id="customMsgModal" class="absolute inset-0 z-[600] modal-overlay flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
             <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2">
@@ -655,8 +650,27 @@
         </div>
     </div>
 
-    <!-- LIVE LOGIC ENGINE -->
     <script>
+        // --- SCROLLABLE NAV DOT INDICATOR LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const navScroll = document.getElementById('nav-scroll-container');
+            if (navScroll) {
+                navScroll.addEventListener('scroll', () => {
+                    const dot1 = document.getElementById('nav-dot-1');
+                    const dot2 = document.getElementById('nav-dot-2');
+                    
+                    // Toggle active dot when scrolled more than halfway
+                    if (navScroll.scrollLeft > (navScroll.scrollWidth - navScroll.clientWidth) / 2) {
+                        dot1.classList.replace('bg-blue-500', 'bg-slate-300');
+                        dot2.classList.replace('bg-slate-300', 'bg-blue-500');
+                    } else {
+                        dot1.classList.replace('bg-slate-300', 'bg-blue-500');
+                        dot2.classList.replace('bg-blue-500', 'bg-slate-300');
+                    }
+                });
+            }
+        });
+
         function getSessionData() {
             const rawSession = localStorage.getItem('reziflow_session');
             if (!rawSession) {
@@ -740,9 +754,6 @@
                 const wifiPassStr = studentId !== '--' ? studentId.substring(0,6) : 'PASS';
                 document.getElementById('wifi-pass').textContent = `${initials}-${wifiPassStr}`;
 
-                // --- DETACHED INJECTION: DRAGGABLE BUBBLE SYSTEM ---
-                setupDraggableBus();
-
                 // Remove Protection Guard Smoothly
                 setTimeout(() => {
                     const guard = document.getElementById('authGuard');
@@ -769,66 +780,6 @@
                 }
             }
         });
-
-        // --- DRAGGABLE GRAPHICS LOGIC ENGINE ---
-        function setupDraggableBus() {
-            const el = document.getElementById('floating-bus-btn');
-            const container = document.querySelector('.mobile-container');
-            let isDragging = false;
-            let startX, startY, initialLeft, initialTop;
-            let dragThreshold = false;
-
-            // Multi-platform tracking helpers
-            const startDrag = (e) => {
-                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                isDragging = true;
-                dragThreshold = false;
-                startX = clientX;
-                startY = clientY;
-                initialLeft = el.offsetLeft;
-                initialTop = el.offsetTop;
-            };
-
-            const doDrag = (e) => {
-                if (!isDragging) return;
-                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                
-                const deltaX = clientX - startX;
-                const deltaY = clientY - startY;
-
-                if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) dragThreshold = true;
-
-                let newLeft = initialLeft + deltaX;
-                let newTop = initialTop + deltaY;
-
-                // Screen Boundary Constraint Array
-                const maxLeft = container.clientWidth - el.clientWidth - 10;
-                const maxTop = container.clientHeight - el.clientHeight - 90; // Avoid overlapping nav block
-                
-                newLeft = Math.max(10, Math.min(newLeft, maxLeft));
-                newTop = Math.max(70, Math.min(newTop, maxTop));
-
-                el.style.left = `${newLeft}px`;
-                el.style.top = `${newTop}px`;
-                el.style.bottom = 'auto';
-                el.style.right = 'auto';
-            };
-
-            const endDrag = () => {
-                isDragging = false;
-                if (!dragThreshold) openShuttleMap(); // If mouse didn't offset significantly, treat as direct click.
-            };
-
-            el.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', doDrag);
-            window.addEventListener('mouseup', endDrag);
-
-            el.addEventListener('touchstart', startDrag, { passive: true });
-            window.addEventListener('touchmove', doDrag, { passive: false });
-            window.addEventListener('touchend', endDrag);
-        }
 
         // --- RADAR MAP MODAL LOGIC ENGINE ---
         function openShuttleMap() {
@@ -1192,13 +1143,24 @@
         }
 
         function switchTab(tabId, btnElement) {
+            // Prevent attempting to switch to Transport since it's a modal, not a tab
+            if (tabId === 'transport') {
+                openShuttleMap();
+                return;
+            }
+
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(btn => {
+            
+            // Only update classes for actual tab buttons, excluding the Transport modal trigger
+            document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
                 btn.classList.remove('text-blue-600');
+                btn.classList.add('text-slate-400');
                 btn.querySelector('span').classList.remove('font-bold');
                 btn.querySelector('span').classList.add('font-medium');
             });
+            
+            btnElement.classList.remove('text-slate-400');
             btnElement.classList.add('text-blue-600');
             btnElement.querySelector('span').classList.remove('font-medium');
             btnElement.querySelector('span').classList.add('font-bold');
