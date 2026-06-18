@@ -813,20 +813,7 @@
                 // --- Lease Refresh Persistence Logic ---
                 const leaseBtnContainer = document.getElementById('doc-btn-lease');
                 
-                if (session.Doc_Lease_URL === 'pending_generation') {
-                    // Pending State Vault
-                    if(leaseBtnContainer) leaseBtnContainer.innerHTML = `<span class="text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 border-dashed"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Processing</span>`;
-                    
-                    // Pending State Main Profile Card
-                    document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Processing PDF...';
-                    document.getElementById('lease-status-text').className = 'text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-0.5';
-                    
-                    const openBtn = document.getElementById('btn-open-lease');
-                    openBtn.innerHTML = 'Processing PDF... <i class="fa-solid fa-circle-notch fa-spin"></i>';
-                    openBtn.className = 'w-full bg-slate-100 text-slate-500 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed';
-                    openBtn.onclick = null;
-
-                } else if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
+                if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
                     // Completed State Vault
                     if(leaseBtnContainer) leaseBtnContainer.innerHTML = `<button onclick="viewSignedLease()" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</button>`;
                     
@@ -1165,29 +1152,29 @@
                     })
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 1500)); 
+                if (!res.ok) throw new Error("Server error");
 
                 closeLeaseModal();
                 showToast("Lease Signed Successfully!", "success");
                 
-                // Write the pending flag to local storage so it survives refresh
+                // Write the completed flag to local storage so it survives refresh
                 if (session) {
-                    session.Doc_Lease_URL = "pending_generation";
+                    session.Doc_Lease_URL = "signed_and_locked"; 
                     localStorage.setItem('reziflow_session', JSON.stringify(session));
                 }
                 
-                // Update UI visually to reflect processing status immediately
-                document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Processing PDF...';
-                document.getElementById('lease-status-text').className = 'text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-0.5';
+                // Update UI visually to reflect completed status immediately
+                document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
+                document.getElementById('lease-status-text').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
                 
                 const openBtn = document.getElementById('btn-open-lease');
-                openBtn.innerHTML = 'Processing PDF... <i class="fa-solid fa-circle-notch fa-spin"></i>';
-                openBtn.className = 'w-full bg-slate-100 text-slate-500 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed';
-                openBtn.onclick = null;
+                openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+                openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
+                openBtn.onclick = viewSignedLease;
                 
                 const vaultLeaseBtn = document.getElementById('doc-btn-lease');
                 if (vaultLeaseBtn) {
-                    vaultLeaseBtn.innerHTML = `<span class="text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 border-dashed"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Processing</span>`;
+                    vaultLeaseBtn.innerHTML = `<button onclick="viewSignedLease()" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</button>`;
                 }
 
             } catch(e) {
