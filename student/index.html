@@ -797,7 +797,25 @@
                 renderDocButton('doc-btn-id', session.Doc_1_URL_ID);
                 renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
                 renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
-                renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
+                
+                // Custom render for Lease Vault to enforce tracking ping
+                const leaseBtnContainer = document.getElementById('doc-btn-lease');
+                if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
+                    leaseBtnContainer.innerHTML = `<button onclick="viewSignedLease()" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</button>`;
+                } else {
+                    leaseBtnContainer.innerHTML = `<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Awaiting</span>`;
+                }
+
+                // Check if lease is already signed via session data to update main Profile Button
+                if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
+                    document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
+                    document.getElementById('lease-status-text').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
+                    
+                    const openBtn = document.getElementById('btn-open-lease');
+                    openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+                    openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
+                    openBtn.onclick = viewSignedLease;
+                }
 
                 const wifiPassStr = studentId !== '--' ? studentId.substring(0,6) : 'PASS';
                 document.getElementById('wifi-pass').textContent = `${initials}-${wifiPassStr}`;
@@ -827,6 +845,19 @@
                 }
             }
         });
+
+        // --- NEW: REDIRECT PATTERN LOGIC ---
+        function viewSignedLease() {
+            const session = getSessionData();
+            if (!session || !session.Student_Number) {
+                showToast("Session error. Please log in again.", "error");
+                return;
+            }
+            showToast("Opening secure lease vault...", "success");
+            
+            // Points to your production n8n webhook and injects the dynamic student number
+            window.location.href = `https://n8n.automania.cloud/webhook/816fb2e9-2146-4d28-bef2-45436a156cb2/view-lease/${session.Student_Number}`;
+        }
 
         // --- RADAR MAP MODAL LOGIC ENGINE ---
         function openShuttleMap() {
@@ -1078,7 +1109,7 @@
                 const openBtn = document.getElementById('btn-open-lease');
                 openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
                 openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
-                openBtn.onclick = () => showToast("Loading locked PDF from vault...", "success");
+                openBtn.onclick = viewSignedLease;
 
             } catch(e) {
                 showToast("Transmission Error. Please try again.", "error");
