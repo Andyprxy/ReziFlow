@@ -144,7 +144,6 @@
                     <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
                 </div>
                 
-                <!-- NEW HEADER LAYOUT: Power Button & Profile Button -->
                 <div class="flex items-center gap-3">
                     <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Log Out">
                         <i class="fa-solid fa-power-off"></i>
@@ -206,7 +205,7 @@
                 <section>
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Lease & Funding</h3>
                     <div class="bg-[#eef8f3] rounded-[24px] p-4 border border-emerald-100/50 flex items-center gap-4 shadow-sm">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
                             <i class="fa-solid fa-check text-lg"></i>
                         </div>
                         <div>
@@ -413,7 +412,6 @@
                     </div>
                 </div>
 
-                <!-- DIGITAL LEASE AGREEMENT ENGINE -->
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mt-5">
                     <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Accommodation Lease</h3>
                     <p class="text-[11px] text-slate-500 mb-4 font-medium">Review and digitally sign your residency agreement.</p>
@@ -511,6 +509,18 @@
                             </div>
                             <div id="doc-btn-fund"></div>
                         </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-signature"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-lease"></div>
+                        </div>
+                        
                     </div>
                     <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
                         <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
@@ -524,7 +534,6 @@
 
         </main>
 
-        <!-- STREAMLINED NON-SCROLLABLE BOTTOM NAV -->
         <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] flex flex-col">
             <div class="flex justify-between items-center w-full">
                 <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors">
@@ -548,7 +557,6 @@
         </nav>
     </div>
 
-    <!-- Modals -->
     <div id="visitorModal" class="absolute inset-0 z-[100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -610,7 +618,6 @@
         </div>
     </div>
 
-    <!-- PREMIUM TELEMETRY MAP OVERLAY MODAL -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[500] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
@@ -648,7 +655,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM DISPATCH PROMPT MODAL -->
     <div id="customMsgModal" class="absolute inset-0 z-[600] modal-overlay flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
             <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2">
@@ -673,7 +679,6 @@
         </div>
     </div>
 
-    <!-- DIGITAL LEASE SIGNATURE MODAL -->
     <div id="leaseModal" class="absolute inset-0 z-[600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
@@ -686,7 +691,6 @@
                 </button>
             </div>
 
-            <!-- Lease Terms Summary Container -->
             <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium">
                 <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
                 <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols as outlined by the property management.</p>
@@ -695,7 +699,6 @@
                 <p>4. By signing below, the resident consents to the use of their digital signature to be populated across the master lease PDF and securely stored within the vault infrastructure.</p>
             </div>
 
-            <!-- Interactive Signature Pad -->
             <div class="flex-shrink-0">
                 <p class="text-xs font-bold text-slate-800 mb-2 flex justify-between items-end">
                     <span>Draw your signature</span>
@@ -703,7 +706,6 @@
                 </p>
                 
                 <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden relative">
-                    <!-- The touch-none class is critical to prevent the screen from scrolling while signing -->
                     <canvas id="signature-pad" class="w-full h-32 touch-none cursor-crosshair"></canvas>
                     <div id="sig-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-300 font-medium text-sm">Sign here</div>
                 </div>
@@ -715,7 +717,6 @@
         </div>
     </div>
 
-    <!-- LIVE LOGIC ENGINE -->
     <script>
         function getSessionData() {
             const rawSession = localStorage.getItem('reziflow_session');
@@ -796,6 +797,7 @@
                 renderDocButton('doc-btn-id', session.Doc_1_URL_ID);
                 renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
                 renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
+                renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
 
                 const wifiPassStr = studentId !== '--' ? studentId.substring(0,6) : 'PASS';
                 document.getElementById('wifi-pass').textContent = `${initials}-${wifiPassStr}`;
@@ -1056,6 +1058,8 @@
                     body: JSON.stringify({
                         Student_Number: session ? session.Student_Number : 'Unknown',
                         Student_Name: session ? session.First_Name + ' ' + session.Surname : 'Resident',
+                        ID_Number: session ? session.ID_Number : 'Unknown',
+                        Room: session ? session.Room_Allocation : 'Unassigned',
                         Signature: base64Signature,
                         Timestamp: new Date().toISOString()
                     })
@@ -1311,25 +1315,29 @@
         }
 
         function switchTab(tabId, btnElement) {
-            // Un-highlight all bottom ribbon buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
+            // Prevent attempting to switch to Transport since it's a modal, not a tab
+            if (tabId === 'transport') {
+                openShuttleMap();
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // Only update classes for actual tab buttons, excluding the Transport modal trigger
+            document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
                 btn.classList.remove('text-blue-600');
                 btn.classList.add('text-slate-400');
                 btn.querySelector('span').classList.remove('font-bold');
                 btn.querySelector('span').classList.add('font-medium');
             });
-
-            // Highlight the clicked bottom ribbon button (if applicable)
-            if (btnElement) {
+            
+            if(btnElement) {
                 btnElement.classList.remove('text-slate-400');
                 btnElement.classList.add('text-blue-600');
                 btnElement.querySelector('span').classList.remove('font-medium');
                 btnElement.querySelector('span').classList.add('font-bold');
             }
-
-            // Show selected tab content
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
         }
 
         function openProfileFromHeader() {
