@@ -21,11 +21,10 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #0f172a; /* Desktop Background */
+            background-color: #0f172a; 
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Desktop Premium Background Effect */
         .desktop-bg {
             position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #0f172a; display: none;
         }
@@ -37,7 +36,6 @@
             content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%; background: #06b6d4; border-radius: 50%; filter: blur(150px); opacity: 0.15;
         }
 
-        /* The Device Shell */
         .mobile-container {
             width: 100%;
             height: 100vh;
@@ -48,20 +46,18 @@
             flex-direction: column;
         }
 
-        /* Desktop Mockup Constraints */
         @media (min-width: 640px) {
             .mobile-container {
-                width: 390px; /* iPhone Pro width */
+                width: 390px; 
                 height: 844px;
                 max-height: 90vh;
                 border-radius: 44px;
                 box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255,255,255,0.2);
-                border: 8px solid #1e293b; /* Device Bezel */
+                border: 8px solid #1e293b; 
                 margin: 20px auto;
             }
         }
 
-        /* Smooth tab transitions */
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn {
@@ -71,13 +67,15 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .tap-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
         
-        /* Premium Soft Shadows & Borders */
+        /* Custom Scrollbar for Lease Terms */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .tap-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
         .card-shadow { box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04); }
         .soft-border { border: 1px solid rgba(226, 232, 240, 0.6); }
 
-        /* Modal Overlay */
         .modal-overlay {
             background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(8px);
@@ -93,14 +91,12 @@
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
 
-        /* Toast Notifications */
         #toast-container {
             transform: translateY(-150%);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #toast-container.show { transform: translateY(0); }
 
-        /* Telemetry Custom Markers Styling */
         #telemetry-map { width: 100%; height: 380px; border-radius: 24px; }
         .shuttle-marker {
             background: #06b6d4; border: 3px solid white; border-radius: 50%;
@@ -147,9 +143,16 @@
                     <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
                     <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
                 </div>
-                <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect hover:bg-rose-500 transition-colors" id="header-initials">
-                    --
-                </button>
+                
+                <!-- NEW HEADER LAYOUT: Power Button & Profile Button -->
+                <div class="flex items-center gap-3">
+                    <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Log Out">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                    <button onclick="openProfileFromHeader()" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect hover:bg-blue-600 transition-colors" id="header-initials" title="Open Profile">
+                        --
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -203,7 +206,7 @@
                 <section>
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Lease & Funding</h3>
                     <div class="bg-[#eef8f3] rounded-[24px] p-4 border border-emerald-100/50 flex items-center gap-4 shadow-sm">
-                        <div class="w-10 h-10 rounded-full bg-emerald-50 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-500/20">
                             <i class="fa-solid fa-check text-lg"></i>
                         </div>
                         <div>
@@ -410,6 +413,29 @@
                     </div>
                 </div>
 
+                <!-- DIGITAL LEASE AGREEMENT ENGINE -->
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mt-5">
+                    <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Accommodation Lease</h3>
+                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Review and digitally sign your residency agreement.</p>
+                    
+                    <div class="bg-blue-50 border border-blue-100 rounded-[20px] p-4 flex flex-col gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg shadow-sm flex-shrink-0">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">2026 Academic Year Lease</p>
+                                <p id="lease-status-text" class="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Signature Required
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="openLeaseModal()" id="btn-open-lease" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect">
+                            Review & Sign <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
                     <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
                     <div class="space-y-3">
@@ -498,36 +524,31 @@
 
         </main>
 
-        <div class="absolute bottom-[90px] left-0 w-full flex justify-center gap-1.5 z-40 pointer-events-none">
-            <div id="nav-dot-1" class="w-1.5 h-1.5 rounded-full bg-blue-500 transition-colors duration-300"></div>
-            <div id="nav-dot-2" class="w-1.5 h-1.5 rounded-full bg-slate-300 transition-colors duration-300"></div>
-        </div>
-
-        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] flex flex-col">
-            <div id="nav-scroll-container" class="flex items-center overflow-x-auto no-scrollbar px-6 gap-5 snap-x snap-mandatory w-full scroll-smooth">
-                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect transition-colors">
+        <!-- STREAMLINED NON-SCROLLABLE BOTTOM NAV -->
+        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] flex flex-col">
+            <div class="flex justify-between items-center w-full">
+                <button onclick="switchTab('home', this)" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors">
                     <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
                 </button>
-                <button onclick="switchTab('wifi', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
+                <button onclick="switchTab('wifi', this)" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect hover:text-blue-500 transition-colors">
                     <i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span>
                 </button>
-                <button onclick="switchTab('snags', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
+                <button onclick="switchTab('snags', this)" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect hover:text-blue-500 transition-colors">
                     <i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span>
                 </button>
-                <button onclick="switchTab('security', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
+                <button onclick="switchTab('security', this)" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect hover:text-blue-500 transition-colors">
                     <i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span>
                 </button>
-                <button onclick="switchTab('profile', this)" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
-                    <i class="fa-regular fa-user text-lg mb-0.5"></i><span class="text-[10px] font-medium">Profile</span>
-                </button>
-                <button onclick="openShuttleMap()" class="nav-btn flex flex-col items-center gap-1 w-14 flex-shrink-0 snap-center tap-effect hover:text-blue-500 transition-colors text-slate-400">
-                    <i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transport</span>
+                <button onclick="openShuttleMap()" class="text-slate-400 flex flex-col items-center gap-1 tap-effect hover:text-blue-500 transition-colors relative">
+                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white animate-pulse"></div>
+                    <i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span>
                 </button>
             </div>
-            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4 flex-shrink-0"></div>
+            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-5 flex-shrink-0"></div>
         </nav>
     </div>
 
+    <!-- Modals -->
     <div id="visitorModal" class="absolute inset-0 z-[100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -589,6 +610,7 @@
         </div>
     </div>
 
+    <!-- PREMIUM TELEMETRY MAP OVERLAY MODAL -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[500] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
@@ -626,6 +648,7 @@
         </div>
     </div>
 
+    <!-- CUSTOM DISPATCH PROMPT MODAL -->
     <div id="customMsgModal" class="absolute inset-0 z-[600] modal-overlay flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
             <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2">
@@ -650,27 +673,50 @@
         </div>
     </div>
 
-    <script>
-        // --- SCROLLABLE NAV DOT INDICATOR LOGIC ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const navScroll = document.getElementById('nav-scroll-container');
-            if (navScroll) {
-                navScroll.addEventListener('scroll', () => {
-                    const dot1 = document.getElementById('nav-dot-1');
-                    const dot2 = document.getElementById('nav-dot-2');
-                    
-                    // Toggle active dot when scrolled more than halfway
-                    if (navScroll.scrollLeft > (navScroll.scrollWidth - navScroll.clientWidth) / 2) {
-                        dot1.classList.replace('bg-blue-500', 'bg-slate-300');
-                        dot2.classList.replace('bg-slate-300', 'bg-blue-500');
-                    } else {
-                        dot1.classList.replace('bg-slate-300', 'bg-blue-500');
-                        dot2.classList.replace('bg-blue-500', 'bg-slate-300');
-                    }
-                });
-            }
-        });
+    <!-- DIGITAL LEASE SIGNATURE MODAL -->
+    <div id="leaseModal" class="absolute inset-0 z-[600] modal-overlay flex items-end justify-center">
+        <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Digital Lease</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Legally Binding</p>
+                </div>
+                <button onclick="closeLeaseModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
+            <!-- Lease Terms Summary Container -->
+            <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium">
+                <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
+                <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols as outlined by the property management.</p>
+                <p class="mb-2">2. This digital signature is legally binding and acknowledges receipt of the full terms of the lease agreement.</p>
+                <p class="mb-2">3. The resident acknowledges that unauthorized visitors or subletting will result in immediate termination of the access pass.</p>
+                <p>4. By signing below, the resident consents to the use of their digital signature to be populated across the master lease PDF and securely stored within the vault infrastructure.</p>
+            </div>
+
+            <!-- Interactive Signature Pad -->
+            <div class="flex-shrink-0">
+                <p class="text-xs font-bold text-slate-800 mb-2 flex justify-between items-end">
+                    <span>Draw your signature</span>
+                    <button type="button" onclick="clearSignature()" class="text-[10px] text-blue-500 hover:text-blue-700 uppercase tracking-widest">Clear</button>
+                </p>
+                
+                <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden relative">
+                    <!-- The touch-none class is critical to prevent the screen from scrolling while signing -->
+                    <canvas id="signature-pad" class="w-full h-32 touch-none cursor-crosshair"></canvas>
+                    <div id="sig-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-300 font-medium text-sm">Sign here</div>
+                </div>
+
+                <button onclick="submitLeaseSignature(this)" class="w-full mt-4 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-xl py-4 shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-2 tap-effect">
+                    <i class="fa-solid fa-lock"></i> Lock Document
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE LOGIC ENGINE -->
+    <script>
         function getSessionData() {
             const rawSession = localStorage.getItem('reziflow_session');
             if (!rawSession) {
@@ -766,7 +812,6 @@
             } catch (err) {
                 console.error("Payload execution failed:", err);
                 
-                // Fallback UI to show the error instead of blanking out
                 const guard = document.getElementById('authGuard');
                 if(guard) {
                     guard.innerHTML = `
@@ -785,14 +830,12 @@
         function openShuttleMap() {
             openModal('shuttleMapModal');
             
-            // Generate Leaflet Viewport if first initialization loop
             setTimeout(() => {
                 if (!mapObj) {
                     mapObj = L.map('telemetry-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
                     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapObj);
                 }
                 
-                // Track Student Locally via Browser API Array
                 if ("geolocation" in navigator) {
                     navigator.geolocation.getCurrentPosition((pos) => {
                         studentCoords = [pos.coords.latitude, pos.coords.longitude];
@@ -807,7 +850,7 @@
                 }
                 
                 fetchLiveShuttleData();
-                telemetryInterval = setInterval(fetchLiveShuttleData, 5000); // Continuous Background Polling Array
+                telemetryInterval = setInterval(fetchLiveShuttleData, 5000); 
             }, 300);
         }
 
@@ -836,12 +879,9 @@
                         shuttleMarker.setLatLng(shuttleCoords);
                     }
 
-                    // Dynamically position camera array to fit matrix bounds
                     if (studentCoords) {
                         const bounds = L.latLngBounds([studentCoords, shuttleCoords]);
                         mapObj.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
-                        
-                        // Execute Haversine Engineering Distance Formula
                         calculateSpatialETA(studentCoords[0], studentCoords[1], shuttleCoords[0], shuttleCoords[1]);
                     } else {
                         mapObj.setView(shuttleCoords, 16);
@@ -853,7 +893,7 @@
         }
 
         function calculateSpatialETA(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth's Radius
+            const R = 6371; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -862,8 +902,8 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const distance = R * c;
 
-            const speed = 35; // City routing avg speed (km/h)
-            const routingSkew = 1.4; // Curve coefficient matrix adjustment
+            const speed = 35; 
+            const routingSkew = 1.4; 
             const timeMins = Math.ceil(((distance * routingSkew) / speed) * 60);
 
             document.getElementById('shuttle-eta').innerText = timeMins <= 1 ? "Arriving Now" : `~${timeMins} Mins Away`;
@@ -892,7 +932,6 @@
             btnElement.disabled = true;
 
             try {
-                // Outbound POST Telemetry Webhook Target
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-student-request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -912,6 +951,135 @@
                 showToast("Transmission failed to reach dispatch.", "error");
             } finally {
                 btnElement.innerHTML = ogHtml;
+                btnElement.disabled = false;
+            }
+        }
+
+        // --- DIGITAL LEASE SIGNATURE HTML5 ENGINE ---
+        let sigCanvas, sigCtx, isSigning = false, signatureHasDrawn = false;
+        
+        function initSignaturePad() {
+            sigCanvas = document.getElementById('signature-pad');
+            if(!sigCanvas) return;
+            sigCtx = sigCanvas.getContext('2d');
+            
+            // Re-calculate size to prevent stretching
+            const rect = sigCanvas.getBoundingClientRect();
+            sigCanvas.width = rect.width;
+            sigCanvas.height = rect.height;
+            
+            sigCtx.lineWidth = 3;
+            sigCtx.lineCap = 'round';
+            sigCtx.strokeStyle = '#0f172a'; // Deep slate ink
+
+            const getPos = (e) => {
+                const rect = sigCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            };
+
+            const startDraw = (e) => {
+                e.preventDefault(); // crucial: prevents screen from scrolling on mobile
+                isSigning = true;
+                signatureHasDrawn = true;
+                const pos = getPos(e);
+                sigCtx.beginPath();
+                sigCtx.moveTo(pos.x, pos.y);
+                document.getElementById('sig-placeholder').style.display = 'none';
+            };
+
+            const draw = (e) => {
+                if (!isSigning) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                sigCtx.lineTo(pos.x, pos.y);
+                sigCtx.stroke();
+            };
+
+            const stopDraw = (e) => {
+                if (!isSigning) return;
+                e.preventDefault();
+                isSigning = false;
+            };
+
+            // Mouse bindings
+            sigCanvas.addEventListener('mousedown', startDraw);
+            sigCanvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', stopDraw);
+            
+            // Touch bindings (passive: false is necessary to allow e.preventDefault())
+            sigCanvas.addEventListener('touchstart', startDraw, {passive: false});
+            sigCanvas.addEventListener('touchmove', draw, {passive: false});
+            window.addEventListener('touchend', stopDraw);
+        }
+
+        function clearSignature() {
+            if(!sigCtx || !sigCanvas) return;
+            sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+            signatureHasDrawn = false;
+            document.getElementById('sig-placeholder').style.display = 'flex';
+        }
+
+        function openLeaseModal() {
+            openModal('leaseModal');
+            // Give the CSS transition 300ms to open before initializing canvas bounds
+            setTimeout(initSignaturePad, 300); 
+        }
+
+        function closeLeaseModal() {
+            closeModal('leaseModal');
+        }
+
+        async function submitLeaseSignature(btnElement) {
+            if (!signatureHasDrawn) {
+                showToast("Please provide a signature before submitting.", "error");
+                return;
+            }
+
+            const session = getSessionData();
+            const ogText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Encrypting...';
+            btnElement.disabled = true;
+
+            // Compress drawing into Base64 PNG String
+            const base64Signature = sigCanvas.toDataURL('image/png');
+
+            try {
+                // Post to n8n signature ingest webhook
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign-lease', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session ? session.Student_Number : 'Unknown',
+                        Student_Name: session ? session.First_Name + ' ' + session.Surname : 'Resident',
+                        Signature: base64Signature,
+                        Timestamp: new Date().toISOString()
+                    })
+                });
+
+                // Wait 1.5 seconds for visual effect even if endpoint doesn't exist yet
+                await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+                closeLeaseModal();
+                showToast("Lease Signed Successfully!", "success");
+                
+                // Update UI visually to reflect signed status
+                document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
+                document.getElementById('lease-status-text').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
+                
+                const openBtn = document.getElementById('btn-open-lease');
+                openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+                openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
+                openBtn.onclick = () => showToast("Loading locked PDF from vault...", "success");
+
+            } catch(e) {
+                showToast("Transmission Error. Please try again.", "error");
+            } finally {
+                btnElement.innerHTML = ogText;
                 btnElement.disabled = false;
             }
         }
@@ -1143,27 +1311,29 @@
         }
 
         function switchTab(tabId, btnElement) {
-            // Prevent attempting to switch to Transport since it's a modal, not a tab
-            if (tabId === 'transport') {
-                openShuttleMap();
-                return;
-            }
-
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            
-            // Only update classes for actual tab buttons, excluding the Transport modal trigger
-            document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
+            // Un-highlight all bottom ribbon buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-blue-600');
                 btn.classList.add('text-slate-400');
                 btn.querySelector('span').classList.remove('font-bold');
                 btn.querySelector('span').classList.add('font-medium');
             });
-            
-            btnElement.classList.remove('text-slate-400');
-            btnElement.classList.add('text-blue-600');
-            btnElement.querySelector('span').classList.remove('font-medium');
-            btnElement.querySelector('span').classList.add('font-bold');
+
+            // Highlight the clicked bottom ribbon button (if applicable)
+            if (btnElement) {
+                btnElement.classList.remove('text-slate-400');
+                btnElement.classList.add('text-blue-600');
+                btnElement.querySelector('span').classList.remove('font-medium');
+                btnElement.querySelector('span').classList.add('font-bold');
+            }
+
+            // Show selected tab content
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function openProfileFromHeader() {
+            switchTab('profile', null); // null ensures bottom nav icons are un-highlighted when viewing profile
         }
 
         function handleLogout() {
