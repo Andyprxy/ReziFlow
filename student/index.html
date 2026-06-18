@@ -68,7 +68,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Custom Scrollbar for Lease Terms */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
@@ -148,7 +147,7 @@
                     <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Log Out">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
-                    <button onclick="openProfileFromHeader()" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect hover:bg-blue-600 transition-colors" id="header-initials" title="Open Profile">
+                    <button onclick="openProfileFromHeader()" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect hover:bg-blue-600 transition-colors overflow-hidden" id="header-initials" title="Open Profile">
                         --
                     </button>
                 </div>
@@ -404,8 +403,15 @@
             </div>
 
             <div id="tab-profile" class="tab-content space-y-5">
+                
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-5 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl flex-shrink-0 shadow-inner" id="profile-initials">--</div>
+                    <div class="relative flex-shrink-0">
+                        <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-inner overflow-hidden" id="profile-initials">--</div>
+                        <button onclick="document.getElementById('profile-upload').click()" class="absolute -bottom-1 -right-1 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm border-2 border-white tap-effect hover:bg-blue-600 transition-colors">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                        <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
+                    </div>
                     <div>
                         <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight tracking-tight">--</h2>
                         <p id="dyn-details-profile" class="text-xs font-medium text-blue-500 mt-0.5">--</p>
@@ -753,8 +759,14 @@
                 const room = safeString(session.Room_Allocation, 'Unassigned');
                 const funding = safeString(session.Funding_Type, 'Pending');
 
-                document.getElementById('header-initials').textContent = initials;
-                document.getElementById('profile-initials').textContent = initials;
+                // Profile Picture Fallback Logic
+                if (session.Profile_Pic) {
+                    applyProfilePic(session.Profile_Pic);
+                } else {
+                    document.getElementById('header-initials').textContent = initials;
+                    document.getElementById('profile-initials').textContent = initials;
+                }
+
                 document.getElementById('dyn-fullname-home').textContent = fullName;
                 document.getElementById('dyn-id-home').textContent = studentId;
                 document.getElementById('dyn-room-home').textContent = room;
@@ -798,16 +810,27 @@
                 renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
                 renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
                 
-                // Custom render for Lease Vault to enforce tracking ping
+                // --- Lease Refresh Persistence Logic ---
                 const leaseBtnContainer = document.getElementById('doc-btn-lease');
-                if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
-                    leaseBtnContainer.innerHTML = `<button onclick="viewSignedLease()" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</button>`;
-                } else {
-                    leaseBtnContainer.innerHTML = `<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Awaiting</span>`;
-                }
+                
+                if (session.Doc_Lease_URL === 'pending_generation') {
+                    // Pending State Vault
+                    if(leaseBtnContainer) leaseBtnContainer.innerHTML = `<span class="text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 border-dashed"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Processing</span>`;
+                    
+                    // Pending State Main Profile Card
+                    document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Processing PDF...';
+                    document.getElementById('lease-status-text').className = 'text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-0.5';
+                    
+                    const openBtn = document.getElementById('btn-open-lease');
+                    openBtn.innerHTML = 'Processing PDF... <i class="fa-solid fa-circle-notch fa-spin"></i>';
+                    openBtn.className = 'w-full bg-slate-100 text-slate-500 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed';
+                    openBtn.onclick = null;
 
-                // Check if lease is already signed via session data to update main Profile Button
-                if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
+                } else if (session.Doc_Lease_URL && String(session.Doc_Lease_URL).length > 5) {
+                    // Completed State Vault
+                    if(leaseBtnContainer) leaseBtnContainer.innerHTML = `<button onclick="viewSignedLease()" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</button>`;
+                    
+                    // Completed State Main Profile Card
                     document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
                     document.getElementById('lease-status-text').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
                     
@@ -815,6 +838,9 @@
                     openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
                     openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
                     openBtn.onclick = viewSignedLease;
+                } else {
+                    // Default Blank State
+                    if(leaseBtnContainer) leaseBtnContainer.innerHTML = `<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Awaiting</span>`;
                 }
 
                 const wifiPassStr = studentId !== '--' ? studentId.substring(0,6) : 'PASS';
@@ -846,7 +872,56 @@
             }
         });
 
-        // --- NEW: REDIRECT PATTERN LOGIC ---
+        // --- NEW: PROFILE PICTURE UPLOAD ENGINE ---
+        function handleProfilePicUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            
+            // Limit to 2MB to prevent localStorage overflow
+            if(file.size > 2 * 1024 * 1024) {
+                showToast("Image too large. Max size is 2MB.", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                const session = getSessionData();
+                
+                if(session) {
+                    session.Profile_Pic = base64Img;
+                    localStorage.setItem('reziflow_session', JSON.stringify(session));
+                }
+                
+                applyProfilePic(base64Img);
+                showToast("Profile picture updated!", "success");
+                
+                // Optional: Ping your n8n backend silently to save the picture in a DB or Drive
+                fetch('https://n8n.automania.cloud/webhook/reziflow-profile-pic', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session ? session.Student_Number : 'Unknown',
+                        Image: base64Img
+                    })
+                }).catch(err => console.log('Pic sync pending'));
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyProfilePic(base64Img) {
+            if(!base64Img) return;
+            const headerAvatar = document.getElementById('header-initials');
+            const profileAvatar = document.getElementById('profile-initials');
+            
+            headerAvatar.textContent = '';
+            profileAvatar.textContent = '';
+            
+            headerAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
+            profileAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
+        }
+
+        // --- REDIRECT PATTERN LOGIC ---
         function viewSignedLease() {
             const session = getSessionData();
             if (!session || !session.Student_Number) {
@@ -855,7 +930,6 @@
             }
             showToast("Opening secure lease vault...", "success");
             
-            // Points to your production n8n webhook and injects the dynamic student number
             window.location.href = `https://n8n.automania.cloud/webhook/816fb2e9-2146-4d28-bef2-45436a156cb2/view-lease/${session.Student_Number}`;
         }
 
@@ -1016,7 +1090,7 @@
             };
 
             const startDraw = (e) => {
-                e.preventDefault(); // crucial: prevents screen from scrolling on mobile
+                e.preventDefault(); 
                 isSigning = true;
                 signatureHasDrawn = true;
                 const pos = getPos(e);
@@ -1039,12 +1113,10 @@
                 isSigning = false;
             };
 
-            // Mouse bindings
             sigCanvas.addEventListener('mousedown', startDraw);
             sigCanvas.addEventListener('mousemove', draw);
             window.addEventListener('mouseup', stopDraw);
             
-            // Touch bindings (passive: false is necessary to allow e.preventDefault())
             sigCanvas.addEventListener('touchstart', startDraw, {passive: false});
             sigCanvas.addEventListener('touchmove', draw, {passive: false});
             window.addEventListener('touchend', stopDraw);
@@ -1059,7 +1131,6 @@
 
         function openLeaseModal() {
             openModal('leaseModal');
-            // Give the CSS transition 300ms to open before initializing canvas bounds
             setTimeout(initSignaturePad, 300); 
         }
 
@@ -1078,11 +1149,9 @@
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Encrypting...';
             btnElement.disabled = true;
 
-            // Compress drawing into Base64 PNG String
             const base64Signature = sigCanvas.toDataURL('image/png');
 
             try {
-                // Post to n8n signature ingest webhook
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign-lease', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1096,20 +1165,30 @@
                     })
                 });
 
-                // Wait 1.5 seconds for visual effect even if endpoint doesn't exist yet
                 await new Promise(resolve => setTimeout(resolve, 1500)); 
 
                 closeLeaseModal();
                 showToast("Lease Signed Successfully!", "success");
                 
-                // Update UI visually to reflect signed status
-                document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
-                document.getElementById('lease-status-text').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
+                // Write the pending flag to local storage so it survives refresh
+                if (session) {
+                    session.Doc_Lease_URL = "pending_generation";
+                    localStorage.setItem('reziflow_session', JSON.stringify(session));
+                }
+                
+                // Update UI visually to reflect processing status immediately
+                document.getElementById('lease-status-text').innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Processing PDF...';
+                document.getElementById('lease-status-text').className = 'text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-0.5';
                 
                 const openBtn = document.getElementById('btn-open-lease');
-                openBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
-                openBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
-                openBtn.onclick = viewSignedLease;
+                openBtn.innerHTML = 'Processing PDF... <i class="fa-solid fa-circle-notch fa-spin"></i>';
+                openBtn.className = 'w-full bg-slate-100 text-slate-500 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed';
+                openBtn.onclick = null;
+                
+                const vaultLeaseBtn = document.getElementById('doc-btn-lease');
+                if (vaultLeaseBtn) {
+                    vaultLeaseBtn.innerHTML = `<span class="text-[10px] font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 border-dashed"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Processing</span>`;
+                }
 
             } catch(e) {
                 showToast("Transmission Error. Please try again.", "error");
@@ -1346,7 +1425,6 @@
         }
 
         function switchTab(tabId, btnElement) {
-            // Prevent attempting to switch to Transport since it's a modal, not a tab
             if (tabId === 'transport') {
                 openShuttleMap();
                 return;
@@ -1355,7 +1433,6 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
             
-            // Only update classes for actual tab buttons, excluding the Transport modal trigger
             document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
                 btn.classList.remove('text-blue-600');
                 btn.classList.add('text-slate-400');
@@ -1372,7 +1449,7 @@
         }
 
         function openProfileFromHeader() {
-            switchTab('profile', null); // null ensures bottom nav icons are un-highlighted when viewing profile
+            switchTab('profile', null);
         }
 
         function handleLogout() {
