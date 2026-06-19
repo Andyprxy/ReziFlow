@@ -42,7 +42,7 @@
             background-color: #ffffff;
             color: #2563eb !important; 
             font-weight: 700 !important;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255,255,255,1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,1);
             border: 1px solid rgba(255, 255, 255, 0.9);
             transform: scale(1.02);
         }
@@ -96,7 +96,7 @@
         
         .blue-scroll::-webkit-scrollbar { width: 4px; }
         .blue-scroll::-webkit-scrollbar-track { background: transparent; }
-        .blue-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
+        .blue-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
 
         .kpi-active {
             border: 2px solid #3b82f6 !important;
@@ -146,7 +146,7 @@
         </button>
     </div>
 
-    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-400 ease-in-out z-[100] lg:z-20 w-72 bg-white/30 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.05)] lg:shadow-none h-full">
+    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-400 ease-in-out z-[100] lg:z-20 w-72 lg:w-64 xl:w-72 bg-slate-200/60 backdrop-blur-3xl border-r border-slate-300/50 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.05)] lg:shadow-none h-full flex-shrink-0">
         
         <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500">
             <i class="fa-solid fa-xmark"></i>
@@ -154,7 +154,7 @@
 
         <div class="overflow-y-auto custom-scroll flex-1 px-4 py-6">
             
-            <div class="hidden lg:flex items-center gap-3 bg-white/50 backdrop-blur-md p-4 rounded-[24px] border border-white shadow-[0_4px_15px_rgba(0,0,0,0.02)] mb-8">
+            <div class="hidden lg:flex items-center gap-3 bg-white/60 backdrop-blur-md p-4 rounded-[24px] border border-white shadow-[0_4px_15px_rgba(0,0,0,0.02)] mb-8">
                 <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 text-white flex-shrink-0">
                     <i class="fa-solid fa-layer-group text-xl"></i>
                 </div>
@@ -165,45 +165,45 @@
             </div>
 
             <nav class="space-y-6">
-                <div class="bg-slate-50/40 backdrop-blur-md border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] p-2 rounded-[24px]">
-                    <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Core Engines</p>
+                <div class="bg-white/40 backdrop-blur-md border border-white/60 shadow-sm p-2 rounded-[24px]">
+                    <p class="px-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-1">Core Engines</p>
                     <div class="space-y-1">
-                        <button onclick="switchTab('vetting', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('vetting', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-shield-halved text-lg w-5 text-center"></i> Vetting Queue
                         </button>
-                        <button onclick="switchTab('stats', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('stats', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-chart-pie text-lg w-5 text-center"></i> Stats & Inventory
                         </button>
-                        <button onclick="switchTab('financials', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('financials', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-wallet text-lg w-5 text-center"></i> Finance
                         </button>
                     </div>
                 </div>
                 
-                <div class="bg-slate-50/40 backdrop-blur-md border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] p-2 rounded-[24px]">
-                    <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Facility Operations</p>
+                <div class="bg-white/40 backdrop-blur-md border border-white/60 shadow-sm p-2 rounded-[24px]">
+                    <p class="px-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-1">Facility Operations</p>
                     <div class="space-y-1">
-                        <button onclick="switchTab('inspections', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('inspections', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-clipboard-check text-lg w-5 text-center"></i> Inspections
                         </button>
-                        <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center justify-between px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('maintenance', this)" class="nav-tab-btn w-full flex items-center justify-between px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <div class="flex items-center gap-3"><i class="fa-solid fa-screwdriver-wrench text-lg w-5 text-center"></i> Maintenance</div>
                             <span class="bg-indigo-100 text-indigo-600 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">Ops</span>
                         </button>
-                        <button onclick="switchTab('security', this)" class="nav-tab-btn w-full flex items-center justify-between px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-light-emergency-on text-lg w-5 text-center text-rose-500"></i> Security Ops</div>
+                        <button onclick="switchTab('security', this)" class="nav-tab-btn w-full flex items-center justify-between px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-lg w-5 text-center text-rose-500"></i> Security Ops</div>
                             <span class="bg-rose-100 text-rose-600 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1"><div class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div> Live</span>
                         </button>
-                        <button onclick="switchTab('access', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('access', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-door-open text-lg w-5 text-center"></i> Access Control
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-slate-50/40 backdrop-blur-md border border-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] p-2 rounded-[24px]">
-                    <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-1">Outreach</p>
+                <div class="bg-white/40 backdrop-blur-md border border-white/60 shadow-sm p-2 rounded-[24px]">
+                    <p class="px-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-1">Outreach</p>
                     <div class="space-y-1">
-                        <button onclick="switchTab('communication', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent">
+                        <button onclick="switchTab('communication', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent">
                             <i class="fa-solid fa-paper-plane text-lg w-5 text-center"></i> Communication
                         </button>
                     </div>
@@ -227,9 +227,9 @@
 
     <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
 
-    <div class="flex-1 flex flex-col xl:flex-row min-w-0 h-[calc(100vh-72px)] lg:h-screen relative z-10 overflow-hidden">
+    <div class="flex-1 flex flex-col lg:flex-row min-w-0 h-[calc(100vh-72px)] lg:h-screen relative z-10 overflow-hidden">
         
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
             <header class="h-20 lg:h-24 bg-transparent flex items-center justify-between px-4 sm:px-6 lg:px-10 flex-shrink-0">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 lg:gap-4">
                     <h1 id="matrixTitle" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-800">Vetting Queue</h1>
@@ -247,7 +247,7 @@
                 </div>
             </header>
 
-            <main class="flex-1 overflow-y-auto px-4 lg:px-10 pb-10 custom-scroll">
+            <main class="flex-1 overflow-y-auto px-4 lg:px-10 pb-10 custom-scroll min-w-0">
 
                 <div id="pane-vetting" class="dashboard-tab active space-y-6 lg:space-y-8">
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
@@ -301,7 +301,7 @@
                                         <th class="p-4 sm:p-6">Student Identity</th>
                                         <th class="p-4 sm:p-6">Academic Profile</th>
                                         <th class="p-4 sm:p-6">Funding Pipeline</th>
-                                        <th class="p-4 sm:p-6 text-center">Compliance Vault</th>
+                                        <th class="p-4 sm:p-6 text-center">Documents</th>
                                         <th class="p-4 sm:p-6 text-right">Execute Action</th>
                                     </tr>
                                 </thead>
@@ -337,7 +337,7 @@
 
                 <div id="pane-stats" class="dashboard-tab space-y-6 lg:space-y-8">
                     <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white/40 p-4 rounded-2xl border border-white">
-                        <div class="flex gap-3">
+                        <div class="flex gap-3 flex-wrap">
                             <select id="stats-block-filter" onchange="processStatsData()" class="modern-input py-2 px-4 w-auto min-w-[140px] text-xs font-bold">
                                 <option value="all">All Blocks</option>
                                 <option value="A">Block A</option>
@@ -530,7 +530,7 @@
                         <div class="px-4 sm:px-6 lg:px-8 py-5 sm:py-6 border-b border-white/40 flex justify-between items-center bg-white/50 backdrop-blur-md">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-sm">
-                                    <i class="fa-solid fa-light-emergency-on text-sm"></i>
+                                    <i class="fa-solid fa-shield-halved text-sm"></i>
                                 </div>
                                 <h3 class="font-bold text-slate-800 text-base sm:text-lg">Live Security Feeds</h3>
                             </div>
@@ -595,8 +595,8 @@
             </main>
         </div>
 
-        <aside class="hidden lg:flex w-[280px] xl:w-[350px] 2xl:w-[400px] relative flex-col z-20 flex-shrink-0 bg-white/40 backdrop-blur-2xl border-l border-white shadow-[-20px_0_40px_rgba(0,0,0,0.02)] h-full overflow-hidden">
-            <div class="p-6 xl:p-8 pb-4 flex items-center justify-between border-b border-white/50">
+        <aside class="hidden lg:flex w-64 xl:w-[320px] 2xl:w-[380px] relative flex-col z-20 flex-shrink-0 bg-slate-200/40 backdrop-blur-2xl border-l border-slate-300/50 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] h-full overflow-hidden">
+            <div class="p-5 xl:p-8 pb-4 flex items-center justify-between border-b border-white/50">
                 <h3 class="font-black text-base xl:text-lg tracking-tight text-slate-800">Live Telemetry</h3>
                 <div class="liquid-glass-card text-blue-700 font-bold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                     <div class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.5)] animate-pulse"></div> Active
@@ -703,6 +703,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchDatabaseData();
+            initLiveTelemetry(); // Fires background scan for Security/Maintenance
         });
 
         // ==========================================
@@ -727,10 +728,10 @@
             document.getElementById('pane-' + tabId).classList.add('active');
 
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/60 hover:text-slate-900 border border-transparent transition-all";
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-transparent transition-all";
             });
 
-            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-bold transition-all bg-white shadow-[0_8px_20px_rgba(59,130,246,0.12)] border border-white text-blue-600 transform scale-[1.02]";
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-bold transition-all bg-white shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-white text-blue-600 transform scale-[1.02]";
 
             const title = document.getElementById('matrixTitle');
             const sub = document.getElementById('matrixSub');
@@ -1339,6 +1340,43 @@
         }
 
         // ==========================================
+        // BACKGROUND TELEMETRY ENGINE (Live Data Integration)
+        // ==========================================
+        async function initLiveTelemetry() {
+            try {
+                // 1. Fetch Maintenance Data
+                const maintRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
+                if (maintRes.ok) {
+                    const maintData = await maintRes.json();
+                    if(Array.isArray(maintData)) {
+                        const pendingCount = maintData.filter(d => !String(d.Repair_Status).toLowerCase().includes('resolved')).length;
+                        if (pendingCount > 0) {
+                            addTelemetryLog("MAINTENANCE", "PENDING", `${pendingCount} open maintenance tickets require attention.`);
+                        } else {
+                            addTelemetryLog("MAINTENANCE", "CLEAR", "All maintenance queues are currently resolved.");
+                        }
+                    }
+                }
+
+                // 2. Fetch Security Data
+                const secRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
+                if (secRes.ok) {
+                    const secData = await secRes.json();
+                    if(Array.isArray(secData)) {
+                        const criticalCount = secData.filter(d => String(d.Alert_Level).includes("CRITICAL") && !String(d.Dispatch_Status).toLowerCase().includes('resolved')).length;
+                        if (criticalCount > 0) {
+                            addTelemetryLog("SECURITY", "CRITICAL", `${criticalCount} unresolved critical alerts active in facility.`);
+                        } else {
+                            addTelemetryLog("SECURITY", "CLEAR", "All security sectors reporting normal operations.");
+                        }
+                    }
+                }
+            } catch(e) {
+                console.log("Telemetry background sync failed.", e);
+            }
+        }
+
+        // ==========================================
         // OTHER LOGIC (Inspections, Maintenance, Security, Access)
         // ==========================================
         async function fetchInspectionsData() {
@@ -1554,35 +1592,39 @@
         }
 
         // ==========================================
-        // SHARED SYSTEM TELEMETRY
+        // SHARED SYSTEM TELEMETRY DISPLAY
         // ==========================================
         function addTelemetryLog(process, status, message) {
-            const logContainer = document.getElementById('telemetry-feed');
-            if(!logContainer) return;
-
-            const newLog = document.createElement('div');
+            const logContainer = document.querySelectorAll('#telemetry-feed'); // Gets both mobile and desktop sidebars
             
             let statusTextColor = 'text-blue-600';
             let barColor = 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]';
             
-            if(status === 'APPROVED' || status === 'SUCCESS') {
+            if(status === 'APPROVED' || status === 'SUCCESS' || status === 'CLEAR') {
                 statusTextColor = 'text-emerald-600';
                 barColor = 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]';
             }
-            if(status === 'ERROR' || status === 'REJECTED') {
+            if(status === 'ERROR' || status === 'REJECTED' || status === 'CRITICAL' || status === 'PENDING') {
                 statusTextColor = 'text-rose-600';
                 barColor = 'bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.5)]';
+                if(status === 'PENDING') {
+                    statusTextColor = 'text-amber-500';
+                    barColor = 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]';
+                }
             }
 
-            newLog.className = `p-4 relative overflow-hidden group liquid-glass-card rounded-[20px] shadow-sm animate-logSlide mt-4`;
-            newLog.innerHTML = `
-                <div class="absolute left-0 top-0 h-full w-1.5 ${barColor}"></div>
-                <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 tracking-widest uppercase pl-1">
-                    <span>${process}</span><span class="${statusTextColor}">${status}</span>
-                </div>
-                <p class="text-slate-800 font-medium leading-relaxed pl-1 text-[10px]">${message}</p>
-            `;
-            logContainer.insertBefore(newLog, logContainer.firstChild);
+            logContainer.forEach(container => {
+                const newLog = document.createElement('div');
+                newLog.className = `p-4 relative overflow-hidden group liquid-glass-card rounded-[20px] shadow-sm animate-logSlide mt-4`;
+                newLog.innerHTML = `
+                    <div class="absolute left-0 top-0 h-full w-1.5 ${barColor}"></div>
+                    <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 tracking-widest uppercase pl-1">
+                        <span>${process}</span><span class="${statusTextColor}">${status}</span>
+                    </div>
+                    <p class="text-slate-800 font-medium leading-relaxed pl-1 text-[10px]">${message}</p>
+                `;
+                container.insertBefore(newLog, container.firstChild);
+            });
         }
     </script>
 </body>
