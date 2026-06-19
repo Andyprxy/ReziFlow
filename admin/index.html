@@ -98,10 +98,11 @@
         .blue-scroll::-webkit-scrollbar-track { background: transparent; }
         .blue-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 10px; }
 
+        /* Sleek KPI Pill Active State */
         .kpi-active {
-            border: 2px solid #3b82f6 !important;
-            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.2) !important;
-            transform: translateY(-2px);
+            border: 1px solid #3b82f6 !important;
+            box-shadow: 0 8px 24px -8px rgba(59, 130, 246, 0.3) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
         }
 
         .room-card { transition: all 0.2s ease; cursor: pointer; }
@@ -128,6 +129,16 @@
             border-color: #3b82f6;
             background: #ffffff;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Telemetry Collapse Class */
+        .telemetry-collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            opacity: 0 !important;
+            border-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
     </style>
 </head>
@@ -229,7 +240,7 @@
 
     <div class="flex-1 flex flex-col lg:flex-row min-w-0 h-[calc(100vh-72px)] lg:h-screen relative z-10 overflow-hidden">
         
-        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300">
             <header class="h-20 lg:h-24 bg-transparent flex items-center justify-between px-4 sm:px-6 lg:px-10 flex-shrink-0">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 lg:gap-4">
                     <h1 id="matrixTitle" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-800">Vetting Queue</h1>
@@ -237,6 +248,9 @@
                     <p id="matrixSub" class="text-[10px] sm:text-xs lg:text-sm text-slate-500 font-medium sm:pt-1">Automated POPIA Database Sync</p>
                 </div>
                 <div class="flex items-center gap-3">
+                    <button onclick="toggleTelemetry()" class="w-10 h-10 rounded-full bg-white border border-white flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors shadow-sm hidden lg:flex" title="Toggle Telemetry Sidebar">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </button>
                     <button class="w-10 h-10 rounded-full bg-white border border-white flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors shadow-sm">
                         <i class="fa-solid fa-bell"></i>
                     </button>
@@ -250,34 +264,25 @@
             <main class="flex-1 overflow-y-auto px-4 lg:px-10 pb-10 custom-scroll min-w-0">
 
                 <div id="pane-vetting" class="dashboard-tab active space-y-6 lg:space-y-8">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                        <div id="kpi-card-pending" onclick="setFilter('pending')" class="glass-panel kpi-active rounded-[24px] p-5 sm:p-6 relative overflow-hidden group cursor-pointer hover:border-blue-300">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Pending Vetting</p>
-                                    <p class="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight" id="kpi-pending">--</p>
-                                </div>
-                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-lg sm:text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <div id="kpi-card-pending" onclick="setFilter('pending')" class="glass-panel kpi-active rounded-[20px] px-4 py-3 flex items-center gap-4 cursor-pointer hover:border-blue-300 transition-all group min-w-[200px] flex-1 max-w-[260px]">
+                            <div class="w-10 h-10 rounded-[14px] bg-amber-50 text-amber-500 flex items-center justify-center text-base transition-transform group-hover:scale-110 shadow-inner flex-shrink-0">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Pending Vetting</p>
+                                <p class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight leading-none" id="kpi-pending">--</p>
                             </div>
                         </div>
                         
-                        <div id="kpi-card-approved" onclick="setFilter('approved')" class="glass-panel rounded-[24px] p-5 sm:p-6 relative overflow-hidden group cursor-pointer hover:border-blue-300">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Approved Students</p>
-                                    <p class="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight" id="kpi-approved">0</p>
-                                </div>
-                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-lg sm:text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-user-check"></i></div>
+                        <div id="kpi-card-approved" onclick="setFilter('approved')" class="glass-panel rounded-[20px] px-4 py-3 flex items-center gap-4 cursor-pointer hover:border-blue-300 transition-all group min-w-[200px] flex-1 max-w-[260px]">
+                            <div class="w-10 h-10 rounded-[14px] bg-blue-50 text-blue-500 flex items-center justify-center text-base transition-transform group-hover:scale-110 shadow-inner flex-shrink-0">
+                                <i class="fa-solid fa-user-check"></i>
                             </div>
-                        </div>
-
-                        <div class="glass-panel rounded-[24px] p-5 sm:p-6 relative overflow-hidden group hidden sm:block">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">System Health</p>
-                                    <p class="text-3xl lg:text-4xl font-black text-emerald-500 tracking-tight">100<span class="text-xl lg:text-2xl text-emerald-400">%</span></p>
-                                </div>
-                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-lg sm:text-xl transition-transform group-hover:scale-110"><i class="fa-solid fa-shield-check"></i></div>
+                            <div>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Approved Students</p>
+                                <p class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight leading-none" id="kpi-approved">0</p>
                             </div>
                         </div>
                     </div>
@@ -595,11 +600,11 @@
             </main>
         </div>
 
-        <aside class="hidden lg:flex w-64 xl:w-[320px] 2xl:w-[380px] relative flex-col z-20 flex-shrink-0 bg-slate-200/40 backdrop-blur-2xl border-l border-slate-300/50 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] h-full overflow-hidden">
-            <div class="p-5 xl:p-8 pb-4 flex items-center justify-between border-b border-white/50">
+        <aside id="telemetry-sidebar" class="hidden lg:flex w-64 xl:w-[260px] relative flex-col z-20 flex-shrink-0 bg-slate-200/60 backdrop-blur-2xl border-l border-slate-300/50 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] h-full overflow-hidden transition-all duration-300 ease-in-out">
+            <div class="p-5 xl:p-6 pb-4 flex items-center justify-between border-b border-white/50 flex-shrink-0">
                 <h3 class="font-black text-base xl:text-lg tracking-tight text-slate-800">Live Telemetry</h3>
-                <div class="liquid-glass-card text-blue-700 font-bold text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
-                    <div class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.5)] animate-pulse"></div> Active
+                <div class="liquid-glass-card text-blue-700 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm flex-shrink-0">
+                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_6px_rgba(16,185,129,0.5)] animate-pulse"></div> Active
                 </div>
             </div>
 
@@ -721,6 +726,12 @@
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.add('opacity-100'), 10);
             }
+        }
+
+        // Toggle Live Telemetry Sidebar
+        function toggleTelemetry() {
+            const sidebar = document.getElementById('telemetry-sidebar');
+            sidebar.classList.toggle('telemetry-collapsed');
         }
 
         function switchTab(tabId, btnElement) {
@@ -1134,7 +1145,6 @@
                 if (!response.ok) throw new Error("Room fetch failed");
                 let data = await response.json();
                 
-                // Handle different n8n wrapper styles safely
                 if (!Array.isArray(data)) {
                     if (data.data && Array.isArray(data.data)) data = data.data;
                     else if (data.Room_ID) data = [data];
@@ -1157,7 +1167,6 @@
             const blockFilter = document.getElementById('stats-block-filter').value;
             const genderFilter = document.getElementById('stats-gender-filter').value;
 
-            // Apply Filters
             let filteredRooms = globalRoomData.filter(room => {
                 let matchBlock = true;
                 let matchGender = true;
@@ -1169,7 +1178,7 @@
                 if (genderFilter !== 'all') {
                     const blk = String(room.Block).toUpperCase();
                     if (genderFilter === 'male') {
-                        matchGender = (blk === 'A'); // Rules mapped from allocation logic
+                        matchGender = (blk === 'A'); 
                     } else if (genderFilter === 'female') {
                         matchGender = (blk === 'B' || blk === 'C');
                     }
@@ -1177,7 +1186,6 @@
                 return matchBlock && matchGender;
             });
 
-            // Calculate KPIs
             let totalBeds = 0;
             let occupiedBeds = 0;
 
@@ -1192,7 +1200,6 @@
             document.getElementById('stat-available-beds').textContent = availableBeds;
             document.getElementById('stat-allocated-beds').textContent = occupiedBeds;
 
-            // Render Table
             const tbody = document.getElementById('stats-inventory-body');
             tbody.innerHTML = '';
 
@@ -1306,7 +1313,6 @@
             btn.disabled = true;
 
             try {
-                // Post to an n8n webhook designated for communication routing
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1320,7 +1326,6 @@
 
                 addTelemetryLog("COMM_ENGINE", "SUCCESS", `Broadcast dispatched to [${targetFilter}].`);
                 
-                // Show toast & reset
                 const toast = document.getElementById('toast-container');
                 document.getElementById('toast-text').textContent = "Communication Dispatched Successfully.";
                 toast.classList.add('show');
@@ -1340,11 +1345,10 @@
         }
 
         // ==========================================
-        // BACKGROUND TELEMETRY ENGINE (Live Data Integration)
+        // BACKGROUND TELEMETRY ENGINE (Live Data)
         // ==========================================
         async function initLiveTelemetry() {
             try {
-                // 1. Fetch Maintenance Data
                 const maintRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
                 if (maintRes.ok) {
                     const maintData = await maintRes.json();
@@ -1358,7 +1362,6 @@
                     }
                 }
 
-                // 2. Fetch Security Data
                 const secRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
                 if (secRes.ok) {
                     const secData = await secRes.json();
@@ -1595,7 +1598,7 @@
         // SHARED SYSTEM TELEMETRY DISPLAY
         // ==========================================
         function addTelemetryLog(process, status, message) {
-            const logContainer = document.querySelectorAll('#telemetry-feed'); // Gets both mobile and desktop sidebars
+            const logContainer = document.querySelectorAll('#telemetry-feed'); 
             
             let statusTextColor = 'text-blue-600';
             let barColor = 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]';
