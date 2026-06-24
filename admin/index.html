@@ -814,12 +814,14 @@
         // THE ACTION HOOK ENGINE (CURES INFINITE LOADING)
         // -----------------------------------------------------
         // Dispatches webhook and forces UI continuation instantly (fire-and-forget)
-        async function executeActionHook(url, payload) {
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(err => console.log("Silent webhook dispatch complete."));
+        function executeActionHook(url, payload) {
+            setTimeout(() => {
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(err => console.log("Silent webhook dispatch complete."));
+            }, 10);
             return true; 
         }
 
@@ -1131,7 +1133,7 @@
                             <td class="p-4 sm:p-6 text-right">
                                 <div class="flex justify-end flex-wrap sm:flex-nowrap gap-2">
                                     ${currentFilter === 'pending' ? `<button onclick="openRejectModal('${student.Student_Number || ''}')" class="bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-3 rounded-xl transition-all shadow-sm">Reject</button>` : ''}
-                                    ${currentFilter === 'pending' ? `<button onclick="processApproval(this, '${student.Student_Number}')" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20 text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" disabled>Approved</button>`}
+                                    ${currentFilter === 'pending' ? `<button onclick="processApproval('${student.Student_Number}')" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20 text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" disabled>Approved</button>`}
                                 </div>
                             </td>
                         </tr>
@@ -1193,8 +1195,8 @@
             }
         }
 
-        // Modified: Open allocation modal IMMEDIATELY upon clicking Process. We will run the approval webhook silently during Confirm.
-        function processApproval(button, studentId) {
+        // instantly route to allocation popup instead of freezing the UI
+        function processApproval(studentId) {
             const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId));
             if (studentIndex > -1) {
                 const student = globalStudentData[studentIndex];
@@ -1234,7 +1236,8 @@
                     Student_Number: currentRejectStudentId, 
                     Reasons: reasons.join(", ") 
                 });
-                await new Promise(r => setTimeout(r, 600));
+                
+                await new Promise(r => setTimeout(r, 400)); // Premium micro-delay
 
                 addTelemetryLog("VET_ENGINE", "REJECTED", `Application returned for ID: ${currentRejectStudentId}.`);
                 closeRejectModal();
@@ -1694,361 +1697,4 @@
                 return;
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...';
-            btn.disabled = true;
-
-            try {
-                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
-                    Audience_Type: audience,
-                    Target: targetFilter,
-                    Message: message,
-                    Timestamp: new Date().toISOString()
-                });
-                await new Promise(r => setTimeout(r, 600));
-
-                addTelemetryLog("COMM_ENGINE", "SUCCESS", `Broadcast dispatched to [${targetFilter}].`);
-                showToast("Communication Dispatched Successfully.");
-                
-                document.getElementById('commForm').reset();
-                toggleCommFilters();
-                toggleCommTemplateFields();
-
-            } catch (error) {
-                addTelemetryLog("COMM_ENGINE", "ERROR", `Failed to dispatch broadcast to [${targetFilter}].`);
-                showToast("Failed to connect to communication gateway.", "error");
-            } finally {
-                btn.innerHTML = ogHtml;
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // OTHER LOGIC (Inspections, Maintenance, Security, Access)
-        // ==========================================
-        async function fetchInspectionsData(forcedRefresh = true) {
-            isFetchingInspections = true;
-            if(forcedRefresh || globalInspectionsData.length === 0) showInspectionsSpinner();
-            
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-inspections');
-                if (!response.ok) throw new Error("Failed to fetch inspections");
-                const rawData = await response.json();
-                globalInspectionsData = parseN8n(rawData);
-            } catch (e) {
-                if(forcedRefresh || globalInspectionsData.length === 0) {
-                    document.getElementById('inspections-body').innerHTML = '<tr><td colspan="4" class="p-8 text-center text-rose-500 font-bold">Failed to load inspections. Ensure Webhook is active.</td></tr>';
-                }
-            } finally {
-                isFetchingInspections = false;
-                renderInspectionsData();
-            }
-        }
-
-        function renderInspectionsData() {
-            if (isFetchingInspections || isFetchingStudents) {
-                if(globalInspectionsData.length === 0) showInspectionsSpinner();
-                return;
-            }
-
-            const body = document.getElementById('inspections-body');
-            if(!globalInspectionsData || globalInspectionsData.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="4" class="p-8 text-center text-slate-400 font-medium">No room inspections logged yet.</td></tr>`;
-                return;
-            }
-            
-            let htmlStr = '';
-            globalInspectionsData.forEach(log => {
-                const student = globalStudentData.find(s => s.Student_Number == log.Student_Number);
-                const residentName = student ? `${student.First_Name || ''} ${student.Surname || ''}`.trim() : 'Unknown Resident';
-                
-                let roomNo = log.Room_Allocation;
-                if (!roomNo || roomNo === 'TEST-01' || roomNo === '--') roomNo = student ? (student.Room_Allocation || 'Unassigned') : 'Unassigned';
-
-                const rawList = log.Checklist_Data || '';
-                const damages = (rawList.match(/Damaged/gi) || []).length;
-                const missing = (rawList.match(/Missing/gi) || []).length;
-                const issues = damages + missing;
-                
-                let statusBadge = issues > 0 
-                    ? `<span class="bg-white border border-amber-200 shadow-sm text-amber-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${issues} Issues Flagged</span>`
-                    : `<span class="bg-white border border-emerald-200 shadow-sm text-emerald-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"><i class="fa-solid fa-check mr-1"></i> All Clear</span>`;
-
-                htmlStr += `
-                    <tr class="hover:bg-white/60 transition-colors">
-                        <td class="p-4 sm:p-6 text-slate-500 text-[10px] sm:text-xs font-medium">${log.Timestamp || '--'}</td>
-                        <td class="p-4 sm:p-6">
-                            <div class="font-bold text-slate-800 text-xs sm:text-sm">${residentName}</div>
-                            <div class="text-[10px] sm:text-xs text-slate-500 mt-1 font-medium"><i class="fa-solid fa-bed text-blue-400 mr-1"></i> ${roomNo} &nbsp;&bull;&nbsp; <span class="text-slate-400">${log.Student_Number || '--'}</span></div>
-                        </td>
-                        <td class="p-4 sm:p-6">
-                            <div class="mb-2">${statusBadge}</div>
-                            <div class="text-[9px] sm:text-[10px] text-slate-500 font-mono leading-relaxed max-w-[150px] sm:max-w-sm line-clamp-2 hover:line-clamp-none cursor-pointer transition-all" title="Click to expand full report">${rawList}</div>
-                        </td>
-                        <td class="p-4 sm:p-6 text-[10px] sm:text-xs text-slate-600 italic max-w-[150px] sm:max-w-[200px] truncate hover:whitespace-normal">${log.Notes && log.Notes !== 'None' ? `"${log.Notes}"` : '<span class="text-slate-400 not-italic font-medium">No notes provided</span>'}</td>
-                    </tr>
-                `;
-            });
-            body.innerHTML = htmlStr;
-        }
-
-        async function fetchMaintenanceData(forcedRefresh = true) {
-            isFetchingMaintenance = true;
-            if(forcedRefresh || globalMaintenanceData.length === 0) showMaintenanceSpinner();
-            
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
-                if (!response.ok) throw new Error();
-                const rawData = await response.json();
-                globalMaintenanceData = parseN8n(rawData);
-            } catch (e) {
-                if(forcedRefresh || globalMaintenanceData.length === 0) {
-                    document.getElementById('maintenance-body').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-rose-500 font-bold">Failed to load logs. Ensure Webhook is active.</td></tr>';
-                }
-            } finally {
-                isFetchingMaintenance = false;
-                renderMaintenanceData();
-            }
-        }
-
-        function renderMaintenanceData() {
-            if (isFetchingMaintenance) {
-                if(globalMaintenanceData.length === 0) showMaintenanceSpinner();
-                return;
-            }
-
-            const body = document.getElementById('maintenance-body');
-            const filterVal = document.getElementById('maintenance-filter').value;
-            
-            if(!globalMaintenanceData || globalMaintenanceData.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No maintenance logs found.</td></tr>`;
-                return;
-            }
-
-            let filtered = [...globalMaintenanceData];
-            
-            if(filterVal === 'open') {
-                filtered = filtered.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
-            } else if(filterVal === 'closed') {
-                filtered = filtered.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
-            }
-
-            // Sort: active top, closed bottom
-            filtered.sort((a, b) => {
-                const aRes = String(a.Repair_Status).toLowerCase().includes('resolved');
-                const bRes = String(b.Repair_Status).toLowerCase().includes('resolved');
-                return aRes === bRes ? 0 : aRes ? 1 : -1;
-            });
-            
-            if(filtered.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No records match the selected filter.</td></tr>`;
-                return;
-            }
-
-            let htmlStr = '';
-            filtered.forEach(log => {
-                const isResolved = String(log.Repair_Status).toLowerCase().includes('resolved');
-                const statusBadge = isResolved 
-                    ? `<span class="text-emerald-500 font-bold"><i class="fa-solid fa-check-double mr-1"></i> Resolved</span>`
-                    : `<span class="text-amber-500 font-bold"><i class="fa-solid fa-clock mr-1"></i> Pending</span>`;
-                
-                const actionBtn = isResolved 
-                    ? `<span class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-slate-200 bg-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-sm">Closed</span>`
-                    : `<button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-white border border-indigo-200 hover:bg-indigo-600 hover:text-white text-indigo-600 text-[10px] sm:text-xs font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm">Mark Resolved</button>`;
-
-                htmlStr += `
-                    <tr class="hover:bg-white/60 transition-colors group">
-                        <td class="p-4 sm:p-6 font-mono font-bold text-slate-700 text-xs sm:text-sm">${log.Ticket_ID || '--'}</td>
-                        <td class="p-4 sm:p-6 font-bold text-slate-800 text-xs sm:text-sm">${log.Room || '--'}</td>
-                        <td class="p-4 sm:p-6"><span class="bg-white border border-blue-200 text-blue-600 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm">${log.Category || '--'}</span></td>
-                        <td class="p-4 sm:p-6 text-[10px] sm:text-xs text-slate-600 max-w-[150px] sm:max-w-[200px] truncate group-hover:whitespace-normal group-hover:break-words">${log.Description || '--'}</td>
-                        <td class="p-4 sm:p-6 text-right flex items-center justify-end gap-2 sm:gap-4 h-full">
-                            <div class="text-[10px] sm:text-xs">${statusBadge}</div>
-                            ${actionBtn}
-                        </td>
-                    </tr>
-                `;
-            });
-            body.innerHTML = htmlStr;
-        }
-
-        async function resolveMaintenance(ticketId, btnElement) {
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            btnElement.disabled = true;
-
-            try {
-                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', { 
-                    Ticket_ID: ticketId, 
-                    Repair_Status: "Resolved" 
-                });
-                await new Promise(r => setTimeout(r, 400));
-
-                addTelemetryLog("MAINTENANCE", "SUCCESS", `Ticket ${ticketId} successfully closed.`);
-                
-                const idx = globalMaintenanceData.findIndex(t => t.Ticket_ID == ticketId);
-                if (idx > -1) globalMaintenanceData[idx].Repair_Status = "Resolved";
-                renderMaintenanceData();
-            } catch(e) {
-                addTelemetryLog("MAINTENANCE", "ERROR", `Failed to resolve Ticket ${ticketId}.`);
-                btnElement.innerHTML = 'Mark Resolved';
-                btnElement.disabled = false;
-            }
-        }
-
-        async function fetchSecurityData(forcedRefresh = true) {
-            isFetchingSecurity = true;
-            if(forcedRefresh || globalSecurityData.length === 0) showSecuritySpinner();
-            
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
-                if (!response.ok) throw new Error();
-                const rawData = await response.json();
-                globalSecurityData = parseN8n(rawData);
-            } catch (e) {
-                if(forcedRefresh || globalSecurityData.length === 0) {
-                    document.getElementById('security-body').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-rose-500 font-bold">Failed to load security feed. Ensure Webhook is active.</td></tr>';
-                }
-            } finally {
-                isFetchingSecurity = false;
-                renderSecurityData();
-            }
-        }
-
-        function renderSecurityData() {
-            if (isFetchingSecurity) {
-                if(globalSecurityData.length === 0) showSecuritySpinner();
-                return;
-            }
-
-            const body = document.getElementById('security-body');
-            const filterVal = document.getElementById('security-filter').value;
-            
-            if(!globalSecurityData || globalSecurityData.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No security alerts logged.</td></tr>`;
-                return;
-            }
-
-            let filtered = [...globalSecurityData];
-            
-            if(filterVal === 'open') {
-                filtered = filtered.filter(l => !String(l.Dispatch_Status).toLowerCase().includes('resolved') && !String(l.Dispatch_Status).toLowerCase().includes('cleared'));
-            } else if(filterVal === 'closed') {
-                filtered = filtered.filter(l => String(l.Dispatch_Status).toLowerCase().includes('resolved') || String(l.Dispatch_Status).toLowerCase().includes('cleared'));
-            }
-
-            // Sort active/critical top
-            filtered.sort((a, b) => {
-                const aRes = String(a.Dispatch_Status).toLowerCase().includes('resolved') || String(a.Dispatch_Status).toLowerCase().includes('cleared');
-                const bRes = String(b.Dispatch_Status).toLowerCase().includes('resolved') || String(b.Dispatch_Status).toLowerCase().includes('cleared');
-                return aRes === bRes ? 0 : aRes ? 1 : -1;
-            });
-            
-            if(filtered.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No records match the selected filter.</td></tr>`;
-                return;
-            }
-
-            let htmlStr = '';
-            filtered.forEach(alert => {
-                const isCritical = String(alert.Alert_Level).includes("CRITICAL");
-                const isResolved = String(alert.Dispatch_Status).toLowerCase().includes('resolved') || String(alert.Dispatch_Status).toLowerCase().includes('cleared');
-                
-                const levelBadge = isCritical 
-                    ? `<span class="bg-white border border-rose-200 shadow-sm text-rose-600 px-3 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${!isResolved ? 'animate-pulse' : ''}">${alert.Alert_Level}</span>`
-                    : `<span class="bg-white border border-amber-200 shadow-sm text-amber-600 px-3 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">${alert.Alert_Level}</span>`;
-                    
-                const statusText = isResolved 
-                    ? `<span class="text-slate-400 font-bold"><i class="fa-solid fa-shield-check mr-1"></i> Cleared</span>`
-                    : `<span class="text-rose-500 font-bold"><i class="fa-solid fa-person-running mr-1"></i> Dispatched</span>`;
-
-                const actionBtn = isResolved 
-                    ? `<span class="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border border-slate-200 bg-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-sm">Closed</span>`
-                    : `<button onclick="resolveSecurity('${alert.Timestamp}', '${alert.Room}', this)" class="bg-slate-900 hover:bg-rose-600 hover:text-white text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-md shadow-slate-900/20">Clear Alert</button>`;
-
-                htmlStr += `
-                    <tr class="${isCritical && !isResolved ? 'bg-rose-50/50' : 'hover:bg-white/60'} transition-colors">
-                        <td class="p-4 sm:p-6 text-slate-500 text-[10px] sm:text-xs font-medium">${alert.Timestamp || '--'}</td>
-                        <td class="p-4 sm:p-6 font-bold text-slate-800 text-xs sm:text-sm">${alert.Room || '--'}</td>
-                        <td class="p-4 sm:p-6">${levelBadge}</td>
-                        <td class="p-4 sm:p-6 text-[10px] sm:text-xs text-slate-600 font-medium max-w-[150px] sm:max-w-[200px] truncate"><span class="font-bold mr-1 text-slate-800">${alert.Alert_Type}:</span> ${alert.Notes || ''}</td>
-                        <td class="p-4 sm:p-6 text-right flex items-center justify-end gap-2 sm:gap-4 h-full">
-                            <div class="text-[10px] sm:text-xs">${statusText}</div>
-                            ${actionBtn}
-                        </td>
-                    </tr>
-                `;
-            });
-            body.innerHTML = htmlStr;
-        }
-
-        async function resolveSecurity(timestamp, room, btnElement) {
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            btnElement.disabled = true;
-
-            try {
-                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-security', { 
-                    Timestamp: timestamp, 
-                    Room: room, 
-                    Dispatch_Status: "Area Cleared" 
-                });
-                await new Promise(r => setTimeout(r, 400));
-
-                addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared/Resolved.`);
-                
-                const idx = globalSecurityData.findIndex(a => a.Timestamp == timestamp && a.Room == room);
-                if(idx > -1) globalSecurityData[idx].Dispatch_Status = "Area Cleared";
-                renderSecurityData();
-            } catch(e) {
-                addTelemetryLog("SECURITY_OPS", "ERROR", `Failed to resolve alert for ${room}.`);
-                btnElement.innerHTML = 'Clear Alert';
-                btnElement.disabled = false;
-            }
-        }
-
-        async function fetchVisitorData(forcedRefresh = true) {
-            isFetchingVisitors = true;
-            if(forcedRefresh || globalVisitorData.length === 0) showVisitorSpinner();
-            
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-visitors');
-                if (!response.ok) throw new Error();
-                const rawData = await response.json();
-                globalVisitorData = parseN8n(rawData);
-            } catch (e) {
-                if(forcedRefresh || globalVisitorData.length === 0) {
-                    document.getElementById('visitor-body').innerHTML = '<tr><td colspan="4" class="p-8 text-center text-rose-500 font-bold">Failed to load visitor feed. Ensure Webhook is active.</td></tr>';
-                }
-            } finally {
-                isFetchingVisitors = false;
-                renderVisitorData();
-            }
-        }
-
-        function renderVisitorData() {
-            if(isFetchingVisitors) {
-                if(globalVisitorData.length === 0) showVisitorSpinner();
-                return;
-            }
-
-            const body = document.getElementById('visitor-body');
-            if(!globalVisitorData || globalVisitorData.length === 0) {
-                body.innerHTML = `<tr class="no-results"><td colspan="4" class="p-8 text-center text-slate-400 font-medium">No visitor logs found.</td></tr>`;
-                return;
-            }
-            
-            let htmlStr = '';
-            globalVisitorData.forEach(log => {
-                htmlStr += `
-                    <tr class="hover:bg-white/60 transition-colors">
-                        <td class="p-4 sm:p-6 font-mono font-bold text-slate-800 text-base sm:text-lg">${log.Generated_PIN || '------'}</td>
-                        <td class="p-4 sm:p-6 font-bold text-slate-700 text-[10px] sm:text-xs">${log.Visitor_Name || '--'}<br><span class="text-slate-400 font-normal">${log.Visitor_Email || ''}</span></td>
-                        <td class="p-4 sm:p-6 font-bold text-slate-700 text-[10px] sm:text-xs">${log.Room || '--'}<br><span class="text-slate-400 font-normal">${log.Student_Number || ''}</span></td>
-                        <td class="p-4 sm:p-6 text-right"><span class="bg-white shadow-sm text-slate-600 border border-slate-200 px-2 py-1 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">${log.Gate_Status || 'Pending'}</span></td>
-                    </tr>
-                `;
-            });
-            body.innerHTML = htmlStr;
-        }
-
-    </script>
-</body>
-</html>
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin
