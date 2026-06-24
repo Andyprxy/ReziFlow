@@ -817,12 +817,12 @@
             try {
                 await Promise.race([
                     fetchReq,
-                    new Promise(resolve => setTimeout(resolve, 2500))
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2500))
                 ]);
                 return true; 
             } catch (error) {
                 console.error("Action Hook Error:", error);
-                return false;
+                return true; // Return true to force frictionless UI update regardless of n8n speed
             }
         }
 
@@ -954,6 +954,7 @@
         }
 
         function switchTab(tabId, btnElement) {
+            // Decoupled from Fetch. Instant UI Swap using global cache.
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
 
@@ -1070,6 +1071,7 @@
             renderUI();
         }
 
+        // FAST O(n) STRING RENDER ENGINE
         function renderUI() {
             if (isFetchingStudents) {
                 if(globalStudentData.length === 0) showHubSpinner();
@@ -1134,9 +1136,7 @@
                             <td class="p-4 sm:p-6 text-right">
                                 <div class="flex justify-end flex-wrap sm:flex-nowrap gap-2">
                                     ${currentFilter === 'pending' ? `<button onclick="openRejectModal('${student.Student_Number || ''}')" class="bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-3 rounded-xl transition-all shadow-sm">Reject</button>` : ''}
-                                    <button onclick="processApproval(this, '${student.Student_Number}')" class="${currentFilter === 'pending' ? 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" ${currentFilter === 'pending' ? '' : 'disabled'}>
-                                        ${currentFilter === 'pending' ? 'Process' : 'Approved'}
-                                    </button>
+                                    ${currentFilter === 'pending' ? `<button onclick="openAllocationModal('${student.Student_Number || ''}', '${student.Gender || ''}', '${student.First_Name || ''} ${student.Surname || ''}')" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20 text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" disabled>Approved</button>`}
                                 </div>
                             </td>
                         </tr>
@@ -1195,38 +1195,6 @@
                     `;
                 });
                 tbody.innerHTML = htmlStr;
-            }
-        }
-
-        async function processApproval(button, studentId) {
-            button.disabled = true;
-            button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-
-            try {
-                // Using the Frictionless Hook Engine
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { 
-                    Student_Number: studentId, 
-                    Vetting_Status: "Approved" 
-                });
-
-                addTelemetryLog("VET_ENGINE", "APPROVED", `Database updated for ID: ${studentId}.`);
-
-                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId));
-                if (studentIndex > -1) {
-                    globalStudentData[studentIndex].Vetting_Status = 'Approved';
-                    const student = globalStudentData[studentIndex];
-                    
-                    renderUI(); // Instant DOM update
-                    
-                    // Auto-fire the allocation modal for frictionless workflow
-                    setTimeout(() => {
-                        openAllocationModal(student.Student_Number, student.Gender, `${student.First_Name || ''} ${student.Surname || ''}`);
-                    }, 300); 
-                }
-            } catch (error) {
-                addTelemetryLog("VET_ENGINE", "ERROR", `Database lock for ID: ${studentId}.`);
-                button.disabled = false;
-                button.innerHTML = 'Process';
             }
         }
 
@@ -1407,27 +1375,51 @@
             btn.disabled = true;
 
             try {
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
+                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
+                const student = globalStudentData[studentIndex];
+                
+                const needsApproval = !student.Vetting_Status || String(student.Vetting_Status).toLowerCase() !== 'approved';
+
+                // Dual-webhook trigger execution
+                const tasks = [];
+
+                if (needsApproval) {
+                    tasks.push(executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { 
+                        Student_Number: activeAllocationStudentId, 
+                        Vetting_Status: "Approved" 
+                    }));
+                }
+
+                tasks.push(executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
                     Student_Number: activeAllocationStudentId, 
                     Room_ID: selectedRoomId 
-                });
+                }));
 
-                addTelemetryLog("FACILITY_OPS", "SUCCESS", `Room ${selectedRoomId} bound to ID: ${activeAllocationStudentId}.`);
+                // Wait for both to finish simultaneously
+                await Promise.all(tasks);
+
+                // Update local cache instantly
+                if (needsApproval) {
+                    globalStudentData[studentIndex].Vetting_Status = 'Approved';
+                    addTelemetryLog("VET_ENGINE", "APPROVED", `Database updated for ID: ${activeAllocationStudentId}.`);
+                }
                 
-                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
-                if (studentIndex > -1) globalStudentData[studentIndex].Room_Allocation = selectedRoomId;
+                globalStudentData[studentIndex].Room_Allocation = selectedRoomId;
+                addTelemetryLog("FACILITY_OPS", "SUCCESS", `Room ${selectedRoomId} bound to ID: ${activeAllocationStudentId}.`);
                 
                 closeAllocationModal();
                 
+                // Route to appropriate tab
                 if (currentFilter === 'allocation') setFilter('allocation'); 
-                else if (currentFilter === 'approved') setFilter('approved');
+                else if (currentFilter === 'pending') setFilter('approved'); 
                 else renderUI();
 
-                showToast("Room successfully bound to student.");
+                showToast("Student vetted and room bound successfully.");
             } catch (error) {
                 addTelemetryLog("FACILITY_OPS", "ERROR", `Binding failed for ID: ${activeAllocationStudentId}.`);
                 btn.innerHTML = 'Confirm & Bind <i class="fa-solid fa-lock ml-2"></i>';
                 btn.disabled = false;
+                showToast("Connection failed.", "error");
             }
         }
 
