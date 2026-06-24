@@ -681,35 +681,43 @@
     </div>
 
     <div id="rejectModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
-        <div class="modal-content glass-panel w-full max-w-md rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative">
-            <button onclick="closeRejectModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+        <div class="modal-content glass-panel w-full max-w-md rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh]">
+            <button onclick="closeRejectModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors z-10">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-5 shadow-inner">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center text-xl sm:text-2xl mb-5 shadow-inner">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Reject Application</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mb-4">Select missing or incorrect documents to notify <span id="reject-student-id" class="font-bold text-slate-700"></span>.</p>
             </div>
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Reject Application</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mb-6">Select the missing or incorrect documents to notify <span id="reject-student-id" class="font-bold text-slate-700"></span>.</p>
-            <form id="rejectForm" onsubmit="submitRejection(event)">
-                <div class="space-y-3 mb-8">
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50">
-                        <input type="checkbox" name="reason" value="Invalid ID / Passport Copy" class="w-5 h-5 text-rose-500 rounded border-slate-300">
-                        <span class="text-sm font-semibold text-slate-700">Invalid ID / Passport Copy</span>
+            <form id="rejectForm" onsubmit="submitRejection(event)" class="flex flex-col overflow-hidden">
+                <div class="space-y-3 mb-6 overflow-y-auto custom-scroll pr-2 flex-1">
+                    <label class="flex items-center gap-4 p-3 sm:p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50 shadow-sm">
+                        <input type="checkbox" name="reason" value="Invalid / Missing ID or Passport" class="w-5 h-5 text-rose-500 rounded border-slate-300">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">Invalid / Missing ID or Passport</span>
                     </label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50">
-                        <input type="checkbox" name="reason" value="Missing/Invalid Proof of Registration" class="w-5 h-5 text-rose-500 rounded border-slate-300">
-                        <span class="text-sm font-semibold text-slate-700">Missing Proof of Registration</span>
+                    <label class="flex items-center gap-4 p-3 sm:p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50 shadow-sm">
+                        <input type="checkbox" name="reason" value="Missing / Invalid Proof of Registration" class="w-5 h-5 text-rose-500 rounded border-slate-300">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Registration</span>
                     </label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50">
-                        <input type="checkbox" name="reason" value="Missing/Invalid Proof of Funding" class="w-5 h-5 text-rose-500 rounded border-slate-300">
-                        <span class="text-sm font-semibold text-slate-700">Missing Proof of Funding (NSFAS/Bursary)</span>
+                    <label class="flex items-center gap-4 p-3 sm:p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50 shadow-sm">
+                        <input type="checkbox" name="reason" value="Missing / Invalid Proof of Funding" class="w-5 h-5 text-rose-500 rounded border-slate-300">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Funding (NSFAS/Bursary)</span>
                     </label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50">
-                        <input type="checkbox" name="reason" value="Unsigned Lease Agreement" class="w-5 h-5 text-rose-500 rounded border-slate-300">
-                        <span class="text-sm font-semibold text-slate-700">Unsigned Lease Agreement</span>
+                    <label class="flex items-center gap-4 p-3 sm:p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50 shadow-sm">
+                        <input type="checkbox" name="reason" value="Unsigned / Incomplete Lease Agreement" class="w-5 h-5 text-rose-500 rounded border-slate-300">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">Unsigned / Incomplete Lease Agreement</span>
+                    </label>
+                    <label class="flex items-center gap-4 p-3 sm:p-4 border border-slate-200 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors bg-white/50 shadow-sm">
+                        <input type="checkbox" name="reason" value="Incorrect General Information" class="w-5 h-5 text-rose-500 rounded border-slate-300">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">Incorrect General Information</span>
                     </label>
                 </div>
-                <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl sm:rounded-2xl py-3 sm:py-4 shadow-lg shadow-rose-500/20 transition-all">Confirm Rejection</button>
+                <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl sm:rounded-2xl py-3 sm:py-4 shadow-lg shadow-rose-500/20 transition-all flex-shrink-0">
+                    Submit Rejection & Notify
+                </button>
             </form>
         </div>
     </div>
@@ -730,11 +738,6 @@
             </div>
             
             <div class="p-5 sm:p-8 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll relative">
-                <div id="alloc-loading" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center" style="display: none;">
-                    <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl sm:text-4xl mb-4"></i>
-                    <p class="text-xs sm:text-sm font-bold text-slate-600">Querying Inventory...</p>
-                </div>
-
                 <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
                     <div>
                         <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
@@ -799,6 +802,30 @@
             initLiveTelemetry(); 
         });
 
+        // -----------------------------------------------------
+        // THE ACTION HOOK ENGINE (CURES INFINITE LOADING)
+        // -----------------------------------------------------
+        // This races any fetch against a 2.5 second timer. 
+        // If n8n freezes and doesn't respond, we force the UI to continue.
+        async function executeActionHook(url, payload) {
+            const fetchReq = fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            try {
+                await Promise.race([
+                    fetchReq,
+                    new Promise(resolve => setTimeout(resolve, 2500))
+                ]);
+                return true; 
+            } catch (error) {
+                console.error("Action Hook Error:", error);
+                return false;
+            }
+        }
+
         // Global Toast Notification System
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast-container');
@@ -816,16 +843,15 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // N8N PARSING ENGINE: Bulletproof JSON Extractor
+        // N8N PARSING ENGINE
         function parseN8n(d) {
             let arr = [];
             if (Array.isArray(d)) arr = d;
             else if (d && d.data && Array.isArray(d.data)) arr = d.data;
             else if (d && typeof d === 'object' && Object.keys(d).length > 0 && !d.message) arr = [d];
-            return arr.slice().reverse(); // Newest first
+            return arr.slice().reverse(); 
         }
 
-        // Generic Table Filter
         function filterTable(inputId, tbodyId) {
             const input = document.getElementById(inputId);
             const filter = input.value.toLowerCase();
@@ -839,7 +865,6 @@
             }
         }
 
-        // Generic CSV Downloader
         function downloadBlob(csvContent, filename) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
@@ -850,7 +875,6 @@
             document.body.removeChild(link);
         }
 
-        // Specific Report Generators
         function downloadHubReport() {
             if (currentFilter === 'pending') {
                 const pending = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '');
@@ -910,9 +934,6 @@
             }
         }
 
-        // ==========================================
-        // UI & NAVIGATION ROUTING
-        // ==========================================
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobile-overlay');
@@ -933,7 +954,6 @@
         }
 
         function switchTab(tabId, btnElement) {
-            // Decoupled from Fetch. Instant UI Swap using global cache.
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
 
@@ -1050,7 +1070,6 @@
             renderUI();
         }
 
-        // FAST O(n) STRING RENDER ENGINE
         function renderUI() {
             if (isFetchingStudents) {
                 if(globalStudentData.length === 0) showHubSpinner();
@@ -1181,34 +1200,33 @@
 
         async function processApproval(button, studentId) {
             button.disabled = true;
-            button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
 
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-approve', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: studentId, Vetting_Status: "Approved" })
+                // Using the Frictionless Hook Engine
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { 
+                    Student_Number: studentId, 
+                    Vetting_Status: "Approved" 
                 });
-
-                if (!response.ok) throw new Error("Failed to write to database.");
 
                 addTelemetryLog("VET_ENGINE", "APPROVED", `Database updated for ID: ${studentId}.`);
 
-                const studentIndex = globalStudentData.findIndex(s => s.Student_Number == studentId);
+                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId));
                 if (studentIndex > -1) {
                     globalStudentData[studentIndex].Vetting_Status = 'Approved';
                     const student = globalStudentData[studentIndex];
                     
-                    // Open modal instantly for frictionless experience
-                    openAllocationModal(student.Student_Number, student.Gender, `${student.First_Name} ${student.Surname}`);
+                    renderUI(); // Instant DOM update
                     
-                    // Render UI in background to remove the row from pending
-                    renderUI(); 
+                    // Auto-fire the allocation modal for frictionless workflow
+                    setTimeout(() => {
+                        openAllocationModal(student.Student_Number, student.Gender, `${student.First_Name || ''} ${student.Surname || ''}`);
+                    }, 300); 
                 }
             } catch (error) {
                 addTelemetryLog("VET_ENGINE", "ERROR", `Database lock for ID: ${studentId}.`);
                 button.disabled = false;
-                button.textContent = 'Process';
+                button.innerHTML = 'Process';
             }
         }
 
@@ -1239,16 +1257,15 @@
             btn.disabled = true;
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-reject', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-reject', { 
+                    Student_Number: currentRejectStudentId, 
+                    Reasons: reasons.join(", ") 
                 });
 
                 addTelemetryLog("VET_ENGINE", "REJECTED", `Application returned for ID: ${currentRejectStudentId}.`);
                 closeRejectModal();
                 
-                const studentIndex = globalStudentData.findIndex(s => s.Student_Number == currentRejectStudentId);
+                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(currentRejectStudentId));
                 if (studentIndex > -1) globalStudentData[studentIndex].Vetting_Status = 'Rejected';
                 renderUI();
                 showToast("Student application rejected successfully.");
@@ -1256,7 +1273,7 @@
                 addTelemetryLog("VET_ENGINE", "ERROR", "Failed to process rejection packet.");
                 showToast("Connection failed.", "error");
             } finally {
-                btn.innerHTML = 'Confirm Rejection';
+                btn.innerHTML = 'Submit Rejection & Notify';
                 btn.disabled = false;
             }
         }
@@ -1287,7 +1304,6 @@
 
             document.getElementById('allocationModal').classList.add('active');
             
-            // Re-fetch to ensure no double booking
             fetchModalRoomInventory(cleanGender);
         }
 
@@ -1296,15 +1312,15 @@
         }
 
         async function fetchModalRoomInventory(gender) {
-            const loader = document.getElementById('alloc-loading');
             const singleContainer = document.getElementById('list-single-rooms');
             const sharingContainer = document.getElementById('list-sharing-rooms');
             
-            // First render from cache for zero latency
-            renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer);
+            // First render instantly from cache for zero latency
+            if(globalRoomData && globalRoomData.length > 0) {
+                renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer);
+            }
 
-            // Fetch in background to ensure up-to-date data
-            loader.style.display = 'flex';
+            // Fetch in background to ensure up-to-date data without blocking UI
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
                 if (response.ok) {
@@ -1313,9 +1329,7 @@
                     renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer);
                 }
             } catch (error) {
-                console.warn("Background room sync failed during allocation.");
-            } finally {
-                loader.style.display = 'none';
+                console.warn("Silent room sync failed during allocation.");
             }
         }
 
@@ -1393,15 +1407,14 @@
             btn.disabled = true;
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-allocate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: activeAllocationStudentId, Room_ID: selectedRoomId })
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
+                    Student_Number: activeAllocationStudentId, 
+                    Room_ID: selectedRoomId 
                 });
 
                 addTelemetryLog("FACILITY_OPS", "SUCCESS", `Room ${selectedRoomId} bound to ID: ${activeAllocationStudentId}.`);
                 
-                const studentIndex = globalStudentData.findIndex(s => s.Student_Number == activeAllocationStudentId);
+                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
                 if (studentIndex > -1) globalStudentData[studentIndex].Room_Allocation = selectedRoomId;
                 
                 closeAllocationModal();
@@ -1673,15 +1686,11 @@
             btn.disabled = true;
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Audience_Type: audience,
-                        Target: targetFilter,
-                        Message: message,
-                        Timestamp: new Date().toISOString()
-                    })
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
+                    Audience_Type: audience,
+                    Target: targetFilter,
+                    Message: message,
+                    Timestamp: new Date().toISOString()
                 });
 
                 addTelemetryLog("COMM_ENGINE", "SUCCESS", `Broadcast dispatched to [${targetFilter}].`);
@@ -1891,10 +1900,9 @@
             btnElement.disabled = true;
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Ticket_ID: ticketId, Repair_Status: "Resolved" })
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', { 
+                    Ticket_ID: ticketId, 
+                    Repair_Status: "Resolved" 
                 });
 
                 addTelemetryLog("MAINTENANCE", "SUCCESS", `Ticket ${ticketId} successfully closed.`);
@@ -2000,10 +2008,10 @@
             btnElement.disabled = true;
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-security', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Timestamp: timestamp, Room: room, Dispatch_Status: "Area Cleared" })
+                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-security', { 
+                    Timestamp: timestamp, 
+                    Room: room, 
+                    Dispatch_Status: "Area Cleared" 
                 });
 
                 addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared/Resolved.`);
