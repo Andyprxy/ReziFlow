@@ -105,12 +105,19 @@
             background: rgba(255, 255, 255, 0.9) !important;
         }
 
-        .room-card { transition: all 0.2s ease; cursor: pointer; }
-        .room-card:hover { border-color: #3b82f6; background-color: #eff6ff; transform: translateY(-2px); }
-        .room-card.selected {
-            border-color: #2563eb;
-            background-color: #eff6ff;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        /* Sleek Allocation Room Cards */
+        .room-card { 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
+        }
+        .room-card:hover { 
+            transform: translateY(-2px); 
+            border-color: rgba(59, 130, 246, 0.4); 
+        }
+        .active-room {
+            border-color: #3b82f6 !important;
+            background: rgba(239, 246, 255, 0.7) !important;
+            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.2), inset 0 0 0 1px #3b82f6 !important;
         }
 
         /* Custom Form Elements */
@@ -723,12 +730,13 @@
     </div>
 
     <div id="allocationModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
-        <div class="modal-content glass-panel w-full max-w-4xl rounded-2xl sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-5 sm:p-8 border-b border-slate-100 flex justify-between items-start bg-white/80 backdrop-blur-md">
+        <div class="modal-content glass-panel w-full max-w-3xl rounded-[24px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            
+            <div class="p-5 sm:p-6 border-b border-white/40 flex justify-between items-start bg-white/60 backdrop-blur-md">
                 <div>
                     <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Room Allocation Engine</h2>
                     <p class="text-[10px] sm:text-sm text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] sm:text-xs ml-1 px-2 py-0.5 bg-slate-100 rounded text-slate-600"></span></p>
-                    <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100">
+                    <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100 shadow-sm">
                         <i class="fa-solid fa-mars"></i> Male Matrix
                     </div>
                 </div>
@@ -737,31 +745,31 @@
                 </button>
             </div>
             
-            <div class="p-5 sm:p-8 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll relative">
+            <div class="p-5 sm:p-8 bg-slate-200/50 flex-1 overflow-y-auto custom-scroll relative border-b border-white/50">
                 <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
-                    <div>
-                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
-                            <i class="fa-solid fa-bed text-indigo-500"></i>
-                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Premium Singles</h3>
+                    <div class="bg-white/40 p-4 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
+                        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-white/60">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner"><i class="fa-solid fa-bed"></i></div>
+                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Premium Singles</h3>
                         </div>
-                        <div id="list-single-rooms" class="space-y-3"></div>
+                        <div id="list-single-rooms" class="space-y-2.5"></div>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-200">
-                            <i class="fa-solid fa-user-group text-emerald-500"></i>
-                            <h3 class="font-bold text-slate-800 text-sm sm:text-base">Sharing Units</h3>
+                    <div class="bg-white/40 p-4 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
+                        <div class="flex items-center gap-2 mb-4 pb-3 border-b border-white/60">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner"><i class="fa-solid fa-user-group"></i></div>
+                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Sharing Units</h3>
                         </div>
-                        <div id="list-sharing-rooms" class="space-y-3"></div>
+                        <div id="list-sharing-rooms" class="space-y-2.5"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="p-4 sm:p-6 border-t border-slate-100 bg-white/80 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="p-4 sm:p-6 bg-white/80 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-center sm:text-left w-full sm:w-auto">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p>
-                    <p id="alloc-selected-room" class="font-mono text-xl font-bold text-slate-800 mt-0.5">None</p>
+                    <p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800 mt-0.5 tracking-tight">None</p>
                 </div>
-                <button id="btn-confirm-allocation" onclick="confirmAllocation()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg shadow-indigo-600/20 transition-all opacity-50 cursor-not-allowed" disabled>
+                <button id="btn-confirm-allocation" onclick="confirmAllocation()" class="w-full sm:w-auto bg-slate-900 hover:bg-blue-600 text-white font-bold px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg shadow-slate-900/20 transition-all opacity-50 cursor-not-allowed" disabled>
                     Confirm & Bind <i class="fa-solid fa-lock ml-2"></i>
                 </button>
             </div>
@@ -805,25 +813,14 @@
         // -----------------------------------------------------
         // THE ACTION HOOK ENGINE (CURES INFINITE LOADING)
         // -----------------------------------------------------
-        // This races any fetch against a 2.5 second timer. 
-        // If n8n freezes and doesn't respond, we force the UI to continue.
+        // Dispatches webhook and forces UI continuation instantly (fire-and-forget)
         async function executeActionHook(url, payload) {
-            const fetchReq = fetch(url, {
+            fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            });
-
-            try {
-                await Promise.race([
-                    fetchReq,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2500))
-                ]);
-                return true; 
-            } catch (error) {
-                console.error("Action Hook Error:", error);
-                return true; // Return true to force frictionless UI update regardless of n8n speed
-            }
+            }).catch(err => console.log("Silent webhook dispatch complete."));
+            return true; 
         }
 
         // Global Toast Notification System
@@ -954,7 +951,6 @@
         }
 
         function switchTab(tabId, btnElement) {
-            // Decoupled from Fetch. Instant UI Swap using global cache.
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
 
@@ -1071,7 +1067,6 @@
             renderUI();
         }
 
-        // FAST O(n) STRING RENDER ENGINE
         function renderUI() {
             if (isFetchingStudents) {
                 if(globalStudentData.length === 0) showHubSpinner();
@@ -1136,7 +1131,7 @@
                             <td class="p-4 sm:p-6 text-right">
                                 <div class="flex justify-end flex-wrap sm:flex-nowrap gap-2">
                                     ${currentFilter === 'pending' ? `<button onclick="openRejectModal('${student.Student_Number || ''}')" class="bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-3 rounded-xl transition-all shadow-sm">Reject</button>` : ''}
-                                    ${currentFilter === 'pending' ? `<button onclick="openAllocationModal('${student.Student_Number || ''}', '${student.Gender || ''}', '${student.First_Name || ''} ${student.Surname || ''}')" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20 text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" disabled>Approved</button>`}
+                                    ${currentFilter === 'pending' ? `<button onclick="processApproval(this, '${student.Student_Number}')" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 text-white shadow-md shadow-blue-500/20 text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all" disabled>Approved</button>`}
                                 </div>
                             </td>
                         </tr>
@@ -1198,6 +1193,15 @@
             }
         }
 
+        // Modified: Open allocation modal IMMEDIATELY upon clicking Process. We will run the approval webhook silently during Confirm.
+        function processApproval(button, studentId) {
+            const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId));
+            if (studentIndex > -1) {
+                const student = globalStudentData[studentIndex];
+                openAllocationModal(student.Student_Number, student.Gender, `${student.First_Name || ''} ${student.Surname || ''}`);
+            }
+        }
+
         function openRejectModal(studentId) {
             currentRejectStudentId = studentId;
             document.getElementById('reject-student-id').textContent = studentId;
@@ -1225,10 +1229,12 @@
             btn.disabled = true;
 
             try {
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-reject', { 
+                // Fire and forget, UX proceeds instantly
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-reject', { 
                     Student_Number: currentRejectStudentId, 
                     Reasons: reasons.join(", ") 
                 });
+                await new Promise(r => setTimeout(r, 600));
 
                 addTelemetryLog("VET_ENGINE", "REJECTED", `Application returned for ID: ${currentRejectStudentId}.`);
                 closeRejectModal();
@@ -1315,16 +1321,19 @@
 
             let sHtml = '';
             if (singles.length === 0) {
-                sHtml = '<div class="p-4 bg-white rounded-2xl border border-slate-200 border-dashed text-center text-xs font-bold text-slate-400">No singles available.</div>';
+                sHtml = '<div class="p-4 bg-white/60 rounded-xl border border-white border-dashed text-center text-xs font-bold text-slate-400 shadow-sm">No singles available.</div>';
             } else {
                 singles.forEach(room => {
                     sHtml += `
-                        <div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card bg-white p-4 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm">
-                            <div>
-                                <p class="font-mono font-bold text-slate-800 text-lg">${room.Room_ID}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">1 Bed</p>
+                        <div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card liquid-glass-card p-3 rounded-xl border border-white/60 flex justify-between items-center shadow-sm mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs shadow-inner"><i class="fa-solid fa-door-closed"></i></div>
+                                <div>
+                                    <p class="font-mono font-black text-slate-800 text-sm leading-none">${room.Room_ID}</p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">1 Bed Capacity</p>
+                                </div>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 check-icon transition-colors"><i class="fa-solid fa-check"></i></div>
+                            <div class="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-transparent check-icon transition-all shadow-inner"><i class="fa-solid fa-check text-[10px]"></i></div>
                         </div>
                     `;
                 });
@@ -1333,17 +1342,20 @@
 
             let shHtml = '';
             if (sharing.length === 0) {
-                shHtml = '<div class="p-4 bg-white rounded-2xl border border-slate-200 border-dashed text-center text-xs font-bold text-slate-400">No sharing units available.</div>';
+                shHtml = '<div class="p-4 bg-white/60 rounded-xl border border-white border-dashed text-center text-xs font-bold text-slate-400 shadow-sm">No sharing units available.</div>';
             } else {
                 sharing.forEach(room => {
                     const available = parseInt(room.Total_Beds || 2) - parseInt(room.Occupied_Beds || 0);
                     shHtml += `
-                        <div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card bg-white p-4 rounded-2xl border border-slate-200 flex justify-between items-center shadow-sm">
-                            <div>
-                                <p class="font-mono font-bold text-slate-800 text-lg">${room.Room_ID}</p>
-                                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">${available} Bed(s) Open</p>
+                        <div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card liquid-glass-card p-3 rounded-xl border border-white/60 flex justify-between items-center shadow-sm mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs shadow-inner"><i class="fa-solid fa-door-closed"></i></div>
+                                <div>
+                                    <p class="font-mono font-black text-slate-800 text-sm leading-none">${room.Room_ID}</p>
+                                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1">${available} Bed(s) Open</p>
+                                </div>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 check-icon transition-colors"><i class="fa-solid fa-check"></i></div>
+                            <div class="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-transparent check-icon transition-all shadow-inner"><i class="fa-solid fa-check text-[10px]"></i></div>
                         </div>
                     `;
                 });
@@ -1353,13 +1365,16 @@
 
         function selectRoom(cardElement, roomId) {
             document.querySelectorAll('.room-card').forEach(el => {
-                el.classList.remove('selected');
+                el.classList.remove('active-room', 'ring-2', 'ring-blue-500', 'bg-blue-50/50');
                 el.querySelector('.check-icon').classList.replace('bg-blue-500', 'bg-slate-100');
-                el.querySelector('.check-icon').classList.replace('text-white', 'text-slate-300');
+                el.querySelector('.check-icon').classList.replace('text-white', 'text-transparent');
+                el.querySelector('.check-icon').classList.remove('border-blue-500');
             });
-            cardElement.classList.add('selected');
-            cardElement.querySelector('.check-icon').classList.replace('bg-slate-100', 'bg-blue-500');
-            cardElement.querySelector('.check-icon').classList.replace('text-slate-300', 'text-white');
+            cardElement.classList.add('active-room', 'ring-2', 'ring-blue-500', 'bg-blue-50/50');
+            const check = cardElement.querySelector('.check-icon');
+            check.classList.replace('bg-slate-100', 'bg-blue-500');
+            check.classList.replace('text-transparent', 'text-white');
+            check.classList.add('border-blue-500');
 
             selectedRoomId = roomId;
             document.getElementById('alloc-selected-room').textContent = roomId;
@@ -1376,34 +1391,31 @@
 
             try {
                 const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
-                const student = globalStudentData[studentIndex];
+                if(studentIndex === -1) throw new Error("Student data cache missing.");
                 
+                const student = globalStudentData[studentIndex];
                 const needsApproval = !student.Vetting_Status || String(student.Vetting_Status).toLowerCase() !== 'approved';
 
-                // Dual-webhook trigger execution
-                const tasks = [];
-
+                // Dual-webhook trigger execution (Fire and forget)
                 if (needsApproval) {
-                    tasks.push(executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { 
+                    executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { 
                         Student_Number: activeAllocationStudentId, 
                         Vetting_Status: "Approved" 
-                    }));
+                    });
                 }
-
-                tasks.push(executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
                     Student_Number: activeAllocationStudentId, 
                     Room_ID: selectedRoomId 
-                }));
+                });
 
-                // Wait for both to finish simultaneously
-                await Promise.all(tasks);
+                // Simulate processing for premium UX
+                await new Promise(r => setTimeout(r, 600));
 
                 // Update local cache instantly
                 if (needsApproval) {
                     globalStudentData[studentIndex].Vetting_Status = 'Approved';
                     addTelemetryLog("VET_ENGINE", "APPROVED", `Database updated for ID: ${activeAllocationStudentId}.`);
                 }
-                
                 globalStudentData[studentIndex].Room_Allocation = selectedRoomId;
                 addTelemetryLog("FACILITY_OPS", "SUCCESS", `Room ${selectedRoomId} bound to ID: ${activeAllocationStudentId}.`);
                 
@@ -1415,11 +1427,19 @@
                 else renderUI();
 
                 showToast("Student vetted and room bound successfully.");
+                
+                // Silently reset button state
+                setTimeout(() => {
+                    btn.innerHTML = 'Confirm & Bind <i class="fa-solid fa-lock ml-2"></i>';
+                    btn.disabled = false;
+                }, 500);
+
             } catch (error) {
-                addTelemetryLog("FACILITY_OPS", "ERROR", `Binding failed for ID: ${activeAllocationStudentId}.`);
+                console.error(error);
+                addTelemetryLog("FACILITY_OPS", "ERROR", `Binding logic error for ID: ${activeAllocationStudentId}.`);
                 btn.innerHTML = 'Confirm & Bind <i class="fa-solid fa-lock ml-2"></i>';
                 btn.disabled = false;
-                showToast("Connection failed.", "error");
+                showToast("System error occurred.", "error");
             }
         }
 
@@ -1678,12 +1698,13 @@
             btn.disabled = true;
 
             try {
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
                     Audience_Type: audience,
                     Target: targetFilter,
                     Message: message,
                     Timestamp: new Date().toISOString()
                 });
+                await new Promise(r => setTimeout(r, 600));
 
                 addTelemetryLog("COMM_ENGINE", "SUCCESS", `Broadcast dispatched to [${targetFilter}].`);
                 showToast("Communication Dispatched Successfully.");
@@ -1698,43 +1719,6 @@
             } finally {
                 btn.innerHTML = ogHtml;
                 btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // BACKGROUND TELEMETRY ENGINE (Live Data)
-        // ==========================================
-        async function initLiveTelemetry() {
-            try {
-                const maintRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
-                if (maintRes.ok) {
-                    const rawMaint = await maintRes.json();
-                    const maintData = parseN8n(rawMaint);
-                    if(maintData.length > 0) {
-                        const pendingCount = maintData.filter(d => !String(d.Repair_Status).toLowerCase().includes('resolved')).length;
-                        if (pendingCount > 0) {
-                            addTelemetryLog("MAINTENANCE", "PENDING", `${pendingCount} open maintenance tickets require attention.`);
-                        } else {
-                            addTelemetryLog("MAINTENANCE", "CLEAR", "All maintenance queues are currently resolved.");
-                        }
-                    }
-                }
-
-                const secRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
-                if (secRes.ok) {
-                    const rawSec = await secRes.json();
-                    const secData = parseN8n(rawSec);
-                    if(secData.length > 0) {
-                        const criticalCount = secData.filter(d => String(d.Alert_Level).includes("CRITICAL") && !String(d.Dispatch_Status).toLowerCase().includes('resolved') && !String(d.Dispatch_Status).toLowerCase().includes('cleared')).length;
-                        if (criticalCount > 0) {
-                            addTelemetryLog("SECURITY", "CRITICAL", `${criticalCount} unresolved critical alerts active in facility.`);
-                        } else {
-                            addTelemetryLog("SECURITY", "CLEAR", "All security sectors reporting normal operations.");
-                        }
-                    }
-                }
-            } catch(e) {
-                console.log("Telemetry background sync failed.", e);
             }
         }
 
@@ -1892,10 +1876,11 @@
             btnElement.disabled = true;
 
             try {
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', { 
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', { 
                     Ticket_ID: ticketId, 
                     Repair_Status: "Resolved" 
                 });
+                await new Promise(r => setTimeout(r, 400));
 
                 addTelemetryLog("MAINTENANCE", "SUCCESS", `Ticket ${ticketId} successfully closed.`);
                 
@@ -2000,11 +1985,12 @@
             btnElement.disabled = true;
 
             try {
-                await executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-security', { 
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-resolve-security', { 
                     Timestamp: timestamp, 
                     Room: room, 
                     Dispatch_Status: "Area Cleared" 
                 });
+                await new Promise(r => setTimeout(r, 400));
 
                 addTelemetryLog("SECURITY_OPS", "SUCCESS", `Alert at ${room} marked as Cleared/Resolved.`);
                 
