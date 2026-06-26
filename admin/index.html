@@ -37,7 +37,7 @@
             transform: scale(1.02);
         }
 
-        /* Premium Apple-Style Segmented Controls (Replaces Dropdowns & Big Blocks) */
+        /* Premium Apple-Style Segmented Controls */
         .glass-segmented {
             background: rgba(230, 230, 235, 0.45);
             backdrop-filter: blur(20px);
@@ -71,26 +71,22 @@
             color: #334155;
         }
 
-        /* The "Ambient Whitish Outline" Liquid Glass Effect */
+        /* Ambient Whitish Outline Effect */
         .glass-seg-btn.active {
             background: rgba(255, 255, 255, 0.95);
             color: #1d1d1f;
-            /* Combines a sharp structural border with a soft, diffused white ambient glow */
             box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85);
             border: 1px solid rgba(255, 255, 255, 1);
             transform: scale(1.01);
         }
         
-        /* Accent overrides for specific active states */
+        /* Accent overrides */
         .glass-seg-btn.active.accent-blue { color: #0071e3; }
         .glass-seg-btn.active.accent-emerald { color: #10b981; }
         .glass-seg-btn.active.accent-rose { color: #f43f5e; }
         .glass-seg-btn.active.accent-amber { color: #f59e0b; }
 
-        .dashboard-tab {
-            display: none;
-            animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .dashboard-tab { display: none; animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .dashboard-tab.active { display: block; }
 
         /* Modal Overlays */
@@ -236,7 +232,6 @@
             <main class="flex-1 overflow-y-auto px-4 lg:px-10 pb-24 custom-scroll min-w-0">
 
                 <div id="pane-vetting" class="dashboard-tab active space-y-6 lg:space-y-8">
-                    
                     <div class="flex justify-center w-full">
                         <div class="glass-segmented">
                             <button onclick="setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber">
@@ -265,8 +260,8 @@
                             <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
                                 <div class="glass-segmented">
                                     <button onclick="setStudentGenderFilter('all')" id="sh-gen-all" class="glass-seg-btn active accent-blue py-1.5 px-3">All Demographics</button>
-                                    <button onclick="setStudentGenderFilter('male')" id="sh-gen-male" class="glass-seg-btn accent-blue py-1.5 px-3">Male Matrix</button>
-                                    <button onclick="setStudentGenderFilter('female')" id="sh-gen-female" class="glass-seg-btn accent-blue py-1.5 px-3">Female Matrix</button>
+                                    <button onclick="setStudentGenderFilter('male')" id="sh-gen-male" class="glass-seg-btn accent-blue py-1.5 px-3">Male</button>
+                                    <button onclick="setStudentGenderFilter('female')" id="sh-gen-female" class="glass-seg-btn accent-blue py-1.5 px-3">Female</button>
                                 </div>
                                 <div class="relative w-full sm:w-48">
                                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -286,7 +281,6 @@
                 </div>
 
                 <div id="pane-stats" class="dashboard-tab space-y-6 lg:space-y-8">
-                    
                     <div class="flex justify-center w-full">
                         <div class="glass-segmented">
                             <button onclick="toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue">
@@ -339,7 +333,6 @@
                 </div>
 
                 <div id="pane-financials" class="dashboard-tab space-y-6 lg:space-y-8">
-                    
                     <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden">
                         <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
                             <div class="flex items-center gap-3">
@@ -368,7 +361,7 @@
                                 </div>
                                 <div id="dropzone-loading" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm flex-col items-center justify-center">
                                     <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-3"></i>
-                                    <span class="text-xs font-bold text-slate-700 tracking-widest uppercase">Reconciling Matrix...</span>
+                                    <span class="text-xs font-bold text-slate-700 tracking-widest uppercase">Reconciling Data...</span>
                                 </div>
                             </div>
                         </div>
@@ -427,7 +420,7 @@
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Target Audience</label>
                                     <div class="glass-segmented w-full justify-between">
                                         <button type="button" onclick="setCommAudience('all')" id="comm-aud-all" class="glass-seg-btn active accent-blue flex-1 justify-center py-2">All Students</button>
-                                        <button type="button" onclick="setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 justify-center py-2">Filter Matrix</button>
+                                        <button type="button" onclick="setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 justify-center py-2">Filter Options</button>
                                         <button type="button" onclick="setCommAudience('specific')" id="comm-aud-specific" class="glass-seg-btn flex-1 justify-center py-2">Specific ID</button>
                                     </div>
                                 </div>
@@ -438,8 +431,8 @@
                                         <button type="button" onclick="setCommDemo('nsfas')" id="comm-dem-nsfas" class="glass-seg-btn active accent-blue py-2">NSFAS</button>
                                         <button type="button" onclick="setCommDemo('bursary')" id="comm-dem-bursary" class="glass-seg-btn py-2">Bursary</button>
                                         <button type="button" onclick="setCommDemo('cash')" id="comm-dem-cash" class="glass-seg-btn py-2">Cash</button>
-                                        <button type="button" onclick="setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn py-2">Male Blk</button>
-                                        <button type="button" onclick="setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn py-2">Female Blk</button>
+                                        <button type="button" onclick="setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn py-2">Male</button>
+                                        <button type="button" onclick="setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn py-2">Female</button>
                                     </div>
                                 </div>
 
@@ -679,7 +672,7 @@
                 <div>
                     <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Room Allocation Engine</h2>
                     <p class="text-[10px] sm:text-sm text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] sm:text-xs ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600"></span></p>
-                    <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100 shadow-sm"><i class="fa-solid fa-mars"></i> Male Matrix</div>
+                    <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100 shadow-sm"><i class="fa-solid fa-mars"></i> Active (Block A)</div>
                 </div>
                 <button onclick="closeAllocationModal()" class="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm transition-colors flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -755,11 +748,10 @@
             fetchVisitorData(false);
             fetchFinanceBaseline(false);
             setupDulaDropzone();
-            initLiveTelemetry(); 
         });
 
         // -----------------------------------------------------
-        // TELEMETRY & DATA PARSERS (FIXED BINDING BUG)
+        // TELEMETRY & DATA PARSERS 
         // -----------------------------------------------------
         function addTelemetryLog(system, status, message) {
             const feed = document.getElementById('telemetry-feed');
@@ -794,14 +786,12 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // AGGRESSIVE JSON PARSER TO PREVENT FRONTEND RENDER FAILURES
         function parseN8n(d) {
             if (!d) return [];
             let arr = [];
             if (Array.isArray(d)) arr = d;
             else if (d.data && Array.isArray(d.data)) arr = d.data;
             else if (typeof d === 'object') arr = [d];
-            
             arr = arr.map(item => item.json ? item.json : item);
             return arr.reverse(); 
         }
@@ -818,6 +808,46 @@
         }
 
         // ==========================================
+        // UI & NAVIGATION FUNCTIONS
+        // ==========================================
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('pane-' + tabId).classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-medium text-slate-600 border border-transparent transition-all";
+            });
+
+            btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-bold transition-all bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white text-blue-600 transform scale-[1.02]";
+
+            const title = document.getElementById('matrixTitle');
+            const sub = document.getElementById('matrixSub');
+
+            if (tabId === 'vetting') { title.textContent = "Student Hub"; sub.textContent = "Automated POPIA Database Sync"; renderUI(); }
+            else if (tabId === 'stats') { title.textContent = "Occupancy"; sub.textContent = "Live Occupancy Overview"; processStatsData(); }
+            else if (tabId === 'financials') { title.textContent = "Finance"; sub.textContent = "Automated Ledger Reconciliation"; }
+            else if (tabId === 'inspections') { title.textContent = "Facility Inspections"; sub.textContent = "Pre-Occupancy Binding Ledger"; renderInspectionsData(); }
+            else if (tabId === 'maintenance') { title.textContent = "Facility Maintenance Ops"; sub.textContent = "Ticket Resolution & Asset Routing"; renderMaintenanceData(); }
+            else if (tabId === 'security') { title.textContent = "Security Ops Center"; sub.textContent = "Live Dispatch & Threat Monitoring"; renderSecurityData(); }
+            else if (tabId === 'access') { title.textContent = "Access Control"; sub.textContent = "Visitor Gateway Activity"; renderVisitorData(); }
+            else if (tabId === 'communication') { title.textContent = "Outreach Network"; sub.textContent = "Student Portal Direct Messaging"; }
+
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function showHubSpinner() {
+            document.getElementById('kpi-pending').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            document.getElementById('kpi-approved').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            document.getElementById('kpi-allocation').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            document.getElementById('hub-queue-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Synchronizing Database Payload...</span></td></tr>';
+        }
+        function showOccupancySpinner() { document.getElementById('stats-inventory-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Calculating Totals...</span></td></tr>'; }
+        function showMaintenanceSpinner() { document.getElementById('maintenance-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Syncing Maintenance Logs...</span></td></tr>'; }
+        function showSecuritySpinner() { document.getElementById('security-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Syncing Security Logs...</span></td></tr>'; }
+        function showVisitorSpinner() { document.getElementById('visitor-body').innerHTML = '<tr><td colspan="4" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Syncing Gate Logs...</span></td></tr>'; }
+        function showInspectionsSpinner() { document.getElementById('inspections-body').innerHTML = '<tr><td colspan="4" class="p-16 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-4"></i><br><span class="font-medium">Syncing Inspection Logs...</span></td></tr>'; }
+
+        // ==========================================
         // STUDENT HUB (VETTING & ALLOCATION)
         // ==========================================
         async function fetchDatabaseData(forcedRefresh = true) {
@@ -829,7 +859,7 @@
                 if (!response.ok) throw new Error("Webhook refused connection");
                 const rawData = await response.json();
                 globalStudentData = parseN8n(rawData);
-                addTelemetryLog("DB_SYNC", "SUCCESS", `Pulled ${globalStudentData.length} records. ReziFlow matrix active.`);
+                addTelemetryLog("DB_SYNC", "SUCCESS", `Pulled ${globalStudentData.length} records. ReziFlow active.`);
             } catch (error) {
                 if(forcedRefresh || globalStudentData.length === 0) {
                     document.getElementById('hub-queue-body').innerHTML = '<tr><td colspan="5" class="p-12 text-center text-rose-500 bg-white/50 rounded-xl border border-white"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i><br><span class="font-medium">Connection to n8n backend failed.</span></td></tr>';
@@ -867,7 +897,6 @@
         function renderUI() {
             if (isFetchingStudents) { if(globalStudentData.length === 0) showHubSpinner(); return; }
 
-            // FIXED DATA FILTER LOGIC: Now correctly identifies records returned as "Pending" strings.
             const pendingStudents = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
             const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
             
@@ -882,7 +911,6 @@
             if(currentFilter === 'pending' || currentFilter === 'approved') {
                 let baseData = currentFilter === 'pending' ? pendingStudents : approvedStudents;
                 
-                // Apply internal gender filter
                 if(currentStudentGenderFilter !== 'all') {
                     baseData = baseData.filter(s => String(s.Gender || '').toLowerCase() === currentStudentGenderFilter);
                 }
@@ -946,7 +974,7 @@
                 thead.innerHTML = `
                     <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
                         <th class="p-4 sm:p-6">Student Identity</th>
-                        <th class="p-4 sm:p-6">Gender Matrix</th>
+                        <th class="p-4 sm:p-6">Gender</th>
                         <th class="p-4 sm:p-6">Current Status</th>
                         <th class="p-4 sm:p-6 text-right">Assignment Action</th>
                     </tr>
@@ -1047,7 +1075,7 @@
                     totalBeds += parseInt(r.Total_Beds || 0); occupiedBeds += parseInt(r.Occupied_Beds || 0);
                 });
             }
-            // For UI, available is total - occupied beds (which equals allocated beds logically)
+            
             const allocatedStudents = globalStudentData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length;
             
             document.getElementById('stat-available-beds').textContent = totalBeds - occupiedBeds;
@@ -1082,7 +1110,7 @@
                 });
 
                 if(filteredRooms.length === 0) {
-                    tbody.innerHTML = '<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No rooms match the current matrix filters.</td></tr>';
+                    tbody.innerHTML = '<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No rooms match the current filters.</td></tr>';
                     return;
                 }
 
@@ -1194,7 +1222,7 @@
         }
 
         // ==========================================
-        // MAINTENANCE & SECURITY (WITH SEGMENTED FILTERS)
+        // MAINTENANCE & SECURITY
         // ==========================================
         function setMaintenanceStatus(status) {
             currentMaintenanceStatus = status;
@@ -1522,25 +1550,8 @@
             } finally { btn.innerHTML = 'Submit Rejection & Notify'; btn.disabled = false; }
         }
         
-        // Utility Functions (Downloaders, Modals, Dula Setup kept exactly the same for functionality)
+        // Utility Functions
         function downloadBlob(csvContent, filename) { const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = filename + ".csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-        function downloadHubReport() { /* Same logic */ }
-        function downloadOccupancyReport() { /* Same logic */ }
-        function downloadFinanceReport() { /* Same logic */ }
-        function downloadReport(type) { /* Same logic */ }
-        function toggleSidebar() { /* Same logic */ }
-        function toggleTelemetry() { /* Same logic */ }
-        function setupDulaDropzone() { /* Same logic */ }
-        async function processDulaUpload(file) { /* Same logic */ }
-        function openAllocationModal(studentId, gender, name) { /* Same logic */ }
-        function closeAllocationModal() { /* Same logic */ }
-        async function fetchModalRoomInventory(gender) { /* Same logic */ }
-        function renderModalRooms(roomsData, gender, singleContainer, sharingContainer) { /* Same logic */ }
-        function selectRoom(cardElement, roomId) { /* Same logic */ }
-        async function confirmAllocation() { /* Same logic */ }
-
-        // Shortened omitted functions to save space while ensuring core code runs exactly the same.
-        // Copying standard implementations back in to ensure copy-paste completeness.
         function downloadHubReport() {
             if (currentFilter === 'pending') {
                 const pending = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
@@ -1630,10 +1641,10 @@
             const badge = document.getElementById('alloc-gender-badge'); const cleanGender = String(gender).toLowerCase();
             if (cleanGender === 'male') {
                 badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-200 shadow-sm";
-                badge.innerHTML = '<i class="fa-solid fa-mars"></i> Male Matrix Active (Block A)';
+                badge.innerHTML = '<i class="fa-solid fa-mars"></i> Active (Block A)';
             } else {
                 badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-pink-50 text-pink-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-pink-200 shadow-sm";
-                badge.innerHTML = '<i class="fa-solid fa-venus"></i> Female Matrix Active (Blocks B/C)';
+                badge.innerHTML = '<i class="fa-solid fa-venus"></i> Active (Blocks B/C)';
             }
             document.getElementById('alloc-selected-room').textContent = 'None';
             const confirmBtn = document.getElementById('btn-confirm-allocation'); confirmBtn.disabled = true; confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
