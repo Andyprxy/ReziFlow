@@ -1,0 +1,41 @@
+<div class="flex justify-center w-full">
+    <div class="glass-segmented">
+        <button onclick="setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber">
+            <i class="fa-solid fa-clock-rotate-left"></i> Pending
+            <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
+        </button>
+        <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
+        <button onclick="setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald">
+            <i class="fa-solid fa-user-check"></i> Approved
+            <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
+        </button>
+        <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
+        <button onclick="setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue">
+            <i class="fa-solid fa-door-open"></i> Allocation
+            <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
+        </button>
+    </div>
+</div>
+
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-6">
+    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-users text-sm"></i></div>
+            <h3 id="table-title" class="font-bold text-slate-800 text-base sm:text-lg">Vetting Queue (Pending)</h3>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
+            <div id="hub-dynamic-filters" class="glass-segmented"></div>
+            <div class="relative w-full sm:w-48">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="search-hub" onkeyup="filterTable('search-hub', 'hub-queue-body')" placeholder="Search students..." class="modern-input search-input py-2 bg-white/80">
+            </div>
+            <button onclick="fetchDatabaseData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+        </div>
+    </div>
+    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm">
+        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+            <thead id="hub-thead"></thead>
+            <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
+        </table>
+    </div>
+</div>
