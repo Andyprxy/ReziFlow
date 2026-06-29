@@ -1,0 +1,28 @@
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-wrap justify-between items-center bg-white/50 backdrop-blur-md gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clipboard-check text-sm"></i></div>
+            <h3 class="font-bold text-slate-800 text-base sm:text-lg">Pre-Occupancy Inspections</h3>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative w-full sm:w-48">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="search-inspections" onkeyup="filterTable('search-inspections', 'inspections-body')" placeholder="Search logs..." class="modern-input search-input py-2 bg-white/80">
+            </div>
+            <button onclick="fetchInspectionsData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+        </div>
+    </div>
+    <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
+        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+            <thead>
+                <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
+                    <th class="p-4 sm:p-6">Timestamp</th>
+                    <th class="p-4 sm:p-6">Resident Identity & Room</th>
+                    <th class="p-4 sm:p-6">Asset Condition Overview</th>
+                    <th class="p-4 sm:p-6">Resident Notes</th>
+                </tr>
+            </thead>
+            <tbody id="inspections-body" class="divide-y divide-slate-100/50"></tbody>
+        </table>
+    </div>
+</div>
