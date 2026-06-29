@@ -1,18 +1,18 @@
-<div class="flex justify-center w-full animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+<div class="flex justify-center w-full">
     <div class="glass-segmented">
         <button onclick="toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue">
             <i class="fa-solid fa-users"></i> Allocated Students
-            <span id="stat-allocated-beds" class="bg-blue-50 border border-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+            <span id="stat-allocated-beds" class="bg-blue-50 border border-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
         </button>
         <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
         <button onclick="toggleOccupancyView('rooms')" id="btn-occ-rooms" class="glass-seg-btn accent-emerald">
             <i class="fa-solid fa-bed"></i> Room Inventory
-            <span id="stat-available-beds" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+            <span id="stat-available-beds" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
         </button>
     </div>
 </div>
 
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-6">
     <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
         <h3 id="occupancy-title" class="font-bold text-slate-800 text-base sm:text-lg">Allocated Students</h3>
         
@@ -22,12 +22,6 @@
                     <button onclick="setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-blue">All Blocks</button>
                     <button onclick="setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-blue">Block A</button>
                     <button onclick="setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-blue">Block B</button>
-                    <button onclick="setOccupancyBlock('C')" id="occ-blk-C" class="glass-seg-btn accent-blue">Block C</button>
-                </div>
-                <div class="glass-segmented">
-                    <button onclick="setOccupancyGender('all')" id="occ-gen-all" class="glass-seg-btn active accent-emerald">All Wings</button>
-                    <button onclick="setOccupancyGender('male')" id="occ-gen-male" class="glass-seg-btn accent-emerald">Male</button>
-                    <button onclick="setOccupancyGender('female')" id="occ-gen-female" class="glass-seg-btn accent-emerald">Female</button>
                 </div>
             </div>
 
@@ -35,11 +29,9 @@
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input type="text" id="search-occupancy" onkeyup="filterTable('search-occupancy', 'stats-inventory-body')" placeholder="Search..." class="modern-input search-input py-2 bg-white/80">
             </div>
-            <button onclick="downloadOccupancyReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span></button>
             <button onclick="fetchStatsData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
         </div>
     </div>
-
     <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[500px]">
         <table class="w-full text-left text-sm border-collapse min-w-[600px]">
             <thead id="occupancy-thead" class="sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-slate-200/50"></thead>
