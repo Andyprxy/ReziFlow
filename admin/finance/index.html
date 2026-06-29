@@ -1,0 +1,69 @@
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-wallet text-sm"></i></div>
+            <h3 class="font-bold text-slate-800 text-base sm:text-lg">Financial Status</h3>
+        </div>
+        
+        <div class="glass-segmented overflow-x-auto w-full md:w-auto">
+            <button class="glass-seg-btn text-xs">Feb</button>
+            <button class="glass-seg-btn text-xs">Mar</button>
+            <button class="glass-seg-btn text-xs">Apr</button>
+            <button class="glass-seg-btn text-xs">May</button>
+            <button class="glass-seg-btn active accent-blue text-sm font-black shadow-[0_0_15px_rgba(0,113,227,0.3)]">Jun</button>
+            <button class="glass-seg-btn text-xs">Jul</button>
+            <button class="glass-seg-btn text-xs">Aug</button>
+        </div>
+    </div>
+
+    <div class="p-6 sm:p-8 bg-white/30 backdrop-blur-sm">
+        <div id="dula-dropzone" class="border-2 border-dashed border-blue-300/60 bg-blue-50/40 hover:bg-white/80 transition-all rounded-[24px] p-10 text-center cursor-pointer group flex flex-col items-center justify-center relative overflow-hidden">
+            <input type="file" id="dula-file-input" accept="application/pdf" class="hidden">
+            <div id="dropzone-content">
+                <div class="w-14 h-14 rounded-2xl bg-white text-blue-500 flex items-center justify-center text-2xl shadow-sm mb-4 group-hover:scale-110 group-hover:text-blue-600 transition-transform mx-auto"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <h4 class="text-sm font-black text-slate-800 mb-1">Upload June DULA PDF</h4>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium">Drag and drop the spreadsheet PDF here to sync with the n8n logic engine</p>
+            </div>
+            <div id="dropzone-loading" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm flex-col items-center justify-center">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-3"></i>
+                <span class="text-xs font-bold text-slate-700 tracking-widest uppercase">Reconciling Data...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]" style="animation-delay: 0.1s;">
+    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+        <h3 class="font-bold text-slate-800 text-base sm:text-lg">Student Payment Status</h3>
+        
+        <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
+            <div class="glass-segmented">
+                <button onclick="setFinanceFilter('all')" id="fin-btn-all" class="glass-seg-btn active accent-blue">All</button>
+                <button onclick="setFinanceFilter('paid')" id="fin-btn-paid" class="glass-seg-btn accent-blue">Paid</button>
+                <button onclick="setFinanceFilter('unpaid')" id="fin-btn-unpaid" class="glass-seg-btn accent-blue">Unpaid</button>
+            </div>
+
+            <div class="relative w-full sm:w-48">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="search-finance" onkeyup="filterTable('search-finance', 'finance-ledger-body')" placeholder="Search ledger..." class="modern-input search-input py-2 bg-white/80">
+            </div>
+            <button onclick="downloadFinanceReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span></button>
+            <button onclick="fetchFinanceBaseline(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
+        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+            <thead>
+                <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
+                    <th class="p-4 sm:p-6">Resident Identity</th>
+                    <th class="p-4 sm:p-6">Room Assignment</th>
+                    <th class="p-4 sm:p-6">Funding Source</th>
+                    <th class="p-4 sm:p-6">Monthly Rent</th>
+                    <th class="p-4 sm:p-6 text-right">Payment Status</th>
+                </tr>
+            </thead>
+            <tbody id="finance-ledger-body" class="divide-y divide-slate-100/50"></tbody>
+        </table>
+    </div>
+</div>
