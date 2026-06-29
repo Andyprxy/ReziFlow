@@ -1,0 +1,68 @@
+<div class="glass-panel rounded-[24px] lg:rounded-[32px] p-6 lg:p-10 max-w-4xl mx-auto relative overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
+    <div class="flex items-center gap-4 mb-8 border-b border-slate-200/60 pb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-400 text-white flex items-center justify-center text-xl shadow-md shadow-blue-500/20"><i class="fa-solid fa-paper-plane"></i></div>
+        <div>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Dispatch Communication</h2>
+            <p class="text-xs text-slate-500 font-medium">Broadcast secure messages to student portals</p>
+        </div>
+    </div>
+
+    <form id="commForm" onsubmit="sendCommunication(event)" class="space-y-6 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-white/50 border border-white rounded-2xl shadow-sm">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Target Audience</label>
+                <div class="glass-segmented w-full justify-between">
+                    <button type="button" onclick="setCommAudience('all')" id="comm-aud-all" class="glass-seg-btn active accent-blue flex-1 justify-center">All Students</button>
+                    <button type="button" onclick="setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 justify-center">Filter Options</button>
+                    <button type="button" onclick="setCommAudience('specific')" id="comm-aud-specific" class="glass-seg-btn flex-1 justify-center">Specific ID</button>
+                </div>
+            </div>
+            
+            <div id="comm-filter-group" class="hidden">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Filter Demographics</label>
+                <div class="glass-segmented overflow-x-auto w-full">
+                    <button type="button" onclick="setCommDemo('nsfas')" id="comm-dem-nsfas" class="glass-seg-btn active accent-blue">NSFAS</button>
+                    <button type="button" onclick="setCommDemo('bursary')" id="comm-dem-bursary" class="glass-seg-btn">Bursary</button>
+                    <button type="button" onclick="setCommDemo('cash')" id="comm-dem-cash" class="glass-seg-btn">Cash</button>
+                    <button type="button" onclick="setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn">Male</button>
+                    <button type="button" onclick="setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn">Female</button>
+                </div>
+            </div>
+
+            <div id="comm-specific-group" class="hidden">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Student Number</label>
+                <input type="text" id="comm-student-id" class="modern-input font-mono bg-white/90" placeholder="e.g. 221227336">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Message Template</label>
+            <div class="glass-segmented w-full flex-wrap">
+                <button type="button" onclick="setCommTemplate('custom')" id="comm-tpl-custom" class="glass-seg-btn active accent-blue">Custom Input</button>
+                <button type="button" onclick="setCommTemplate('house_meeting')" id="comm-tpl-house" class="glass-seg-btn">House Meeting</button>
+                <button type="button" onclick="setCommTemplate('group_study')" id="comm-tpl-study" class="glass-seg-btn">Group Study</button>
+                <button type="button" onclick="setCommTemplate('maintenance')" id="comm-tpl-maint" class="glass-seg-btn">Maintenance</button>
+            </div>
+        </div>
+
+        <div id="comm-dynamic-fields" class="hidden grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
+            <div>
+                <label class="block text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1" id="label-comm-1">Date & Time</label>
+                <input type="text" id="comm-input-1" class="modern-input text-sm" placeholder="e.g. Tomorrow at 18:00" oninput="generatePreview()">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1" id="label-comm-2">Location / Topic</label>
+                <input type="text" id="comm-input-2" class="modern-input text-sm" placeholder="e.g. Main Lounge" oninput="generatePreview()">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Dispatch Payload</label>
+            <textarea id="comm-message" rows="4" class="modern-input resize-none font-medium text-slate-700 bg-white/90" placeholder="Type your message here..." required></textarea>
+        </div>
+
+        <button type="submit" id="btn-send-comm" class="w-full bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold text-sm rounded-xl py-4 shadow-xl transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-satellite-dish"></i> Broadcast Communication
+        </button>
+    </form>
+</div>
