@@ -15,7 +15,6 @@
 <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-6">
     <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
         <h3 id="occupancy-title" class="font-bold text-slate-800 text-base sm:text-lg">Allocated Students</h3>
-        
         <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
             <div id="occupancy-room-filters" class="hidden flex-wrap gap-2">
                 <div class="glass-segmented">
@@ -23,12 +22,17 @@
                     <button onclick="setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-blue">Block A</button>
                     <button onclick="setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-blue">Block B</button>
                 </div>
+                <div class="glass-segmented">
+                    <button onclick="setOccupancyGender('all')" id="occ-gen-all" class="glass-seg-btn active accent-emerald">All Wings</button>
+                    <button onclick="setOccupancyGender('male')" id="occ-gen-male" class="glass-seg-btn accent-emerald">Male</button>
+                    <button onclick="setOccupancyGender('female')" id="occ-gen-female" class="glass-seg-btn accent-emerald">Female</button>
+                </div>
             </div>
-
             <div class="relative w-full sm:w-48">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input type="text" id="search-occupancy" onkeyup="filterTable('search-occupancy', 'stats-inventory-body')" placeholder="Search..." class="modern-input search-input py-2 bg-white/80">
             </div>
+            <button onclick="downloadOccupancyReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span></button>
             <button onclick="fetchStatsData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
         </div>
     </div>
