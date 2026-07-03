@@ -682,12 +682,29 @@
         }
 
         function renderModalRooms(roomsData, gender, singleContainer, sharingContainer) {
-            let validRooms = roomsData.filter(r => parseInt(r.Occupied_Beds || 0) < parseInt(r.Total_Beds || 1));
-            if (gender === 'male') { validRooms = validRooms.filter(r => String(r.Block).toUpperCase() === 'A'); } 
-            else { validRooms = validRooms.filter(r => String(r.Block).toUpperCase() === 'B' || String(r.Block).toUpperCase() === 'C'); }
+            // 1. Robust Bed Parsing (Tolerates missing keys or string integers)
+            let validRooms = roomsData.filter(r => {
+                const occupied = parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0;
+                const total = parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1;
+                return occupied < total;
+            });
+
+            // 2. Robust Gender & Block Matching (Tolerates "M", "Male", " m ")
+            const cleanGender = String(gender || '').toLowerCase().trim();
+            const isMale = cleanGender.startsWith('m'); 
             
-            const singles = validRooms.filter(r => String(r.Room_Type).toLowerCase() === 'single'); 
-            const sharing = validRooms.filter(r => String(r.Room_Type).toLowerCase() === 'sharing');
+            if (isMale) { 
+                validRooms = validRooms.filter(r => String(r.Block || '').toUpperCase().trim() === 'A'); 
+            } else { 
+                validRooms = validRooms.filter(r => {
+                    const blk = String(r.Block || '').toUpperCase().trim();
+                    return blk === 'B' || blk === 'C';
+                }); 
+            }
+            
+            // 3. Robust Type Matching
+            const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
+            const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
             
             let sHtml = '';
             if (singles.length === 0) {
@@ -718,7 +735,11 @@
                 shHtml = '<div class="p-8 bg-white/40 rounded-[20px] border border-white border-dashed text-center flex flex-col items-center justify-center shadow-sm"><i class="fa-solid fa-user-group text-slate-300 text-2xl mb-2"></i><span class="text-xs font-bold text-slate-400">No sharing units available</span></div>';
             } else {
                 sharing.forEach(room => {
-                    const available = parseInt(room.Total_Beds || 2) - parseInt(room.Occupied_Beds || 0);
+                    // Safe calculation for frontend display
+                    const total = parseInt(room.Total_Beds) || parseInt(room.Capacity) || 2;
+                    const occupied = parseInt(room.Occupied_Beds) || parseInt(room.Occupied) || 0;
+                    const available = total - occupied;
+                    
                     shHtml += `
                     <div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card flex justify-between items-center mb-3">
                         <div class="flex items-center gap-4 relative z-10">
