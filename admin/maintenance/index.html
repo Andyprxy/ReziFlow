@@ -11,7 +11,7 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f4f7fb; 
+            background-color: #f0f4f8; 
             color: #0f172a; 
             -webkit-font-smoothing: antialiased;
         }
@@ -23,7 +23,7 @@
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
         .dashboard-tab {
@@ -32,25 +32,60 @@
         }
         .dashboard-tab.active { display: block; }
 
-        /* Right Sidebar Styles Based on Image */
-        .nav-card {
-            background: rgba(255, 255, 255, 0.6);
+        /* Right Sidebar Screenshot Styles */
+        .nav-block {
+            background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 4px 24px -10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 8px 32px -10px rgba(0,0,0,0.04);
             border-radius: 28px;
-            padding: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
-        .nav-tab-btn {
+        .block-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
             transition: all 0.2s ease;
         }
-        .active-tab-btn {
+        .block-btn-active {
             background-color: #ffffff;
-            color: #4f46e5 !important; 
-            font-weight: 700 !important;
+            color: #4f46e5;
             border: 2px solid #0f172a;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .block-btn-inactive {
+            background-color: transparent;
+            color: #64748b;
+            border: 2px solid transparent;
+        }
+        .block-btn-inactive:hover {
+            background-color: rgba(255,255,255,0.5);
+            color: #334155;
+        }
+        .btn-primary-purple {
+            background-color: #5b4fe5;
+            color: white;
+            border: 2px solid #5b4fe5;
+            box-shadow: 0 6px 20px rgba(91, 79, 229, 0.25);
+        }
+        .btn-primary-purple:hover {
+            background-color: #4f46e5;
+        }
+        .btn-secondary-white {
+            background-color: #ffffff;
+            color: #334155;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .btn-secondary-white:hover {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
         }
 
         /* Modal Overlays */
@@ -86,6 +121,12 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        .kpi-active {
+            border: 2px solid #4f46e5 !important;
+            box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.25) !important;
+            transform: translateY(-2px);
+        }
+
         /* Inputs */
         .input-field, .modern-input {
             width: 100%;
@@ -97,17 +138,15 @@
             font-weight: 500;
             color: #0f172a;
             transition: all 0.2s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         .input-field:focus, .modern-input:focus {
             outline: none;
             border-color: #4f46e5;
             background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), inset 0 2px 4px rgba(0,0,0,0.01);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
         .search-input { padding-left: 2.5rem !important; }
 
-        /* Segmented Controls */
         .glass-segmented {
             display: flex;
             background: rgba(255, 255, 255, 0.6);
@@ -123,7 +162,6 @@
             border-radius: 10px;
             transition: all 0.2s;
         }
-        .glass-seg-btn:hover { color: #0f172a; }
         .glass-seg-btn.active {
             background: #ffffff;
             color: #4f46e5;
@@ -131,13 +169,11 @@
         }
     </style>
 </head>
-<body class="flex flex-col lg:flex-row min-h-screen overflow-hidden relative bg-[#eff3f9]">
+<body class="flex flex-col lg:flex-row min-h-screen overflow-hidden relative">
 
-    <!-- Premium Background Blobs -->
     <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.08] z-0 pointer-events-none"></div>
     <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-amber-400 rounded-full mix-blend-multiply filter blur-[150px] opacity-[0.05] z-0 pointer-events-none"></div>
 
-    <!-- Mobile Top Navigation -->
     <div class="lg:hidden flex items-center justify-between p-4 bg-white/80 backdrop-blur-xl border-b border-slate-200 z-50 sticky top-0">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-toolbox text-indigo-600 text-xl"></i>
@@ -148,10 +184,42 @@
         </button>
     </div>
 
-    <!-- MAIN CONTENT VIEW (Now stretching fully to the left) -->
+    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[100] lg:z-20 w-64 bg-white/40 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between h-full flex-shrink-0 shadow-[20px_0_40px_rgba(0,0,0,0.02)] lg:shadow-none">
+        <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="overflow-y-auto custom-scroll flex-1 px-4 py-8">
+            <div class="flex items-center gap-3 px-2 mb-10">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white flex-shrink-0">
+                    <i class="fa-solid fa-building text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-xl tracking-tight text-slate-800 leading-none">ReziFlow</span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-500 uppercase mt-1">Core OS</span>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-[14px] text-sm font-medium text-slate-500 hover:bg-white/60 transition-colors">
+                    <i class="fa-solid fa-house w-5 text-center"></i> Overview
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-[14px] text-sm font-medium text-slate-500 hover:bg-white/60 transition-colors">
+                    <i class="fa-solid fa-users w-5 text-center"></i> Residents
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-[14px] text-sm font-bold text-indigo-600 bg-white shadow-sm border border-slate-100 transition-colors">
+                    <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i> Facilities
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-[14px] text-sm font-medium text-slate-500 hover:bg-white/60 transition-colors">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i> Analytics
+                </a>
+            </nav>
+        </div>
+    </aside>
+
     <div class="flex-1 flex flex-col min-w-0 h-[calc(100vh-72px)] lg:h-screen relative z-10 overflow-hidden">
         
-        <header class="h-20 lg:h-24 bg-transparent flex items-center justify-between px-6 lg:px-10 flex-shrink-0">
+        <header class="h-20 lg:h-24 bg-transparent flex items-center justify-between px-6 lg:px-10 flex-shrink-0 border-b border-slate-200/50">
             <div class="flex items-center gap-3 lg:gap-4">
                 <h1 id="matrixTitle" class="text-2xl lg:text-3xl font-black tracking-tight text-slate-800">Snag Board</h1>
                 <div class="h-6 w-px bg-slate-300 hidden sm:block"></div>
@@ -165,9 +233,50 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto px-4 lg:px-10 pb-10 custom-scroll">
+        <main class="flex-1 overflow-y-auto px-4 lg:px-10 py-6 custom-scroll">
 
-            <!-- MAINTENANCE TAB -->
+            <div id="kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+                <div class="glass-panel kpi-active rounded-[24px] p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Open Tickets</p>
+                            <p class="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight" id="kpi-open">--</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl"><i class="fa-solid fa-ticket"></i></div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-[24px] p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] text-rose-400 font-bold uppercase tracking-widest mb-1">Critical Priority</p>
+                            <p class="text-3xl lg:text-4xl font-black text-rose-600 tracking-tight" id="kpi-critical">0</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl"><i class="fa-solid fa-fire"></i></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[24px] p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Resolved</p>
+                            <p class="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight" id="kpi-resolved">--</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl"><i class="fa-solid fa-check-double"></i></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[24px] p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Avg Resolution</p>
+                            <p class="text-3xl lg:text-4xl font-black text-slate-800 tracking-tight"><i class="fa-solid fa-bolt text-amber-400"></i></p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl"><i class="fa-solid fa-stopwatch"></i></div>
+                    </div>
+                </div>
+            </div>
+
             <div id="pane-snags" class="dashboard-tab active">
                 <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden">
                     <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col xl:flex-row gap-4 justify-between xl:items-center bg-white/50 backdrop-blur-md">
@@ -193,9 +302,9 @@
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm h-[calc(100vh-280px)]">
+                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[600px]">
                         <table class="w-full text-left text-sm border-collapse min-w-[900px]">
-                            <thead class="sticky top-0 bg-white/80 backdrop-blur-md z-10 shadow-sm border-b border-slate-200">
+                            <thead class="sticky top-0 bg-white/90 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
                                 <tr class="text-slate-400 uppercase tracking-widest font-bold text-[10px]">
                                     <th class="p-5 w-32">Ticket ID</th>
                                     <th class="p-5 w-48">Location & Reporter</th>
@@ -204,14 +313,12 @@
                                 </tr>
                             </thead>
                             <tbody id="maintenance-body" class="divide-y divide-white/60">
-                                <!-- Populated by JS -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- STOCK / INVENTORY TAB -->
             <div id="pane-inventory" class="dashboard-tab">
                 <div class="glass-panel rounded-[32px] overflow-hidden">
                     <div class="px-6 lg:px-8 py-6 border-b border-white/40 flex justify-between items-center bg-white/50 backdrop-blur-md flex-wrap gap-4">
@@ -226,51 +333,33 @@
                                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input type="text" id="search-inventory" onkeyup="filterTable('search-inventory', 'inventory-body')" placeholder="Search vault..." class="modern-input search-input py-2 bg-white/80">
                             </div>
-                            <select class="text-sm bg-white border border-slate-100 text-slate-600 font-medium px-4 py-2 lg:py-2.5 rounded-xl outline-none focus:border-indigo-400 shadow-sm">
-                                <option>All Categories</option>
-                                <option>Electrical</option>
-                                <option>Plumbing</option>
-                                <option>Furniture</option>
-                            </select>
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm h-[calc(100vh-280px)]">
+                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm h-[600px]">
                         <table class="w-full text-left text-sm border-collapse min-w-[700px]">
-                            <thead class="sticky top-0 bg-white/80 backdrop-blur-md z-10 shadow-sm border-b border-slate-200">
+                            <thead class="sticky top-0 bg-white/90 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
                                 <tr class="text-slate-400 uppercase tracking-widest font-bold text-[10px]">
-                                    <th class="p-6">SKU / Item Name</th>
+                                    <th class="p-6">Item Name</th>
                                     <th class="p-6">Category</th>
                                     <th class="p-6 w-64">Stock Level</th>
                                     <th class="p-6 text-center">Status</th>
-                                    <th class="p-6 text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-body" class="divide-y divide-white/50">
-                                <!-- Dummy stock data -->
                                 <tr class="hover:bg-white/60 transition-colors">
                                     <td class="p-6">
                                         <div class="font-bold text-slate-800 text-sm">LED Ceiling Bulb (B22)</div>
                                         <div class="text-[10px] font-mono text-slate-400 mt-1">SKU: EL-0042</div>
                                     </td>
-                                    <td class="p-6">
-                                        <span class="text-xs font-bold text-amber-500"><i class="fa-solid fa-bolt mr-1"></i> Electrical</span>
-                                    </td>
+                                    <td class="p-6"><span class="text-xs font-bold text-amber-500"><i class="fa-solid fa-bolt mr-1"></i> Electrical</span></td>
                                     <td class="p-6">
                                         <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
-                                            <span>45 Units</span>
-                                            <span class="text-slate-400">Cap: 50</span>
+                                            <span>45 Units</span><span class="text-slate-400">Cap: 50</span>
                                         </div>
-                                        <div class="w-full bg-slate-200 rounded-full h-1.5 shadow-inner overflow-hidden">
-                                            <div class="bg-emerald-500 h-full rounded-full" style="width: 90%"></div>
-                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="bg-emerald-500 h-full rounded-full" style="width: 90%"></div></div>
                                     </td>
-                                    <td class="p-6 text-center">
-                                        <span class="text-emerald-600 font-bold text-[10px] uppercase tracking-wider">Healthy</span>
-                                    </td>
-                                    <td class="p-6 text-right">
-                                        <button class="text-slate-400 hover:text-indigo-600 transition-colors p-2"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    </td>
+                                    <td class="p-6 text-center"><span class="text-emerald-600 font-bold text-[10px] uppercase tracking-wider">Healthy</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -278,108 +367,80 @@
                 </div>
             </div>
 
-            <!-- HISTORY TAB -->
             <div id="pane-history" class="dashboard-tab">
-                <div class="glass-panel rounded-[32px] p-10 md:p-20 text-center bg-white/50">
+                <div class="glass-panel rounded-[32px] p-10 md:p-20 text-center bg-white/50 mt-10">
                     <div class="w-20 h-20 md:w-24 md:h-24 bg-white border border-slate-100 shadow-sm text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl md:text-4xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2">Repair History Archive</h2>
                     <p class="text-slate-500 max-w-md mx-auto text-sm leading-relaxed">Connect to n8n database to view closed tickets and historical maintenance data.</p>
                 </div>
             </div>
             
-            <!-- VENDORS TAB -->
             <div id="pane-vendors" class="dashboard-tab">
-                <div class="glass-panel rounded-[32px] p-10 md:p-20 text-center bg-white/50">
+                <div class="glass-panel rounded-[32px] p-10 md:p-20 text-center bg-white/50 mt-10">
                     <div class="w-20 h-20 md:w-24 md:h-24 bg-indigo-50 border border-indigo-100 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl md:text-4xl"><i class="fa-solid fa-address-book"></i></div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2">Suppliers & Contractor Directory</h2>
                     <p class="text-slate-500 max-w-md mx-auto text-sm leading-relaxed">Centralized contact list for plumbers, electricians, and hardware suppliers.</p>
-                    <button class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl px-6 py-3 shadow-sm transition-all">Add New Supplier</button>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <!-- RIGHT SIDEBAR: NAVIGATION & QUICK ACTIONS -->
-    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
-
-    <aside id="sidebar" class="fixed right-0 lg:relative top-0 h-full w-[340px] transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[100] lg:z-20 flex-shrink-0 bg-transparent flex flex-col pt-6 lg:pt-10 px-6 pb-6 border-l border-white/40 shadow-[-20px_0_40px_rgba(0,0,0,0.02)]">
+    <aside class="hidden xl:flex w-[340px] flex-col z-20 flex-shrink-0 bg-transparent border-l border-white/40 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] h-screen overflow-y-auto custom-scroll pt-6 px-6 pb-6 relative">
         
-        <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="overflow-y-auto custom-scroll flex-1 pr-2 pb-4 space-y-6">
-            
-            <!-- Command Title Card -->
-            <div class="nav-card flex items-center gap-4">
-                <div class="w-[50px] h-[50px] bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[16px] shadow-lg shadow-indigo-500/30 flex items-center justify-center text-white text-2xl flex-shrink-0">
-                    <i class="fa-solid fa-toolbox"></i>
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-black text-2xl tracking-tight text-slate-900 leading-none">Rezi<span class="text-indigo-500">Ops</span></span>
-                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-1">Admin Command</span>
-                </div>
+        <div class="nav-block flex items-center gap-4 !p-4 !mb-6 shadow-sm">
+            <div class="w-[45px] h-[45px] bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[14px] shadow-lg shadow-indigo-500/30 flex items-center justify-center text-white text-xl flex-shrink-0">
+                <i class="fa-solid fa-toolbox"></i>
             </div>
-
-            <!-- Work Orders Nav -->
-            <div class="nav-card">
-                <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-1">Work Orders</p>
-                <div class="space-y-1.5">
-                    <button id="nav-snags" onclick="switchTab('snags', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-semibold text-slate-500 hover:bg-white/50 border-2 border-transparent">
-                        <i class="fa-solid fa-clipboard-list text-[17px] w-6 text-center text-indigo-500"></i> Active Snags
-                    </button>
-                    <button id="nav-history" onclick="switchTab('history', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-semibold text-slate-500 hover:bg-white/50 border-2 border-transparent">
-                        <i class="fa-solid fa-clock-rotate-left text-[17px] w-6 text-center"></i> Repair History
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Supply Chain Nav -->
-            <div class="nav-card">
-                <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-1">Supply Chain</p>
-                <div class="space-y-1.5">
-                    <button id="nav-inventory" onclick="switchTab('inventory', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-semibold text-slate-500 hover:bg-white/50 border-2 border-transparent">
-                        <i class="fa-solid fa-boxes-stacked text-[17px] w-6 text-center"></i> Stock & Vault
-                    </button>
-                    <button id="nav-vendors" onclick="switchTab('vendors', this)" class="nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-semibold text-slate-500 hover:bg-white/50 border-2 border-transparent">
-                        <i class="fa-solid fa-truck-fast text-[17px] w-6 text-center"></i> Suppliers Directory
-                    </button>
-                </div>
-            </div>
-
-            <!-- Action Buttons (Simple variant) -->
-            <div class="nav-card">
-                <p class="px-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-1">Quick Actions</p>
-                <div class="space-y-2.5">
-                    <button onclick="openModal('snagModal')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-3.5 px-4 rounded-[16px] shadow-md transition-all flex items-center gap-2 justify-center">
-                        <i class="fa-solid fa-plus"></i> Log Manual Ticket
-                    </button>
-                    <button onclick="openModal('stockModal')" class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold py-3.5 px-4 rounded-[16px] shadow-sm transition-all flex items-center gap-2 justify-center">
-                        <i class="fa-solid fa-boxes-packing"></i> Add New Stock
-                    </button>
-                    <button class="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold py-3.5 px-4 rounded-[16px] shadow-sm transition-all flex items-center gap-2 justify-center">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> Generate PO
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Engineered Pill -->
-        <div class="mt-4 flex-shrink-0 relative overflow-hidden bg-[#111827] p-3.5 rounded-[24px] border border-slate-700 shadow-xl flex items-center gap-4">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-500 rounded-full blur-2xl opacity-20"></div>
-            <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0">
-                <i class="fa-solid fa-bolt text-xs"></i>
-            </div>
-            <div class="flex flex-col relative z-10">
-                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Engineered By</span>
-                <span class="text-[13px] font-black text-white tracking-widest mt-0.5">AUTOMANIA</span>
+            <div class="flex flex-col">
+                <span class="font-black text-xl tracking-tight text-slate-900 leading-none">Rezi<span class="text-indigo-500">Ops</span></span>
+                <span class="text-[8px] font-bold tracking-widest text-slate-400 uppercase mt-1">Admin Command</span>
             </div>
         </div>
+
+        <div class="nav-block !p-4 !mb-4">
+            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Work Orders</p>
+            <div class="space-y-2">
+                <button id="nav-snags" onclick="switchTab('snags', this, true)" class="block-btn block-btn-active">
+                    <i class="fa-solid fa-clipboard-list text-lg w-5 text-center"></i> Active Snags
+                </button>
+                <button id="nav-history" onclick="switchTab('history', this, true)" class="block-btn block-btn-inactive">
+                    <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i> Repair History
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block !p-4 !mb-4">
+            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Quick Actions</p>
+            <div class="space-y-3">
+                <button onclick="openModal('snagModal')" class="block-btn btn-primary-purple justify-center gap-2 !py-3.5">
+                    <i class="fa-solid fa-plus"></i> Log Manual Ticket
+                </button>
+                <button onclick="openModal('stockModal')" class="block-btn btn-secondary-white justify-center gap-2 !py-3.5">
+                    <i class="fa-solid fa-boxes-packing text-slate-500"></i> Add New Stock
+                </button>
+                <button class="block-btn btn-secondary-white justify-center gap-2 !py-3.5">
+                    <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Generate PO
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block !p-4 !mb-4">
+            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Supply Chain</p>
+            <div class="space-y-2">
+                <button id="nav-inventory" onclick="switchTab('inventory', this, false)" class="block-btn block-btn-inactive">
+                    <i class="fa-solid fa-boxes-stacked text-lg w-5 text-center"></i> Stock & Vault
+                </button>
+                <button id="nav-vendors" onclick="switchTab('vendors', this, false)" class="block-btn block-btn-inactive">
+                    <i class="fa-solid fa-truck-fast text-lg w-5 text-center"></i> Suppliers Directory
+                </button>
+            </div>
+        </div>
+
     </aside>
 
-    <!-- MODAL: Log Manual Ticket -->
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
+
     <div id="snagModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4">
         <div class="modal-content glass-panel w-full max-w-md sm:rounded-[32px] rounded-t-[32px] shadow-2xl p-6 sm:p-8 relative">
             <button onclick="closeModal('snagModal')" class="absolute top-6 right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
@@ -389,7 +450,7 @@
                 <i class="fa-solid fa-clipboard-list"></i>
             </div>
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Log Manual Ticket</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mb-6">Manually dispatch an incident reported by staff or walk-ins.</p>
+            <p class="text-xs sm:text-sm text-slate-500 mb-6">Manually dispatch an incident reported by staff.</p>
             
             <form id="snagForm" onsubmit="submitManualSnag(event)">
                 <div class="mb-4">
@@ -400,25 +461,22 @@
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Category</label>
                     <select id="snag-category" class="input-field" required>
                         <option value="" disabled selected>Select issue type...</option>
-                        <option value="Plumbing">Plumbing (Leaks, Toilets)</option>
-                        <option value="Electrical">Electrical (Lights, Plugs)</option>
-                        <option value="Furniture">Furniture & Fittings</option>
-                        <option value="Locks">Doors & Locks</option>
-                        <option value="Other">Other</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Hardware">Hardware/Doors</option>
                     </select>
                 </div>
                 <div class="mb-8">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Description</label>
-                    <textarea id="snag-desc" rows="3" class="input-field resize-none" placeholder="Provide details about the issue..." required></textarea>
+                    <textarea id="snag-desc" rows="3" class="input-field resize-none" placeholder="Provide details..." required></textarea>
                 </div>
-                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-indigo-600/20 transition-all flex justify-center items-center gap-2">
+                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl py-4 shadow-lg transition-all flex justify-center items-center gap-2">
                     Submit Ticket <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: Add New Stock -->
     <div id="stockModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4">
         <div class="modal-content glass-panel w-full max-w-md sm:rounded-[32px] rounded-t-[32px] shadow-2xl p-6 sm:p-8 relative">
             <button onclick="closeModal('stockModal')" class="absolute top-6 right-6 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
@@ -428,34 +486,12 @@
                 <i class="fa-solid fa-boxes-stacked"></i>
             </div>
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Register New Stock</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mb-6">Add new parts or hardware to the primary vault inventory.</p>
-            
             <form id="stockForm" onsubmit="submitStockForm(event)">
                 <div class="mb-4">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Item Name</label>
                     <input type="text" class="input-field" placeholder="e.g. LED Ceiling Bulb" required>
                 </div>
-                <div class="mb-4 flex gap-4">
-                    <div class="w-1/2">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">SKU</label>
-                        <input type="text" class="input-field" placeholder="EL-0042" required>
-                    </div>
-                    <div class="w-1/2">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Quantity</label>
-                        <input type="number" class="input-field" placeholder="0" required>
-                    </div>
-                </div>
-                <div class="mb-8">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-2">Category</label>
-                    <select class="input-field" required>
-                        <option value="" disabled selected>Select category...</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Electrical">Electrical</option>
-                        <option value="Hardware">Hardware & Locks</option>
-                        <option value="Furniture">Furniture</option>
-                    </select>
-                </div>
-                <button type="submit" id="btn-submit-stock" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl py-4 shadow-lg transition-all flex justify-center items-center gap-2">
+                <button type="submit" id="btn-submit-stock" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl py-4 shadow-lg transition-all flex justify-center items-center gap-2 mt-6">
                     Add To Vault <i class="fa-solid fa-check"></i>
                 </button>
             </form>
@@ -482,9 +518,8 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobile-overlay');
-            
-            sidebar.classList.toggle('translate-x-full');
-            if (sidebar.classList.contains('translate-x-full')) {
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
                 overlay.classList.add('hidden');
                 setTimeout(() => overlay.classList.remove('opacity-100'), 10);
             } else {
@@ -500,23 +535,31 @@
             renderMaintenanceTable();
         }
 
-        function switchTab(tabId, btnElement) {
+        function switchTab(tabId, btnElement, showKpis) {
+            // Toggle Panes
             document.querySelectorAll('.dashboard-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('pane-' + tabId).classList.add('active');
 
-            // Reset navigation buttons matching your image logic
-            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-                btn.className = "nav-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-semibold text-slate-500 hover:bg-white/50 border-2 border-transparent transition-all";
-                // ensure icon color drops to inherit
-                btn.querySelector('i').classList.remove('text-indigo-500');
-            });
-
-            // Set active state
-            if(btnElement) {
-                btnElement.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-3 px-4 py-3.5 rounded-[18px] text-sm font-bold transition-all bg-white border-2 border-slate-900 shadow-sm text-indigo-600";
-                btnElement.querySelector('i').classList.add('text-indigo-500');
+            // Handle KPI visibility
+            const kpiGrid = document.getElementById('kpi-grid');
+            if(showKpis) {
+                kpiGrid.style.display = 'grid';
+            } else {
+                kpiGrid.style.display = 'none';
             }
 
+            // Reset Right Nav Buttons (Screenshot style)
+            document.querySelectorAll('.block-btn-active').forEach(btn => {
+                btn.classList.remove('block-btn-active');
+                btn.classList.add('block-btn-inactive');
+            });
+
+            if(btnElement) {
+                btnElement.classList.remove('block-btn-inactive');
+                btnElement.classList.add('block-btn-active');
+            }
+
+            // Update Headers
             const title = document.getElementById('matrixTitle');
             const sub = document.getElementById('matrixSub');
 
@@ -530,15 +573,13 @@
             } else if (tabId === 'vendors') {
                 title.textContent = "Suppliers Directory"; sub.textContent = "Contractor Contacts & SLAs";
             }
-
-            if (window.innerWidth < 1024) { toggleSidebar(); }
         }
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         // ==========================================
-        // MAINTENANCE LOGIC
+        // MAINTENANCE LOGIC (SORTING APPLIED)
         // ==========================================
         async function fetchMaintenanceData() {
             const body = document.getElementById('maintenance-body');
@@ -559,18 +600,35 @@
 
             if(rawMaintenanceData.length === 0) {
                 body.innerHTML = `<tr><td colspan="4" class="p-12 text-center text-slate-400 font-medium">No maintenance logs found.</td></tr>`;
+                document.getElementById('kpi-open').textContent = '0';
+                document.getElementById('kpi-resolved').textContent = '0';
                 return;
             }
 
-            const reversedData = [...rawMaintenanceData].reverse();
+            let openCount = 0;
+            let resolvedCount = 0;
 
-            reversedData.forEach(log => {
+            // Sorting Logic: Open First, then chronologically (newest to oldest based on timestamp if available, else array index)
+            let sortedData = [...rawMaintenanceData].sort((a, b) => {
+                let statusA = String(a.Repair_Status).toLowerCase().includes('resolved') ? 1 : 0;
+                let statusB = String(b.Repair_Status).toLowerCase().includes('resolved') ? 1 : 0;
+
+                // If status is different, push '0' (Open) above '1' (Resolved)
+                if (statusA !== statusB) return statusA - statusB;
+
+                // If status is the same, sort by time (assuming standard date parsing, descending)
+                let dateA = new Date(a.Timestamp || 0).getTime();
+                let dateB = new Date(b.Timestamp || 0).getTime();
+                return dateB - dateA; 
+            });
+
+            sortedData.forEach(log => {
                 const isResolved = String(log.Repair_Status).toLowerCase().includes('resolved');
+                if (isResolved) resolvedCount++; else openCount++;
 
                 if (currentFilter === 'open' && isResolved) return;
                 if (currentFilter === 'closed' && !isResolved) return;
 
-                // Simple styling for badges and buttons as requested
                 const statusBadge = isResolved 
                     ? `<span class="text-emerald-600 font-bold text-[11px] uppercase tracking-wider"><i class="fa-solid fa-check-circle mr-1"></i> Resolved</span>`
                     : `<span class="text-amber-500 font-bold text-[11px] uppercase tracking-wider"><i class="fa-solid fa-clock mr-1"></i> Pending</span>`;
@@ -592,8 +650,6 @@
                         </td>
                         <td class="p-5 align-top">
                             <p class="text-sm text-slate-600 leading-relaxed">${log.Description || '--'}</p>
-                            
-                            <!-- Comment Slot requested -->
                             <div class="mt-3.5 flex items-center gap-2 max-w-sm bg-white p-1 rounded-xl border border-slate-200 shadow-sm focus-within:border-indigo-400 focus-within:shadow-md transition-all">
                                 <input type="text" placeholder="Add an update comment..." class="flex-1 bg-transparent text-xs outline-none pl-3 text-slate-700 placeholder-slate-400">
                                 <button class="w-7 h-7 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 text-slate-400 hover:text-indigo-600 flex items-center justify-center transition-colors"><i class="fa-solid fa-paper-plane text-[10px]"></i></button>
@@ -608,6 +664,9 @@
                     </tr>
                 `;
             });
+
+            document.getElementById('kpi-open').textContent = openCount;
+            document.getElementById('kpi-resolved').textContent = resolvedCount;
         }
 
         async function resolveMaintenance(ticketId, btnElement) {
@@ -634,7 +693,7 @@
         }
 
         // ==========================================
-        // MANUAL FORMS (TICKETS & STOCK)
+        // MANUAL FORMS
         // ==========================================
         async function submitManualSnag(e) {
             e.preventDefault();
@@ -651,18 +710,12 @@
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Student_Number: "STAFF-LOG",
-                        Room: room,
-                        Category: category,
-                        Description: desc
-                    })
+                    body: JSON.stringify({ Student_Number: "STAFF-LOG", Room: room, Category: category, Description: desc })
                 });
                 
                 closeModal('snagModal');
                 document.getElementById('snagForm').reset();
                 fetchMaintenanceData(); 
-                
             } catch(error) {
                 alert("Failed to submit ticket. Please check connection.");
             } finally {
@@ -676,12 +729,10 @@
             const btn = document.getElementById('btn-submit-stock');
             const ogText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Registering...';
-            
             setTimeout(() => {
                 closeModal('stockModal');
                 document.getElementById('stockForm').reset();
                 btn.innerHTML = ogText;
-                alert("Stock Registered Successfully!");
             }, 800);
         }
     </script>
