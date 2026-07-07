@@ -1,6 +1,3 @@
-<!-- MAINTENANCE COMPONENT FRAGMENT -->
-<!-- Headless Component: No <html>, <head>, or <body> tags -->
-
 <style>
     /* ---------------------------------------------------
        FLUID COMPACT LAYOUT & GRID ENFORCEMENT
@@ -55,8 +52,8 @@
     .maint-dashboard-tab.active { display: block; }
     @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .compact-table th { padding: 8px 12px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
-    .compact-table td { padding: 10px 12px; font-size: 0.65rem; border-bottom: 1px solid rgba(226, 232, 240, 0.3); vertical-align: top; }
+    .compact-table th { padding: 10px 12px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; }
     
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
     
@@ -65,7 +62,7 @@
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     /* ---------------------------------------------------
-       HIGH-END ANIMATED MODALS (No Background Blur)
+       HIGH-END ANIMATED MODALS (No Background Blur/Dim)
        --------------------------------------------------- */
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 2000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; background: transparent; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -96,10 +93,8 @@
 
 <div class="maint-container custom-scroll">
     
-    <!-- LEFT/CENTER CANVAS -->
     <div class="maint-canvas custom-scroll pr-1 pb-10">
         
-        <!-- KPI TOP SEGMENTED CONTROLS -->
         <div class="flex justify-start sm:justify-center w-full mb-4" id="maint-kpi-grid">
             <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap bg-white/60 p-1 rounded-[14px] border border-white flex items-center">
                 <button onclick="setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue px-3 py-1.5 text-[9px] sm:text-[10px] font-bold text-slate-500 rounded-[10px] transition-colors whitespace-nowrap">
@@ -119,7 +114,6 @@
             </div>
         </div>
 
-        <!-- TAB 1: SNAG BOARD (ACTIVE TICKETS) -->
         <div id="maint-pane-snags" class="maint-dashboard-tab active">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -130,7 +124,7 @@
                     <div class="flex items-center gap-2">
                         <div class="relative w-full sm:w-40">
                             <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                            <input type="text" id="search-maintenance" onkeyup="filterTable('search-maintenance', 'maintenance-body')" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] font-medium text-slate-700 outline-none focus:border-indigo-400">
+                            <input type="text" id="search-maintenance" onkeyup="filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] font-medium text-slate-700 outline-none focus:border-indigo-400">
                         </div>
                         <button onclick="forceRefreshMaintenance()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-rotate text-blue-500 text-[10px]"></i></button>
                     </div>
@@ -139,22 +133,20 @@
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
                         <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
                             <tr>
-                                <th class="w-20">Ticket ID</th>
-                                <th class="w-28">Location</th>
-                                <th class="w-24">Category</th>
+                                <th class="w-24">Ticket ID</th>
+                                <th class="w-32">Location</th>
+                                <th class="w-20">Category</th>
                                 <th>Issue & Updates</th>
                                 <th class="w-24 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="maintenance-body" class="divide-y divide-slate-100/50">
-                            <!-- Populated dynamically (with 40% shrunk text) -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2: REPAIR HISTORY (CLOSED) -->
         <div id="maint-pane-history" class="maint-dashboard-tab">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -165,7 +157,7 @@
                     <div class="flex items-center gap-2">
                         <div class="relative w-full sm:w-40">
                             <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                            <input type="text" id="search-history" onkeyup="filterTable('search-history', 'history-body')" placeholder="Search archive..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] font-medium outline-none focus:border-indigo-400">
+                            <input type="text" id="search-history" onkeyup="filterTable('search-history', 'history-body')" placeholder="Search archive..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] sm:text-[10px] font-medium outline-none focus:border-indigo-400">
                         </div>
                     </div>
                 </div>
@@ -173,22 +165,20 @@
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
                         <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
                             <tr>
-                                <th class="w-20">Ticket ID</th>
-                                <th class="w-28">Location</th>
-                                <th class="w-24">Category</th>
+                                <th class="w-24">Ticket ID</th>
+                                <th class="w-32">Location</th>
+                                <th class="w-20">Category</th>
                                 <th>Description</th>
                                 <th class="w-24 text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody id="history-body" class="divide-y divide-slate-100/50">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: INVENTORY & VAULT -->
         <div id="maint-pane-inventory" class="maint-dashboard-tab">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
@@ -211,21 +201,19 @@
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
                         <thead class="bg-white/70 sticky top-0 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
                             <tr>
-                                <th class="w-40 sm:w-56">Item & SKU</th>
+                                <th class="w-48">Item & SKU</th>
                                 <th>Category</th>
                                 <th class="w-32">Stock Level</th>
                                 <th class="text-right w-20">Status</th>
                             </tr>
                         </thead>
                         <tbody id="inventory-body" class="divide-y divide-white/60">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 4: SERVICE PROVIDERS -->
         <div id="maint-pane-vendors" class="maint-dashboard-tab">
             <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                 <div>
@@ -238,17 +226,14 @@
                     <button onclick="setVendorCategory('furniture')" id="ven-cat-furniture" class="px-3 py-1.5 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50 whitespace-nowrap">Furniture</button>
                 </div>
             </div>
-            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 overflow-y-auto max-h-[65vh] pb-4 custom-scroll">
-                <!-- Populated dynamically -->
-            </div>
+            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto max-h-[65vh] pb-4 custom-scroll">
+                </div>
         </div>
 
     </div>
 
-    <!-- RIGHT SIDEBAR (20% Dynamic, Collapsible) -->
     <div id="maint-right-sidebar" class="maint-sidebar custom-scroll">
         
-        <!-- Toggle Header -->
         <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-2 cursor-pointer hover:bg-white/80 transition-colors group">
             <div class="flex items-center gap-2 w-full">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs flex-shrink-0 transition-transform group-hover:scale-105">
@@ -262,7 +247,6 @@
             <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] nav-text pr-1 transition-transform group-hover:translate-x-1"></i>
         </div>
 
-        <!-- 1. WORK ORDERS -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Work Orders</p>
             <div class="space-y-1">
@@ -277,7 +261,6 @@
             </div>
         </div>
 
-        <!-- 2. QUICK ACTIONS -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Quick Actions</p>
             <div class="space-y-1.5">
@@ -296,7 +279,6 @@
             </div>
         </div>
 
-        <!-- 3. SUPPLY CHAIN -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Supply Chain</p>
             <div class="space-y-1">
@@ -311,7 +293,6 @@
             </div>
         </div>
 
-        <!-- Engineered Pill -->
         <div class="mt-auto flex-shrink-0 relative overflow-hidden bg-[#111827] p-2 rounded-[14px] border border-slate-700 shadow-xl flex items-center gap-2 engineered-pill">
             <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0"><i class="fa-solid fa-bolt text-[8px]"></i></div>
             <div class="flex flex-col relative z-10 nav-text overflow-hidden">
@@ -323,12 +304,6 @@
     </div>
 </div>
 
-<!-- ================================================== -->
-<!-- WHITE BUBBLE MODALS WITH ANIMATED CONIC BORDER -->
-<!-- No Background Blur / No Dimming Overlay -->
-<!-- ================================================== -->
-
-<!-- 1. Log Manual Ticket Modal -->
 <div id="maintSnagModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -359,7 +334,6 @@
     </div>
 </div>
 
-<!-- 2. Add New Stock Modal -->
 <div id="stockModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -396,7 +370,6 @@
     </div>
 </div>
 
-<!-- 3. Generate PO Modal -->
 <div id="poModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -427,7 +400,6 @@
     </div>
 </div>
 
-<!-- COMPONENT SCRIPTS -->
 <script>
     // ----------------------------------------------------
     // RESPONSIVE SIDEBAR TOGGLE
@@ -524,19 +496,19 @@
         filtered.forEach(item => {
             const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
-            const badge = isLow ? `<span class="text-rose-600 font-black text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-black text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
+            const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
 
             htmlStr += `
                 <tr class="${isLow ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} border-b border-slate-100/50">
                     <td class="align-middle">
-                        <div class="font-black text-slate-800 text-[8px] sm:text-[9px] uppercase tracking-wider truncate max-w-[120px] sm:max-w-none" title="${item.name}">${item.name}</div>
-                        <div class="text-[6px] sm:text-[7px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none" title="${item.name}">${item.name}</div>
+                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-${item.color}-50 px-1.5 py-0.5 rounded border border-${item.color}-100"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-full shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
-                        <div class="flex items-center justify-between text-[6px] sm:text-[7px] font-bold text-slate-600 mb-1">
+                        <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
                             <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
                             <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
                         </div>
@@ -580,9 +552,9 @@
                         <div class="w-8 h-8 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-[8px] flex items-center justify-center text-sm shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
                         <span class="text-emerald-600 text-[6px] font-black uppercase tracking-widest">Active SLA</span>
                     </div>
-                    <h4 class="font-black text-slate-800 text-[9px] sm:text-[10px] leading-tight truncate" title="${p.name}">${p.name}</h4>
+                    <h4 class="font-black text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate" title="${p.name}">${p.name}</h4>
                     <p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate" title="${p.desc}">${p.desc}</p>
-                    <div class="space-y-1 mt-auto text-[7px] sm:text-[8px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
+                    <div class="space-y-1 mt-auto text-[8px] sm:text-[9px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-3 text-center text-slate-400"></i> ${p.phone}</p>
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-3 text-center text-slate-400"></i> ${p.email}</p>
                     </div>
@@ -593,7 +565,7 @@
     };
 
     // ----------------------------------------------------
-    // TICKETS LOGIC (SHRUNK TEXT)
+    // LIVE TICKETS LOGIC (OPEN & CRITICAL ONLY) - 50% Shrunk Ratio
     // ----------------------------------------------------
     window.renderMaintenanceData = function() {
         const body = document.getElementById('maintenance-body'); if(!body) return;
@@ -652,33 +624,34 @@
             const cat = String(log.Category).toLowerCase(); const desc = String(log.Description).toLowerCase();
             const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
 
+            // Exact 50% scaling applied to badges
             const statusBadge = isCritical 
-                ? `<span class="text-rose-500 font-black text-[5px] sm:text-[6px] uppercase tracking-widest animate-pulse"><i class="fa-solid fa-fire mr-0.5"></i> Critical</span>`
-                : `<span class="text-amber-500 font-black text-[5px] sm:text-[6px] uppercase tracking-widest"><i class="fa-solid fa-clock mr-0.5"></i> Pending</span>`;
+                ? `<div class="flex items-center gap-1 text-rose-500 font-bold text-[6px] uppercase tracking-widest animate-pulse"><i class="fa-solid fa-fire"></i> Critical</div>`
+                : `<div class="flex items-center gap-1 text-amber-500 font-bold text-[6px] uppercase tracking-widest"><i class="fa-solid fa-clock"></i> Pending</div>`;
             
             htmlStr += `
                 <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} transition-colors border-b border-slate-100/50">
                     <td class="align-top">
-                        <div class="font-mono font-black text-slate-800 text-[7px] sm:text-[8px]">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[5px] sm:text-[6px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                        <div class="font-mono font-bold text-slate-600 text-[10px]">${log.Ticket_ID || '--'}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
                     <td class="align-top">
-                        <div class="font-black text-slate-800 text-[6px] sm:text-[7px] uppercase tracking-wider">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[6px] sm:text-[7px] text-slate-500 mt-0.5 truncate w-20 sm:w-28" title="${resName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${resName}</div>
+                        <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-20 sm:w-28 font-medium" title="${resName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${resName}</div>
                     </td>
                     <td class="align-top">
-                        <span class="bg-white/80 border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[6px] sm:text-[7px] font-bold shadow-sm inline-block truncate w-14 sm:w-16" title="${log.Category}">${log.Category || '--'}</span>
+                        <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-full text-[6px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span>
                     </td>
                     <td class="align-top">
-                        <p class="text-[7px] sm:text-[8px] text-slate-700 font-medium leading-tight max-w-[100px] sm:max-w-[160px] truncate">${log.Description || '--'}</p>
-                        <div class="mt-1 flex items-center gap-1 max-w-[100px] sm:max-w-[130px] bg-white/60 p-0.5 rounded border border-slate-200 shadow-sm">
-                            <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[6px] sm:text-[7px] outline-none pl-1 text-slate-700 font-medium">
-                            <button class="w-4 h-4 rounded border border-slate-100 text-slate-400 flex items-center justify-center bg-slate-50"><i class="fa-solid fa-paper-plane text-[6px]"></i></button>
+                        <p class="text-[10px] sm:text-[11px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p>
+                        <div class="mt-1 flex items-center gap-1 max-w-[120px] sm:max-w-[140px] bg-white/60 p-0.5 rounded border border-slate-200 shadow-sm focus-within:border-indigo-400 transition-all">
+                            <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[8px] sm:text-[9px] outline-none pl-1 text-slate-700 font-medium">
+                            <button class="w-4 h-4 rounded border border-slate-100 text-slate-400 flex items-center justify-center bg-slate-50 hover:text-indigo-600"><i class="fa-solid fa-paper-plane text-[7px]"></i></button>
                         </div>
                     </td>
-                    <td class="text-right align-top flex flex-col items-end gap-1">
+                    <td class="text-right align-top flex flex-col items-end gap-1.5">
                         ${statusBadge}
-                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-[#1d1d1f] hover:bg-emerald-500 text-white text-[5px] sm:text-[6px] font-bold px-2 py-1 rounded shadow-md whitespace-nowrap uppercase tracking-widest transition-all"><i class="fa-solid fa-check"></i> <span class="hidden sm:inline">Resolve</span></button>
+                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-[6px] font-bold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap uppercase tracking-widest transition-colors">Mark Resolved</button>
                     </td>
                 </tr>
             `;
@@ -700,13 +673,15 @@
             htmlStr += `
                 <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
                     <td class="align-top">
-                        <div class="font-mono font-bold text-slate-600 text-[7px] sm:text-[8px]">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[5px] sm:text-[6px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                        <div class="font-mono font-bold text-slate-600 text-[10px]">${log.Ticket_ID || '--'}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
-                    <td class="align-top"><div class="font-black text-slate-700 text-[6px] sm:text-[7px] uppercase tracking-wider">Rm: ${log.Room || '--'}</div></td>
-                    <td class="align-top"><span class="bg-white/60 border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[6px] sm:text-[7px] font-bold shadow-sm inline-block truncate w-14 sm:w-16" title="${log.Category}">${log.Category || '--'}</span></td>
-                    <td class="align-top"><p class="text-[7px] sm:text-[8px] text-slate-500 leading-tight max-w-[120px] sm:max-w-[160px] truncate">${log.Description || '--'}</p></td>
-                    <td class="text-right align-top"><span class="text-emerald-600 font-black text-[5px] sm:text-[6px] uppercase tracking-widest"><i class="fa-solid fa-check-double mr-0.5"></i> Closed</span></td>
+                    <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
+                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-full text-[6px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span></td>
+                    <td class="align-top"><p class="text-[10px] sm:text-[11px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p></td>
+                    <td class="text-right align-top">
+                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-full text-[6px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Closed</span>
+                    </td>
                 </tr>
             `;
         });
