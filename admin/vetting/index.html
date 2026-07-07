@@ -2,14 +2,10 @@
     /* ---------------------------------------------------
        FLUID COMPACT LAYOUT & GRID ENFORCEMENT
        --------------------------------------------------- */
-    .vetting-container {
-        display: flex; flex-direction: row; width: 100%; height: 100%; gap: 0.5rem; overflow: hidden;
-    }
+    .vetting-container { display: flex; flex-direction: row; width: 100%; height: 100%; gap: 0.5rem; overflow: hidden; }
     @media (min-width: 640px) { .vetting-container { gap: 1rem; } }
 
-    .vetting-canvas {
-        flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
-    }
+    .vetting-canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
 
     .vetting-sidebar {
         width: 25%; max-width: 260px; min-width: 160px; flex-shrink: 0; 
@@ -29,16 +25,8 @@
     /* ---------------------------------------------------
        HIGH-DENSITY COMPONENT STYLES
        --------------------------------------------------- */
-    .nav-block {
-        background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);
-        border-radius: 18px; padding: 12px; transition: all 0.3s ease;
-    }
-    .block-btn {
-        width: 100%; display: flex; align-items: center; gap: 8px;
-        padding: 8px 12px; border-radius: 12px; font-size: 0.7rem;
-        font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden;
-    }
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 18px; padding: 12px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
     .block-btn-active { background-color: #ffffff; color: #0071e3; border: 1.5px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transform: scale(1.02); }
     .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
     .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
@@ -50,63 +38,52 @@
 
     .compact-table th { padding: 10px 12px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
     .compact-table td { padding: 10px 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.75rem; }
-    
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
-    
-    /* ---------------------------------------------------
-       HIGH-END ANIMATED MODALS
-       --------------------------------------------------- */
-    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 2000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; background: transparent; }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    
-    .magic-border-container {
-        position: relative; padding: 3px; border-radius: 28px; overflow: hidden;
-        background: transparent; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-    }
-    .modal-overlay.active .magic-border-container { transform: scale(1) translateY(0); }
-    
-    .magic-border-container::before {
-        content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%;
-        background: conic-gradient(from 0deg, transparent 40%, rgba(0, 113, 227, 0.2) 60%, #0071e3 80%, #3b82f6 100%);
-        transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0;
-    }
-    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-    
-    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 25px; width: 100%; height: 100%; padding: 1.25rem 1.5rem; }
 </style>
 
 <div class="vetting-container custom-scroll">
     
     <div class="vetting-canvas custom-scroll pr-1 pb-10">
         
-        <div class="flex justify-start sm:justify-center w-full mb-4">
-            <div id="hub-dynamic-filters" class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap bg-white/60 p-1 rounded-[14px] border border-white flex items-center min-h-[36px]">
-                </div>
+        <div class="flex justify-start sm:justify-center w-full mb-4 z-10 relative">
+            <div class="glass-segmented shadow-sm">
+                <button onclick="window.setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Pending
+                    <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-user-check"></i> Approved
+                    <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-door-open"></i> Allocation
+                    <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                </button>
+            </div>
         </div>
 
         <div class="glass-panel overflow-hidden">
-            <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+            <div class="px-4 py-3 border-b border-white/60 flex flex-col md:flex-row gap-3 justify-between md:items-center bg-white/50 backdrop-blur-md">
                 <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-[10px]"></i></div>
-                    <h3 id="table-title" class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Student Hub (Pending)</h3>
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-xs"></i></div>
+                    <h3 id="table-title" class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Student Hub (Pending)</h3>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
-                    <div class="relative w-full sm:w-48">
-                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                        <input type="text" id="search-hub" onkeyup="filterTable('search-hub', 'hub-queue-body')" placeholder="Search records..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] font-medium text-slate-700 outline-none focus:border-blue-400 shadow-sm">
+                    <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right hidden sm:flex"></div>
+                    <div class="relative w-full sm:w-40">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                        <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-xs text-slate-700 outline-none focus:border-blue-400 shadow-sm">
                     </div>
-                    <button onclick="downloadHubReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 text-[9px]"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span></button>
                     <button onclick="if(typeof fetchDatabaseData === 'function') fetchDatabaseData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-rotate text-blue-500 text-[10px]"></i></button>
                 </div>
             </div>
             
-            <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[70vh]">
+            <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[65vh]">
                 <table class="w-full text-left border-collapse compact-table min-w-[700px]">
-                    <thead id="hub-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
-                        </thead>
-                    <tbody id="hub-queue-body" class="divide-y divide-slate-100/50">
-                        </tbody>
+                    <thead id="hub-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm"></thead>
+                    <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
                 </table>
             </div>
         </div>
@@ -117,49 +94,41 @@
         
         <div onclick="window.toggleVettingSidebar()" class="nav-block flex items-center justify-between !p-2 cursor-pointer hover:bg-white/80 transition-colors group">
             <div class="flex items-center gap-2 w-full">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-teal-400 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs flex-shrink-0 transition-transform group-hover:scale-105">
+                <div class="w-8 h-8 bg-gradient-to-br from-[#0071e3] to-[#409cff] rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs flex-shrink-0 transition-transform group-hover:scale-105">
                     <i class="fa-solid fa-address-card"></i>
                 </div>
                 <div class="flex flex-col nav-text flex-1 overflow-hidden">
-                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none truncate">Hub<span class="text-blue-500">Ctrl</span></span>
-                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Pipeline Toggle</span>
+                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none truncate">Hub<span class="text-blue-500">Tools</span></span>
+                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Pipeline Ctrl</span>
                 </div>
             </div>
             <i id="sidebar-vet-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] nav-text pr-1 transition-transform group-hover:translate-x-1"></i>
         </div>
 
         <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Applicant Pipeline</p>
-            <div class="space-y-1">
-                <button onclick="window.triggerSidebarFilter('pending', this)" id="nav-btn-pending" class="block-btn block-btn-active" title="Unvetted Queue">
-                    <i class="fa-solid fa-clock-rotate-left text-[13px] w-4 text-center text-amber-500"></i> 
-                    <span class="nav-text truncate text-[9px] flex-1 text-left">Unvetted Queue</span>
-                    <span id="kpi-pending-side" class="nav-text bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded text-[7px] ml-auto font-black shadow-sm">-</span>
-                </button>
-                <button onclick="window.triggerSidebarFilter('approved', this)" id="nav-btn-approved" class="block-btn block-btn-inactive" title="Vetted Archive">
-                    <i class="fa-solid fa-user-check text-[13px] w-4 text-center text-emerald-500"></i> 
-                    <span class="nav-text truncate text-[9px] flex-1 text-left">Vetted Archive</span>
-                    <span id="kpi-approved-side" class="nav-text bg-emerald-50 border border-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded text-[7px] ml-auto font-black shadow-sm">-</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Space Planning</p>
-            <div class="space-y-1">
-                <button onclick="window.triggerSidebarFilter('allocation', this)" id="nav-btn-allocation" class="block-btn block-btn-inactive" title="Allocation Engine">
-                    <i class="fa-solid fa-door-open text-[13px] w-4 text-center text-blue-500"></i> 
-                    <span class="nav-text truncate text-[9px]">Allocation Engine</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Quick Actions</p>
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Data Entry</p>
             <div class="space-y-1.5">
                 <button onclick="document.getElementById('manualStudentModal').classList.add('active')" class="block-btn btn-primary-blue justify-center gap-1.5 !py-2" title="Manual Entry">
                     <i class="fa-solid fa-user-plus text-[10px]"></i> 
-                    <span class="nav-text truncate text-[9px]">Manual Entry</span>
+                    <span class="nav-text truncate text-[9px]">Manual Injection</span>
+                </button>
+                <button class="block-btn btn-secondary-white justify-center gap-1.5 !py-2" title="Batch Upload CSV">
+                    <i class="fa-solid fa-file-csv text-slate-500 text-[10px]"></i> 
+                    <span class="nav-text truncate text-[9px]">Batch CSV Sync</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">System Actions</p>
+            <div class="space-y-1">
+                <button onclick="window.downloadHubReport()" class="block-btn block-btn-inactive" title="Export Current View">
+                    <i class="fa-solid fa-download text-[13px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[9px]">Export Current View</span>
+                </button>
+                <button class="block-btn block-btn-inactive" title="Vetting Audit Logs">
+                    <i class="fa-solid fa-list-check text-[13px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[9px]">Vetting Audit Logs</span>
                 </button>
             </div>
         </div>
@@ -186,36 +155,19 @@
                     <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Bypass Registration Portal</p>
                 </div>
             </div>
-            <form onsubmit="submitManualStudent(event)">
+            <form onsubmit="window.submitManualStudent(event)">
                 <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
-                        <input type="text" id="manual-fname" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required>
-                    </div>
-                    <div>
-                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
-                        <input type="text" id="manual-lname" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required>
-                    </div>
+                    <div><label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label><input type="text" id="manual-fname" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required></div>
+                    <div><label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label><input type="text" id="manual-lname" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
-                        <input type="text" id="manual-id" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm font-mono" required>
-                    </div>
-                    <div>
-                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Gender</label>
-                        <select id="manual-gender" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required>
-                            <option value="" disabled selected>Select...</option>
-                            <option value="Male">Male</option><option value="Female">Female</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" id="manual-id" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm font-mono" required></div>
+                    <div><label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Gender</label><select id="manual-gender" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required><option value="" disabled selected>Select...</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
                 </div>
                 <div class="mb-5">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Funding Type</label>
                     <select id="manual-funding" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-blue-400 shadow-sm" required>
-                        <option value="NSFAS">NSFAS</option>
-                        <option value="Bursary">Private Bursary</option>
-                        <option value="Cash">Cash Paying</option>
+                        <option value="NSFAS">NSFAS</option><option value="Bursary">Private Bursary</option><option value="Cash">Cash Paying</option>
                     </select>
                 </div>
                 <button type="submit" id="btn-submit-manual" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px] sm:text-xs">Inject to Pipeline <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
@@ -224,97 +176,256 @@
     </div>
 </div>
 
+<div id="rejectModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
+    <div class="modal-content glass-panel w-full max-w-md rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh] overflow-hidden">
+        <button onclick="window.closeRejectModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors z-20 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+        <div class="flex-shrink-0 relative z-10">
+            <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm border border-rose-100"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight mb-2">Reject Application</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mb-6 font-medium">Select issues for <span id="reject-student-id" class="font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm ml-1"></span>.</p>
+        </div>
+        <form id="rejectForm" onsubmit="window.submitRejection(event)" class="flex flex-col overflow-hidden relative z-10">
+            <div class="space-y-3 mb-6 overflow-y-auto custom-scroll pr-2 flex-1">
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Invalid / Missing ID or Passport" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Invalid / Missing ID</span></label>
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Funding" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Invalid Proof of Funding</span></label>
+            </div>
+            <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl sm:rounded-2xl py-3 shadow-lg shadow-rose-500/20 transition-all flex-shrink-0">Submit Rejection & Notify</button>
+        </form>
+    </div>
+</div>
+
+<div id="allocationModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
+    <div class="modal-content glass-panel w-full max-w-3xl rounded-[24px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div class="p-6 border-b border-slate-200/60 flex justify-between items-start bg-white/50 backdrop-blur-md relative overflow-hidden">
+            <div class="flex gap-4 relative z-10">
+                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-blue-100 flex-shrink-0"><i class="fa-solid fa-bed"></i></div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Room Allocation</h2>
+                    <p class="text-[10px] text-slate-500 mt-1 font-medium"><span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
+                </div>
+            </div>
+            <button onclick="window.closeAllocationModal()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm transition-colors relative z-10"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-5 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll border-b border-white/60">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm"><h3 class="font-black text-slate-800 text-sm mb-4">Premium Singles</h3><div id="list-single-rooms" class="space-y-3"></div></div>
+                <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm"><h3 class="font-black text-slate-800 text-sm mb-4">Sharing Units</h3><div id="list-sharing-rooms" class="space-y-3"></div></div>
+            </div>
+        </div>
+        <div class="p-4 bg-white/80 backdrop-blur-md flex justify-between items-center gap-4">
+            <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p><p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800 tracking-tight">None</p></div>
+            <button id="btn-confirm-allocation" onclick="window.confirmAllocation()" class="bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>Confirm & Bind</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ----------------------------------------------------
-    // RESPONSIVE SIDEBAR TOGGLE
+    // LOCAL STATE & GLOBALS
     // ----------------------------------------------------
+    let currentFilter = 'pending'; let hubSubFilter = 'all';
+    let currentRejectStudentId = null; let activeAllocationStudentId = null; let selectedRoomId = null;
+
     window.toggleVettingSidebar = function() {
         const sidebar = document.getElementById('vetting-right-sidebar');
         if(sidebar) {
             sidebar.classList.toggle('collapsed');
             const icon = document.getElementById('sidebar-vet-toggle-icon');
             if(icon) {
-                if(sidebar.classList.contains('collapsed')) {
-                    icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left');
-                } else {
-                    icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right');
-                }
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
             }
         }
     };
     
-    if (window.innerWidth < 768) {
-        const sidebar = document.getElementById('vetting-right-sidebar');
-        if(sidebar) {
-            sidebar.classList.add('collapsed');
-            const icon = document.getElementById('sidebar-vet-toggle-icon');
-            if(icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); }
-        }
-    }
+    if (window.innerWidth < 768) { window.toggleVettingSidebar(); }
 
-    // ----------------------------------------------------
-    // SIDEBAR -> MOTHER PAGE FILTER SYNC
-    // ----------------------------------------------------
-    window.triggerSidebarFilter = function(filterType, btnElement) {
-        // Update sidebar button states
-        document.querySelectorAll('#vetting-right-sidebar .block-btn-active').forEach(btn => {
-            btn.classList.remove('block-btn-active'); btn.classList.add('block-btn-inactive');
-        });
-        if(btnElement) {
-            btnElement.classList.remove('block-btn-inactive'); btnElement.classList.add('block-btn-active');
-        }
-
-        // Call the mother page's setFilter function to redraw the table
-        if(typeof setFilter === 'function') {
-            setFilter(filterType);
+    window.filterTable = function(inputId, tbodyId) {
+        const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
+        const tr = tbody.getElementsByTagName('tr');
+        for (let i = 0; i < tr.length; i++) {
+            if (tr[i].classList.contains('no-results')) continue;
+            tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
         }
     };
 
-    // Keep sidebar KPIs synced with mother page counts
-    setInterval(() => {
-        const topPending = document.getElementById('kpi-pending');
-        const sidePending = document.getElementById('kpi-pending-side');
-        if(topPending && sidePending) sidePending.textContent = topPending.textContent;
-
-        const topApproved = document.getElementById('kpi-approved');
-        const sideApproved = document.getElementById('kpi-approved-side');
-        if(topApproved && sideApproved) sideApproved.textContent = topApproved.textContent;
-    }, 1000);
-
-    // ----------------------------------------------------
-    // MANUAL STUDENT INJECTION (n8n Webhook Hookup)
-    // ----------------------------------------------------
-    window.submitManualStudent = async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-submit-manual'); const ogText = btn.innerHTML;
-        
-        const payload = {
-            First_Name: document.getElementById('manual-fname').value,
-            Surname: document.getElementById('manual-lname').value,
-            Student_Number: document.getElementById('manual-id').value,
-            Gender: document.getElementById('manual-gender').value,
-            Funding_Type: document.getElementById('manual-funding').value,
-            Vetting_Status: 'Pending',
-            Manual_Entry: true
-        };
-
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Injecting...'; btn.disabled = true;
-
-        try {
-            // Replace with your actual n8n webhook for manual entry if needed
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-manual-student', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            document.getElementById('manualStudentModal').classList.remove('active'); e.target.reset();
-            
-            // Force mother page to refresh global cache
-            if(typeof fetchDatabaseData === 'function') fetchDatabaseData(true); 
-            if(typeof showToast === 'function') showToast("Applicant manually injected to pipeline.");
-        } catch(error) { 
-            alert("Failed to connect to n8n pipeline."); 
-        } finally { 
-            btn.innerHTML = ogText; btn.disabled = false; 
-        }
+    function updateSegmentedActive(pfx, val, opts) { 
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber'); }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); 
+        if(aEl) { 
+            aEl.classList.add('active'); 
+            if(val === 'pending') aEl.classList.add('accent-amber'); 
+            if(val === 'approved') aEl.classList.add('accent-emerald'); 
+            if(val === 'allocation') aEl.classList.add('accent-blue'); 
+        } 
     }
+
+    // ----------------------------------------------------
+    // RENDERING ENGINE (Binds to global scope for Mother to call)
+    // ----------------------------------------------------
+    window.setFilter = function(type) { 
+        currentFilter = type; hubSubFilter = 'all'; 
+        updateSegmentedActive('btn-tab', type, ['pending', 'approved', 'allocation']); 
+        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine' }; 
+        if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type]; 
+        window.renderUI(); 
+    };
+
+    window.setHubSubFilter = function(fv) { hubSubFilter = fv; window.renderUI(); };
+
+    window.renderUI = function() {
+        if (!globalStudentData) return;
+        
+        const pendingStudents = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
+        const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+        
+        if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').textContent = pendingStudents.length;
+        if(document.getElementById('kpi-approved')) document.getElementById('kpi-approved').textContent = approvedStudents.length;
+        if(document.getElementById('kpi-allocation')) document.getElementById('kpi-allocation').textContent = approvedStudents.length;
+
+        const filterContainer = document.getElementById('hub-dynamic-filters'); const thead = document.getElementById('hub-thead'); const tbody = document.getElementById('hub-queue-body');
+        if(!tbody) return;
+
+        let htmlStr = '';
+        
+        if(currentFilter === 'pending' || currentFilter === 'approved') {
+            let baseData = currentFilter === 'pending' ? pendingStudents : approvedStudents;
+            const countAll = baseData.length; const countNsfas = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length; const countBursary = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length; const countCash = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
+
+            if (filterContainer) filterContainer.innerHTML = `<button onclick="window.setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''} text-[9px]"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button><button onclick="window.setHubSubFilter('nsfas')" class="glass-seg-btn ${hubSubFilter==='nsfas'?'active accent-blue':''} text-[9px]">NSFAS <span class="ml-1 opacity-60">(${countNsfas})</span></button><button onclick="window.setHubSubFilter('bursary')" class="glass-seg-btn ${hubSubFilter==='bursary'?'active accent-blue':''} text-[9px]">Bursary <span class="ml-1 opacity-60">(${countBursary})</span></button>`;
+            
+            if (hubSubFilter !== 'all') { baseData = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes(hubSubFilter)); }
+            
+            if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/4">Student Identity</th><th class="w-1/4">Academic Profile</th><th class="w-1/6">Funding</th><th class="w-1/6 text-center">Docs</th><th class="text-right">Action</th></tr>`;
+
+            if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="5" class="p-16 text-center text-slate-400 bg-white/30"><div class="w-12 h-12 rounded-full bg-white border border-slate-200 text-slate-300 flex items-center justify-center mx-auto mb-4 text-xl"><i class="fa-solid fa-check-double"></i></div><span class="font-medium text-xs">No records match this view.</span></td></tr>`; return; }
+
+            baseData.forEach(s => {
+                htmlStr += `
+                    <tr class="hover:bg-white/80 transition-colors group">
+                        <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number || 'Unassigned'}</div><div class="text-[9px] font-semibold text-slate-500 mt-0.5">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                        <td><div class="text-slate-700 font-bold text-[10px]">${s.Course || 'Unknown Course'}</div><div class="text-[8px] font-bold text-slate-400 uppercase mt-0.5"><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i>${s.Campus_Hub || 'N/A'}</div></td>
+                        <td><span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Funding_Type || 'Pending'}</span></td>
+                        <td class="text-center"><span class="text-[8px] font-bold text-slate-400 uppercase border border-dashed border-slate-300 bg-white/50 px-2 py-1 rounded-lg">Awaiting</span></td>
+                        <td class="text-right">
+                            <div class="flex justify-end gap-1.5">
+                                ${currentFilter === 'pending' ? `<button onclick="window.openRejectModal('${s.Student_Number || ''}')" class="bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">Reject</button><button onclick="window.processApproval('${s.Student_Number}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white shadow-md text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[9px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 transition-all" disabled>Approved</button>`}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+
+        } else if (currentFilter === 'allocation') {
+            let baseData = [...approvedStudents];
+            if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Student Identity</th><th class="w-1/4">Gender</th><th class="w-1/4">Current Status</th><th class="text-right">Action</th></tr>`;
+            
+            if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="4" class="p-16 text-center text-slate-400 bg-white/30">No approved students to allocate.</td></tr>`; return; }
+
+            baseData.forEach(s => {
+                const roomStatus = s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned' ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Room_Allocation}</span>` : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-wider shadow-sm">Unassigned</span>`;
+                htmlStr += `
+                    <tr class="hover:bg-white/80 transition-colors">
+                        <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number || '--'}</div><div class="text-[9px] text-slate-500 mt-0.5 font-medium">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                        <td><div class="text-slate-600 font-bold text-[10px]">${s.Gender || 'N/A'}</div></td>
+                        <td>${roomStatus}</td>
+                        <td class="text-right"><button onclick="window.openAllocationModal('${s.Student_Number}', '${s.Gender}', '${s.First_Name} ${s.Surname}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-md">Allocate</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+        }
+    };
+
+    // ----------------------------------------------------
+    // ACTIONS & MODALS
+    // ----------------------------------------------------
+    window.processApproval = function(studentId) { const s = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); if (s) window.openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); };
+    
+    window.openRejectModal = function(studentId) { currentRejectStudentId = studentId; document.getElementById('reject-student-id').textContent = studentId; document.getElementById('rejectForm').reset(); document.getElementById('rejectModal').classList.add('active'); };
+    window.closeRejectModal = function() { document.getElementById('rejectModal').classList.remove('active'); };
+    
+    window.submitRejection = async function(e) {
+        e.preventDefault(); const btn = document.getElementById('btn-submit-reject'); const checkboxes = document.querySelectorAll('input[name="reason"]:checked'); const reasons = Array.from(checkboxes).map(cb => cb.value);
+        if (reasons.length === 0) { if(typeof showToast==='function') showToast("Please select a reason.", "error"); return; }
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
+        try {
+            if(typeof executeActionHook === 'function') executeActionHook('https://n8n.automania.cloud/webhook/reziflow-reject', { Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") });
+            await new Promise(r => setTimeout(r, 400)); window.closeRejectModal();
+            const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(currentRejectStudentId)); if (idx > -1) globalStudentData[idx].Vetting_Status = 'Rejected';
+            window.renderUI(); if(typeof showToast==='function') showToast("Rejected successfully.");
+        } catch(err) {} finally { btn.innerHTML = 'Submit Rejection & Notify'; btn.disabled = false; }
+    };
+
+    window.openAllocationModal = function(studentId, gender, name) {
+        activeAllocationStudentId = studentId; selectedRoomId = null;
+        document.getElementById('alloc-student-name').textContent = name; document.getElementById('alloc-student-id').textContent = studentId;
+        document.getElementById('alloc-selected-room').textContent = 'None';
+        document.getElementById('btn-confirm-allocation').disabled = true; document.getElementById('btn-confirm-allocation').classList.add('opacity-50');
+        document.getElementById('allocationModal').classList.add('active'); window.fetchModalRoomInventory(gender);
+    };
+    window.closeAllocationModal = function() { document.getElementById('allocationModal').classList.remove('active'); };
+
+    window.fetchModalRoomInventory = async function(gender) {
+        const singleContainer = document.getElementById('list-single-rooms'); const sharingContainer = document.getElementById('list-sharing-rooms');
+        if(globalRoomData && globalRoomData.length > 0) { window.renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); return; }
+        singleContainer.innerHTML = '<div class="py-5 text-center text-blue-500"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
+    };
+
+    window.renderModalRooms = function(roomsData, gender, singleContainer, sharingContainer) {
+        let validRooms = roomsData.filter(r => { const occupied = parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0; const total = parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1; return occupied < total; });
+        const cleanGender = String(gender || '').toLowerCase().trim(); const isMale = cleanGender.startsWith('m'); 
+        if (isMale) { validRooms = validRooms.filter(r => String(r.Block || '').toUpperCase().trim() === 'A'); } 
+        else { validRooms = validRooms.filter(r => { const blk = String(r.Block || '').toUpperCase().trim(); return blk === 'B' || blk === 'C'; }); }
+        
+        const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
+        const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
+        
+        let sHtml = '';
+        if (singles.length === 0) sHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No singles available</div>';
+        else singles.forEach(r => sHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700">${r.Room_ID}</div>`);
+        singleContainer.innerHTML = sHtml;
+
+        let shHtml = '';
+        if (sharing.length === 0) shHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No sharing available</div>';
+        else sharing.forEach(r => shHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700">${r.Room_ID} <span class="text-[9px] font-normal text-emerald-500 float-right">Open</span></div>`);
+        sharingContainer.innerHTML = shHtml;
+    };
+
+    window.selectRoom = function(el, roomId) {
+        document.querySelectorAll('.room-card').forEach(c => { c.classList.remove('bg-blue-50', 'border-blue-500', 'text-blue-700'); c.classList.add('bg-white', 'border-slate-200', 'text-slate-700'); });
+        el.classList.remove('bg-white', 'border-slate-200', 'text-slate-700'); el.classList.add('bg-blue-50', 'border-blue-500', 'text-blue-700');
+        selectedRoomId = roomId; document.getElementById('alloc-selected-room').textContent = roomId;
+        document.getElementById('btn-confirm-allocation').disabled = false; document.getElementById('btn-confirm-allocation').classList.remove('opacity-50');
+    };
+
+    window.confirmAllocation = async function() {
+        const btn = document.getElementById('btn-confirm-allocation'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Binding...'; btn.disabled = true;
+        try {
+            const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
+            const needsApproval = !globalStudentData[studentIndex].Vetting_Status || String(globalStudentData[studentIndex].Vetting_Status).toLowerCase() !== 'approved';
+            if (needsApproval && typeof executeActionHook === 'function') executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { Student_Number: activeAllocationStudentId, Vetting_Status: "Approved" });
+            if (typeof executeActionHook === 'function') executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { Student_Number: activeAllocationStudentId, Room_ID: selectedRoomId });
+            await new Promise(r => setTimeout(r, 600));
+            if (needsApproval) globalStudentData[studentIndex].Vetting_Status = 'Approved';
+            globalStudentData[studentIndex].Room_Allocation = selectedRoomId; 
+            window.closeAllocationModal(); window.setFilter(currentFilter === 'pending' ? 'approved' : 'allocation');
+            if(typeof showToast==='function') showToast("Room bound successfully.");
+        } catch (err) {} finally { btn.innerHTML = 'Confirm & Bind'; btn.disabled = false; }
+    };
+
+    window.submitManualStudent = async function(e) {
+        e.preventDefault(); const btn = document.getElementById('btn-submit-manual'); const ogText = btn.innerHTML;
+        const payload = { First_Name: document.getElementById('manual-fname').value, Surname: document.getElementById('manual-lname').value, Student_Number: document.getElementById('manual-id').value, Gender: document.getElementById('manual-gender').value, Funding_Type: document.getElementById('manual-funding').value, Vetting_Status: 'Pending', Manual_Entry: true };
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Injecting...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-manual-student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            document.getElementById('manualStudentModal').classList.remove('active'); e.target.reset();
+            if(typeof fetchDatabaseData === 'function') fetchDatabaseData(true); if(typeof showToast === 'function') showToast("Applicant manually injected.");
+        } catch(error) { alert("Failed to connect to n8n."); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    // Auto-trigger render immediately upon script execution if data exists
+    requestAnimationFrame(() => { if (globalStudentData && globalStudentData.length > 0) window.renderUI(); });
 </script>
