@@ -1,4 +1,334 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ReziFlow OS | Command Center</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; 
+            background-color: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+            overflow: hidden; /* Force app-like behavior */
+        }
+
+        /* Core Liquid Glass */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Nav Pills */
+        .nav-tab-btn { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .active-tab-btn {
+            background-color: rgba(255, 255, 255, 0.95); color: #0071e3 !important; font-weight: 700 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,1), 0 0 15px rgba(255,255,255,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.9); transform: scale(1.02);
+        }
+
+        /* Segmented Controls */
+        .glass-segmented {
+            background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center;
+        }
+        .glass-seg-btn {
+            padding: 8px 16px; font-size: 0.75rem; font-weight: 700; color: #64748b;
+            border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent;
+        }
+        .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+        .glass-seg-btn.active {
+            background: rgba(255, 255, 255, 0.95); color: #1d1d1f;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85);
+            border: 1px solid rgba(255, 255, 255, 1); transform: scale(1.01);
+        }
+        .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; }
+        .glass-seg-btn.active.accent-rose { color: #f43f5e; } .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+
+        /* Premium Modals */
+        .modal-overlay {
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 2000;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+        @keyframes paneFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-paneFade { animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(210, 210, 215, 0.6); border-radius: 10px; transition: background 0.3s ease; }
+        .custom-scroll:hover::-webkit-scrollbar-thumb { background: rgba(134, 134, 139, 0.8); }
+
+        /* Performance Skeleton Loaders */
+        .skeleton-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        .modern-input {
+            width: 100%; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(210, 210, 215, 0.8);
+            border-radius: 12px; padding: 10px 14px; font-size: 0.875rem; color: #1d1d1f; transition: all 0.3s ease;
+        }
+        .modern-input:focus { outline: none; border-color: #0071e3; background: #ffffff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
+        .search-input { padding-left: 32px; }
+
+        #toast-container { transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #toast-container.show { transform: translateY(0); }
+    </style>
+</head>
+<body class="flex flex-col lg:flex-row h-screen w-full relative overflow-hidden bg-[#f5f5f7]">
+
+    <div class="fixed top-[-15%] left-[-10%] w-[60%] h-[60%] bg-blue-300 rounded-full mix-blend-multiply filter blur-[140px] opacity-[0.25] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.25] z-0 pointer-events-none"></div>
+
+    <div id="toast-container" class="fixed top-6 left-0 right-0 z-[3000] flex justify-center px-4 pointer-events-none">
+        <div id="toast-message" class="bg-[#1d1d1f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium text-sm">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-text">Action completed successfully.</span>
+        </div>
+    </div>
+
+    <div class="lg:hidden flex items-center justify-between p-3 sm:p-4 bg-white/80 backdrop-blur-2xl border-b border-slate-200 z-50 sticky top-0">
+        <div class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-600 text-lg"></i><span class="font-black text-lg tracking-tight text-slate-800">Rezi<span class="text-blue-500">Flow</span></span></div>
+        <button onclick="toggleSidebar()" class="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-400 ease-in-out z-[100] lg:z-20 w-[220px] lg:w-[195px] xl:w-[220px] bg-white/40 lg:bg-gradient-to-b lg:from-slate-200/70 lg:to-slate-300/40 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.02)] lg:shadow-inner h-full flex-shrink-0">
+        <button onclick="toggleSidebar()" class="lg:hidden absolute top-3 right-3 w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500"><i class="fa-solid fa-xmark text-xs"></i></button>
+
+        <div class="overflow-y-auto custom-scroll flex-1 px-3 py-4 lg:py-5">
+            <div class="hidden lg:flex items-center gap-2.5 bg-white/70 backdrop-blur-md p-3 rounded-[20px] border border-white shadow-sm mb-6">
+                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-teal-400 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 text-white flex-shrink-0"><i class="fa-solid fa-layer-group text-base"></i></div>
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-black text-[17px] tracking-tight text-slate-800 leading-none truncate">Rezi<span class="text-blue-500">Flow</span></span>
+                    <span class="text-[7px] font-bold tracking-widest text-slate-500 uppercase mt-0.5 truncate">Command Center</span>
+                </div>
+            </div>
+
+            <nav class="space-y-4">
+                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
+                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Core Business</p>
+                    <div class="space-y-0.5">
+                        <button id="nav-vetting" onclick="loadEngine('vetting', 'Student Hub', 'Automated POPIA Database Sync', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium border border-transparent"><i class="fa-solid fa-users text-base w-4 text-center"></i> Student Hub</button>
+                        <button id="nav-occupancy" onclick="loadEngine('occupancy', 'Occupancy', 'Live Occupancy Overview', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-chart-pie text-base w-4 text-center"></i> Occupancy</button>
+                        <button id="nav-finance" onclick="loadEngine('finance', 'Finance', 'Automated Ledger Reconciliation', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-wallet text-base w-4 text-center"></i> Finance</button>
+                    </div>
+                </div>
+                
+                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
+                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Facility Operations</p>
+                    <div class="space-y-0.5">
+                        <button id="nav-inspections" onclick="loadEngine('inspections', 'Facility Inspections', 'Pre-Occupancy Binding Ledger', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-clipboard-check text-base w-4 text-center"></i> Inspections</button>
+                        <button id="nav-maintenance" onclick="loadEngine('maintenance', 'Facility Maintenance Ops', 'Ticket Resolution & Asset Routing', this)" class="nav-tab-btn w-full flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70">
+                            <div class="flex items-center gap-2.5"><i class="fa-solid fa-screwdriver-wrench text-base w-4 text-center"></i> Maintenance</div><span class="bg-indigo-50 text-indigo-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-indigo-100">Ops</span>
+                        </button>
+                        <button id="nav-security" onclick="loadEngine('security', 'Security Ops Center', 'Live Dispatch & Threat Monitoring', this)" class="nav-tab-btn w-full flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70">
+                            <div class="flex items-center gap-2.5"><i class="fa-solid fa-shield-halved text-base w-4 text-center text-rose-500"></i> Security</div><span class="bg-rose-50 text-rose-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-rose-100 flex items-center gap-1"><div class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div> Live</span>
+                        </button>
+                        <button id="nav-access" onclick="loadEngine('access', 'Access Control', 'Visitor Gateway Activity', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-door-open text-base w-4 text-center"></i> Access</button>
+                    </div>
+                </div>
+
+                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
+                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Outreach & Logistics</p>
+                    <div class="space-y-0.5">
+                        <button id="nav-communication" onclick="loadEngine('communication', 'Outreach Network', 'Student Portal Direct Messaging', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-paper-plane text-base w-4 text-center"></i> Outreach</button>
+                        <button id="nav-driver" onclick="loadEngine('driver', 'Transport Ops', 'Fleet Tracking & Driver Logistics', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-van-shuttle text-base w-4 text-center"></i> Transport</button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        
+        <div class="p-3">
+            <div class="relative overflow-hidden bg-white/80 backdrop-blur-xl p-3 rounded-[20px] border border-white shadow-md flex items-center gap-3 group">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-400 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40"></div>
+                <div class="w-8 h-8 rounded-[10px] bg-slate-50 flex items-center justify-center text-blue-600 border border-slate-100 shadow-sm flex-shrink-0"><i class="fa-solid fa-bolt text-xs"></i></div>
+                <div class="flex flex-col relative z-10 overflow-hidden">
+                    <span class="text-[7px] font-bold text-slate-500 uppercase tracking-widest truncate">Engineered By</span>
+                    <span class="text-[11px] font-black text-slate-800 tracking-tight truncate">AUTOMANIA</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 h-[calc(100vh-60px)] lg:h-screen relative z-10 overflow-hidden">
+        
+        <header class="h-16 lg:h-20 bg-transparent flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 border-b border-slate-200/50">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 lg:gap-3 overflow-hidden">
+                <h1 id="matrixTitle" class="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-slate-800 truncate">Student Hub</h1>
+                <div class="h-5 w-px bg-slate-300 hidden sm:block"></div>
+                <p id="matrixSub" class="text-[9px] sm:text-[10px] lg:text-xs text-slate-500 font-medium sm:pt-0.5 truncate">Automated POPIA Database Sync</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button class="w-8 h-8 rounded-full bg-white/70 backdrop-blur border border-white flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors shadow-sm"><i class="fa-solid fa-bell text-sm"></i></button>
+                <div class="h-8 px-3 rounded-full bg-white/70 backdrop-blur border border-white flex items-center gap-1.5 shadow-sm text-xs font-bold text-slate-700 hidden sm:flex">
+                    <div class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px]"><i class="fa-solid fa-user-shield"></i></div> Master Admin
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6 custom-scroll min-w-0 relative">
+            
+            <div id="pane-vetting" class="space-y-5 lg:space-y-6 animate-paneFade">
+                <div class="flex justify-center w-full">
+                    <div class="glass-segmented">
+                        <button onclick="setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Pending
+                            <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                        </button>
+                        <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                        <button onclick="setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
+                            <i class="fa-solid fa-user-check"></i> Approved
+                            <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                        </button>
+                        <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                        <button onclick="setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue text-[10px] sm:text-xs">
+                            <i class="fa-solid fa-door-open"></i> Allocation
+                            <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[20px] lg:rounded-[24px] overflow-hidden mt-6">
+                    <div class="px-4 py-4 border-b border-white/60 flex flex-col md:flex-row gap-3 justify-between md:items-center bg-white/50 backdrop-blur-md">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-xs"></i></div>
+                            <h3 id="table-title" class="font-bold text-slate-800 text-sm sm:text-base">Student Hub (Pending)</h3>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
+                            <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right"></div>
+                            <div class="relative w-full sm:w-40">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="search-hub" onkeyup="filterTable('search-hub', 'hub-queue-body')" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-xs text-slate-700 outline-none focus:border-blue-400 transition-colors">
+                            </div>
+                            <button onclick="downloadHubReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1.5 text-xs"><i class="fa-solid fa-download"></i></button>
+                            <button onclick="fetchDatabaseData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm text-xs"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm">
+                        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+                            <thead id="hub-thead"></thead>
+                            <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dynamic-pane" class="hidden animate-paneFade w-full h-full"></div>
+
+        </main>
+    </div>
+
+    <div id="rejectModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
+        <div class="modal-content glass-panel w-full max-w-md rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-rose-400 rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
+            <button onclick="closeRejectModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors z-20 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex-shrink-0 relative z-10">
+                <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm border border-rose-100"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight mb-2">Reject Application</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mb-6 font-medium">Select missing or incorrect documents to notify <span id="reject-student-id" class="font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm ml-1"></span>.</p>
+            </div>
+            <form id="rejectForm" onsubmit="submitRejection(event)" class="flex flex-col overflow-hidden relative z-10">
+                <div class="space-y-3 mb-6 overflow-y-auto custom-scroll pr-2 flex-1">
+                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Invalid / Missing ID or Passport" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Invalid / Missing ID or Passport</span></label>
+                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Registration" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Registration</span></label>
+                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Funding" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Funding</span></label>
+                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Unsigned / Incomplete Lease Agreement" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Unsigned / Incomplete Lease Agreement</span></label>
+                </div>
+                <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl sm:rounded-2xl py-3 sm:py-4 shadow-lg shadow-rose-500/20 transition-all flex-shrink-0">Submit Rejection & Notify</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="allocationModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
+        <div class="modal-content glass-panel w-full max-w-3xl rounded-[24px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="p-6 sm:p-8 border-b border-slate-200/60 flex justify-between items-start bg-white/50 backdrop-blur-md relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
+                <div class="flex gap-4 relative z-10">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-blue-100 flex-shrink-0"><i class="fa-solid fa-bed"></i></div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Room Allocation</h2>
+                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
+                        <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100 shadow-sm"><i class="fa-solid fa-mars"></i> Active (Block A)</div>
+                    </div>
+                </div>
+                <button onclick="closeAllocationModal()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm transition-colors relative z-10"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="p-5 sm:p-8 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll relative border-b border-white/60">
+                <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
+                    <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200/50">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-door-closed"></i></div>
+                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Premium Singles</h3>
+                        </div>
+                        <div id="list-single-rooms" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200/50">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-user-group"></i></div>
+                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Sharing Units</h3>
+                        </div>
+                        <div id="list-sharing-rooms" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 bg-white/80 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-center sm:text-left w-full sm:w-auto">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p>
+                    <p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800 mt-0.5 tracking-tight">None</p>
+                </div>
+                <button id="btn-confirm-allocation" onclick="confirmAllocation()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>Confirm & Bind <i class="fa-solid fa-lock ml-2"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentDetailsModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
+        <div class="modal-content glass-panel w-full max-w-lg rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh]">
+            <button onclick="closeStudentDetailsModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-white border border-slate-200 shadow-sm rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-200 pb-5">
+                <div class="w-16 h-16 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 text-2xl shadow-sm"><i class="fa-solid fa-user"></i></div>
+                <div>
+                    <h2 id="det-name" class="text-xl font-black text-slate-900 tracking-tight">--</h2>
+                    <p id="det-id" class="text-sm font-mono text-slate-500 font-bold">--</p>
+                    <span id="det-room" class="inline-block mt-1 bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border border-blue-100">Room: --</span>
+                </div>
+            </div>
+            <div class="space-y-4 overflow-y-auto custom-scroll pr-2">
+                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-address-book mr-1"></i> Contact Information</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Phone</p><p id="det-phone" class="text-sm font-semibold text-slate-700">N/A</p></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Email</p><p id="det-email" class="text-sm font-semibold text-slate-700 truncate" title="...">N/A</p></div>
+                    </div>
+                </div>
+                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-truck-medical mr-1 text-rose-400"></i> Emergency Details</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Contact Name</p><p id="det-em-name" class="text-sm font-semibold text-slate-700">N/A</p></div>
+                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Contact Number</p><p id="det-em-phone" class="text-sm font-semibold text-slate-700">N/A</p></div>
+                        <div class="sm:col-span-2"><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Medical Notes</p><p id="det-medical" class="text-sm font-semibold text-slate-700">N/A</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
         const pageCache = {}; 
         
         let globalStudentData = []; let globalRoomData = []; let globalMaintenanceData = [];
