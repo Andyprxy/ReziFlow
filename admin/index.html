@@ -1,334 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReziFlow OS | Command Center</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; 
-            background-color: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
-            overflow: hidden; /* Force app-like behavior */
-        }
-
-        /* Core Liquid Glass */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Nav Pills */
-        .nav-tab-btn { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .active-tab-btn {
-            background-color: rgba(255, 255, 255, 0.95); color: #0071e3 !important; font-weight: 700 !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,1), 0 0 15px rgba(255,255,255,0.7);
-            border: 1px solid rgba(255, 255, 255, 0.9); transform: scale(1.02);
-        }
-
-        /* Segmented Controls */
-        .glass-segmented {
-            background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center;
-        }
-        .glass-seg-btn {
-            padding: 8px 16px; font-size: 0.75rem; font-weight: 700; color: #64748b;
-            border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent;
-        }
-        .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
-        .glass-seg-btn.active {
-            background: rgba(255, 255, 255, 0.95); color: #1d1d1f;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85);
-            border: 1px solid rgba(255, 255, 255, 1); transform: scale(1.01);
-        }
-        .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; }
-        .glass-seg-btn.active.accent-rose { color: #f43f5e; } .glass-seg-btn.active.accent-amber { color: #f59e0b; }
-
-        /* Premium Modals */
-        .modal-overlay {
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-            background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 2000;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
-
-        @keyframes paneFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-paneFade { animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(210, 210, 215, 0.6); border-radius: 10px; transition: background 0.3s ease; }
-        .custom-scroll:hover::-webkit-scrollbar-thumb { background: rgba(134, 134, 139, 0.8); }
-
-        /* Performance Skeleton Loaders */
-        .skeleton-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-
-        .modern-input {
-            width: 100%; background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(210, 210, 215, 0.8);
-            border-radius: 12px; padding: 10px 14px; font-size: 0.875rem; color: #1d1d1f; transition: all 0.3s ease;
-        }
-        .modern-input:focus { outline: none; border-color: #0071e3; background: #ffffff; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
-        .search-input { padding-left: 32px; }
-
-        #toast-container { transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #toast-container.show { transform: translateY(0); }
-    </style>
-</head>
-<body class="flex flex-col lg:flex-row h-screen w-full relative overflow-hidden bg-[#f5f5f7]">
-
-    <div class="fixed top-[-15%] left-[-10%] w-[60%] h-[60%] bg-blue-300 rounded-full mix-blend-multiply filter blur-[140px] opacity-[0.25] z-0 pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.25] z-0 pointer-events-none"></div>
-
-    <div id="toast-container" class="fixed top-6 left-0 right-0 z-[3000] flex justify-center px-4 pointer-events-none">
-        <div id="toast-message" class="bg-[#1d1d1f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium text-sm">
-            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-            <span id="toast-text">Action completed successfully.</span>
-        </div>
-    </div>
-
-    <div class="lg:hidden flex items-center justify-between p-3 sm:p-4 bg-white/80 backdrop-blur-2xl border-b border-slate-200 z-50 sticky top-0">
-        <div class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-600 text-lg"></i><span class="font-black text-lg tracking-tight text-slate-800">Rezi<span class="text-blue-500">Flow</span></span></div>
-        <button onclick="toggleSidebar()" class="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-bars"></i></button>
-    </div>
-
-    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-400 ease-in-out z-[100] lg:z-20 w-[220px] lg:w-[195px] xl:w-[220px] bg-white/40 lg:bg-gradient-to-b lg:from-slate-200/70 lg:to-slate-300/40 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.02)] lg:shadow-inner h-full flex-shrink-0">
-        <button onclick="toggleSidebar()" class="lg:hidden absolute top-3 right-3 w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500"><i class="fa-solid fa-xmark text-xs"></i></button>
-
-        <div class="overflow-y-auto custom-scroll flex-1 px-3 py-4 lg:py-5">
-            <div class="hidden lg:flex items-center gap-2.5 bg-white/70 backdrop-blur-md p-3 rounded-[20px] border border-white shadow-sm mb-6">
-                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-teal-400 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 text-white flex-shrink-0"><i class="fa-solid fa-layer-group text-base"></i></div>
-                <div class="flex flex-col overflow-hidden">
-                    <span class="font-black text-[17px] tracking-tight text-slate-800 leading-none truncate">Rezi<span class="text-blue-500">Flow</span></span>
-                    <span class="text-[7px] font-bold tracking-widest text-slate-500 uppercase mt-0.5 truncate">Command Center</span>
-                </div>
-            </div>
-
-            <nav class="space-y-4">
-                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
-                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Core Business</p>
-                    <div class="space-y-0.5">
-                        <button id="nav-vetting" onclick="loadEngine('vetting', 'Student Hub', 'Automated POPIA Database Sync', this)" class="nav-tab-btn active-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium border border-transparent"><i class="fa-solid fa-users text-base w-4 text-center"></i> Student Hub</button>
-                        <button id="nav-occupancy" onclick="loadEngine('occupancy', 'Occupancy', 'Live Occupancy Overview', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-chart-pie text-base w-4 text-center"></i> Occupancy</button>
-                        <button id="nav-finance" onclick="loadEngine('finance', 'Finance', 'Automated Ledger Reconciliation', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-wallet text-base w-4 text-center"></i> Finance</button>
-                    </div>
-                </div>
-                
-                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
-                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Facility Operations</p>
-                    <div class="space-y-0.5">
-                        <button id="nav-inspections" onclick="loadEngine('inspections', 'Facility Inspections', 'Pre-Occupancy Binding Ledger', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-clipboard-check text-base w-4 text-center"></i> Inspections</button>
-                        <button id="nav-maintenance" onclick="loadEngine('maintenance', 'Facility Maintenance Ops', 'Ticket Resolution & Asset Routing', this)" class="nav-tab-btn w-full flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70">
-                            <div class="flex items-center gap-2.5"><i class="fa-solid fa-screwdriver-wrench text-base w-4 text-center"></i> Maintenance</div><span class="bg-indigo-50 text-indigo-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-indigo-100">Ops</span>
-                        </button>
-                        <button id="nav-security" onclick="loadEngine('security', 'Security Ops Center', 'Live Dispatch & Threat Monitoring', this)" class="nav-tab-btn w-full flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70">
-                            <div class="flex items-center gap-2.5"><i class="fa-solid fa-shield-halved text-base w-4 text-center text-rose-500"></i> Security</div><span class="bg-rose-50 text-rose-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-rose-100 flex items-center gap-1"><div class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div> Live</span>
-                        </button>
-                        <button id="nav-access" onclick="loadEngine('access', 'Access Control', 'Visitor Gateway Activity', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-door-open text-base w-4 text-center"></i> Access</button>
-                    </div>
-                </div>
-
-                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
-                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Outreach & Logistics</p>
-                    <div class="space-y-0.5">
-                        <button id="nav-communication" onclick="loadEngine('communication', 'Outreach Network', 'Student Portal Direct Messaging', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-paper-plane text-base w-4 text-center"></i> Outreach</button>
-                        <button id="nav-driver" onclick="loadEngine('driver', 'Transport Ops', 'Fleet Tracking & Driver Logistics', this)" class="nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70"><i class="fa-solid fa-van-shuttle text-base w-4 text-center"></i> Transport</button>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        
-        <div class="p-3">
-            <div class="relative overflow-hidden bg-white/80 backdrop-blur-xl p-3 rounded-[20px] border border-white shadow-md flex items-center gap-3 group">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-400 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40"></div>
-                <div class="w-8 h-8 rounded-[10px] bg-slate-50 flex items-center justify-center text-blue-600 border border-slate-100 shadow-sm flex-shrink-0"><i class="fa-solid fa-bolt text-xs"></i></div>
-                <div class="flex flex-col relative z-10 overflow-hidden">
-                    <span class="text-[7px] font-bold text-slate-500 uppercase tracking-widest truncate">Engineered By</span>
-                    <span class="text-[11px] font-black text-slate-800 tracking-tight truncate">AUTOMANIA</span>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
-
-    <div class="flex-1 flex flex-col min-w-0 h-[calc(100vh-60px)] lg:h-screen relative z-10 overflow-hidden">
-        
-        <header class="h-16 lg:h-20 bg-transparent flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 border-b border-slate-200/50">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 lg:gap-3 overflow-hidden">
-                <h1 id="matrixTitle" class="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-slate-800 truncate">Student Hub</h1>
-                <div class="h-5 w-px bg-slate-300 hidden sm:block"></div>
-                <p id="matrixSub" class="text-[9px] sm:text-[10px] lg:text-xs text-slate-500 font-medium sm:pt-0.5 truncate">Automated POPIA Database Sync</p>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <button class="w-8 h-8 rounded-full bg-white/70 backdrop-blur border border-white flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors shadow-sm"><i class="fa-solid fa-bell text-sm"></i></button>
-                <div class="h-8 px-3 rounded-full bg-white/70 backdrop-blur border border-white flex items-center gap-1.5 shadow-sm text-xs font-bold text-slate-700 hidden sm:flex">
-                    <div class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px]"><i class="fa-solid fa-user-shield"></i></div> Master Admin
-                </div>
-            </div>
-        </header>
-
-        <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6 custom-scroll min-w-0 relative">
-            
-            <div id="pane-vetting" class="space-y-5 lg:space-y-6 animate-paneFade">
-                <div class="flex justify-center w-full">
-                    <div class="glass-segmented">
-                        <button onclick="setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
-                            <i class="fa-solid fa-clock-rotate-left"></i> Pending
-                            <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
-                        </button>
-                        <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                        <button onclick="setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
-                            <i class="fa-solid fa-user-check"></i> Approved
-                            <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
-                        </button>
-                        <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                        <button onclick="setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue text-[10px] sm:text-xs">
-                            <i class="fa-solid fa-door-open"></i> Allocation
-                            <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] shadow-sm ml-1">-</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="glass-panel rounded-[20px] lg:rounded-[24px] overflow-hidden mt-6">
-                    <div class="px-4 py-4 border-b border-white/60 flex flex-col md:flex-row gap-3 justify-between md:items-center bg-white/50 backdrop-blur-md">
-                        <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-xs"></i></div>
-                            <h3 id="table-title" class="font-bold text-slate-800 text-sm sm:text-base">Student Hub (Pending)</h3>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
-                            <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right"></div>
-                            <div class="relative w-full sm:w-40">
-                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px]"></i>
-                                <input type="text" id="search-hub" onkeyup="filterTable('search-hub', 'hub-queue-body')" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-xs text-slate-700 outline-none focus:border-blue-400 transition-colors">
-                            </div>
-                            <button onclick="downloadHubReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1.5 text-xs"><i class="fa-solid fa-download"></i></button>
-                            <button onclick="fetchDatabaseData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm text-xs"><i class="fa-solid fa-rotate text-blue-500"></i></button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm">
-                        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
-                            <thead id="hub-thead"></thead>
-                            <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="dynamic-pane" class="hidden animate-paneFade w-full h-full"></div>
-
-        </main>
-    </div>
-
-    <div id="rejectModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
-        <div class="modal-content glass-panel w-full max-w-md rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-rose-400 rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
-            <button onclick="closeRejectModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors z-20 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex-shrink-0 relative z-10">
-                <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm border border-rose-100"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight mb-2">Reject Application</h2>
-                <p class="text-xs sm:text-sm text-slate-500 mb-6 font-medium">Select missing or incorrect documents to notify <span id="reject-student-id" class="font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm ml-1"></span>.</p>
-            </div>
-            <form id="rejectForm" onsubmit="submitRejection(event)" class="flex flex-col overflow-hidden relative z-10">
-                <div class="space-y-3 mb-6 overflow-y-auto custom-scroll pr-2 flex-1">
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Invalid / Missing ID or Passport" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Invalid / Missing ID or Passport</span></label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Registration" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Registration</span></label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Funding" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Missing / Invalid Proof of Funding</span></label>
-                    <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-2xl hover:bg-white cursor-pointer transition-colors bg-white/50 shadow-sm"><input type="checkbox" name="reason" value="Unsigned / Incomplete Lease Agreement" class="w-5 h-5 text-rose-500 rounded border-slate-300"><span class="text-xs sm:text-sm font-semibold text-slate-700">Unsigned / Incomplete Lease Agreement</span></label>
-                </div>
-                <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl sm:rounded-2xl py-3 sm:py-4 shadow-lg shadow-rose-500/20 transition-all flex-shrink-0">Submit Rejection & Notify</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="allocationModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
-        <div class="modal-content glass-panel w-full max-w-3xl rounded-[24px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="p-6 sm:p-8 border-b border-slate-200/60 flex justify-between items-start bg-white/50 backdrop-blur-md relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
-                <div class="flex gap-4 relative z-10">
-                    <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-blue-100 flex-shrink-0"><i class="fa-solid fa-bed"></i></div>
-                    <div>
-                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Room Allocation</h2>
-                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
-                        <div id="alloc-gender-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100 shadow-sm"><i class="fa-solid fa-mars"></i> Active (Block A)</div>
-                    </div>
-                </div>
-                <button onclick="closeAllocationModal()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm transition-colors relative z-10"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div class="p-5 sm:p-8 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll relative border-b border-white/60">
-                <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
-                    <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200/50">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-door-closed"></i></div>
-                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Premium Singles</h3>
-                        </div>
-                        <div id="list-single-rooms" class="space-y-3"></div>
-                    </div>
-                    <div class="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm backdrop-blur-md">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200/50">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-user-group"></i></div>
-                            <h3 class="font-black text-slate-800 text-sm sm:text-base tracking-tight">Sharing Units</h3>
-                        </div>
-                        <div id="list-sharing-rooms" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 sm:p-6 bg-white/80 backdrop-blur-md flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="text-center sm:text-left w-full sm:w-auto">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p>
-                    <p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800 mt-0.5 tracking-tight">None</p>
-                </div>
-                <button id="btn-confirm-allocation" onclick="confirmAllocation()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>Confirm & Bind <i class="fa-solid fa-lock ml-2"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <div id="studentDetailsModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1100]">
-        <div class="modal-content glass-panel w-full max-w-lg rounded-2xl sm:rounded-[32px] shadow-2xl p-6 sm:p-8 relative flex flex-col max-h-[90vh]">
-            <button onclick="closeStudentDetailsModal()" class="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 bg-white border border-slate-200 shadow-sm rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex items-center gap-4 mb-6 border-b border-slate-200 pb-5">
-                <div class="w-16 h-16 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 text-2xl shadow-sm"><i class="fa-solid fa-user"></i></div>
-                <div>
-                    <h2 id="det-name" class="text-xl font-black text-slate-900 tracking-tight">--</h2>
-                    <p id="det-id" class="text-sm font-mono text-slate-500 font-bold">--</p>
-                    <span id="det-room" class="inline-block mt-1 bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border border-blue-100">Room: --</span>
-                </div>
-            </div>
-            <div class="space-y-4 overflow-y-auto custom-scroll pr-2">
-                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
-                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-address-book mr-1"></i> Contact Information</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Phone</p><p id="det-phone" class="text-sm font-semibold text-slate-700">N/A</p></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Email</p><p id="det-email" class="text-sm font-semibold text-slate-700 truncate" title="...">N/A</p></div>
-                    </div>
-                </div>
-                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
-                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-truck-medical mr-1 text-rose-400"></i> Emergency Details</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Contact Name</p><p id="det-em-name" class="text-sm font-semibold text-slate-700">N/A</p></div>
-                        <div><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Contact Number</p><p id="det-em-phone" class="text-sm font-semibold text-slate-700">N/A</p></div>
-                        <div class="sm:col-span-2"><p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Medical Notes</p><p id="det-medical" class="text-sm font-semibold text-slate-700">N/A</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<script>
         const pageCache = {}; 
         
         let globalStudentData = []; let globalRoomData = []; let globalMaintenanceData = [];
@@ -340,4 +10,570 @@
         let currentFilter = 'pending'; let hubSubFilter = 'all'; 
         let currentOccupancyView = 'students'; let currentOccupancyBlock = 'all'; let currentOccupancyGender = 'all';
         let currentFinanceFilter = 'all'; let currentMaintenanceStatus = 'all'; let currentSecurityStatus = 'all';
-        let commAudience = 'all'; let commDemographic = '
+        let commAudience = 'all'; let commDemographic = 'nsfas'; let commTemplate = 'custom';
+        let currentRejectStudentId = null; let activeAllocationStudentId = null; let selectedRoomId = null;
+
+        const appRoutes = {
+            'vetting': { title: 'Student Hub', sub: 'Automated POPIA Database Sync', btnId: 'nav-vetting' },
+            'occupancy': { title: 'Occupancy', sub: 'Live Occupancy Overview', btnId: 'nav-occupancy' },
+            'finance': { title: 'Finance', sub: 'Automated Ledger Reconciliation', btnId: 'nav-finance' },
+            'inspections': { title: 'Facility Inspections', sub: 'Pre-Occupancy Binding Ledger', btnId: 'nav-inspections' },
+            'maintenance': { title: 'Facility Maintenance Ops', sub: 'Ticket Resolution & Asset Routing', btnId: 'nav-maintenance' },
+            'security': { title: 'Security Ops Center', sub: 'Live Dispatch & Threat Monitoring', btnId: 'nav-security' },
+            'access': { title: 'Access Control', sub: 'Visitor Gateway Activity', btnId: 'nav-access' },
+            'communication': { title: 'Outreach Network', sub: 'Student Portal Direct Messaging', btnId: 'nav-communication' },
+            'driver': { title: 'Transport Ops', sub: 'Fleet Tracking & Driver Logistics', btnId: 'nav-driver' }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDatabaseData(false); fetchStatsData(false); fetchFinanceBaseline(false); 
+            fetchInspectionsData(false); fetchMaintenanceData(false); fetchSecurityData(false); fetchVisitorData(false); 
+            
+            if(typeof setupDulaDropzone === 'function') setupDulaDropzone();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetEngine = urlParams.get('tab') || 'vetting';
+            const config = appRoutes[targetEngine] || appRoutes['vetting'];
+            
+            loadEngine(targetEngine, config.title, config.sub, document.getElementById(config.btnId), true);
+        });
+
+        window.addEventListener('popstate', (event) => {
+            let engineId = 'vetting';
+            if (event.state && event.state.engineId) engineId = event.state.engineId;
+            else { const urlParams = new URLSearchParams(window.location.search); engineId = urlParams.get('tab') || 'vetting'; }
+            const config = appRoutes[engineId] || appRoutes['vetting'];
+            loadEngine(engineId, config.title, config.sub, document.getElementById(config.btnId), true);
+        });
+
+        // --------------------------------------------------------------------------
+        // ENHANCED LOAD ENGINE: Ensures JS execution for dynamically loaded fragments
+        // --------------------------------------------------------------------------
+        async function loadEngine(engineId, title, subTitle, btnElement, isSystemLoad = false) {
+            
+            // Reset ALL button styles
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.className = "nav-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[12px] sm:rounded-[14px] text-xs font-medium text-slate-600 border border-transparent transition-all hover:bg-white/70");
+            
+            // Set active button style
+            const activeBtn = btnElement || document.getElementById(appRoutes[engineId]?.btnId);
+            if(activeBtn) activeBtn.className = "nav-tab-btn active-tab-btn w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[12px] sm:rounded-[14px] text-xs font-bold transition-all bg-white shadow-sm border border-white text-blue-600 transform scale-[1.02]";
+
+            document.getElementById('matrixTitle').textContent = title; 
+            document.getElementById('matrixSub').textContent = subTitle;
+            if (window.innerWidth < 1024) toggleSidebar();
+
+            if (!isSystemLoad) {
+                const newUrl = engineId === 'vetting' ? '/admin/' : `/admin/?tab=${engineId}`;
+                window.history.pushState({ engineId }, title, newUrl);
+            }
+
+            const dynamicPane = document.getElementById('dynamic-pane');
+            const vettingPane = document.getElementById('pane-vetting');
+
+            if (engineId === 'vetting') {
+                dynamicPane.style.display = 'none';
+                if (vettingPane) vettingPane.style.display = 'block';
+                triggerEngineRender(engineId); 
+                return;
+            }
+
+            if (vettingPane) vettingPane.style.display = 'none';
+            dynamicPane.style.display = 'block';
+
+            if (pageCache[engineId]) {
+                dynamicPane.innerHTML = pageCache[engineId];
+                // Execute Scripts
+                const scripts = dynamicPane.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+                triggerEngineRender(engineId);
+                return;
+            }
+
+            dynamicPane.innerHTML = '<div class="flex justify-center w-full py-24"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-500"></i></div>';
+
+            try {
+                const response = await fetch(`/admin/${engineId}/index.html`);
+                if (!response.ok) throw new Error();
+                const htmlStr = await response.text();
+                
+                pageCache[engineId] = htmlStr;
+                dynamicPane.innerHTML = htmlStr;
+
+                // CRITICAL SCRIPT RELOADER
+                const scripts = dynamicPane.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+                triggerEngineRender(engineId); 
+                if(engineId === 'finance' && typeof setupDulaDropzone === 'function') setupDulaDropzone();
+            } catch (error) {
+                dynamicPane.innerHTML = `<div class="p-6 mt-6 text-center text-rose-500 font-bold bg-rose-50/50 rounded-2xl border border-rose-100 shadow-sm"><i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i><br>Engine ${title} failed to mount.<br><span class="text-[10px] font-normal text-slate-500 block mt-1">Ensure /admin/${engineId}/index.html exists.</span></div>`;
+            }
+        }
+
+        // ==========================================
+        // THE TRIGGER ENGINE (Ensures tables draw immediately)
+        // ==========================================
+        function triggerEngineRender(engineId) {
+            if (engineId === 'vetting' && typeof renderUI === 'function') renderUI();
+            else if (engineId === 'occupancy' && typeof processStatsData === 'function') processStatsData();
+            else if (engineId === 'finance' && typeof renderFinanceData === 'function') renderFinanceData();
+            else if (engineId === 'inspections') {
+                if (typeof window.renderInspectionsData === 'function') window.renderInspectionsData();
+                else if (typeof renderInspectionsData === 'function') renderInspectionsData();
+            }
+            else if (engineId === 'maintenance' && typeof window.renderMaintenanceData === 'function') window.renderMaintenanceData();
+            else if (engineId === 'security') {
+                if (typeof window.renderSecurityData === 'function') window.renderSecurityData();
+                else if (typeof renderSecurityData === 'function') renderSecurityData();
+            }
+            else if (engineId === 'access') {
+                if (typeof window.renderVisitorData === 'function') window.renderVisitorData();
+                else if (typeof renderVisitorData === 'function') renderVisitorData();
+            }
+        }
+
+        // -----------------------------------------------------
+        // GLOBAL UTILS & SAFE PARSER
+        // -----------------------------------------------------
+        function toggleSidebar() { const sb = document.getElementById('sidebar'); const ov = document.getElementById('mobile-overlay'); sb.classList.toggle('-translate-x-full'); if (sb.classList.contains('-translate-x-full')) { ov.classList.add('hidden'); setTimeout(() => ov.classList.remove('opacity-100'), 10); } else { ov.classList.remove('hidden'); setTimeout(() => ov.classList.add('opacity-100'), 10); } }
+        function showToast(m, t = 'success') { const tc = document.getElementById('toast-container'); if(!tc) return; document.getElementById('toast-text').textContent = m; document.getElementById('toast-icon').className = t === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-rose-400'; tc.classList.add('show'); setTimeout(() => { tc.classList.remove('show'); }, 3000); }
+        function executeActionHook(url, payload) { setTimeout(() => { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(e=>e); }, 10); return true; }
+        
+        // Relaxed Parser - Assures no data is dropped due to strict keys
+        function parseN8n(d) { 
+            if (!d) return []; let arr = []; 
+            if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
+            arr = arr.map(i => i.json ? i.json : i); 
+            return arr.filter(i => i !== null && i !== undefined).reverse(); 
+        }
+        
+        function filterTable(inputId, tbodyId) { const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return; const tr = tbody.getElementsByTagName('tr'); for (let i = 0; i < tr.length; i++) { if (tr[i].classList.contains('no-results')) continue; tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none'; } }
+        
+        function updateSegmentedActive(pfx, val, opts) { 
+            opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber', 'accent-rose'); }); 
+            const aEl = document.getElementById(`${pfx}-${val}`); 
+            if(aEl) { 
+                aEl.classList.add('active'); 
+                if(pfx === 'btn-tab') { 
+                    if(val === 'pending') aEl.classList.add('accent-amber'); 
+                    if(val === 'approved') aEl.classList.add('accent-emerald'); 
+                    if(val === 'allocation') aEl.classList.add('accent-blue'); 
+                } else { 
+                    aEl.classList.add('accent-blue'); 
+                } 
+            } 
+        }
+
+        // -----------------------------------------------------
+        // DATA PIPELINES (Mother explicitly triggers Fragment renders in finally blocks)
+        // -----------------------------------------------------
+        async function fetchDatabaseData(forcedRefresh = true) {
+            isFetchingStudents = true; 
+            if(forcedRefresh && document.getElementById('hub-queue-body')) {
+                document.getElementById('hub-queue-body').innerHTML = `<tr><td colspan="5" class="p-4 sm:p-6"><div class="skeleton-pulse space-y-4"><div class="h-16 bg-white/60 rounded-2xl w-full border border-white/80"></div></div></td></tr>`;
+            }
+            try { 
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data'); 
+                globalStudentData = parseN8n(await response.json()); 
+            } catch (e) { } finally { 
+                isFetchingStudents = false; 
+                if(document.getElementById('hub-queue-body')) requestAnimationFrame(() => renderUI()); 
+            }
+        }
+
+        async function fetchStatsData(forcedRefresh = true) {
+            isFetchingRooms = true; 
+            if(forcedRefresh && document.getElementById('stats-inventory-body')) document.getElementById('stats-inventory-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl"></i></td></tr>';
+            try { 
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms'); 
+                globalRoomData = parseN8n(await response.json()); 
+            } catch (e) { } finally { 
+                isFetchingRooms = false; 
+                if(typeof processStatsData === 'function' && document.getElementById('stats-inventory-body')) processStatsData(); 
+            }
+        }
+
+        async function fetchFinanceBaseline(forcedRefresh = true) {
+            isFetchingFinance = true; 
+            if(forcedRefresh && document.getElementById('finance-ledger-body')) document.getElementById('finance-ledger-body').innerHTML = '<tr><td colspan="5" class="p-16 text-center"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl"></i></td></tr>';
+            try { 
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-finances'); 
+                globalFinanceData = parseN8n(await response.json()); 
+            } catch (e) { } finally { 
+                isFetchingFinance = false; 
+                if(typeof renderFinanceData === 'function' && document.getElementById('finance-ledger-body')) renderFinanceData(); 
+            }
+        }
+
+        async function fetchMaintenanceData(forced) { 
+            isFetchingMaintenance = true;
+            try { 
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance'); 
+                globalMaintenanceData = parseN8n(await res.json()); 
+            } catch(e) {} finally { 
+                isFetchingMaintenance = false;
+                if(typeof window.renderMaintenanceData === 'function') window.renderMaintenanceData(); 
+            } 
+        }
+
+        async function fetchSecurityData(forced) { 
+            isFetchingSecurity = true;
+            try { 
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security'); 
+                globalSecurityData = parseN8n(await res.json()); 
+            } catch(e) {} finally { 
+                isFetchingSecurity = false;
+                if(typeof window.renderSecurityData === 'function') window.renderSecurityData(); 
+                else if (typeof renderSecurityData === 'function') renderSecurityData(); 
+            } 
+        }
+
+        async function fetchInspectionsData(forced) { 
+            isFetchingInspections = true;
+            try { 
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-inspections'); 
+                globalInspectionsData = parseN8n(await res.json()); 
+            } catch(e) {} finally { 
+                isFetchingInspections = false;
+                if(typeof window.renderInspectionsData === 'function') window.renderInspectionsData(); 
+                else if (typeof renderInspectionsData === 'function') renderInspectionsData(); 
+            } 
+        }
+
+        async function fetchVisitorData(forced) { 
+            isFetchingVisitors = true;
+            try { 
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-visitors'); 
+                globalVisitorData = parseN8n(await res.json()); 
+            } catch(e) {} finally { 
+                isFetchingVisitors = false;
+                if(typeof window.renderVisitorData === 'function') window.renderVisitorData(); 
+                else if (typeof renderVisitorData === 'function') renderVisitorData(); 
+            } 
+        }
+
+        // ==========================================
+        // STUDENT HUB ENGINE
+        // ==========================================
+        function setFilter(type) { 
+            currentFilter = type; hubSubFilter = 'all'; 
+            updateSegmentedActive('btn-tab', type, ['pending', 'approved', 'allocation']); 
+            const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine' }; 
+            if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type]; 
+            renderUI(); 
+        }
+        function setHubSubFilter(fv) { hubSubFilter = fv; renderUI(); }
+
+        function renderUI() {
+            if (isFetchingStudents) return;
+            const pendingStudents = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
+            const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+            
+            if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').textContent = pendingStudents.length;
+            if(document.getElementById('kpi-approved')) document.getElementById('kpi-approved').textContent = approvedStudents.length;
+            if(document.getElementById('kpi-allocation')) document.getElementById('kpi-allocation').textContent = approvedStudents.length;
+
+            const filterContainer = document.getElementById('hub-dynamic-filters'); const thead = document.getElementById('hub-thead'); const tbody = document.getElementById('hub-queue-body');
+            if(!tbody) return;
+
+            let htmlStr = '';
+            
+            if(currentFilter === 'pending' || currentFilter === 'approved') {
+                let baseData = currentFilter === 'pending' ? pendingStudents : approvedStudents;
+                const countAll = baseData.length; const countNsfas = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length; const countBursary = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length; const countCash = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
+
+                if (filterContainer) filterContainer.innerHTML = `<button onclick="setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''}"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button><button onclick="setHubSubFilter('nsfas')" class="glass-seg-btn ${hubSubFilter==='nsfas'?'active accent-blue':''}">NSFAS <span class="ml-1 opacity-60">(${countNsfas})</span></button><button onclick="setHubSubFilter('bursary')" class="glass-seg-btn ${hubSubFilter==='bursary'?'active accent-blue':''}">Bursary <span class="ml-1 opacity-60">(${countBursary})</span></button><button onclick="setHubSubFilter('cash')" class="glass-seg-btn ${hubSubFilter==='cash'?'active accent-blue':''}">Cash <span class="ml-1 opacity-60">(${countCash})</span></button>`;
+                if (hubSubFilter !== 'all') { baseData = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes(hubSubFilter)); }
+                
+                if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50"><th class="p-4 sm:p-6">Student Identity</th><th class="p-4 sm:p-6">Academic Profile</th><th class="p-4 sm:p-6">Funding Pipeline</th><th class="p-4 sm:p-6 text-center">Documents</th><th class="p-4 sm:p-6 text-right">Execute Action</th></tr>`;
+
+                if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="5" class="p-16 text-center text-slate-400 bg-white/30"><div class="w-16 h-16 rounded-full bg-white border border-slate-200 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-check-double"></i></div><span class="font-medium">No records match this view.</span></td></tr>`; return; }
+
+                baseData.forEach(s => {
+                    let docsHtml = '';
+                    if (s.Doc_1_URL_ID) docsHtml += `<a href="${s.Doc_1_URL_ID}" target="_blank" class="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-blue-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card"></i></a>`;
+                    if (s.Doc_2_URL_Reg) docsHtml += `<a href="${s.Doc_2_URL_Reg}" target="_blank" class="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-graduation-cap"></i></a>`;
+                    if (s.Doc_3_URL_Funding) docsHtml += `<a href="${s.Doc_3_URL_Funding}" target="_blank" class="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-landmark"></i></a>`;
+
+                    htmlStr += `
+                        <tr class="hover:bg-white/80 transition-colors group">
+                            <td class="p-4 sm:p-6"><div class="font-black text-slate-800 text-sm sm:text-base">${s.Student_Number || 'Unassigned'}</div><div class="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                            <td class="p-4 sm:p-6"><div class="text-slate-700 font-bold text-xs sm:text-sm">${s.Course || 'Unknown Course'}</div><div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mt-1"><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i>${s.Campus_Hub || 'N/A'}</div></td>
+                            <td class="p-4 sm:p-6"><span class="px-2 py-1 sm:px-3 sm:py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-sm">${s.Funding_Type || 'Pending'}</span></td>
+                            <td class="p-4 sm:p-6 text-center"><div class="flex items-center justify-center gap-1 sm:gap-2">${docsHtml || '<span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase border border-dashed border-slate-300 bg-white/50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl">Awaiting</span>'}</div></td>
+                            <td class="p-4 sm:p-6 text-right">
+                                <div class="flex justify-end flex-wrap sm:flex-nowrap gap-2">
+                                    ${currentFilter === 'pending' ? `<button onclick="openRejectModal('${s.Student_Number || ''}')" class="bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-[10px] sm:text-xs font-bold px-3 py-2 sm:px-4 sm:py-3 rounded-xl transition-all shadow-sm">Reject</button><button onclick="processApproval('${s.Student_Number}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white shadow-md text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[10px] sm:text-xs font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl border border-slate-200 transition-all" disabled>Approved</button>`}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = htmlStr;
+
+            } else if (currentFilter === 'allocation') {
+                let baseData = [...approvedStudents];
+                const countAll = baseData.length; const countAssigned = baseData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length; const countUnassigned = countAll - countAssigned;
+
+                if (filterContainer) filterContainer.innerHTML = `<button onclick="setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''}"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button><button onclick="setHubSubFilter('assigned')" class="glass-seg-btn ${hubSubFilter==='assigned'?'active accent-blue':''}">Assigned <span class="ml-1 opacity-60">(${countAssigned})</span></button><button onclick="setHubSubFilter('unassigned')" class="glass-seg-btn ${hubSubFilter==='unassigned'?'active accent-blue':''}">Unassigned <span class="ml-1 opacity-60">(${countUnassigned})</span></button>`;
+                
+                if (hubSubFilter === 'assigned') baseData = baseData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--'); 
+                else if (hubSubFilter === 'unassigned') baseData = baseData.filter(s => !s.Room_Allocation || s.Room_Allocation === 'Unassigned' || s.Room_Allocation === '--');
+
+                baseData.sort((a, b) => { const aHas = (a.Room_Allocation && a.Room_Allocation !== '--' && a.Room_Allocation !== 'Unassigned') ? 1 : 0; const bHas = (b.Room_Allocation && b.Room_Allocation !== '--' && b.Room_Allocation !== 'Unassigned') ? 1 : 0; return aHas - bHas; });
+
+                if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50"><th class="p-4 sm:p-6">Student Identity</th><th class="p-4 sm:p-6">Gender</th><th class="p-4 sm:p-6">Current Status</th><th class="p-4 sm:p-6 text-right">Assignment Action</th></tr>`;
+
+                if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="4" class="p-16 text-center text-slate-400 bg-white/30"><div class="w-16 h-16 rounded-full bg-white border border-slate-200 text-slate-300 flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-bed"></i></div><span class="font-medium">No approved students match this view.</span></td></tr>`; return; }
+
+                baseData.forEach(s => {
+                    const roomStatus = s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned' ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">${s.Room_Allocation}</span>` : `<span class="bg-white border border-amber-200 text-amber-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">Unassigned</span>`;
+                    const gender = String(s.Gender || 'Unknown').toLowerCase(); const blockIcon = gender === 'male' ? '<i class="fa-solid fa-mars text-blue-500"></i>' : '<i class="fa-solid fa-venus text-pink-500"></i>';
+
+                    htmlStr += `
+                        <tr class="hover:bg-white/80 transition-colors">
+                            <td class="p-4 sm:p-6"><div class="font-black text-slate-800 text-xs sm:text-sm">${s.Student_Number || 'Unassigned'}</div><div class="text-[10px] sm:text-xs text-slate-500 mt-1 font-medium">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                            <td class="p-4 sm:p-6 text-sm"><div class="flex items-center gap-2 text-slate-600 font-bold text-xs">${blockIcon} ${s.Gender || 'N/A'}</div></td>
+                            <td class="p-4 sm:p-6 text-sm">${roomStatus}</td>
+                            <td class="p-4 sm:p-6 text-right"><button onclick="openAllocationModal('${s.Student_Number}', '${s.Gender}', '${s.First_Name} ${s.Surname}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[10px] sm:text-xs font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all shadow-md flex items-center justify-end gap-2 ml-auto"><i class="fa-solid fa-bed"></i> <span class="hidden sm:inline">Allocate</span></button></td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = htmlStr;
+            }
+        }
+
+        // ==========================================
+        // MODALS (Vetting & Allocation)
+        // ==========================================
+        function processApproval(studentId) { const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId)); if (idx > -1) { const s = globalStudentData[idx]; openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); } }
+        function openRejectModal(studentId) { currentRejectStudentId = studentId; document.getElementById('reject-student-id').textContent = studentId; document.getElementById('rejectForm').reset(); document.getElementById('rejectModal').classList.add('active'); }
+        function closeRejectModal() { document.getElementById('rejectModal').classList.remove('active'); currentRejectStudentId = null; }
+        
+        async function submitRejection(e) {
+            e.preventDefault(); const btn = document.getElementById('btn-submit-reject'); const checkboxes = document.querySelectorAll('input[name="reason"]:checked'); const reasons = Array.from(checkboxes).map(cb => cb.value);
+            if (reasons.length === 0) { showToast("Please select at least one reason for rejection.", "error"); return; }
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
+            try {
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-reject', { Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") });
+                await new Promise(r => setTimeout(r, 400)); closeRejectModal();
+                const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(currentRejectStudentId)); if (idx > -1) globalStudentData[idx].Vetting_Status = 'Rejected';
+                renderUI(); showToast("Student application rejected successfully.");
+            } catch(error) { showToast("Connection failed.", "error"); } finally { btn.innerHTML = 'Submit Rejection & Notify'; btn.disabled = false; }
+        }
+
+        function openStudentDetailsModal(studentId) {
+            const student = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); if(!student) return showToast("Student data not found", "error");
+            document.getElementById('det-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; document.getElementById('det-id').textContent = student.Student_Number; document.getElementById('det-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
+            document.getElementById('det-phone').textContent = student.Phone || student.Contact_Number || 'N/A'; document.getElementById('det-email').textContent = student.Email || student.Email_Address || 'N/A';
+            document.getElementById('det-em-name').textContent = student.Emergency_Contact_Name || 'N/A'; document.getElementById('det-em-phone').textContent = student.Emergency_Contact_Number || student.Emergency_Phone || 'N/A'; document.getElementById('det-medical').textContent = student.Medical_Conditions || student.Medical_Notes || 'None indicated on registration.';
+            document.getElementById('studentDetailsModal').classList.add('active');
+        }
+        function closeStudentDetailsModal() { document.getElementById('studentDetailsModal').classList.remove('active'); }
+
+        function openAllocationModal(studentId, gender, name) {
+            activeAllocationStudentId = studentId; selectedRoomId = null;
+            document.getElementById('alloc-student-name').textContent = name; document.getElementById('alloc-student-id').textContent = studentId;
+            const badge = document.getElementById('alloc-gender-badge'); const cleanGender = String(gender).toLowerCase();
+            if (cleanGender === 'male') { badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-white text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-slate-200 shadow-sm"; badge.innerHTML = '<i class="fa-solid fa-mars text-blue-500"></i> Active (Block A)'; } 
+            else { badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-white text-pink-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-slate-200 shadow-sm"; badge.innerHTML = '<i class="fa-solid fa-venus text-pink-500"></i> Active (Blocks B/C)'; }
+            document.getElementById('alloc-selected-room').textContent = 'None';
+            const confirmBtn = document.getElementById('btn-confirm-allocation'); confirmBtn.disabled = true; confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('allocationModal').classList.add('active'); fetchModalRoomInventory(cleanGender);
+        }
+        function closeAllocationModal() { document.getElementById('allocationModal').classList.remove('active'); }
+
+        async function fetchModalRoomInventory(gender) {
+            const singleContainer = document.getElementById('list-single-rooms'); const sharingContainer = document.getElementById('list-sharing-rooms');
+            if(globalRoomData && globalRoomData.length > 0) { renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); return; }
+            singleContainer.innerHTML = '<div class="py-10 text-center text-blue-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
+            sharingContainer.innerHTML = '<div class="py-10 text-center text-emerald-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
+            try { const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms'); if (response.ok) { const rawData = await response.json(); globalRoomData = parseN8n(rawData); renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); } } catch (error) {}
+        }
+
+        function renderModalRooms(roomsData, gender, singleContainer, sharingContainer) {
+            let validRooms = roomsData.filter(r => { const occupied = parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0; const total = parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1; return occupied < total; });
+            const cleanGender = String(gender || '').toLowerCase().trim(); const isMale = cleanGender.startsWith('m'); 
+            
+            if (isMale) { validRooms = validRooms.filter(r => String(r.Block || '').toUpperCase().trim() === 'A'); } 
+            else { validRooms = validRooms.filter(r => { const blk = String(r.Block || '').toUpperCase().trim(); return blk === 'B' || blk === 'C'; }); }
+            
+            const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
+            const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
+            
+            let sHtml = '';
+            if (singles.length === 0) { sHtml = '<div class="p-8 bg-white/40 rounded-[20px] border border-white border-dashed text-center flex flex-col items-center justify-center shadow-sm"><i class="fa-solid fa-door-closed text-slate-300 text-2xl mb-2"></i><span class="text-xs font-bold text-slate-400">No singles available</span></div>'; } 
+            else {
+                singles.forEach(room => { 
+                    sHtml += `<div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card flex justify-between items-center mb-3"><div class="flex items-center gap-4 relative z-10"><div class="w-12 h-12 rounded-2xl bg-white/80 border border-slate-100 text-slate-400 flex items-center justify-center font-bold shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors card-icon"><i class="fa-solid fa-door-closed text-base"></i></div><div><p class="font-black text-slate-800 text-base tracking-tight leading-none">${room.Room_ID}</p><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 bg-white/50 inline-block px-2 py-0.5 rounded-md border border-slate-100">1 Bed Capacity</p></div></div><div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-transparent check-icon transition-all shadow-inner relative z-10"><i class="fa-solid fa-check text-sm"></i></div></div>`; 
+                });
+            }
+            singleContainer.innerHTML = sHtml;
+
+            let shHtml = '';
+            if (sharing.length === 0) { shHtml = '<div class="p-8 bg-white/40 rounded-[20px] border border-white border-dashed text-center flex flex-col items-center justify-center shadow-sm"><i class="fa-solid fa-user-group text-slate-300 text-2xl mb-2"></i><span class="text-xs font-bold text-slate-400">No sharing units available</span></div>'; } 
+            else {
+                sharing.forEach(room => {
+                    const total = parseInt(room.Total_Beds) || parseInt(room.Capacity) || 2; const occupied = parseInt(room.Occupied_Beds) || parseInt(room.Occupied) || 0; const available = total - occupied;
+                    shHtml += `<div onclick="selectRoom(this, '${room.Room_ID}')" class="room-card flex justify-between items-center mb-3"><div class="flex items-center gap-4 relative z-10"><div class="w-12 h-12 rounded-2xl bg-white/80 border border-slate-100 text-slate-400 flex items-center justify-center font-bold shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors card-icon"><i class="fa-solid fa-door-closed text-base"></i></div><div><p class="font-black text-slate-800 text-base tracking-tight leading-none">${room.Room_ID}</p><p class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 inline-block px-2 py-0.5 rounded-md uppercase tracking-widest mt-1.5 shadow-sm">${available} Bed(s) Open</p></div></div><div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-transparent check-icon transition-all shadow-inner relative z-10"><i class="fa-solid fa-check text-sm"></i></div></div>`; 
+                });
+            }
+            sharingContainer.innerHTML = shHtml;
+        }
+
+        function selectRoom(cardElement, roomId) {
+            document.querySelectorAll('.room-card').forEach(el => { 
+                el.classList.remove('active-room'); 
+                const check = el.querySelector('.check-icon'); check.classList.replace('bg-blue-500', 'bg-slate-100'); check.classList.replace('text-white', 'text-transparent'); check.classList.remove('border-blue-500'); check.classList.add('border-slate-200', 'shadow-inner');
+                const icon = el.querySelector('.card-icon'); icon.classList.remove('text-blue-500', 'border-blue-200', 'bg-blue-50'); icon.classList.add('text-slate-400', 'border-slate-100', 'bg-white');
+            });
+            
+            cardElement.classList.add('active-room'); 
+            const check = cardElement.querySelector('.check-icon'); check.classList.replace('bg-slate-100', 'bg-blue-500'); check.classList.replace('text-transparent', 'text-white'); check.classList.add('border-blue-500'); check.classList.remove('border-slate-200', 'shadow-inner');
+            const icon = cardElement.querySelector('.card-icon'); icon.classList.remove('text-slate-400', 'border-slate-100', 'bg-white'); icon.classList.add('text-blue-500', 'border-blue-200', 'bg-blue-50');
+
+            selectedRoomId = roomId; document.getElementById('alloc-selected-room').textContent = roomId;
+            const confirmBtn = document.getElementById('btn-confirm-allocation'); confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        async function confirmAllocation() {
+            const btn = document.getElementById('btn-confirm-allocation'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Binding...'; btn.disabled = true;
+            try {
+                const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
+                if(studentIndex === -1) throw new Error("Cache miss");
+                const student = globalStudentData[studentIndex];
+                const needsApproval = !student.Vetting_Status || String(student.Vetting_Status).toLowerCase() !== 'approved';
+
+                if (needsApproval) executeActionHook('https://n8n.automania.cloud/webhook/reziflow-approve', { Student_Number: activeAllocationStudentId, Vetting_Status: "Approved" });
+                executeActionHook('https://n8n.automania.cloud/webhook/reziflow-allocate', { Student_Number: activeAllocationStudentId, Room_ID: selectedRoomId });
+                
+                await new Promise(r => setTimeout(r, 600));
+
+                if (needsApproval) globalStudentData[studentIndex].Vetting_Status = 'Approved';
+                globalStudentData[studentIndex].Room_Allocation = selectedRoomId; 
+                
+                closeAllocationModal(); if (currentFilter === 'allocation') setFilter('allocation'); else if (currentFilter === 'pending') setFilter('approved'); else renderUI();
+                showToast("Student vetted and room bound successfully.");
+            } catch (error) { showToast("System error occurred.", "error"); } 
+            finally { btn.innerHTML = 'Confirm & Bind <i class="fa-solid fa-lock ml-2"></i>'; btn.disabled = false; }
+        }
+
+        // ==========================================
+        // OCCUPANCY ENGINE
+        // ==========================================
+        function toggleOccupancyView(view) {
+            currentOccupancyView = view; updateSegmentedActive('btn-occ', view, ['students', 'rooms']);
+            const title = document.getElementById('occupancy-title'); const filters = document.getElementById('occupancy-room-filters');
+            const searchInput = document.getElementById('search-occupancy'); if(searchInput) searchInput.value = '';
+            if(view === 'rooms') { if(title) title.textContent = 'Live Room Inventory'; if(filters) { filters.classList.remove('hidden'); filters.classList.add('flex'); } } 
+            else { if(title) title.textContent = 'Allocated Students'; if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } }
+            processStatsData();
+        }
+
+        function setOccupancyBlock(block) { currentOccupancyBlock = block; updateSegmentedActive('occ-blk', block, ['all', 'A', 'B', 'C']); processStatsData(); }
+        function setOccupancyGender(gender) { currentOccupancyGender = gender; updateSegmentedActive('occ-gen', gender, ['all', 'male', 'female']); processStatsData(); }
+
+        function processStatsData() {
+            if (isFetchingRooms || isFetchingStudents) return;
+            let totalBeds = 0; let occupiedBeds = 0;
+            if(globalRoomData && globalRoomData.length > 0) globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || 0); occupiedBeds += parseInt(r.Occupied_Beds || 0); });
+            const allocatedStudents = globalStudentData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length;
+            
+            if(document.getElementById('stat-available-beds')) document.getElementById('stat-available-beds').textContent = totalBeds - occupiedBeds;
+            if(document.getElementById('stat-allocated-beds')) document.getElementById('stat-allocated-beds').textContent = allocatedStudents;
+
+            const thead = document.getElementById('occupancy-thead'); const tbody = document.getElementById('stats-inventory-body');
+            if(!tbody) return;
+            let htmlStr = '';
+
+            if (currentOccupancyView === 'rooms') {
+                if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50"><th class="p-4 sm:p-6">Room ID</th><th class="p-4 sm:p-6">Block</th><th class="p-4 sm:p-6">Type</th><th class="p-4 sm:p-6">Capacity</th><th class="p-4 sm:p-6 text-right">Status</th></tr>`;
+                let filteredRooms = globalRoomData.filter(room => {
+                    let matchBlock = true; let matchGender = true;
+                    if (currentOccupancyBlock !== 'all') matchBlock = String(room.Block).toUpperCase() === currentOccupancyBlock.toUpperCase();
+                    if (currentOccupancyGender !== 'all') { const blk = String(room.Block).toUpperCase(); if (currentOccupancyGender === 'male') matchGender = (blk === 'A'); else if (currentOccupancyGender === 'female') matchGender = (blk === 'B' || blk === 'C'); }
+                    return matchBlock && matchGender;
+                });
+                if(filteredRooms.length === 0) { tbody.innerHTML = '<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No rooms match the current filters.</td></tr>'; return; }
+
+                filteredRooms.forEach(room => {
+                    const total = parseInt(room.Total_Beds || 0); const occ = parseInt(room.Occupied_Beds || 0); const avail = total - occ;
+                    let statusBadge = avail <= 0 ? `<span class="bg-slate-100 border border-slate-200 text-slate-500 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-sm">Full</span>` : `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-sm">${avail} Open</span>`;
+                    htmlStr += `<tr class="hover:bg-white/80 transition-colors"><td class="p-4 sm:p-6 font-mono font-bold text-slate-800">${room.Room_ID}</td><td class="p-4 sm:p-6 font-bold text-slate-500">Block ${room.Block || '-'}</td><td class="p-4 sm:p-6 text-xs text-slate-600 capitalize">${room.Room_Type || 'Single'}</td><td class="p-4 sm:p-6 text-xs text-slate-600 font-medium">${occ} / ${total} Beds</td><td class="p-4 sm:p-6 text-right">${statusBadge}</td></tr>`;
+                });
+                tbody.innerHTML = htmlStr;
+
+            } else {
+                if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50"><th class="p-4 sm:p-6">Resident Identity</th><th class="p-4 sm:p-6">Room Assignment</th><th class="p-4 sm:p-6">Gender / Block</th><th class="p-4 sm:p-6 text-right">Records</th></tr>`;
+                const allocated = globalStudentData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--');
+                if(allocated.length === 0) { tbody.innerHTML = '<tr class="no-results"><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No students currently allocated to rooms.</td></tr>'; return; }
+
+                allocated.forEach(s => {
+                    const blockChar = String(s.Room_Allocation).charAt(0).toUpperCase(); const blockColor = blockChar === 'A' ? 'text-blue-500' : 'text-pink-500'; const icon = String(s.Gender).toLowerCase() === 'male' ? 'fa-mars' : 'fa-venus';
+                    htmlStr += `<tr class="hover:bg-white/80 transition-colors"><td class="p-4 sm:p-6"><div class="font-black text-slate-800 text-sm">${s.First_Name || ''} ${s.Surname || ''}</div><div class="text-[10px] font-mono font-bold text-slate-400 mt-0.5">${s.Student_Number || '--'}</div></td><td class="p-4 sm:p-6"><span class="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-indigo-100">${s.Room_Allocation}</span></td><td class="p-4 sm:p-6 text-xs font-bold text-slate-600"><i class="fa-solid ${icon} ${blockColor} mr-1"></i> ${s.Gender || 'N/A'} (Blk ${blockChar})</td><td class="p-4 sm:p-6 text-right"><button onclick="openStudentDetailsModal('${s.Student_Number}')" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-300 shadow-sm transition-all ml-auto"><i class="fa-solid fa-id-badge"></i></button></td></tr>`;
+                });
+                tbody.innerHTML = htmlStr;
+            }
+        }
+
+        // ==========================================
+        // FINANCE ENGINE
+        // ==========================================
+        function setFinanceFilter(filter) { currentFinanceFilter = filter; updateSegmentedActive('fin-btn', filter, ['all', 'paid', 'unpaid']); renderFinanceData(); }
+        
+        function renderFinanceData() {
+            if(isFetchingFinance) return;
+            const body = document.getElementById('finance-ledger-body'); if(!body) return;
+            if (!globalFinanceData || globalFinanceData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No financial records found.</td></tr>`; return; }
+
+            let filteredData = [...globalFinanceData];
+            if (currentFinanceFilter !== 'all') { filteredData = filteredData.filter(student => String(student.Payment_Status).toLowerCase() === currentFinanceFilter.toLowerCase()); }
+            if (filteredData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No students match current filter.</td></tr>`; return; }
+
+            let htmlStr = '';
+            filteredData.forEach(student => {
+                const status = student.Payment_Status || 'Awaiting DULA';
+                let badgeHtml = status === 'Paid' ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-check mr-1"></i> Paid</span>`
+                              : status === 'Unpaid' ? `<span class="bg-white border border-rose-200 text-rose-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Unpaid</span>`
+                              : `<span class="bg-slate-100 border border-slate-200 text-slate-500 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Awaiting</span>`;
+
+                htmlStr += `<tr class="${status === 'Unpaid' ? 'bg-rose-50/40' : 'hover:bg-white/80'} transition-colors"><td class="p-4 sm:p-6"><div class="font-black text-slate-800 text-sm">${student.First_Name || ''} ${student.Surname || ''}</div><div class="text-[10px] font-mono font-bold text-slate-400 mt-0.5">${student.Student_Number || '--'}</div></td><td class="p-4 sm:p-6 text-xs font-bold text-slate-600">${student.Room_Allocation || 'Unassigned'}</td><td class="p-4 sm:p-6"><span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-[9px] font-bold uppercase tracking-wider shadow-sm">${student.Funding_Type || 'Cash'}</span></td><td class="p-4 sm:p-6 font-mono font-bold text-slate-700">R 4,500.00</td><td class="p-4 sm:p-6 text-right">${badgeHtml}</td></tr>`;
+            });
+            body.innerHTML = htmlStr;
+        }
+
+        // ==========================================
+        // DOWNLOAD REPORT UTILS
+        // ==========================================
+        function downloadBlob(csvContent, filename) { const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = filename + ".csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link); }
+        function downloadHubReport() {
+            if (currentFilter === 'pending') {
+                const pending = globalStudentData.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
+                if(!pending.length) return showToast("No pending students to download.", "error");
+                let csv = "Student Number,First Name,Surname,Course,Campus,Funding Type\n"; pending.forEach(s => csv += `"${s.Student_Number || ''}","${s.First_Name || ''}","${s.Surname || ''}","${s.Course || ''}","${s.Campus_Hub || ''}","${s.Funding_Type || ''}"\n`);
+                downloadBlob(csv, 'ReziFlow_Pending_Vetting');
+            } else if (currentFilter === 'approved') {
+                const approved = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+                if(!approved.length) return showToast("No approved students to download.", "error");
+                let csv = "Student Number,First Name,Surname,Course,Campus,Funding Type,Room Allocation\n"; approved.forEach(s => csv += `"${s.Student_Number || ''}","${s.First_Name || ''}","${s.Surname || ''}","${s.Course || ''}","${s.Campus_Hub || ''}","${s.Funding_Type || ''}","${s.Room_Allocation || ''}"\n`);
+                downloadBlob(csv, 'ReziFlow_Approved_Students');
+            } else if (currentFilter === 'allocation') {
+                const approved = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+                if(!approved.length) return showToast("No allocation data to download.", "error");
+                let csv = "Student Number,First Name,Surname,Gender,Room Allocation\n"; approved.forEach(s => csv += `"${s.Student_Number || ''}","${s.First_Name || ''}","${s.Surname || ''}","${s.Gender || ''}","${s.Room_Allocation || ''}"\n`);
+                downloadBlob(csv, 'ReziFlow_Room_Allocations');
+            }
+        }
+    </script>
+</body>
+</html>
