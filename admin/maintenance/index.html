@@ -1,101 +1,113 @@
 <style>
-    /* Component-Specific Scoped Styles */
+    /* Fragment-Scoped Responsive Layout */
+    .maint-wrapper {
+        display: flex; flex-direction: row; width: 100%; height: 100%; gap: 0.5rem; align-items: flex-start;
+    }
+    @media (min-width: 640px) { .maint-wrapper { gap: 1.5rem; } }
+    
+    .maint-canvas {
+        flex: 1; min-width: 0; display: flex; flex-direction: column;
+    }
+    
+    /* Right Sidebar Collapsible Physics */
+    .maint-sidebar {
+        width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: sticky; top: 0;
+    }
+    @media (min-width: 1280px) { .maint-sidebar { width: 320px; } }
+    
+    .maint-sidebar.collapsed { width: 64px !important; }
+    .maint-sidebar.collapsed .nav-text { display: none; opacity: 0; }
+    .maint-sidebar.collapsed .nav-block { padding: 12px 8px; }
+    .maint-sidebar.collapsed .block-btn { padding: 12px 0; justify-content: center; border-radius: 14px; }
+    .maint-sidebar.collapsed .block-btn i { margin: 0; font-size: 1.1rem; }
+    .maint-sidebar.collapsed .engineered-pill { padding: 12px 0; justify-content: center; }
+    .maint-sidebar.collapsed .engineered-pill .nav-text { display: none; }
+
+    /* High-End Components */
     .nav-block {
-        background: rgba(255, 255, 255, 0.65);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 1);
-        box-shadow: 0 8px 32px -10px rgba(0,0,0,0.04);
-        border-radius: 28px; padding: 20px;
+        background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 8px 32px -10px rgba(0,0,0,0.04);
+        border-radius: 24px; padding: 16px; transition: all 0.3s ease;
     }
     .block-btn {
         width: 100%; display: flex; align-items: center; gap: 12px;
-        padding: 14px 20px; border-radius: 16px; font-size: 0.875rem;
-        font-weight: 600; transition: all 0.2s ease;
+        padding: 12px 16px; border-radius: 16px; font-size: 0.75rem;
+        font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap;
     }
     .block-btn-active {
         background-color: #ffffff; color: #4f46e5; border: 2px solid #0f172a;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: scale(1.01);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: scale(1.02);
     }
-    .block-btn-inactive {
-        background-color: transparent; color: #64748b; border: 2px solid transparent;
-    }
-    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.5); color: #334155; }
+    .block-btn-inactive { background-color: transparent; color: #64748b; border: 2px solid transparent; }
+    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
     
-    .btn-primary-purple {
-        background-color: #5b4fe5; color: white; border: 2px solid #5b4fe5;
-        box-shadow: 0 6px 20px rgba(91, 79, 229, 0.25);
-    }
+    .btn-primary-purple { background-color: #5b4fe5; color: white; border: 2px solid #5b4fe5; box-shadow: 0 4px 15px rgba(91, 79, 229, 0.25); }
     .btn-primary-purple:hover { background-color: #4f46e5; }
-    
-    .btn-secondary-white {
-        background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
+    .btn-secondary-white { background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .btn-secondary-white:hover { border-color: #cbd5e1; background-color: #f8fafc; }
     
     .maint-dashboard-tab { display: none; animation: paneFade 0.4s forwards; }
     .maint-dashboard-tab.active { display: block; }
     
-    /* High-End Provider Card */
     .provider-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+        background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
         backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.9);
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); transition: all 0.3s ease;
     }
-    .provider-card:hover {
-        transform: translateY(-4px); box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.15);
-        border-color: rgba(79, 70, 229, 0.3);
-    }
+    .provider-card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.15); border-color: rgba(79, 70, 229, 0.3); }
+
+    .compact-table th, .compact-table td { padding: 12px 16px; }
+    @media (max-width: 640px) { .compact-table th, .compact-table td { padding: 10px 12px; } }
 </style>
 
-<div class="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start w-full relative">
+<div class="maint-wrapper pb-20">
     
-    <div class="flex-1 min-w-0 w-full flex flex-col">
+    <div class="maint-canvas">
         
-        <div class="flex justify-center w-full mb-6 lg:mb-8" id="maint-kpi-grid">
-            <div class="glass-segmented shadow-sm">
-                <button onclick="setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue">
-                    <i class="fa-solid fa-layer-group"></i> All Open
-                    <span id="kpi-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm ml-2">-</span>
+        <div class="flex justify-center w-full mb-4 sm:mb-8" id="maint-kpi-grid">
+            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap sm:flex-wrap">
+                <button onclick="setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue flex-shrink-0">
+                    <i class="fa-solid fa-layer-group"></i> <span class="hidden sm:inline">All Open</span>
+                    <span id="kpi-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] shadow-sm ml-1.5 sm:ml-2">-</span>
                 </button>
-                <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
-                <button onclick="setMaintenanceStatus('open')" id="maint-stat-open" class="glass-seg-btn accent-amber">
+                <div class="w-px h-6 bg-slate-300/50 mx-1 hidden sm:block"></div>
+                <button onclick="setMaintenanceStatus('open')" id="maint-stat-open" class="glass-seg-btn accent-amber flex-shrink-0">
                     <i class="fa-solid fa-clock-rotate-left"></i> Pending
-                    <span id="kpi-open" class="bg-amber-50 border border-amber-100 text-amber-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm ml-2">-</span>
+                    <span id="kpi-open" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] shadow-sm ml-1.5 sm:ml-2">-</span>
                 </button>
-                <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
-                <button onclick="setMaintenanceStatus('critical')" id="maint-stat-critical" class="glass-seg-btn accent-rose">
+                <div class="w-px h-6 bg-slate-300/50 mx-1 hidden sm:block"></div>
+                <button onclick="setMaintenanceStatus('critical')" id="maint-stat-critical" class="glass-seg-btn accent-rose flex-shrink-0">
                     <i class="fa-solid fa-fire"></i> Critical
-                    <span id="kpi-critical" class="bg-rose-50 border border-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm ml-2">-</span>
+                    <span id="kpi-critical" class="bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] shadow-sm ml-1.5 sm:ml-2">-</span>
                 </button>
             </div>
         </div>
 
         <div id="maint-pane-snags" class="maint-dashboard-tab active">
-            <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden">
-                <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+            <div class="glass-panel rounded-[20px] sm:rounded-[32px] overflow-hidden">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-screwdriver-wrench text-sm"></i></div>
-                        <h3 class="font-bold text-slate-800 text-base sm:text-lg">Live Ticket Queue</h3>
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-screwdriver-wrench text-xs sm:text-sm"></i></div>
+                        <h3 class="font-black text-slate-800 text-sm sm:text-lg tracking-tight">Live Ticket Queue</h3>
                     </div>
-                    <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
-                        <div class="relative w-full sm:w-56">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-maintenance" onkeyup="filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="modern-input search-input py-2 bg-white/80">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap justify-end w-full md:w-auto">
+                        <div class="relative flex-1 sm:flex-none sm:w-48">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] sm:text-xs"></i>
+                            <input type="text" id="search-maintenance" onkeyup="filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="modern-input search-input py-2 bg-white/80 text-[10px] sm:text-xs">
                         </div>
-                        <button onclick="forceRefreshMaintenance()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                        <button onclick="forceRefreshMaintenance()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 sm:px-4 py-2 rounded-xl transition-all shadow-sm flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-rotate text-blue-500"></i></button>
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
-                    <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+                    <table class="w-full text-left text-sm border-collapse min-w-[600px] compact-table">
                         <thead>
-                            <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
-                                <th class="p-4 sm:p-6 w-32">Ticket ID</th>
-                                <th class="p-4 sm:p-6 w-48">Resident & Room</th>
-                                <th class="p-4 sm:p-6">Category</th>
-                                <th class="p-4 sm:p-6">Description & Updates</th>
-                                <th class="p-4 sm:p-6 w-40 text-right">Ops Action</th>
+                            <tr class="bg-white/50 text-slate-400 uppercase tracking-widest font-bold text-[8px] sm:text-[9px] border-b border-slate-200/50">
+                                <th class="w-24 sm:w-32">Ticket ID</th>
+                                <th class="w-32 sm:w-48">Location</th>
+                                <th>Category</th>
+                                <th>Issue & Updates</th>
+                                <th class="w-28 sm:w-32 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="maintenance-body" class="divide-y divide-slate-100/50">
@@ -106,29 +118,29 @@
         </div>
 
         <div id="maint-pane-history" class="maint-dashboard-tab">
-            <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden">
-                <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+            <div class="glass-panel rounded-[20px] sm:rounded-[32px] overflow-hidden">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-sm"></i></div>
-                        <h3 class="font-bold text-slate-800 text-base sm:text-lg">Repair Archive <span class="ml-2 bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold">Resolved Only</span></h3>
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-xs sm:text-sm"></i></div>
+                        <h3 class="font-black text-slate-800 text-sm sm:text-lg tracking-tight">Repair Archive <span class="hidden sm:inline-block ml-2 bg-emerald-100 text-emerald-700 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Resolved</span></h3>
                     </div>
-                    <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
-                        <div class="relative w-full sm:w-56">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-history" onkeyup="filterTable('search-history', 'history-body')" placeholder="Search archive..." class="modern-input search-input py-2 bg-white/80">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap justify-end w-full md:w-auto">
+                        <div class="relative flex-1 sm:flex-none sm:w-48">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] sm:text-xs"></i>
+                            <input type="text" id="search-history" onkeyup="filterTable('search-history', 'history-body')" placeholder="Search archive..." class="modern-input search-input py-2 bg-white/80 text-[10px] sm:text-xs">
                         </div>
-                        <button onclick="downloadReport('history')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span></button>
+                        <button onclick="downloadReport('history')" class="bg-[#1d1d1f] text-white font-bold px-3 sm:px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-[10px] sm:text-xs"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span></button>
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
-                    <table class="w-full text-left text-sm border-collapse min-w-[700px]">
+                    <table class="w-full text-left text-sm border-collapse min-w-[600px] compact-table">
                         <thead>
-                            <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
-                                <th class="p-4 sm:p-6 w-32">Ticket ID</th>
-                                <th class="p-4 sm:p-6 w-48">Location</th>
-                                <th class="p-4 sm:p-6">Category</th>
-                                <th class="p-4 sm:p-6">Description</th>
-                                <th class="p-4 sm:p-6 w-40 text-right">Status</th>
+                            <tr class="bg-white/50 text-slate-400 uppercase tracking-widest font-bold text-[8px] sm:text-[9px] border-b border-slate-200/50">
+                                <th class="w-24 sm:w-32">Ticket ID</th>
+                                <th class="w-32 sm:w-48">Location</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th class="w-28 sm:w-32 text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody id="history-body" class="divide-y divide-slate-100/50">
@@ -139,39 +151,39 @@
         </div>
 
         <div id="maint-pane-inventory" class="maint-dashboard-tab">
-            <div class="glass-panel rounded-[32px] overflow-hidden">
-                <div class="px-6 lg:px-8 py-5 border-b border-white/40 flex flex-col md:flex-row justify-between md:items-center bg-white/50 backdrop-blur-md gap-4">
+            <div class="glass-panel rounded-[20px] sm:rounded-[32px] overflow-hidden">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-white/40 flex flex-col md:flex-row justify-between md:items-center bg-white/50 backdrop-blur-md gap-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-boxes-stacked text-sm"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
+                            <i class="fa-solid fa-boxes-stacked text-sm sm:text-base"></i>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-lg">Facility Stock Vault</h3>
+                        <div>
+                            <h3 class="font-black text-slate-800 text-sm sm:text-lg tracking-tight">Facility Stock Vault</h3>
+                            <p class="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Asset Inventory</p>
+                        </div>
                     </div>
-                    <div class="flex items-center flex-wrap sm:flex-nowrap gap-3">
-                        <div class="glass-segmented">
-                            <button onclick="setInventoryCategory('all')" id="inv-cat-all" class="glass-seg-btn active accent-blue">All Stock</button>
-                            <button onclick="setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue">Plumbing</button>
-                            <button onclick="setInventoryCategory('electrical')" id="inv-cat-electrical" class="glass-seg-btn accent-blue">Electrical</button>
-                            <button onclick="setInventoryCategory('furniture')" id="inv-cat-furniture" class="glass-seg-btn accent-blue">Furniture</button>
+                    <div class="flex items-center flex-wrap sm:flex-nowrap gap-2 sm:gap-3 w-full md:w-auto">
+                        <div class="glass-segmented w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
+                            <button onclick="setInventoryCategory('all')" id="inv-cat-all" class="glass-seg-btn active accent-blue flex-shrink-0">All</button>
+                            <button onclick="setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue flex-shrink-0">Plumbing</button>
+                            <button onclick="setInventoryCategory('electrical')" id="inv-cat-electrical" class="glass-seg-btn accent-blue flex-shrink-0">Electrical</button>
+                            <button onclick="setInventoryCategory('furniture')" id="inv-cat-furniture" class="glass-seg-btn accent-blue flex-shrink-0">Furniture</button>
                         </div>
-                        <div class="relative w-full sm:w-48">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-inventory" onkeyup="filterTable('search-inventory', 'inventory-body')" placeholder="Search stock..." class="modern-input search-input py-2 bg-white/80">
-                        </div>
+                        <button onclick="document.getElementById('stockModal').classList.add('active')" class="bg-[#1d1d1f] text-white font-bold px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all shadow-md flex items-center justify-center flex-shrink-0 text-[10px] sm:text-xs w-full sm:w-auto mt-2 sm:mt-0"><i class="fa-solid fa-plus mr-1.5"></i> Add Stock</button>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[600px]">
-                    <table class="w-full text-left text-sm border-collapse min-w-[700px]">
-                        <thead class="sticky top-0 bg-white/90 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
-                            <tr class="text-slate-400 uppercase tracking-widest font-bold text-[10px]">
-                                <th class="p-6">Item Name & SKU</th>
-                                <th class="p-6">Category</th>
-                                <th class="p-6 w-64">Stock Level</th>
-                                <th class="p-6 text-right">Status</th>
+                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[60vh]">
+                    <table class="w-full text-left text-sm border-collapse min-w-[600px] compact-table">
+                        <thead class="sticky top-0 bg-white/95 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
+                            <tr class="text-slate-400 uppercase tracking-widest font-bold text-[8px] sm:text-[9px]">
+                                <th class="w-48 sm:w-64">Item Name & SKU</th>
+                                <th>Category</th>
+                                <th class="w-32 sm:w-48">Stock Level</th>
+                                <th class="text-right w-24 sm:w-28">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="inventory-body" class="divide-y divide-white/50">
+                        <tbody id="inventory-body" class="divide-y divide-white/60">
                             </tbody>
                     </table>
                 </div>
@@ -179,149 +191,113 @@
         </div>
 
         <div id="maint-pane-vendors" class="maint-dashboard-tab">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">Service Providers</h2>
-                    <p class="text-sm font-medium text-slate-500">External contractors and maintenance SLAs.</p>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Service Providers</h2>
+                    <p class="text-[10px] sm:text-xs font-medium text-slate-500 mt-1">External contractors and SLAs.</p>
                 </div>
-                <button class="bg-[#1d1d1f] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-indigo-600 transition-colors"><i class="fa-solid fa-plus mr-1"></i> Add Provider</button>
+                <div class="glass-segmented overflow-x-auto custom-scroll flex-nowrap w-full sm:w-auto">
+                    <button onclick="setVendorCategory('all')" id="ven-cat-all" class="glass-seg-btn active accent-blue flex-shrink-0">All</button>
+                    <button onclick="setVendorCategory('plumbing')" id="ven-cat-plumbing" class="glass-seg-btn accent-blue flex-shrink-0">Plumbing</button>
+                    <button onclick="setVendorCategory('electrical')" id="ven-cat-electrical" class="glass-seg-btn accent-blue flex-shrink-0">Electrical</button>
+                    <button onclick="setVendorCategory('furniture')" id="ven-cat-furniture" class="glass-seg-btn accent-blue flex-shrink-0">Furniture</button>
+                </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="provider-card p-6 rounded-[24px] group">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 border border-blue-100 rounded-full flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-droplet"></i></div>
-                        <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">SLA: Active</span>
-                    </div>
-                    <h4 class="font-black text-slate-800 text-lg leading-tight">AquaFlow Plumbers</h4>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">Primary Plumbing</p>
-                    <div class="space-y-2 mt-4 text-xs font-semibold text-slate-600 border-t border-slate-200/60 pt-4">
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> +27 11 555 0192</p>
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> dispatch@aquaflow.co.za</p>
-                    </div>
+            <div id="vendors-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 </div>
-
-                <div class="provider-card p-6 rounded-[24px] group">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-500 border border-amber-100 rounded-full flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-bolt"></i></div>
-                        <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">SLA: Active</span>
-                    </div>
-                    <h4 class="font-black text-slate-800 text-lg leading-tight">SparkLine Electrical</h4>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">Primary Electrical</p>
-                    <div class="space-y-2 mt-4 text-xs font-semibold text-slate-600 border-t border-slate-200/60 pt-4">
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> +27 11 555 0833</p>
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> ops@sparkline.co.za</p>
-                    </div>
-                </div>
-
-                <div class="provider-card p-6 rounded-[24px] group">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 bg-rose-50 text-rose-500 border border-rose-100 rounded-full flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-hammer"></i></div>
-                        <span class="bg-rose-50 text-rose-600 border border-rose-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">SLA: Expired</span>
-                    </div>
-                    <h4 class="font-black text-slate-800 text-lg leading-tight">WoodCrafters Co.</h4>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">Carpentry & Furniture</p>
-                    <div class="space-y-2 mt-4 text-xs font-semibold text-slate-600 border-t border-slate-200/60 pt-4">
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> +27 12 345 6789</p>
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> fix@woodcrafters.co.za</p>
-                    </div>
-                </div>
-                
-                <div class="provider-card p-6 rounded-[24px] group">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 bg-slate-100 text-slate-600 border border-slate-200 rounded-full flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-lock"></i></div>
-                        <span class="bg-amber-50 text-amber-600 border border-amber-100 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">On-Call</span>
-                    </div>
-                    <h4 class="font-black text-slate-800 text-lg leading-tight">SecureLocks Locksmiths</h4>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">Hardware & Access</p>
-                    <div class="space-y-2 mt-4 text-xs font-semibold text-slate-600 border-t border-slate-200/60 pt-4">
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> +27 82 999 4444</p>
-                        <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> emergency@securelocks.co.za</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
     </div>
 
-    <div class="w-full xl:w-[340px] flex-shrink-0 flex flex-col space-y-5 xl:sticky xl:top-0">
+    <div id="maint-right-sidebar" class="maint-sidebar">
         
-        <div class="nav-block flex items-center gap-4 !p-4 shadow-sm">
-            <div class="w-[45px] h-[45px] bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[14px] shadow-lg shadow-indigo-500/30 flex items-center justify-center text-white text-xl flex-shrink-0">
-                <i class="fa-solid fa-toolbox"></i>
+        <div onclick="toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-3 sm:!p-4 shadow-sm cursor-pointer hover:border-indigo-300 transition-colors group">
+            <div class="flex items-center gap-3 w-full">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[12px] shadow-lg shadow-indigo-500/30 flex items-center justify-center text-white text-lg flex-shrink-0 transition-transform group-hover:scale-105">
+                    <i class="fa-solid fa-toolbox"></i>
+                </div>
+                <div class="flex flex-col nav-text flex-1 overflow-hidden">
+                    <span class="font-black text-sm sm:text-base tracking-tight text-slate-900 leading-none truncate">Rezi<span class="text-indigo-500">Ops</span></span>
+                    <span class="text-[7px] sm:text-[8px] font-bold tracking-widest text-slate-400 uppercase mt-1 truncate">Admin Command</span>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <span class="font-black text-xl tracking-tight text-slate-900 leading-none">Rezi<span class="text-indigo-500">Ops</span></span>
-                <span class="text-[8px] font-bold tracking-widest text-slate-400 uppercase mt-1">Admin Command</span>
-            </div>
+            <i class="fa-solid fa-chevron-right text-slate-300 text-xs nav-text transition-transform group-hover:translate-x-1"></i>
         </div>
 
-        <div class="nav-block !p-4">
-            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Work Orders</p>
-            <div class="space-y-2">
-                <button onclick="switchMaintTab('snags', this, true)" class="block-btn block-btn-active">
-                    <i class="fa-solid fa-clipboard-list text-[17px] w-6 text-center text-indigo-500"></i> Active Snags
+        <div class="nav-block">
+            <p class="px-2 text-[8px] font-extrabold text-slate-400 uppercase tracking-widest mb-2.5 nav-text truncate">Work Orders</p>
+            <div class="space-y-1.5 sm:space-y-2">
+                <button onclick="switchMaintTab('snags', this, true)" class="block-btn block-btn-active" title="Live Tickets">
+                    <i class="fa-solid fa-clipboard-list text-sm sm:text-base w-5 text-center text-indigo-500"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Live Tickets</span>
                 </button>
-                <button onclick="switchMaintTab('history', this, false)" class="block-btn block-btn-inactive">
-                    <i class="fa-solid fa-clock-rotate-left text-[17px] w-6 text-center text-slate-500"></i> Repair History
-                </button>
-            </div>
-        </div>
-
-        <div class="nav-block !p-4">
-            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Quick Actions</p>
-            <div class="space-y-3">
-                <button onclick="document.getElementById('maintSnagModal').classList.add('active')" class="block-btn btn-primary-purple justify-center gap-2 !py-3.5">
-                    <i class="fa-solid fa-plus"></i> Log Manual Ticket
-                </button>
-                <button onclick="document.getElementById('stockModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-2 !py-3.5">
-                    <i class="fa-solid fa-boxes-packing text-slate-500"></i> Add New Stock
-                </button>
-                <button onclick="document.getElementById('poModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-2 !py-3.5">
-                    <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Generate PO
+                <button onclick="switchMaintTab('history', this, false)" class="block-btn block-btn-inactive" title="Repair History">
+                    <i class="fa-solid fa-clock-rotate-left text-sm sm:text-base w-5 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Repair History</span>
                 </button>
             </div>
         </div>
 
-        <div class="nav-block !p-4">
-            <p class="px-2 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Supply Chain</p>
-            <div class="space-y-2">
-                <button onclick="switchMaintTab('inventory', this, false)" class="block-btn block-btn-inactive">
-                    <i class="fa-solid fa-boxes-stacked text-[17px] w-6 text-center text-slate-500"></i> Stock & Vault
+        <div class="nav-block">
+            <p class="px-2 text-[8px] font-extrabold text-slate-400 uppercase tracking-widest mb-2.5 nav-text truncate">Quick Actions</p>
+            <div class="space-y-2 sm:space-y-2.5">
+                <button onclick="document.getElementById('maintSnagModal').classList.add('active')" class="block-btn btn-primary-purple justify-center gap-2 !py-2.5 sm:!py-3" title="Log Ticket">
+                    <i class="fa-solid fa-plus text-xs sm:text-sm"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Log Ticket</span>
                 </button>
-                <button onclick="switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive">
-                    <i class="fa-solid fa-user-gear text-[17px] w-6 text-center text-slate-500"></i> Service Providers
+                <button onclick="switchMaintTab('inventory', document.getElementById('btn-nav-inventory'), false); document.getElementById('stockModal').classList.add('active');" class="block-btn btn-secondary-white justify-center gap-2 !py-2.5 sm:!py-3" title="Add Stock">
+                    <i class="fa-solid fa-boxes-packing text-slate-500 text-xs sm:text-sm"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Add Stock</span>
+                </button>
+                <button onclick="document.getElementById('poModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-2 !py-2.5 sm:!py-3" title="Generate PO">
+                    <i class="fa-solid fa-file-invoice-dollar text-slate-500 text-xs sm:text-sm"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Generate PO</span>
                 </button>
             </div>
         </div>
 
-        <div class="mt-2 flex-shrink-0 relative overflow-hidden bg-[#111827] p-3.5 rounded-[24px] border border-slate-700 shadow-xl flex items-center gap-4">
+        <div class="nav-block">
+            <p class="px-2 text-[8px] font-extrabold text-slate-400 uppercase tracking-widest mb-2.5 nav-text truncate">Supply Chain</p>
+            <div class="space-y-1.5 sm:space-y-2">
+                <button id="btn-nav-inventory" onclick="switchMaintTab('inventory', this, false)" class="block-btn block-btn-inactive" title="Stock & Vault">
+                    <i class="fa-solid fa-boxes-stacked text-sm sm:text-base w-5 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Stock & Vault</span>
+                </button>
+                <button onclick="switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive" title="Service Providers">
+                    <i class="fa-solid fa-user-gear text-sm sm:text-base w-5 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[10px] sm:text-xs">Providers</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto flex-shrink-0 relative overflow-hidden bg-[#111827] p-3 rounded-[20px] border border-slate-700 shadow-xl flex items-center gap-3 engineered-pill">
             <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-500 rounded-full blur-2xl opacity-20"></div>
-            <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0"><i class="fa-solid fa-bolt text-xs"></i></div>
-            <div class="flex flex-col relative z-10">
-                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Engineered By</span>
-                <span class="text-[13px] font-black text-white tracking-widest mt-0.5">AUTOMANIA</span>
+            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0"><i class="fa-solid fa-bolt text-[10px]"></i></div>
+            <div class="flex flex-col relative z-10 nav-text overflow-hidden">
+                <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest truncate">Engineered By</span>
+                <span class="text-[11px] font-black text-white tracking-widest mt-0.5 truncate">AUTOMANIA</span>
             </div>
         </div>
 
     </div>
 </div>
 
-<div id="maintSnagModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-xl bg-slate-900/40">
-    <div class="modal-content glass-panel w-full max-w-md rounded-[32px] shadow-2xl p-6 sm:p-8 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-400 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
-        <button onclick="document.getElementById('maintSnagModal').classList.remove('active')" class="absolute top-6 right-6 w-8 h-8 bg-white/80 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark"></i></button>
-        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm relative z-10"><i class="fa-solid fa-clipboard-list"></i></div>
-        <h2 class="text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Log Manual Ticket</h2>
-        <p class="text-xs font-medium text-slate-500 mb-6 relative z-10">Manually dispatch a facility incident.</p>
+<div id="maintSnagModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-md bg-slate-900/60">
+    <div class="modal-content glass-panel w-full max-w-md rounded-[28px] shadow-2xl p-6 sm:p-8 relative overflow-hidden border border-white/20">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-[90px] opacity-20 pointer-events-none"></div>
+        <button onclick="document.getElementById('maintSnagModal').classList.remove('active')" class="absolute top-5 right-5 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-[14px] flex items-center justify-center text-xl mb-4 shadow-sm relative z-10"><i class="fa-solid fa-clipboard-list"></i></div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Log Incident</h2>
+        <p class="text-[10px] sm:text-xs font-medium text-slate-500 mb-6 relative z-10">Manually dispatch a facility incident.</p>
         <form onsubmit="submitManualSnag(event)" class="relative z-10">
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Room / Location</label>
-                <input type="text" id="snag-room" class="modern-input" placeholder="e.g. Block A Lounge" required>
+            <div class="mb-3.5">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Room / Location</label>
+                <input type="text" id="snag-room" class="modern-input !py-2.5 text-xs" placeholder="e.g. Block A Lounge" required>
             </div>
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Category</label>
-                <select id="snag-category" class="modern-input" required>
+            <div class="mb-3.5">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Category</label>
+                <select id="snag-category" class="modern-input !py-2.5 text-xs" required>
                     <option value="" disabled selected>Select issue type...</option>
                     <option value="Plumbing">Plumbing</option>
                     <option value="Electrical">Electrical</option>
@@ -329,40 +305,40 @@
                     <option value="Furniture">Furniture</option>
                 </select>
             </div>
-            <div class="mb-8">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Description</label>
-                <textarea id="snag-desc" rows="3" class="modern-input resize-none" placeholder="Provide details..." required></textarea>
+            <div class="mb-6">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Description</label>
+                <textarea id="snag-desc" rows="3" class="modern-input resize-none !py-2.5 text-xs" placeholder="Provide details..." required></textarea>
             </div>
-            <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-indigo-600/30 transition-all flex justify-center items-center gap-2">Submit Ticket <i class="fa-solid fa-arrow-right"></i></button>
+            <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-[14px] py-3.5 shadow-lg shadow-indigo-600/30 transition-all flex justify-center items-center gap-2 text-sm">Submit Ticket <i class="fa-solid fa-arrow-right"></i></button>
         </form>
     </div>
 </div>
 
-<div id="stockModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-xl bg-slate-900/40">
-    <div class="modal-content glass-panel w-full max-w-md rounded-[32px] shadow-2xl p-6 sm:p-8 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-400 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
-        <button onclick="document.getElementById('stockModal').classList.remove('active')" class="absolute top-6 right-6 w-8 h-8 bg-white/80 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark"></i></button>
-        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm relative z-10"><i class="fa-solid fa-boxes-stacked"></i></div>
-        <h2 class="text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Register New Stock</h2>
-        <p class="text-xs font-medium text-slate-500 mb-6 relative z-10">Add newly delivered parts to the vault.</p>
+<div id="stockModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-md bg-slate-900/60">
+    <div class="modal-content glass-panel w-full max-w-md rounded-[28px] shadow-2xl p-6 sm:p-8 relative overflow-hidden border border-white/20">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[90px] opacity-20 pointer-events-none"></div>
+        <button onclick="document.getElementById('stockModal').classList.remove('active')" class="absolute top-5 right-5 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[14px] flex items-center justify-center text-xl mb-4 shadow-sm relative z-10"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Register Stock</h2>
+        <p class="text-[10px] sm:text-xs font-medium text-slate-500 mb-6 relative z-10">Add newly delivered parts to the vault.</p>
         <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); alert('Stock Added Successfully'); e.target.reset();" class="relative z-10">
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Item Name</label>
-                <input type="text" class="modern-input" placeholder="e.g. LED Ceiling Bulb" required>
+            <div class="mb-3.5">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Item Name</label>
+                <input type="text" class="modern-input !py-2.5 text-xs" placeholder="e.g. LED Ceiling Bulb" required>
             </div>
-            <div class="mb-4 flex gap-4">
+            <div class="mb-3.5 flex gap-3">
                 <div class="w-1/2">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">SKU Code</label>
-                    <input type="text" class="modern-input" placeholder="EL-0042" required>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">SKU Code</label>
+                    <input type="text" class="modern-input !py-2.5 text-xs" placeholder="EL-0042" required>
                 </div>
                 <div class="w-1/2">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Quantity</label>
-                    <input type="number" class="modern-input" placeholder="0" required>
+                    <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Quantity</label>
+                    <input type="number" class="modern-input !py-2.5 text-xs" placeholder="0" required>
                 </div>
             </div>
-            <div class="mb-8">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Category</label>
-                <select class="modern-input" required>
+            <div class="mb-6">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Category</label>
+                <select class="modern-input !py-2.5 text-xs" required>
                     <option value="" disabled selected>Select category...</option>
                     <option value="plumbing">Plumbing</option>
                     <option value="electrical">Electrical</option>
@@ -370,44 +346,58 @@
                     <option value="furniture">Furniture</option>
                 </select>
             </div>
-            <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-2xl py-4 transition-all shadow-xl shadow-slate-900/20">Add To Vault</button>
+            <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[14px] py-3.5 transition-all shadow-xl shadow-slate-900/20 text-sm">Add To Vault</button>
         </form>
     </div>
 </div>
 
-<div id="poModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-xl bg-slate-900/40">
-    <div class="modal-content glass-panel w-full max-w-md rounded-[32px] shadow-2xl p-6 sm:p-8 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-amber-400 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
-        <button onclick="document.getElementById('poModal').classList.remove('active')" class="absolute top-6 right-6 w-8 h-8 bg-white/80 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark"></i></button>
-        <div class="w-14 h-14 bg-amber-50 text-amber-600 border border-amber-100 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-sm relative z-10"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-        <h2 class="text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Purchase Order</h2>
-        <p class="text-xs font-medium text-slate-500 mb-6 relative z-10">Generate a PO to send to Finance.</p>
+<div id="poModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[1200] backdrop-blur-md bg-slate-900/60">
+    <div class="modal-content glass-panel w-full max-w-md rounded-[28px] shadow-2xl p-6 sm:p-8 relative overflow-hidden border border-white/20">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500 rounded-full blur-[90px] opacity-20 pointer-events-none"></div>
+        <button onclick="document.getElementById('poModal').classList.remove('active')" class="absolute top-5 right-5 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm z-10"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 border border-amber-100 rounded-[14px] flex items-center justify-center text-xl mb-4 shadow-sm relative z-10"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Purchase Order</h2>
+        <p class="text-[10px] sm:text-xs font-medium text-slate-500 mb-6 relative z-10">Generate a PO to send to Finance.</p>
         <form onsubmit="event.preventDefault(); document.getElementById('poModal').classList.remove('active'); alert('Purchase Order Generated and Sent to Finance.');" class="relative z-10">
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Service Provider</label>
-                <select class="modern-input" required>
+            <div class="mb-3.5">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Service Provider</label>
+                <select class="modern-input !py-2.5 text-xs" required>
                     <option value="" disabled selected>Choose Contractor...</option>
                     <option value="AquaFlow">AquaFlow Plumbers</option>
                     <option value="SparkLine">SparkLine Electrical</option>
                     <option value="WoodCrafters">WoodCrafters Co.</option>
-                    <option value="SecureLocks">SecureLocks Locksmiths</option>
                 </select>
             </div>
-            <div class="mb-4">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Requested Items / Service</label>
-                <textarea rows="2" class="modern-input resize-none" placeholder="E.g. Call-out fee for Block B leak" required></textarea>
+            <div class="mb-3.5">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Requested Service</label>
+                <textarea rows="2" class="modern-input resize-none !py-2.5 text-xs" placeholder="E.g. Call-out fee for Block B leak" required></textarea>
             </div>
-            <div class="mb-8">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-1">Estimated Cost (ZAR)</label>
-                <input type="number" class="modern-input font-mono font-bold text-lg" placeholder="0.00" required>
+            <div class="mb-6">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Estimated Cost (ZAR)</label>
+                <input type="number" class="modern-input font-mono font-bold text-sm !py-2.5" placeholder="0.00" required>
             </div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl py-4 transition-all shadow-xl shadow-blue-600/30 flex justify-center items-center gap-2">Issue PO <i class="fa-solid fa-paper-plane"></i></button>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[14px] py-3.5 transition-all shadow-xl shadow-blue-600/30 flex justify-center items-center gap-2 text-sm">Issue PO <i class="fa-solid fa-paper-plane"></i></button>
         </form>
     </div>
 </div>
 
 <script>
-    // Safe Segment Updater for Mother File Compatibility
+    // ----------------------------------------------------
+    // RESPONSIVE SIDEBAR TOGGLE
+    // ----------------------------------------------------
+    function toggleMaintSidebar() {
+        const sidebar = document.getElementById('maint-right-sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+    
+    // Auto-collapse on small screens to ensure fit
+    if (window.innerWidth < 768) {
+        document.getElementById('maint-right-sidebar').classList.add('collapsed');
+    }
+
+    // ----------------------------------------------------
+    // BASE UTILS
+    // ----------------------------------------------------
     function safeUpdateSegmented(pfx, val, opts) {
         if(typeof updateSegmentedActive === 'function') {
             updateSegmentedActive(pfx, val, opts);
@@ -422,13 +412,14 @@
                 if(val === 'all') aEl.classList.add('accent-blue');
                 if(val === 'open') aEl.classList.add('accent-amber');
                 if(val === 'critical') aEl.classList.add('accent-rose');
-                if(val === 'closed') aEl.classList.add('accent-emerald');
                 if(val === 'plumbing' || val === 'electrical' || val === 'furniture') aEl.classList.add('accent-blue');
             }
         }
     }
 
-    // Main Tab Switcher
+    // ----------------------------------------------------
+    // TAB SWITCHER
+    // ----------------------------------------------------
     function switchMaintTab(tabId, btnElement, showKpis) {
         document.querySelectorAll('.maint-dashboard-tab').forEach(tab => tab.classList.remove('active'));
         document.getElementById('maint-pane-' + tabId).classList.add('active');
@@ -450,20 +441,20 @@
             btnElement.querySelector('i').classList.add('text-indigo-500');
         }
 
-        // Context-aware logic handling
+        // Logic routing based on active tab
         if(tabId === 'history') {
             window.renderHistoryData();
         } else if (tabId === 'snags') {
             setMaintenanceStatus('all');
         } else if (tabId === 'inventory') {
             window.renderInventoryData('all');
+        } else if (tabId === 'vendors') {
+            window.renderProvidersData('all');
         }
     }
 
     function forceRefreshMaintenance() {
-        if(typeof fetchMaintenanceData === 'function') {
-            fetchMaintenanceData(true);
-        }
+        if(typeof fetchMaintenanceData === 'function') fetchMaintenanceData(true);
     }
 
     // ----------------------------------------------------
@@ -472,13 +463,12 @@
     const dummyInventory = [
         { name: "LED Ceiling Bulb (B22)", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
         { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
-        { name: "Standard Wall Socket (Double)", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
+        { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
         { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
         { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
         { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
         { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
-        { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" },
-        { name: "Mortise Door Lock", sku: "HW-0118", cat: "hardware", stock: 2, cap: 20, icon: "fa-lock", color: "slate" }
+        { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
     ];
 
     window.setInventoryCategory = function(cat) {
@@ -491,43 +481,38 @@
         if(!body) return;
 
         let filtered = dummyInventory;
-        if(filterCategory !== 'all') {
-            filtered = dummyInventory.filter(i => i.cat === filterCategory);
-        }
+        if(filterCategory !== 'all') { filtered = dummyInventory.filter(i => i.cat === filterCategory); }
 
         let htmlStr = '';
         if(filtered.length === 0) {
-            htmlStr = `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">No stock found in this category.</td></tr>`;
+            htmlStr = `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium text-xs">No stock found in this category.</td></tr>`;
         } else {
             filtered.forEach(item => {
-                const ratio = item.stock / item.cap;
-                const isLow = ratio < 0.25;
-                const widthPct = Math.max(5, Math.floor(ratio * 100));
-                
+                const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
                 const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
                 const statusBadge = isLow 
-                    ? `<span class="bg-rose-50 text-rose-600 border border-rose-100 font-bold text-[10px] px-2.5 py-1 rounded-md uppercase tracking-wider">Low Stock</span>`
-                    : `<span class="bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold text-[10px] px-2.5 py-1 rounded-md uppercase tracking-wider">Healthy</span>`;
+                    ? `<span class="bg-rose-50 text-rose-600 border border-rose-100 font-bold text-[8px] sm:text-[9px] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md uppercase tracking-wider">Low</span>`
+                    : `<span class="bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold text-[8px] sm:text-[9px] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md uppercase tracking-wider">Healthy</span>`;
 
                 htmlStr += `
                     <tr class="${isLow ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} transition-colors border-b border-slate-100/50">
-                        <td class="p-4 sm:p-6 align-middle">
-                            <div class="font-bold text-slate-800 text-sm">${item.name}</div>
-                            <div class="text-[10px] font-mono font-bold text-slate-400 mt-1">SKU: ${item.sku}</div>
+                        <td class="p-3 sm:p-5 align-middle">
+                            <div class="font-bold text-slate-800 text-[11px] sm:text-xs leading-tight">${item.name}</div>
+                            <div class="text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 mt-1">SKU: ${item.sku}</div>
                         </td>
-                        <td class="p-4 sm:p-6 align-middle">
-                            <span class="text-[11px] font-bold text-${item.color}-500 capitalize"><i class="fa-solid ${item.icon} mr-1"></i> ${item.cat}</span>
+                        <td class="p-3 sm:p-5 align-middle">
+                            <span class="text-[9px] sm:text-[10px] font-bold text-${item.color}-500 capitalize bg-${item.color}-50 px-2 py-1 rounded-md border border-${item.color}-100"><i class="fa-solid ${item.icon} mr-1"></i> <span class="hidden sm:inline">${item.cat}</span></span>
                         </td>
-                        <td class="p-4 sm:p-6 align-middle">
-                            <div class="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
-                                <span class="${isLow ? 'text-rose-600' : ''}">${item.stock} Units</span>
-                                <span class="text-slate-400">Cap: ${item.cap}</span>
+                        <td class="p-3 sm:p-5 align-middle w-24 sm:w-48">
+                            <div class="flex items-center justify-between text-[9px] sm:text-[10px] font-bold text-slate-600 mb-1.5">
+                                <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
+                                <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
                             </div>
                             <div class="w-full bg-slate-200/70 rounded-full h-1.5 overflow-hidden shadow-inner">
                                 <div class="${barColor} h-full rounded-full transition-all duration-500" style="width: ${widthPct}%"></div>
                             </div>
                         </td>
-                        <td class="p-4 sm:p-6 text-right align-middle">
+                        <td class="p-3 sm:p-5 text-right align-middle w-16 sm:w-28">
                             ${statusBadge}
                         </td>
                     </tr>
@@ -538,13 +523,60 @@
     };
 
     // ----------------------------------------------------
+    // SERVICE PROVIDERS LOGIC (Fabricated 5 Providers)
+    // ----------------------------------------------------
+    const dummyProviders = [
+        { name: 'AquaFlow Plumbers', type: 'plumbing', desc: 'Primary Pipe & Geyser Contractor', phone: '011 555 0192', email: 'dispatch@aquaflow.co.za', icon: 'fa-droplet', color: 'blue' },
+        { name: 'PipeMasters', type: 'plumbing', desc: 'Emergency Unblocking', phone: '011 555 0200', email: 'help@pipemasters.co.za', icon: 'fa-wrench', color: 'blue' },
+        { name: 'SparkLine Electrical', type: 'electrical', desc: 'Primary Wiring & Cert', phone: '011 555 0833', email: 'ops@sparkline.co.za', icon: 'fa-bolt', color: 'amber' },
+        { name: 'VoltWorks', type: 'electrical', desc: 'Backup Lighting & Plugs', phone: '011 555 0999', email: 'fix@voltworks.co.za', icon: 'fa-plug', color: 'amber' },
+        { name: 'WoodCrafters Co.', type: 'furniture', desc: 'Bed & Desk Repairs', phone: '012 345 6789', email: 'info@woodcrafters.co.za', icon: 'fa-hammer', color: 'rose' }
+    ];
+
+    window.setVendorCategory = function(cat) {
+        safeUpdateSegmented('ven-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
+        window.renderProvidersData(cat);
+    };
+
+    window.renderProvidersData = function(filterCategory = 'all') {
+        const grid = document.getElementById('vendors-grid');
+        if(!grid) return;
+
+        let filtered = dummyProviders;
+        if(filterCategory !== 'all') { filtered = dummyProviders.filter(p => p.type === filterCategory); }
+
+        let htmlStr = '';
+        if(filtered.length === 0) {
+            grid.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400 font-medium text-xs">No providers found in this category.</div>`;
+        } else {
+            filtered.forEach(p => {
+                htmlStr += `
+                    <div class="provider-card p-5 sm:p-6 rounded-[24px] group flex flex-col h-full">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-[14px] flex items-center justify-center text-lg sm:text-xl shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
+                            <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Active SLA</span>
+                        </div>
+                        <h4 class="font-black text-slate-800 text-sm sm:text-base leading-tight">${p.name}</h4>
+                        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4 flex-1">${p.desc}</p>
+                        <div class="space-y-2 mt-auto text-[10px] sm:text-xs font-semibold text-slate-600 border-t border-slate-200/60 pt-4">
+                            <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> ${p.phone}</p>
+                            <p class="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> ${p.email}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = htmlStr;
+        }
+    };
+
+    // ----------------------------------------------------
     // LIVE TICKETS LOGIC (OPEN & CRITICAL ONLY)
     // ----------------------------------------------------
     window.renderMaintenanceData = function() {
         const body = document.getElementById('maintenance-body'); if(!body) return;
         
         if(!globalMaintenanceData || globalMaintenanceData.length === 0) { 
-            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No maintenance logs found.</td></tr>`; 
+            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium text-xs">No maintenance logs found.</td></tr>`; 
             if(document.getElementById('kpi-all')) document.getElementById('kpi-all').textContent = '0';
             if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = '0';
             if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').textContent = '0';
@@ -553,16 +585,12 @@
 
         let openCount = 0; let criticalCount = 0;
 
-        // Calculate KPI values excluding closed tickets from top counts
         globalMaintenanceData.forEach(d => {
             const isResolved = String(d.Repair_Status).toLowerCase().includes('resolved');
             if (!isResolved) {
                 openCount++;
-                const cat = String(d.Category).toLowerCase();
-                const desc = String(d.Description).toLowerCase();
-                if (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')) {
-                    criticalCount++;
-                }
+                const cat = String(d.Category).toLowerCase(); const desc = String(d.Description).toLowerCase();
+                if (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')) { criticalCount++; }
             }
         });
 
@@ -570,80 +598,71 @@
         if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = (openCount - criticalCount);
         if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').textContent = criticalCount;
 
-        // Apply Segmented Filter (ONLY FOR LIVE OPEN TICKETS)
+        // Apply Live Board Filters (Excludes Closed)
         let filtered = globalMaintenanceData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
         
         if(currentMaintenanceStatus === 'open') {
-            // "Pending" means non-critical open
             filtered = filtered.filter(l => {
-                const cat = String(l.Category).toLowerCase();
-                const desc = String(l.Description).toLowerCase();
+                const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase();
                 return !(cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
             });
         } else if (currentMaintenanceStatus === 'critical') {
             filtered = filtered.filter(l => {
-                const cat = String(l.Category).toLowerCase();
-                const desc = String(l.Description).toLowerCase();
+                const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase();
                 return (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
             });
         }
         
         if(filtered.length === 0) { 
-            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-10 text-center text-slate-400 font-medium">Queue is completely clear! Great job.</td></tr>`; 
+            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium text-xs">Queue is completely clear! Great job.</td></tr>`; 
             return; 
         }
 
-        // Sort: Oldest first for fair queueing, or critical first. Let's do critical first, then oldest.
         filtered.sort((a, b) => {
             const catA = String(a.Category).toLowerCase(); const descA = String(a.Description).toLowerCase();
             const catB = String(b.Category).toLowerCase(); const descB = String(b.Description).toLowerCase();
             const critA = (catA.includes('elect') || catA.includes('plumb') || descA.includes('leak') || descA.includes('power')) ? 1 : 0;
             const critB = (catB.includes('elect') || catB.includes('plumb') || descB.includes('leak') || descB.includes('power')) ? 1 : 0;
             if (critA !== critB) return critB - critA; 
-            
-            let dateA = new Date(a.Timestamp || 0).getTime();
-            let dateB = new Date(b.Timestamp || 0).getTime();
+            let dateA = new Date(a.Timestamp || 0).getTime(); let dateB = new Date(b.Timestamp || 0).getTime();
             return dateA - dateB; 
         });
 
         let htmlStr = '';
         filtered.forEach(log => {
             let residentName = 'Unknown';
-            if (typeof getResidentForRoom === 'function') {
-                const resident = getResidentForRoom(log.Room); residentName = resident.name;
-            }
+            if (typeof getResidentForRoom === 'function') { const resident = getResidentForRoom(log.Room); residentName = resident.name; }
             
-            const cat = String(log.Category).toLowerCase();
-            const desc = String(log.Description).toLowerCase();
+            const cat = String(log.Category).toLowerCase(); const desc = String(log.Description).toLowerCase();
             const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
 
             const statusBadge = isCritical 
-                ? `<span class="text-rose-500 font-bold animate-pulse"><i class="fa-solid fa-fire mr-1"></i> Critical</span>`
-                : `<span class="text-amber-500 font-bold"><i class="fa-solid fa-clock mr-1"></i> Pending</span>`;
+                ? `<span class="text-rose-500 font-bold animate-pulse"><i class="fa-solid fa-fire mr-1 hidden sm:inline"></i> Critical</span>`
+                : `<span class="text-amber-500 font-bold"><i class="fa-solid fa-clock mr-1 hidden sm:inline"></i> Pending</span>`;
             
             htmlStr += `
                 <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} transition-colors group border-b border-slate-100/50">
-                    <td class="p-4 sm:p-6 align-top">
-                        <div class="font-mono font-black text-slate-800 text-xs sm:text-sm">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[9px] text-slate-400 font-bold mt-1 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                    <td class="p-3 sm:p-5 align-top">
+                        <div class="font-mono font-black text-slate-800 text-[10px] sm:text-xs">${log.Ticket_ID || '--'}</div>
+                        <div class="text-[8px] sm:text-[9px] text-slate-400 font-bold mt-1 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <div class="font-bold text-slate-800 text-xs sm:text-sm">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[10px] text-slate-500 mt-1 font-medium"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${residentName}</div>
+                    <td class="p-3 sm:p-5 align-top">
+                        <div class="font-bold text-slate-800 text-[10px] sm:text-xs">Rm: ${log.Room || '--'}</div>
+                        <div class="text-[9px] sm:text-[10px] text-slate-500 mt-1 font-medium truncate w-24 sm:w-auto" title="${residentName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${residentName}</div>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <span class="bg-white/80 border border-slate-200 text-slate-500 px-2.5 py-1 rounded-md text-[10px] font-bold shadow-sm inline-block">${log.Category || '--'}</span>
+                    <td class="p-3 sm:p-5 align-top">
+                        <span class="bg-white/80 border border-slate-200 text-slate-500 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[9px] sm:text-[10px] font-bold shadow-sm inline-block truncate w-20 sm:w-auto" title="${log.Category}">${log.Category || '--'}</span>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <p class="text-xs text-slate-700 font-medium leading-relaxed">${log.Description || '--'}</p>
-                        <div class="mt-3 flex items-center gap-2 max-w-[200px] bg-white/60 p-1 rounded-lg border border-slate-200 shadow-sm focus-within:border-indigo-400 focus-within:bg-white transition-all">
-                            <input type="text" placeholder="Add update comment..." class="flex-1 bg-transparent text-[10px] outline-none pl-2 text-slate-700 placeholder-slate-400 font-medium">
-                            <button class="w-6 h-6 rounded border border-slate-100 text-slate-400 hover:text-indigo-600 flex items-center justify-center bg-slate-50"><i class="fa-solid fa-paper-plane text-[9px]"></i></button>
+                    <td class="p-3 sm:p-5 align-top">
+                        <p class="text-[10px] sm:text-xs text-slate-700 font-medium leading-relaxed max-w-[140px] sm:max-w-xs truncate group-hover:whitespace-normal transition-all">${log.Description || '--'}</p>
+                        <div class="mt-2.5 flex items-center gap-1.5 sm:gap-2 max-w-[150px] sm:max-w-[200px] bg-white/60 p-1 rounded-lg border border-slate-200 shadow-sm focus-within:border-indigo-400 focus-within:bg-white transition-all">
+                            <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[9px] sm:text-[10px] outline-none pl-1 sm:pl-2 text-slate-700 placeholder-slate-400 font-medium">
+                            <button class="w-5 h-5 sm:w-6 sm:h-6 rounded border border-slate-100 text-slate-400 hover:text-indigo-600 flex items-center justify-center bg-slate-50"><i class="fa-solid fa-paper-plane text-[8px] sm:text-[9px]"></i></button>
                         </div>
                     </td>
-                    <td class="p-4 sm:p-6 text-right align-top flex flex-col items-end gap-2.5 h-full">
-                        <div class="text-[10px]">${statusBadge}</div>
-                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-[#1d1d1f] hover:bg-emerald-500 text-white text-[10px] font-bold px-4 py-2 rounded-xl transition-all shadow-md whitespace-nowrap"><i class="fa-solid fa-check mr-1"></i> Resolve</button>
+                    <td class="p-3 sm:p-5 text-right align-top flex flex-col items-end gap-2 sm:gap-2.5 h-full">
+                        <div class="text-[9px] sm:text-[10px]">${statusBadge}</div>
+                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-[#1d1d1f] hover:bg-emerald-500 text-white text-[9px] sm:text-[10px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-md whitespace-nowrap"><i class="fa-solid fa-check mr-1 hidden sm:inline"></i> Resolve</button>
                     </td>
                 </tr>
             `;
@@ -658,16 +677,14 @@
         const body = document.getElementById('history-body'); if(!body) return;
         
         if(!globalMaintenanceData || globalMaintenanceData.length === 0) { 
-            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-8 text-center text-slate-400 font-medium">No archive logs found.</td></tr>`; return; 
+            body.innerHTML = `<tr class="no-results"><td colspan=\"5\" class="p-8 text-center text-slate-400 font-medium text-xs">No archive logs found.</td></tr>`; return; 
         }
 
         let filtered = globalMaintenanceData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
-        
         if(filtered.length === 0) { 
-            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-10 text-center text-slate-400 font-medium">No resolved tickets in the archive.</td></tr>`; return; 
+            body.innerHTML = `<tr class="no-results"><td colspan=\"5\" class="p-8 text-center text-slate-400 font-medium text-xs">No resolved tickets in the archive.</td></tr>`; return; 
         }
 
-        // Sort: Newest resolved first
         filtered.sort((a, b) => {
             let dateA = new Date(a.Timestamp || 0).getTime(); let dateB = new Date(b.Timestamp || 0).getTime();
             return dateB - dateA; 
@@ -677,21 +694,21 @@
         filtered.forEach(log => {
             htmlStr += `
                 <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
-                    <td class="p-4 sm:p-6 align-top">
-                        <div class="font-mono font-bold text-slate-600 text-xs sm:text-sm">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[9px] text-slate-400 font-bold mt-1 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                    <td class="p-3 sm:p-5 align-top">
+                        <div class="font-mono font-bold text-slate-600 text-[10px] sm:text-xs">${log.Ticket_ID || '--'}</div>
+                        <div class="text-[8px] sm:text-[9px] text-slate-400 font-bold mt-1 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <div class="font-bold text-slate-700 text-xs sm:text-sm">Rm: ${log.Room || '--'}</div>
+                    <td class="p-3 sm:p-5 align-top">
+                        <div class="font-bold text-slate-700 text-[10px] sm:text-xs">Rm: ${log.Room || '--'}</div>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <span class="bg-white/60 border border-slate-200 text-slate-500 px-2.5 py-1 rounded-md text-[10px] font-bold shadow-sm inline-block">${log.Category || '--'}</span>
+                    <td class="p-3 sm:p-5 align-top">
+                        <span class="bg-white/60 border border-slate-200 text-slate-500 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[9px] sm:text-[10px] font-bold shadow-sm inline-block truncate w-20 sm:w-auto" title="${log.Category}">${log.Category || '--'}</span>
                     </td>
-                    <td class="p-4 sm:p-6 align-top">
-                        <p class="text-xs text-slate-500 leading-relaxed">${log.Description || '--'}</p>
+                    <td class="p-3 sm:p-5 align-top">
+                        <p class="text-[10px] sm:text-xs text-slate-500 leading-relaxed max-w-[140px] sm:max-w-xs truncate hover:whitespace-normal">${log.Description || '--'}</p>
                     </td>
-                    <td class="p-4 sm:p-6 text-right align-top">
-                        <span class="text-emerald-600 font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-check-double mr-1"></i> Closed</span>
+                    <td class="p-3 sm:p-5 text-right align-top">
+                        <span class="text-emerald-600 font-bold text-[9px] sm:text-[10px] uppercase tracking-widest"><i class="fa-solid fa-check-double mr-1 hidden sm:inline"></i> Closed</span>
                     </td>
                 </tr>
             `;
@@ -700,18 +717,13 @@
     };
 
     window.setMaintenanceStatus = function(status) {
-        if(status === 'closed') {
-            // Redirect to history tab if they force 'closed'
-            switchMaintTab('history', document.getElementById('nav-history'), false);
-        } else {
-            currentMaintenanceStatus = status;
-            safeUpdateSegmented('maint-stat', status, ['all', 'open', 'critical']);
-            window.renderMaintenanceData();
-        }
+        currentMaintenanceStatus = status;
+        safeUpdateSegmented('maint-stat', status, ['all', 'open', 'critical']);
+        window.renderMaintenanceData();
     };
 
     // ----------------------------------------------------
-    // FORMS
+    // FORMS & HOOKS
     // ----------------------------------------------------
     window.submitManualSnag = async function(e) {
         e.preventDefault();
@@ -737,7 +749,7 @@
         }
     }
 
-    // WEBHOOK FIX: Auto-trigger queue population
+    // Auto-trigger queue population
     setTimeout(() => {
         if (typeof globalMaintenanceData !== 'undefined' && globalMaintenanceData.length > 0) {
             window.renderMaintenanceData();
