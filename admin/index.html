@@ -169,16 +169,18 @@
         let currentFinanceFilter = 'all'; let currentMaintenanceStatus = 'all'; let currentSecurityStatus = 'all';
         let commAudience = 'all'; let commDemographic = 'nsfas'; let commTemplate = 'custom';
 
+        // EXPLICIT PATH ROUTING
+        // Update the '.path' variable if your server structure changes
         const appRoutes = {
-            'vetting': { title: 'Student Hub', sub: 'Automated POPIA Database Sync', btnId: 'nav-vetting' },
-            'occupancy': { title: 'Occupancy', sub: 'Live Occupancy Overview', btnId: 'nav-occupancy' },
-            'finance': { title: 'Finance', sub: 'Automated Ledger Reconciliation', btnId: 'nav-finance' },
-            'inspections': { title: 'Facility Inspections', sub: 'Pre-Occupancy Binding Ledger', btnId: 'nav-inspections' },
-            'maintenance': { title: 'Facility Maintenance Ops', sub: 'Ticket Resolution & Asset Routing', btnId: 'nav-maintenance' },
-            'security': { title: 'Security Ops Center', sub: 'Live Dispatch & Threat Monitoring', btnId: 'nav-security' },
-            'access': { title: 'Access Control', sub: 'Visitor Gateway Activity', btnId: 'nav-access' },
-            'communication': { title: 'Outreach Network', sub: 'Student Portal Direct Messaging', btnId: 'nav-communication' },
-            'driver': { title: 'Transport Ops', sub: 'Fleet Tracking & Driver Logistics', btnId: 'nav-driver' }
+            'vetting': { title: 'Student Hub', sub: 'Automated POPIA Database Sync', btnId: 'nav-vetting', path: '/admin/vetting/index.html' },
+            'occupancy': { title: 'Occupancy', sub: 'Live Occupancy Overview', btnId: 'nav-occupancy', path: '/admin/maintainance/occupancy/index.html' },
+            'finance': { title: 'Finance', sub: 'Automated Ledger Reconciliation', btnId: 'nav-finance', path: '/admin/maintainance/finance/index.html' },
+            'inspections': { title: 'Facility Inspections', sub: 'Pre-Occupancy Binding Ledger', btnId: 'nav-inspections', path: '/admin/maintainance/inspections/index.html' },
+            'maintenance': { title: 'Facility Maintenance Ops', sub: 'Ticket Resolution & Asset Routing', btnId: 'nav-maintenance', path: '/admin/maintainance/maintenance/index.html' },
+            'security': { title: 'Security Ops Center', sub: 'Live Dispatch & Threat Monitoring', btnId: 'nav-security', path: '/admin/maintainance/security/index.html' },
+            'access': { title: 'Access Control', sub: 'Visitor Gateway Activity', btnId: 'nav-access', path: '/admin/maintainance/access/index.html' },
+            'communication': { title: 'Outreach Network', sub: 'Student Portal Direct Messaging', btnId: 'nav-communication', path: '/admin/maintainance/communication/index.html' },
+            'driver': { title: 'Transport Ops', sub: 'Fleet Tracking & Driver Logistics', btnId: 'nav-driver', path: '/admin/maintainance/driver/index.html' }
         };
 
         // 1. LAZY LOADING INITIALIZATION
@@ -242,8 +244,10 @@
             dynamicPane.innerHTML = '<div class="flex justify-center w-full py-24"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-500"></i></div>';
 
             try {
-                // Pointing directly to the absolute repo path defined previously
-                const response = await fetch(`/admin/maintainance/${engineId}/index.html`);
+                // Dynamically pull the exact path from your appRoutes config
+                const routePath = appRoutes[engineId].path;
+                const response = await fetch(routePath);
+                
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 const htmlStr = await response.text();
                 
@@ -255,7 +259,9 @@
                 
             } catch (error) {
                 console.error("Mount Error:", error);
-                dynamicPane.innerHTML = `<div class="p-6 mt-6 text-center text-rose-500 font-bold bg-rose-50/50 rounded-2xl border border-rose-100 shadow-sm"><i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i><br>Engine ${title} failed to mount.<br><span class="text-[10px] font-normal text-slate-500 block mt-1">Ensure /admin/maintainance/${engineId}/index.html exists on your server.</span></div>`;
+                // Grab the exact path that failed to help with debugging
+                const failedPath = appRoutes[engineId]?.path || 'Unknown Path';
+                dynamicPane.innerHTML = `<div class="p-6 mt-6 text-center text-rose-500 font-bold bg-rose-50/50 rounded-2xl border border-rose-100 shadow-sm"><i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i><br>Engine ${title} failed to mount.<br><span class="text-[10px] font-normal text-slate-500 block mt-1">Ensure ${failedPath} exists on your server.</span></div>`;
             }
         }
 
@@ -306,6 +312,7 @@
             } catch (e) { console.error("Students Fetch Error:", e); } finally { 
                 isFetchingStudents = false; 
                 if (typeof renderUI === 'function') renderUI();
+                if (typeof window.renderUI === 'function') window.renderUI();
             }
         }
 
