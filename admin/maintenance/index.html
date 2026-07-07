@@ -1,3 +1,6 @@
+<!-- MAINTENANCE COMPONENT FRAGMENT -->
+<!-- Headless Component: No <html>, <head>, or <body> tags -->
+
 <style>
     /* ---------------------------------------------------
        FLUID COMPACT LAYOUT & GRID ENFORCEMENT
@@ -7,14 +10,14 @@
     }
     @media (min-width: 640px) { .maint-container { gap: 1rem; } }
 
-    /* Center Canvas (Scales to ~60% automatically when sidebars are 20%) */
+    /* Center Canvas */
     .maint-canvas {
         flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
     }
 
-    /* Right Sidebar (Scales to 20% on landscape, collapses to 56px) */
+    /* Right Sidebar (Scales & Collapses) */
     .maint-sidebar {
-        width: 22%; max-width: 260px; min-width: 180px; flex-shrink: 0; 
+        width: 25%; max-width: 260px; min-width: 160px; flex-shrink: 0; 
         display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; overflow-x: hidden;
         transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative;
     }
@@ -27,10 +30,8 @@
     .maint-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
     .maint-sidebar.collapsed .engineered-pill { padding: 10px 0 !important; justify-content: center !important; }
 
-    /* Mobile Edge-Case: Force landscape proportions or auto-collapse */
     @media (max-width: 768px) {
-        .maint-sidebar { width: 28%; min-width: 140px; }
-        .maint-container { flex-direction: row; } 
+        .maint-sidebar { width: 28%; min-width: 130px; }
     }
 
     /* ---------------------------------------------------
@@ -65,16 +66,21 @@
     
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
     
-    /* Scrollbars */
     .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    /* Non-blurred modal overlays */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1200; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
 </style>
 
 <div class="maint-container custom-scroll">
     
+    <!-- LEFT/CENTER CANVAS (60-70% Dynamic Scale) -->
     <div class="maint-canvas custom-scroll pr-1 pb-10">
         
+        <!-- KPI TOP SEGMENTED CONTROLS -->
         <div class="flex justify-start sm:justify-center w-full mb-4" id="maint-kpi-grid">
             <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap bg-white/60 p-1 rounded-[14px] border border-white flex items-center">
                 <button onclick="setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue px-3 py-1.5 text-[9px] sm:text-[10px] font-bold text-slate-500 rounded-[10px] transition-colors whitespace-nowrap">
@@ -94,6 +100,7 @@
             </div>
         </div>
 
+        <!-- TAB 1: SNAG BOARD (ACTIVE TICKETS) -->
         <div id="maint-pane-snags" class="maint-dashboard-tab active">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -117,16 +124,18 @@
                                 <th class="w-28">Location</th>
                                 <th class="w-24">Category</th>
                                 <th>Issue & Updates</th>
-                                <th class="w-24 text-right">Action</th>
+                                <th class="w-20 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="maintenance-body" class="divide-y divide-slate-100/50">
-                            </tbody>
+                            <!-- Populated dynamically -->
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- TAB 2: REPAIR HISTORY (CLOSED) -->
         <div id="maint-pane-history" class="maint-dashboard-tab">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -149,16 +158,18 @@
                                 <th class="w-28">Location</th>
                                 <th class="w-24">Category</th>
                                 <th>Description</th>
-                                <th class="w-24 text-right">Status</th>
+                                <th class="w-20 text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody id="history-body" class="divide-y divide-slate-100/50">
-                            </tbody>
+                            <!-- Populated dynamically -->
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- TAB 3: INVENTORY & VAULT -->
         <div id="maint-pane-inventory" class="maint-dashboard-tab">
             <div class="glass-panel overflow-hidden">
                 <div class="px-4 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
@@ -188,12 +199,14 @@
                             </tr>
                         </thead>
                         <tbody id="inventory-body" class="divide-y divide-white/60">
-                            </tbody>
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- TAB 4: SERVICE PROVIDERS -->
         <div id="maint-pane-vendors" class="maint-dashboard-tab">
             <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                 <div>
@@ -207,14 +220,17 @@
                 </div>
             </div>
             
-            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 overflow-y-auto max-h-[65vh] pb-4 custom-scroll">
-                </div>
+            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto max-h-[65vh] pb-4 custom-scroll">
+                <!-- Populated dynamically via JS -->
+            </div>
         </div>
 
     </div>
 
+    <!-- RIGHT SIDEBAR (20% Dynamic, Collapsible) -->
     <div id="maint-right-sidebar" class="maint-sidebar custom-scroll">
         
+        <!-- Toggle Header -->
         <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-2 cursor-pointer hover:bg-white/80 transition-colors group">
             <div class="flex items-center gap-2 w-full">
                 <div class="w-8 h-8 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs flex-shrink-0 transition-transform group-hover:scale-105">
@@ -225,9 +241,10 @@
                     <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Command Toggle</span>
                 </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-300 text-[9px] nav-text pr-1 transition-transform group-hover:translate-x-1"></i>
+            <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] nav-text pr-1 transition-transform group-hover:translate-x-1"></i>
         </div>
 
+        <!-- 1. WORK ORDERS -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Work Orders</p>
             <div class="space-y-1">
@@ -242,6 +259,7 @@
             </div>
         </div>
 
+        <!-- 2. QUICK ACTIONS -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Quick Actions</p>
             <div class="space-y-1.5">
@@ -260,6 +278,7 @@
             </div>
         </div>
 
+        <!-- 3. SUPPLY CHAIN -->
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Supply Chain</p>
             <div class="space-y-1">
@@ -274,6 +293,7 @@
             </div>
         </div>
 
+        <!-- Engineered Pill -->
         <div class="mt-auto flex-shrink-0 relative overflow-hidden bg-[#111827] p-2 rounded-[14px] border border-slate-700 shadow-xl flex items-center gap-2 engineered-pill">
             <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0"><i class="fa-solid fa-bolt text-[8px]"></i></div>
             <div class="flex flex-col relative z-10 nav-text overflow-hidden">
@@ -285,8 +305,13 @@
     </div>
 </div>
 
-<div id="maintSnagModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-3 z-[1200] backdrop-blur-md bg-slate-900/60">
-    <div class="modal-content glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
+<!-- ================================================== -->
+<!-- NON-BLURRED PREMIUM MODALS / OVERLAYS -->
+<!-- ================================================== -->
+
+<!-- 1. Log Manual Ticket Modal -->
+<div id="maintSnagModal" class="bg-slate-900/40 modal-overlay">
+    <div class="glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
         <button onclick="document.getElementById('maintSnagModal').classList.remove('active')" class="absolute top-4 right-4 w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-10"><i class="fa-solid fa-xmark text-xs"></i></button>
         <div class="w-10 h-10 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-[12px] flex items-center justify-center text-lg mb-3 shadow-sm relative z-10"><i class="fa-solid fa-clipboard-list"></i></div>
         <h2 class="text-lg sm:text-xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Log Incident</h2>
@@ -311,8 +336,9 @@
     </div>
 </div>
 
-<div id="stockModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-3 z-[1200] backdrop-blur-md bg-slate-900/60">
-    <div class="modal-content glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
+<!-- 2. Add New Stock Modal -->
+<div id="stockModal" class="bg-slate-900/40 modal-overlay">
+    <div class="glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
         <button onclick="document.getElementById('stockModal').classList.remove('active')" class="absolute top-4 right-4 w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-10"><i class="fa-solid fa-xmark text-xs"></i></button>
         <div class="w-10 h-10 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-[12px] flex items-center justify-center text-lg mb-3 shadow-sm relative z-10"><i class="fa-solid fa-boxes-stacked"></i></div>
         <h2 class="text-lg sm:text-xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Add Stock</h2>
@@ -343,8 +369,9 @@
     </div>
 </div>
 
-<div id="poModal" class="fixed inset-0 modal-overlay flex items-center justify-center p-3 z-[1200] backdrop-blur-md bg-slate-900/60">
-    <div class="modal-content glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
+<!-- 3. Generate PO Modal -->
+<div id="poModal" class="bg-slate-900/40 modal-overlay">
+    <div class="glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-5 sm:p-6 relative overflow-hidden border border-white/20">
         <button onclick="document.getElementById('poModal').classList.remove('active')" class="absolute top-4 right-4 w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-10"><i class="fa-solid fa-xmark text-xs"></i></button>
         <div class="w-10 h-10 bg-amber-50 text-amber-600 border border-amber-100 rounded-[12px] flex items-center justify-center text-lg mb-3 shadow-sm relative z-10"><i class="fa-solid fa-file-invoice-dollar"></i></div>
         <h2 class="text-lg sm:text-xl font-black text-slate-900 mb-1 tracking-tight relative z-10">Purchase Order</h2>
@@ -369,19 +396,39 @@
     </div>
 </div>
 
+<!-- COMPONENT SCRIPTS -->
 <script>
-    // Global scope assignment for UI hooks
+    // ----------------------------------------------------
+    // RESPONSIVE SIDEBAR TOGGLE
+    // ----------------------------------------------------
     window.toggleMaintSidebar = function() {
         const sidebar = document.getElementById('maint-right-sidebar');
-        if(sidebar) sidebar.classList.toggle('collapsed');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left');
+                } else {
+                    icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right');
+                }
+            }
+        }
     };
     
-    // Auto-collapse on small screens
+    // Auto-collapse on small screens to ensure proportional fit
     if (window.innerWidth < 768) {
         const sidebar = document.getElementById('maint-right-sidebar');
-        if(sidebar) sidebar.classList.add('collapsed');
+        if(sidebar) {
+            sidebar.classList.add('collapsed');
+            const icon = document.getElementById('sidebar-toggle-icon');
+            if(icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); }
+        }
     }
 
+    // ----------------------------------------------------
+    // TAB SWITCHER
+    // ----------------------------------------------------
     window.switchMaintTab = function(tabId, btnElement, showKpis) {
         document.querySelectorAll('.maint-dashboard-tab').forEach(tab => tab.classList.remove('active'));
         const pane = document.getElementById('maint-pane-' + tabId);
@@ -391,19 +438,16 @@
         if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
 
         document.querySelectorAll('.block-btn-active').forEach(btn => {
-            btn.classList.remove('block-btn-active');
-            btn.classList.add('block-btn-inactive');
-            const i = btn.querySelector('i');
-            if(i) { i.classList.remove('text-indigo-500'); i.classList.add('text-slate-500'); }
+            btn.classList.remove('block-btn-active'); btn.classList.add('block-btn-inactive');
+            const i = btn.querySelector('i'); if(i) { i.classList.remove('text-indigo-500'); i.classList.add('text-slate-500'); }
         });
 
         if(btnElement) {
-            btnElement.classList.remove('block-btn-inactive');
-            btnElement.classList.add('block-btn-active');
-            const i = btnElement.querySelector('i');
-            if(i) { i.classList.remove('text-slate-500'); i.classList.add('text-indigo-500'); }
+            btnElement.classList.remove('block-btn-inactive'); btnElement.classList.add('block-btn-active');
+            const i = btnElement.querySelector('i'); if(i) { i.classList.remove('text-slate-500'); i.classList.add('text-indigo-500'); }
         }
 
+        // Routing
         if(tabId === 'history') window.renderHistoryData();
         else if (tabId === 'snags') window.setMaintenanceStatus('all');
         else if (tabId === 'inventory') window.renderInventoryData('all');
@@ -413,16 +457,10 @@
     function safeUpdateSegmented(pfx, val, opts) {
         opts.forEach(o => { 
             const el = document.getElementById(`${pfx}-${o}`); 
-            if(el) {
-                el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600'); 
-                el.classList.add('hover:bg-white/50');
-            }
+            if(el) { el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600'); el.classList.add('hover:bg-white/50'); }
         }); 
         const aEl = document.getElementById(`${pfx}-${val}`); 
-        if(aEl) { 
-            aEl.classList.remove('hover:bg-white/50');
-            aEl.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600'); 
-        }
+        if(aEl) { aEl.classList.remove('hover:bg-white/50'); aEl.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600'); }
     }
 
     // ----------------------------------------------------
@@ -450,35 +488,32 @@
         if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
 
         if(filtered.length === 0) {
-            body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[10px]">No stock found.</td></tr>`;
-            return;
+            body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[10px]">No stock found.</td></tr>`; return;
         }
 
         let htmlStr = '';
         filtered.forEach(item => {
             const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
-            const badge = isLow 
-                ? `<span class="bg-rose-50 text-rose-600 border border-rose-100 font-bold text-[7px] sm:text-[8px] px-1.5 py-0.5 rounded uppercase">Low</span>`
-                : `<span class="bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold text-[7px] sm:text-[8px] px-1.5 py-0.5 rounded uppercase">Healthy</span>`;
+            const badge = isLow ? `<span class="text-rose-600 font-bold text-[8px] uppercase">Low</span>` : `<span class="text-emerald-600 font-bold text-[8px] uppercase">Healthy</span>`;
 
             htmlStr += `
                 <tr class="${isLow ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} border-b border-slate-100/50">
                     <td class="align-middle">
-                        <div class="font-bold text-slate-800 text-[9px] sm:text-[10px] truncate max-w-[120px] sm:max-w-none" title="${item.name}">${item.name}</div>
-                        <div class="text-[8px] sm:text-[9px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                        <div class="font-bold text-slate-800 text-[10px] truncate max-w-[120px] sm:max-w-none" title="${item.name}">${item.name}</div>
+                        <div class="text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[8px] sm:text-[9px] font-bold text-${item.color}-500 capitalize bg-${item.color}-50 px-1.5 py-0.5 rounded border border-${item.color}-100"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                        <span class="text-[8px] font-bold text-${item.color}-500 capitalize bg-${item.color}-50 px-1.5 py-0.5 rounded border border-${item.color}-100"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
-                        <div class="flex items-center justify-between text-[8px] sm:text-[9px] font-bold text-slate-600 mb-1">
+                        <div class="flex items-center justify-between text-[8px] font-bold text-slate-600 mb-1">
                             <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
-                            <span class="text-slate-400">Cap: ${item.cap}</span>
+                            <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
                         </div>
                         <div class="w-full bg-slate-200/70 rounded-full h-1 overflow-hidden shadow-inner"><div class="${barColor} h-full rounded-full transition-all" style="width: ${widthPct}%"></div></div>
                     </td>
-                    <td class="text-right align-middle w-12 sm:w-20">${badge}</td>
+                    <td class="text-right align-middle w-12 sm:w-16">${badge}</td>
                 </tr>
             `;
         });
@@ -506,21 +541,19 @@
         let filtered = dummyProviders;
         if(filterCategory !== 'all') filtered = dummyProviders.filter(p => p.type === filterCategory);
 
-        if(filtered.length === 0) {
-            grid.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 font-medium text-[10px]">No providers found.</div>`; return;
-        }
+        if(filtered.length === 0) { grid.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 font-medium text-[10px]">No providers found.</div>`; return; }
 
         let htmlStr = '';
         filtered.forEach(p => {
             htmlStr += `
-                <div class="glass-panel p-4 sm:p-5 hover:-translate-y-1 transition-transform border border-white/80 shadow-sm bg-gradient-to-br from-white/90 to-white/50 flex flex-col h-full">
+                <div class="glass-panel p-4 hover:-translate-y-1 transition-transform border border-white/80 shadow-sm bg-gradient-to-br from-white/90 to-white/50 flex flex-col h-full">
                     <div class="flex items-start justify-between mb-3">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-[10px] flex items-center justify-center text-sm sm:text-base shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
-                        <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[7px] sm:text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">Active SLA</span>
+                        <div class="w-8 h-8 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-[8px] flex items-center justify-center text-sm shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
+                        <span class="text-emerald-600 text-[7px] font-bold uppercase tracking-wider">Active SLA</span>
                     </div>
-                    <h4 class="font-black text-slate-800 text-[11px] sm:text-xs leading-tight truncate" title="${p.name}">${p.name}</h4>
-                    <p class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate" title="${p.desc}">${p.desc}</p>
-                    <div class="space-y-1.5 mt-auto text-[9px] sm:text-[10px] font-medium text-slate-600 border-t border-slate-200/60 pt-3">
+                    <h4 class="font-black text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate" title="${p.name}">${p.name}</h4>
+                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate" title="${p.desc}">${p.desc}</p>
+                    <div class="space-y-1 mt-auto text-[8px] sm:text-[9px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-3 text-center text-slate-400"></i> ${p.phone}</p>
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-3 text-center text-slate-400"></i> ${p.email}</p>
                     </div>
@@ -591,28 +624,28 @@
             const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
 
             htmlStr += `
-                <tr class="${isCritical ? 'bg-rose-50/20' : 'hover:bg-white/60'} transition-colors border-b border-slate-100/50">
+                <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} transition-colors border-b border-slate-100/50">
                     <td class="align-top">
                         <div class="font-mono font-black text-slate-800 text-[9px] sm:text-[10px]">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[7px] sm:text-[8px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
                     <td class="align-top">
                         <div class="font-bold text-slate-800 text-[9px] sm:text-[10px]">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[8px] sm:text-[9px] text-slate-500 mt-0.5 truncate w-20 sm:w-28" title="${resName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${resName}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-16 sm:w-24" title="${resName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${resName}</div>
                     </td>
                     <td class="align-top">
-                        <span class="bg-white/80 border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold shadow-sm inline-block truncate w-16 sm:w-20" title="${log.Category}">${log.Category || '--'}</span>
+                        <span class="bg-white/80 border border-slate-200 text-slate-500 px-2 py-0.5 rounded-md text-[8px] font-bold shadow-sm inline-block truncate w-14 sm:w-16" title="${log.Category}">${log.Category || '--'}</span>
                     </td>
                     <td class="align-top">
-                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p>
-                        <div class="mt-2 flex items-center gap-1 max-w-[120px] sm:max-w-[150px] bg-white/60 p-0.5 rounded border border-slate-200 shadow-sm">
+                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[100px] sm:max-w-[160px] truncate">${log.Description || '--'}</p>
+                        <div class="mt-1.5 flex items-center gap-1 max-w-[100px] sm:max-w-[130px] bg-white/60 p-0.5 rounded border border-slate-200 shadow-sm">
                             <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[8px] outline-none pl-1 text-slate-700 font-medium">
                             <button class="w-4 h-4 rounded border border-slate-100 text-slate-400 flex items-center justify-center bg-slate-50"><i class="fa-solid fa-paper-plane text-[7px]"></i></button>
                         </div>
                     </td>
-                    <td class="text-right align-top flex flex-col items-end gap-1.5">
-                        ${isCritical ? `<span class="text-rose-500 font-bold text-[8px] sm:text-[9px] animate-pulse"><i class="fa-solid fa-fire mr-0.5"></i> Critical</span>` : `<span class="text-amber-500 font-bold text-[8px] sm:text-[9px]"><i class="fa-solid fa-clock mr-0.5"></i> Pending</span>`}
-                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-[#1d1d1f] hover:bg-emerald-500 text-white text-[8px] sm:text-[9px] font-bold px-2 py-1 rounded shadow-md whitespace-nowrap"><i class="fa-solid fa-check"></i> <span class="hidden sm:inline">Resolve</span></button>
+                    <td class="text-right align-top flex flex-col items-end gap-1">
+                        ${isCritical ? `<span class="text-rose-500 font-bold text-[7px] sm:text-[8px] animate-pulse"><i class="fa-solid fa-fire mr-0.5"></i> Critical</span>` : `<span class="text-amber-500 font-bold text-[7px] sm:text-[8px]"><i class="fa-solid fa-clock mr-0.5"></i> Pending</span>`}
+                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-[#1d1d1f] hover:bg-emerald-500 text-white text-[7px] sm:text-[8px] font-bold px-2 py-1 rounded-md shadow-sm whitespace-nowrap"><i class="fa-solid fa-check"></i> <span class="hidden sm:inline">Resolve</span></button>
                     </td>
                 </tr>
             `;
@@ -635,12 +668,12 @@
                 <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
                     <td class="align-top">
                         <div class="font-mono font-bold text-slate-600 text-[9px] sm:text-[10px]">${log.Ticket_ID || '--'}</div>
-                        <div class="text-[7px] sm:text-[8px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
                     <td class="align-top"><div class="font-bold text-slate-700 text-[9px] sm:text-[10px]">Rm: ${log.Room || '--'}</div></td>
-                    <td class="align-top"><span class="bg-white/60 border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-bold shadow-sm inline-block truncate w-16 sm:w-20" title="${log.Category}">${log.Category || '--'}</span></td>
-                    <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p></td>
-                    <td class="text-right align-top"><span class="text-emerald-600 font-bold text-[8px] sm:text-[9px] uppercase tracking-widest"><i class="fa-solid fa-check-double mr-0.5"></i> Closed</span></td>
+                    <td class="align-top"><span class="bg-white/60 border border-slate-200 text-slate-500 px-2 py-0.5 rounded-md text-[8px] font-bold shadow-sm inline-block truncate w-14 sm:w-16" title="${log.Category}">${log.Category || '--'}</span></td>
+                    <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-500 leading-tight max-w-[120px] sm:max-w-[160px] truncate">${log.Description || '--'}</p></td>
+                    <td class="text-right align-top"><span class="text-emerald-600 font-bold text-[8px] uppercase tracking-widest"><i class="fa-solid fa-check-double mr-0.5"></i> Closed</span></td>
                 </tr>
             `;
         });
@@ -664,7 +697,22 @@
         window.renderMaintenanceData();
     };
 
-    // Auto-trigger
+    window.submitManualSnag = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-snag'); const ogText = btn.innerHTML;
+        const room = document.getElementById('snag-room').value; const category = document.getElementById('snag-category').value; const desc = document.getElementById('snag-desc').value;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...'; btn.disabled = true;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: "STAFF-LOG", Room: room, Category: category, Description: desc })
+            });
+            document.getElementById('maintSnagModal').classList.remove('active'); e.target.reset();
+            if(typeof fetchMaintenanceData === 'function') fetchMaintenanceData(true); 
+        } catch(error) { alert("Failed to log ticket to pipeline."); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    }
+
     setTimeout(() => {
         if (typeof globalMaintenanceData !== 'undefined' && globalMaintenanceData.length > 0) window.renderMaintenanceData();
         else if (typeof fetchMaintenanceData === 'function') fetchMaintenanceData(true);
