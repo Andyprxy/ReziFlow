@@ -32,7 +32,6 @@
     .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
     .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
     
-    /* Specific Security Button Colors */
     .btn-primary-rose { background-color: #e11d48; color: white; border: 1.5px solid #e11d48; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25); }
     .btn-primary-rose:hover { background-color: #be123c; }
     .btn-secondary-white { background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
@@ -291,6 +290,17 @@
 
 <script>
     // ----------------------------------------------------
+    // LOCAL SECURITY PARSER (Bypasses Mother Shell strict rules)
+    // ----------------------------------------------------
+    window.parseSecurityLedger = function(d) {
+        if (!d) return []; let arr = [];
+        if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d];
+        arr = arr.map(i => i.json ? i.json : i);
+        // Extremely forgiving filter: just checks if object isn't completely empty.
+        return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0).reverse();
+    };
+
+    // ----------------------------------------------------
     // ARCHITECTURAL DATA PIPELINE FALLBACK
     // ----------------------------------------------------
     (async function initSecurityModule() {
@@ -303,7 +313,7 @@
         if (typeof window.globalSecurityData === 'undefined' || window.globalSecurityData.length === 0) {
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
-                if (response.ok) { window.globalSecurityData = window.parseN8n(await response.json()); }
+                if (response.ok) { window.globalSecurityData = window.parseSecurityLedger(await response.json()); }
             } catch (e) { }
         }
         
@@ -382,7 +392,7 @@
         
         try { 
             const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security'); 
-            if (response.ok) { window.globalSecurityData = window.parseN8n(await response.json()); }
+            if (response.ok) { window.globalSecurityData = window.parseSecurityLedger(await response.json()); }
         } catch (e) { } 
         finally { 
             if(window.currentSecTab === 'live') window.renderSecurityData();
@@ -453,8 +463,8 @@
             htmlStr += `
                 <tr class="${isCritical ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
                     <td class="align-top">
-                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? log.Timestamp.split('T')[0] : '--'}</div>
-                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? log.Timestamp.split('T')[1]?.split('.')[0] || '' : ''}</div>
+                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? String(log.Timestamp).split('T')[0] : '--'}</div>
+                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? String(log.Timestamp).split('T')[1]?.split('.')[0] || '' : ''}</div>
                     </td>
                     <td class="align-top">
                         <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
@@ -489,8 +499,8 @@
             htmlStr += `
                 <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
                     <td class="align-top">
-                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? log.Timestamp.split('T')[0] : '--'}</div>
-                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? log.Timestamp.split('T')[1]?.split('.')[0] || '' : ''}</div>
+                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? String(log.Timestamp).split('T')[0] : '--'}</div>
+                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? String(log.Timestamp).split('T')[1]?.split('.')[0] || '' : ''}</div>
                     </td>
                     <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
                     <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Alert_Level}">${log.Alert_Level || '--'}</span></td>
@@ -531,14 +541,20 @@
             Room: document.getElementById('inc-room').value,
             Alert_Level: document.getElementById('inc-level').value,
             Alert_Type: "Manual Log",
-            Notes: document.getElementById('inc-desc').value
+            Notes: document.getElementById('inc-desc').value,
+            Timestamp: new Date().toISOString()
         };
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Logging...'; btn.disabled = true;
         try {
             await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            
+            // Push locally so it renders immediately
+            if(!window.globalSecurityData) window.globalSecurityData = [];
+            window.globalSecurityData.unshift({...payload, Dispatch_Status: "Active"});
+            window.renderSecurityData();
+
             document.getElementById('logIncidentModal').classList.remove('active'); e.target.reset();
-            window.fetchSecurityData(true);
             window.showToast("Incident logged to network.");
         } catch(error) { window.showToast("Failed to log incident.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
     };
@@ -565,7 +581,6 @@
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...'; btn.disabled = true;
         try {
-            // Mock webhook for dispatch
             await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { 
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ Target: target, Message: `EMERGENCY DISPATCH REQUIRED at ${location}` }) 
