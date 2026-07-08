@@ -21,7 +21,7 @@
     .glass-seg-btn.active.accent-emerald { color: #10b981; }
     .glass-seg-btn.active.accent-rose { color: #f43f5e; }
 
-    /* Right Sidebar (Collapsed by default, 10% Shrink) */
+    /* Right Sidebar */
     .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
     .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
     .hub-sidebar.collapsed .nav-text { display: none !important; }
@@ -53,7 +53,6 @@
     .dropzone-active { background-color: rgba(239, 246, 255, 0.8) !important; border-color: #3b82f6 !important; }
 </style>
 
-<!-- Main Component Structure -->
 <div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
     
     <!-- Canvas (Left) -->
@@ -124,7 +123,7 @@
         </div>
     </div>
 
-    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <!-- RIGHT SIDEBAR -->
     <div id="fin-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         <div class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleFinSidebar()">
             <div class="flex items-center gap-1.5 w-full">
@@ -155,14 +154,6 @@
                 <button onclick="window.openMassCommModal('unpaid')" class="block-btn bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
                     <i class="fa-solid fa-bullhorn text-[9px]"></i> <span class="truncate text-[8px] nav-text">Chase Active View</span>
                 </button>
-            </div>
-        </div>
-
-        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
-            <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
-            <div class="flex flex-col nav-text">
-                <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none">Engineered By</span>
-                <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none">AUTOMANIA</span>
             </div>
         </div>
     </div>
@@ -266,12 +257,21 @@
 
 <script>
     // ----------------------------------------------------
+    // ROBUST CURRENCY PARSER (Fixes n8n Comma Issues)
+    // ----------------------------------------------------
+    window.parseCurrency = function(val, defaultVal = 0) {
+        if (val === undefined || val === null || val === '') return defaultVal;
+        // Strip commas and non-numeric characters before parsing
+        const cleaned = String(val).replace(/,/g, '').replace(/[^\d.-]/g, '');
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? defaultVal : parsed;
+    };
+
+    // ----------------------------------------------------
     // LOCAL CONFIGURATION VARS
     // ----------------------------------------------------
     var currentFinanceFilter = 'all';
-    var currentFinanceMonth = 'Jan'; // Will be instantly overwritten by live date
-    
-    // Constant Array for Month Validation
+    var currentFinanceMonth = 'Jan'; 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     window.toggleFinSidebar = function() {
@@ -307,25 +307,21 @@
     // INITIALIZATION & LIVE DATE INJECTION
     // ----------------------------------------------------
     (async function initFinanceModule() {
-        // 1. Establish Live Date
         const date = new Date();
-        currentFinanceMonth = monthNames[date.getMonth()]; // e.g., "Jul"
+        currentFinanceMonth = monthNames[date.getMonth()]; 
         
-        // 2. Update UI to reflect Live Date
         updateSegmentedActive('fin-mth', currentFinanceMonth, monthNames);
         if(document.getElementById('ledger-month-display')) document.getElementById('ledger-month-display').textContent = currentFinanceMonth;
         if(document.getElementById('modal-dula-month')) document.getElementById('modal-dula-month').textContent = currentFinanceMonth;
         if(document.getElementById('modal-excel-month')) document.getElementById('modal-excel-month').textContent = currentFinanceMonth;
 
-        // 3. Fallback Fetching if memory is empty
         if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
                 if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
-            } catch (e) { console.error("Student sync fallback interrupted"); }
+            } catch (e) {}
         }
         
-        // 4. Force a fresh pull for the specific Live Month
         window.fetchFinanceBaseline(true);
     })();
 
@@ -340,7 +336,6 @@
         if(document.getElementById('modal-dula-month')) document.getElementById('modal-dula-month').textContent = month;
         if(document.getElementById('modal-excel-month')) document.getElementById('modal-excel-month').textContent = month;
         
-        // Changing the month forces a fresh fetch from the backend for that specific ledger
         window.fetchFinanceBaseline(true);
     };
 
@@ -355,28 +350,26 @@
         if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-2xl"></i></td></tr>'; }
         
         try { 
-            // Append month parameter so n8n knows which ledger to pull
             const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-finances?month=' + currentFinanceMonth); 
             if (response.ok) {
                 const rawData = await response.json(); 
                 window.globalFinanceData = window.parseN8n(rawData); 
             }
-        } catch (e) { console.error("Finance fetch failed"); } 
+        } catch (e) { } 
         finally { window.renderFinanceData(); }
     };
 
     window.renderFinanceData = function() {
         const body = document.getElementById('finance-ledger-body'); if(!body) return;
         
-        // Use globalFinanceData if n8n returned it. If n8n returns blank, build a default pseudo-ledger from globalStudentData
         let baseData = window.globalFinanceData || [];
         if (baseData.length === 0 && window.globalStudentData && window.globalStudentData.length > 0) {
             baseData = window.globalStudentData
                 .filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--')
                 .map(s => ({
                     ...s,
-                    Amount_Due: 4500,
-                    Amount_Paid: String(s.Payment_Status).toLowerCase() === 'paid' ? 4500 : 0,
+                    Amount_Due: 5200, // Updated base rent
+                    Amount_Paid: String(s.Payment_Status).toLowerCase() === 'paid' ? 5200 : 0,
                     Payment_Status: s.Payment_Status || 'Unpaid'
                 }));
         }
@@ -385,41 +378,47 @@
 
         let filteredData = [...baseData];
         
-        // 1. Apply Status Filter
+        // Apply Status Filter using the safe parseCurrency logic
         if (currentFinanceFilter !== 'all') { 
             filteredData = filteredData.filter(s => {
-                const isPaid = (s.Amount_Paid !== undefined && s.Amount_Due !== undefined && parseFloat(s.Amount_Paid) >= parseFloat(s.Amount_Due)) || String(s.Payment_Status).toLowerCase() === 'paid';
+                const paid = window.parseCurrency(s.Amount_Paid, 0);
+                const due = window.parseCurrency(s.Amount_Due, 5200);
+                const isPaid = paid >= due || String(s.Payment_Status).toLowerCase() === 'paid';
                 return currentFinanceFilter === 'paid' ? isPaid : !isPaid;
             }); 
         }
 
         if (filteredData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold text-[10px]">No records match current filter.</td></tr>`; return; }
 
-        // 2. SMART SORTING: Least Paid (Unpaid/0) on top, then by amount, then alphabetically
+        // SMART SORTING: Least Paid (Unpaid/0) on top, then by amount, then alphabetically
         filteredData.sort((a, b) => {
-            const paidA = parseFloat(a.Amount_Paid) || 0;
-            const paidB = parseFloat(b.Amount_Paid) || 0;
-            if (paidA !== paidB) return paidA - paidB; // Ascending: 0 goes to top
+            const paidA = window.parseCurrency(a.Amount_Paid, 0);
+            const paidB = window.parseCurrency(b.Amount_Paid, 0);
+            if (paidA !== paidB) return paidA - paidB;
             return String(a.First_Name || '').localeCompare(String(b.First_Name || ''));
         });
 
         let htmlStr = '';
         filteredData.forEach(student => {
-            const due = parseFloat(student.Amount_Due) || 4500;
-            const paid = parseFloat(student.Amount_Paid) || 0;
+            // Updated Parse Logic
+            const due = window.parseCurrency(student.Amount_Due, 5200);
+            const paid = window.parseCurrency(student.Amount_Paid, 0);
             const balance = due - paid;
             
-            // Determine dynamic status
             let isPaid = paid >= due || String(student.Payment_Status).toLowerCase() === 'paid';
             let isPartial = paid > 0 && paid < due;
             
             let badgeHtml = ''; let rowBg = '';
             
             if (isPaid) {
-                badgeHtml = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-check mr-1"></i> Paid</span>`;
+                if (paid > due) {
+                    badgeHtml = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-check mr-1"></i> Paid (+Credit)</span>`;
+                } else {
+                    badgeHtml = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm"><i class="fa-solid fa-check mr-1"></i> Paid</span>`;
+                }
                 rowBg = 'hover:bg-slate-50/50';
             } else if (isPartial) {
-                badgeHtml = `<span class="bg-amber-50 border border-amber-200 text-amber-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm">Partial (-R${balance})</span>`;
+                badgeHtml = `<span class="bg-amber-50 border border-amber-200 text-amber-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm">Partial (-R ${balance.toLocaleString('en-ZA', {minimumFractionDigits: 2})})</span>`;
                 rowBg = 'bg-amber-50/20 hover:bg-amber-50/40';
             } else {
                 badgeHtml = `<span class="bg-white border border-rose-200 text-rose-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-wider shadow-sm animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Unpaid</span>`;
@@ -428,21 +427,32 @@
 
             const safeId = String(student.Student_Number || '').replace(/'/g, "\\'");
             const safeName = String(`${student.First_Name || ''} ${student.Surname || ''}`).replace(/'/g, "\\'");
+            
+            // Calc Progress width (cap at 100% so it doesn't break layout on overpayment)
+            const progressWidth = Math.min((paid / due) * 100, 100) || 0;
 
             htmlStr += `
                 <tr class="${rowBg} transition-colors border-b border-slate-100/50">
                     <td><div class="font-black text-slate-800 text-[11px]">${student.First_Name || ''} ${student.Surname || ''}</div><div class="text-[9px] font-mono font-bold text-slate-400 mt-0.5">${student.Student_Number || '--'}</div></td>
                     <td><div class="font-bold text-slate-600 text-[10px]">${student.Room_Allocation || 'Unassigned'}</div><div class="text-[8px] font-bold text-slate-400 uppercase mt-0.5">${student.Funding_Type || 'Cash'}</div></td>
-                    <td><div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden shadow-inner"><div class="${isPaid ? 'bg-emerald-400' : isPartial ? 'bg-amber-400' : 'bg-transparent'} h-full" style="width: ${(paid/due)*100}%"></div></div><div class="text-[8px] font-medium text-slate-500 mt-1 flex justify-between"><span>R ${paid}</span><span>R ${due}</span></div></td>
+                    <td>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden shadow-inner">
+                            <div class="${isPaid ? 'bg-emerald-400' : isPartial ? 'bg-amber-400' : 'bg-transparent'} h-full" style="width: ${progressWidth}%"></div>
+                        </div>
+                        <div class="text-[8px] font-medium text-slate-500 mt-1 flex justify-between">
+                            <span>R ${paid.toLocaleString('en-ZA', {minimumFractionDigits: 2})}</span>
+                            <span>R ${due.toLocaleString('en-ZA', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </td>
                     <td class="text-right">${badgeHtml}</td>
-                    <td class="text-right"><button onclick="window.openSingleCommModal('${safeId}', '${safeName}')" class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm"><i class="fa-solid fa-paper-plane mr-1"></i> Contact</button></td>
+                    <td class="text-right"><button onclick="window.openSingleCommModal('${safeId}', '${safeName}')" class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 text-[8px] font-bold px-2 py-1.5 rounded transition-all shadow-sm"><i class="fa-solid fa-paper-plane mr-1"></i> Contact</button></td>
                 </tr>`;
         });
         body.innerHTML = htmlStr;
     };
 
     // ----------------------------------------------------
-    // INJECTION DROPZONES & MODALS (Strict Webhook Reconciliations)
+    // INJECTION DROPZONES & MODALS
     // ----------------------------------------------------
     window.handleDulaDrop = function(e) { e.preventDefault(); e.currentTarget.classList.remove('dropzone-active'); if (e.dataTransfer.files.length) window.processDulaUpload(e.dataTransfer.files[0]); };
     
@@ -455,13 +465,11 @@
         try {
             const formData = new FormData(); 
             formData.append('data', file); 
-            formData.append('month', currentFinanceMonth); // Attach active month for n8n
+            formData.append('month', currentFinanceMonth);
 
-            // Real fetch to the n8n logic engine
             const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-upload-dula', { method: 'POST', body: formData });
             if (!response.ok) throw new Error("Upload Failed");
 
-            // Webhook returns the newly updated ledger
             const rawData = await response.json();
             window.globalFinanceData = window.parseN8n(rawData);
             
@@ -491,11 +499,9 @@
             formData.append('data', file); 
             formData.append('month', currentFinanceMonth);
 
-            // Real fetch to the n8n logic engine
             const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-upload-excel', { method: 'POST', body: formData });
             if (!response.ok) throw new Error("Upload Failed");
 
-            // Webhook returns the newly updated ledger
             const rawData = await response.json();
             window.globalFinanceData = window.parseN8n(rawData);
             
@@ -533,7 +539,7 @@
     };
 
     window.openMassCommModal = function(type) {
-        document.getElementById('mass-target-type').value = currentFinanceFilter; // Targets currently applied filter (all, paid, unpaid)
+        document.getElementById('mass-target-type').value = currentFinanceFilter;
         
         let displayType = "All Residents";
         if(currentFinanceFilter === 'paid') displayType = "Paid Residents";
@@ -541,7 +547,6 @@
         
         document.getElementById('mass-target-group').textContent = displayType;
         
-        // Calculate dynamic count based on current table rows
         const visibleRows = document.querySelectorAll('#finance-ledger-body tr:not(.no-results)').length;
         document.getElementById('mass-target-count').textContent = visibleRows;
         
@@ -555,7 +560,6 @@
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Broadcasting...'; btn.disabled = true;
         try {
-            // Sends payload with current filter status to n8n so logic engine handles routing
             await fetch('https://n8n.automania.cloud/webhook/reziflow-send-mass-comm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Target_Group: currentFinanceFilter, Month: currentFinanceMonth, Message: msg }) });
             document.getElementById('massCommModal').classList.remove('active');
             window.showToast("Mass broadcast passed to n8n logic engine.");
@@ -571,12 +575,12 @@
         
         let baseData = window.globalFinanceData || [];
         if (baseData.length === 0 && window.globalStudentData) {
-            baseData = window.globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').map(s => ({ ...s, Amount_Due: 4500, Amount_Paid: String(s.Payment_Status).toLowerCase() === 'paid' ? 4500 : 0, Payment_Status: s.Payment_Status || 'Unpaid' }));
+            baseData = window.globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').map(s => ({ ...s, Amount_Due: 5200, Amount_Paid: String(s.Payment_Status).toLowerCase() === 'paid' ? 5200 : 0, Payment_Status: s.Payment_Status || 'Unpaid' }));
         }
 
         let filteredData = baseData.filter(s => {
-            const due = parseFloat(s.Amount_Due) || 4500;
-            const paid = parseFloat(s.Amount_Paid) || 0;
+            const due = window.parseCurrency(s.Amount_Due, 5200);
+            const paid = window.parseCurrency(s.Amount_Paid, 0);
             const isPaid = paid >= due || String(s.Payment_Status).toLowerCase() === 'paid';
             let matchStatus = currentFinanceFilter === 'all' ? true : (currentFinanceFilter === 'paid' ? isPaid : !isPaid);
             let matchSearch = JSON.stringify(s).toLowerCase().includes(searchVal);
@@ -585,12 +589,11 @@
 
         if(filteredData.length === 0) return window.showToast("No data to export.", "error");
 
-        // Maintain the same smart sorting for the export
-        filteredData.sort((a, b) => { const paidA = parseFloat(a.Amount_Paid) || 0; const paidB = parseFloat(b.Amount_Paid) || 0; if (paidA !== paidB) return paidA - paidB; return String(a.First_Name || '').localeCompare(String(b.First_Name || '')); });
+        filteredData.sort((a, b) => { const paidA = window.parseCurrency(a.Amount_Paid, 0); const paidB = window.parseCurrency(b.Amount_Paid, 0); if (paidA !== paidB) return paidA - paidB; return String(a.First_Name || '').localeCompare(String(b.First_Name || '')); });
 
         filteredData.forEach(s => {
-            const due = parseFloat(s.Amount_Due) || 4500;
-            const paid = parseFloat(s.Amount_Paid) || 0;
+            const due = window.parseCurrency(s.Amount_Due, 5200);
+            const paid = window.parseCurrency(s.Amount_Paid, 0);
             const balance = due - paid;
             const status = paid >= due || String(s.Payment_Status).toLowerCase() === 'paid' ? 'Paid' : (paid > 0 ? 'Partial' : 'Unpaid');
             
