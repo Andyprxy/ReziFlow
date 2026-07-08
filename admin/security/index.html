@@ -1,35 +1,631 @@
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden border border-rose-100/50 shadow-[0_0_40px_rgba(225,29,72,0.03)]">
-    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-shield-halved text-sm"></i></div>
-            <h3 class="font-bold text-slate-800 text-base sm:text-lg">Live Security Feeds</h3>
-        </div>
-        <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
-            <div class="glass-segmented">
-                <button onclick="setSecurityStatus('all')" id="sec-stat-all" class="glass-seg-btn active accent-rose">All Alerts</button>
-                <button onclick="setSecurityStatus('open')" id="sec-stat-open" class="glass-seg-btn accent-rose">Active</button>
-                <button onclick="setSecurityStatus('closed')" id="sec-stat-closed" class="glass-seg-btn accent-rose">Cleared</button>
+<style>
+    /* ---------------------------------------------------
+       FLUID COMPACT LAYOUT & SIDEBAR CONFIG
+       --------------------------------------------------- */
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 3px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 3px; align-items: center;
+    }
+    
+    .glass-seg-btn {
+        padding: 4px 10px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid transparent;
+    }
+    @media (min-width: 640px) { .glass-seg-btn { padding: 6px 12px; font-size: 0.7rem; gap: 6px; border-radius: 10px; } }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } 
+    .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-rose { color: #e11d48; }
+
+    /* Right Sidebar (Collapsed by default, 10% Shrink) */
+    .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
+    
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    
+    /* Specific Security Button Colors */
+    .btn-primary-rose { background-color: #e11d48; color: white; border: 1.5px solid #e11d48; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25); }
+    .btn-primary-rose:hover { background-color: #be123c; }
+    .btn-secondary-white { background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .btn-secondary-white:hover { border-color: #cbd5e1; background-color: #f8fafc; }
+    .block-btn-active { background-color: #ffffff; color: #e11d48; border: 1.5px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transform: scale(1.02); }
+    .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
+    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
+
+    /* Tab Switching Animations */
+    .sec-dashboard-tab { display: none; animation: paneFade 0.3s forwards; }
+    .sec-dashboard-tab.active { display: block; }
+    
+    /* Compact Table Constraints */
+    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; font-size: 0.68rem; }
+    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+    
+    /* High-End Modals */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(225, 29, 72, 0.2) 60%, #e11d48 80%, #be123c 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
+</style>
+
+<!-- Main Component Structure -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
+    
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
+        
+        <!-- Primary KPI / Filter Grid -->
+        <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="sec-kpi-grid">
+            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
+                <button onclick="window.setSecurityFilter('all')" id="sec-stat-all" class="glass-seg-btn active accent-blue">
+                    <i class="fa-solid fa-layer-group"></i> All Active
+                    <span id="kpi-sec-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setSecurityFilter('routine')" id="sec-stat-routine" class="glass-seg-btn accent-amber">
+                    <i class="fa-solid fa-eye"></i> Routine
+                    <span id="kpi-sec-routine" class="bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setSecurityFilter('critical')" id="sec-stat-critical" class="glass-seg-btn accent-rose">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Critical
+                    <span id="kpi-sec-critical" class="bg-rose-50 border border-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
             </div>
-            <div class="relative w-full sm:w-48">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="search-security" onkeyup="filterTable('search-security', 'security-body')" placeholder="Search alerts..." class="modern-input search-input py-2 bg-white/80">
-            </div>
-            <button onclick="downloadReport('security')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span></button>
-            <button onclick="fetchSecurityData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
         </div>
+
+        <!-- TAB 1: Live Alerts -->
+        <div id="sec-pane-live" class="sec-dashboard-tab active flex flex-col h-full">
+            <div class="glass-panel overflow-hidden flex flex-col h-full border border-rose-100/50 shadow-[0_0_40px_rgba(225,29,72,0.03)]">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-shield-halved text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight whitespace-nowrap">Live Security Feeds</h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadSecurityReport('live')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
+                        <div class="relative w-full sm:w-40">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
+                            <input type="text" id="search-security-live" onkeyup="window.filterTable('search-security-live', 'security-live-body')" placeholder="Search alerts..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-rose-400 shadow-sm">
+                        </div>
+                        <button onclick="if(typeof window.fetchSecurityData === 'function') window.fetchSecurityData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm shrink-0"><i class="fa-solid fa-rotate text-rose-500 text-[10px]"></i></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-32">Timestamp</th>
+                                <th class="w-1/4">Resident & Room</th>
+                                <th class="w-1/6">Alert Level</th>
+                                <th>Details</th>
+                                <th class="w-24 text-right">Dispatch Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="security-live-body" class="divide-y divide-slate-100/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Alert History -->
+        <div id="sec-pane-history" class="sec-dashboard-tab flex flex-col h-full">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Alert History <span class="bg-emerald-100 text-emerald-700 text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase ml-1">Cleared</span></h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadSecurityReport('history')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
+                        <div class="relative w-full sm:w-40">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
+                            <input type="text" id="search-security-hist" onkeyup="window.filterTable('search-security-hist', 'security-hist-body')" placeholder="Search history..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-emerald-400 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-32">Timestamp</th>
+                                <th class="w-1/4">Location</th>
+                                <th class="w-1/6">Original Alert</th>
+                                <th>Details</th>
+                                <th class="w-24 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="security-hist-body" class="divide-y divide-slate-100/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
-    <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
-        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
-            <thead>
-                <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
-                    <th class="p-4 sm:p-6">Timestamp</th>
-                    <th class="p-4 sm:p-6">Resident & Room</th>
-                    <th class="p-4 sm:p-6">Alert Level</th>
-                    <th class="p-4 sm:p-6">Details</th>
-                    <th class="p-4 sm:p-6 text-right">Dispatch Action</th>
-                </tr>
-            </thead>
-            <tbody id="security-body" class="divide-y divide-slate-100/50"></tbody>
-        </table>
+
+    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <div id="sec-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
+        
+        <div onclick="window.toggleSecSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
+            <div class="flex items-center gap-1.5 w-full">
+                <div class="w-7 h-7 bg-gradient-to-br from-rose-500 to-red-600 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="flex flex-col nav-text flex-1 overflow-hidden">
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Sec<span class="text-rose-500">Ctrl</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Command Toggle</span>
+                </div>
+            </div>
+            <i id="sec-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Surveillance</p>
+            <div class="space-y-1">
+                <button onclick="window.switchSecurityTab('live', this, true)" class="block-btn block-btn-active" title="Live Alerts">
+                    <i class="fa-solid fa-satellite-dish text-[11px] w-4 text-center text-rose-500 animate-pulse"></i> 
+                    <span class="nav-text truncate text-[8px]">Live Alerts</span>
+                </button>
+                <button onclick="window.switchSecurityTab('history', this, false)" class="block-btn block-btn-inactive" title="Alert History">
+                    <i class="fa-solid fa-clock-rotate-left text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Alert History</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Quick Actions</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('logIncidentModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Report Incident">
+                    <i class="fa-solid fa-file-shield text-slate-500 text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Report Incident</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Emergency Dispatch</p>
+            <div class="space-y-1.5">
+                <button onclick="window.openDispatchModal('Security / Armed Response', 'fa-shield-halved', 'rose')" class="block-btn btn-primary-rose justify-center gap-1 !py-1.5" title="Contact Security">
+                    <i class="fa-solid fa-shield-halved text-[10px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Contact Security</span>
+                </button>
+                <button onclick="window.openDispatchModal('Medical Ambulance', 'fa-truck-medical', 'amber')" class="block-btn bg-amber-500 hover:bg-amber-600 text-white justify-center gap-1 !py-1.5 shadow-md border-none transition-colors" title="Contact Ambulance">
+                    <i class="fa-solid fa-truck-medical text-[10px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Contact Ambulance</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
+            <div class="flex flex-col nav-text overflow-hidden">
+                <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none truncate">Engineered By</span>
+                <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none truncate">AUTOMANIA</span>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Log Incident Modal -->
+<div id="logIncidentModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('logIncidentModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-file-shield"></i></div>
+                <h2 class="text-base font-black text-slate-900 tracking-tight">Report Incident</h2>
+            </div>
+            <form onsubmit="window.submitIncident(event)">
+                <div class="mb-3">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Room / Location</label>
+                    <input type="text" id="inc-room" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-rose-400 shadow-sm" placeholder="e.g. Block A Gate" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Alert Level</label>
+                    <select id="inc-level" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-rose-400 shadow-sm" required>
+                        <option value="" disabled selected>Select severity...</option>
+                        <option value="ROUTINE">Routine / Minor</option>
+                        <option value="WARNING">Warning / Suspicious</option>
+                        <option value="CRITICAL">CRITICAL / Emergency</option>
+                    </select>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Incident Details</label>
+                    <textarea id="inc-desc" rows="2" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-rose-400 resize-none shadow-sm" placeholder="Describe the situation..." required></textarea>
+                </div>
+                <button type="submit" id="btn-submit-inc" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px] sm:text-xs">Log to System</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Dispatch Modal -->
+<div id="dispatchModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-sm relative">
+        <button onclick="document.getElementById('dispatchModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+        <div class="flex items-center gap-3 mb-4">
+            <div id="dispatch-icon-bg" class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border"><i id="dispatch-icon" class="fa-solid"></i></div>
+            <div>
+                <h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Emergency Dispatch</h2>
+                <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Target: <span id="dispatch-target-name" class="text-slate-700"></span></p>
+            </div>
+        </div>
+        <div class="bg-rose-50/50 border border-rose-100 p-3 rounded-xl mb-4 flex gap-2 items-start">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-xs mt-0.5"></i>
+            <p class="text-[9px] font-medium text-rose-800">You are about to trigger a high-priority dispatch via the n8n logic engine. This will alert external rapid response units.</p>
+        </div>
+        <form onsubmit="window.submitDispatch(event)">
+            <input type="hidden" id="dispatch-target-val">
+            <div class="mb-4">
+                <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Dispatch Location / Room</label>
+                <input type="text" id="dispatch-location" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[10px] outline-none focus:border-rose-400 shadow-sm" placeholder="e.g. Block B, Floor 2" required>
+            </div>
+            <button type="submit" id="btn-submit-dispatch" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px]"><i class="fa-solid fa-satellite-dish"></i> Execute Dispatch</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // ARCHITECTURAL DATA PIPELINE FALLBACK
+    // ----------------------------------------------------
+    (async function initSecurityModule() {
+        if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
+                if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        if (typeof window.globalSecurityData === 'undefined' || window.globalSecurityData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security');
+                if (response.ok) { window.globalSecurityData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        
+        window.renderSecurityData();
+    })();
+
+    // ----------------------------------------------------
+    // LOCAL CONFIGURATION VARS
+    // ----------------------------------------------------
+    var currentSecurityFilter = 'all'; // all, open (routine), critical
+    var currentSecTab = 'live';
+
+    window.toggleSecSidebar = function() {
+        const sidebar = document.getElementById('sec-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('sec-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+            }
+        }
+    };
+    
+    if (window.innerWidth < 768) { window.toggleSecSidebar(); }
+
+    function safeUpdateSegmented(pfx, val, opts) {
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-amber-600', 'text-rose-600'); } }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); 
+        if(aEl) { 
+            aEl.classList.add('active', 'bg-white', 'shadow-sm'); 
+            if(val === 'all') aEl.classList.add('text-blue-600');
+            else if(val === 'routine') aEl.classList.add('text-amber-600');
+            else if(val === 'critical') aEl.classList.add('text-rose-600');
+        }
+    }
+
+    // ----------------------------------------------------
+    // TAB SWITCHER
+    // ----------------------------------------------------
+    window.switchSecurityTab = function(tabId, btnElement, showKpis) {
+        window.currentSecTab = tabId;
+        
+        document.querySelectorAll('.sec-dashboard-tab').forEach(tab => tab.classList.remove('active'));
+        const pane = document.getElementById('sec-pane-' + tabId);
+        if(pane) pane.classList.add('active');
+
+        const kpiGrid = document.getElementById('sec-kpi-grid');
+        if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
+
+        document.querySelectorAll('.block-btn-active').forEach(btn => {
+            btn.classList.remove('block-btn-active'); btn.classList.add('block-btn-inactive');
+            const i = btn.querySelector('i'); if(i) { i.classList.remove('text-rose-500'); i.classList.add('text-slate-500'); }
+        });
+
+        if(btnElement) {
+            btnElement.classList.remove('block-btn-inactive'); btnElement.classList.add('block-btn-active');
+            const i = btnElement.querySelector('i'); if(i) { i.classList.remove('text-slate-500'); i.classList.add('text-rose-500'); }
+        }
+
+        if(tabId === 'history') window.renderSecurityHistory();
+        else if (tabId === 'live') { window.setSecurityFilter('all'); }
+    };
+
+    // ----------------------------------------------------
+    // LIVE TICKETS LOGIC
+    // ----------------------------------------------------
+    window.fetchSecurityData = async function(forcedRefresh = true) {
+        const bodyLive = document.getElementById('security-live-body');
+        const bodyHist = document.getElementById('security-hist-body');
+        
+        if (forcedRefresh) {
+            if(bodyLive) bodyLive.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-rose-500 text-2xl"></i></td></tr>'; 
+            if(bodyHist) bodyHist.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-2xl"></i></td></tr>'; 
+        }
+        
+        try { 
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-security'); 
+            if (response.ok) { window.globalSecurityData = window.parseN8n(await response.json()); }
+        } catch (e) { } 
+        finally { 
+            if(window.currentSecTab === 'live') window.renderSecurityData();
+            else window.renderSecurityHistory();
+        }
+    };
+
+    window.getResidentForRoom = function(roomStr) {
+        if(!roomStr || roomStr === '--') return { name: 'Unknown', id: '' };
+        if(window.globalStudentData) {
+            const student = window.globalStudentData.find(s => s.Room_Allocation === roomStr);
+            if(student) return { name: `${student.First_Name || ''} ${student.Surname || ''}`, id: student.Student_Number };
+        }
+        return { name: 'Unassigned/Unknown', id: '' };
+    };
+
+    window.setSecurityFilter = function(filter) {
+        currentSecurityFilter = filter;
+        safeUpdateSegmented('sec-stat', filter, ['all', 'routine', 'critical']);
+        window.renderSecurityData();
+    };
+
+    window.renderSecurityData = function() {
+        const body = document.getElementById('security-live-body'); if(!body) return;
+        
+        let baseData = window.globalSecurityData || [];
+        if(baseData.length === 0) { 
+            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No live security feeds.</td></tr>`; 
+            if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = '0';
+            if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = '0';
+            if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = '0';
+            return; 
+        }
+
+        // Parse logic (Exclude resolved/cleared)
+        let liveAlerts = baseData.filter(d => !String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') && !String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+
+        let allCount = liveAlerts.length; 
+        let criticalCount = liveAlerts.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')).length;
+        let routineCount = allCount - criticalCount;
+
+        if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = allCount;
+        if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = routineCount;
+        if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = criticalCount;
+
+        let filtered = liveAlerts;
+        if(currentSecurityFilter === 'routine') {
+            filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
+        } else if (currentSecurityFilter === 'critical') {
+            filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
+        }
+        
+        if(filtered.length === 0) { 
+            body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No alerts match filter.</td></tr>`; return; 
+        }
+
+        filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+
+        let htmlStr = '';
+        filtered.forEach(log => {
+            const res = window.getResidentForRoom(log.Room);
+            const isCritical = String(log.Alert_Level).toLowerCase().includes('critical') || String(log.Alert_Level).toLowerCase().includes('high');
+
+            const levelBadge = isCritical 
+                ? `<span class="bg-white border border-rose-200 text-rose-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest animate-pulse"><i class="fa-solid fa-triangle-exclamation"></i> ${log.Alert_Level || 'Critical'}</span>`
+                : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Alert_Level || 'Routine'}</span>`;
+            
+            htmlStr += `
+                <tr class="${isCritical ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
+                    <td class="align-top">
+                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? log.Timestamp.split('T')[0] : '--'}</div>
+                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? log.Timestamp.split('T')[1]?.split('.')[0] || '' : ''}</div>
+                    </td>
+                    <td class="align-top">
+                        <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-20 sm:w-28 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                    </td>
+                    <td class="align-top">${levelBadge}</td>
+                    <td class="align-top">
+                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate" title="${log.Notes || log.Description || '--'}"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
+                    </td>
+                    <td class="text-right align-top">
+                        <button onclick="window.resolveSecurity('${log.Timestamp}', '${log.Room}', this)" class="bg-[#1d1d1f] hover:bg-rose-600 hover:text-white text-white text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-md whitespace-nowrap uppercase tracking-widest transition-colors">Clear Area</button>
+                    </td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    window.renderSecurityHistory = function() {
+        const body = document.getElementById('security-hist-body'); if(!body) return;
+        let baseData = window.globalSecurityData || [];
+        
+        if(baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
+        
+        let filtered = baseData.filter(l => String(l.Dispatch_Status || l.Status).toLowerCase().includes('clear') || String(l.Dispatch_Status || l.Status).toLowerCase().includes('resolve'));
+        if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No cleared incidents.</td></tr>`; return; }
+
+        filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+
+        let htmlStr = '';
+        filtered.forEach(log => {
+            htmlStr += `
+                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
+                    <td class="align-top">
+                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? log.Timestamp.split('T')[0] : '--'}</div>
+                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? log.Timestamp.split('T')[1]?.split('.')[0] || '' : ''}</div>
+                    </td>
+                    <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
+                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Alert_Level}">${log.Alert_Level || '--'}</span></td>
+                    <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p></td>
+                    <td class="text-right align-top">
+                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-shield-check"></i> Cleared</span>
+                    </td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    window.resolveSecurity = async function(timestamp, room, btnElement) {
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-security', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Timestamp: timestamp, Room: room, Dispatch_Status: "Area Cleared" })
+            });
+            const idx = (window.globalSecurityData || []).findIndex(a => a.Timestamp == timestamp && a.Room == room);
+            if(idx > -1) window.globalSecurityData[idx].Dispatch_Status = "Area Cleared";
+            window.renderSecurityData();
+            window.showToast("Alert cleared successfully.");
+        } catch(e) { 
+            btnElement.innerHTML = 'Clear Area'; btnElement.disabled = false; 
+            window.showToast("Failed to clear alert.", "error");
+        }
+    };
+
+    // ----------------------------------------------------
+    // MODAL LOGIC (Incidents & Dispatch)
+    // ----------------------------------------------------
+    window.submitIncident = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-inc'); const ogText = btn.innerHTML;
+        const payload = {
+            Room: document.getElementById('inc-room').value,
+            Alert_Level: document.getElementById('inc-level').value,
+            Alert_Type: "Manual Log",
+            Notes: document.getElementById('inc-desc').value
+        };
+        
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Logging...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            document.getElementById('logIncidentModal').classList.remove('active'); e.target.reset();
+            window.fetchSecurityData(true);
+            window.showToast("Incident logged to network.");
+        } catch(error) { window.showToast("Failed to log incident.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.openDispatchModal = function(targetName, iconClass, color) {
+        document.getElementById('dispatch-target-name').textContent = targetName;
+        document.getElementById('dispatch-target-val').value = targetName;
+        document.getElementById('dispatch-location').value = '';
+        
+        const iconContainer = document.getElementById('dispatch-icon-bg');
+        const icon = document.getElementById('dispatch-icon');
+        
+        iconContainer.className = `w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border bg-${color}-50 text-${color}-600 border-${color}-100`;
+        icon.className = `fa-solid ${iconClass}`;
+        
+        document.getElementById('dispatchModal').classList.add('active');
+    };
+
+    window.submitDispatch = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-dispatch'); const ogText = btn.innerHTML;
+        const target = document.getElementById('dispatch-target-val').value;
+        const location = document.getElementById('dispatch-location').value;
+        
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...'; btn.disabled = true;
+        try {
+            // Mock webhook for dispatch
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ Target: target, Message: `EMERGENCY DISPATCH REQUIRED at ${location}` }) 
+            });
+            document.getElementById('dispatchModal').classList.remove('active');
+            window.showToast(`${target} dispatch signal sent.`);
+        } catch(error) { window.showToast("Failed to transmit dispatch.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    // ----------------------------------------------------
+    // FILTER-AWARE DATA EXTRACTOR (Excel/CSV Export)
+    // ----------------------------------------------------
+    window.downloadSecurityReport = function(tabType) {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        let filename = "";
+        let dataToExport = [];
+        let baseData = window.globalSecurityData || [];
+
+        if (tabType === 'live') {
+            const searchVal = document.getElementById('search-security-live')?.value.toLowerCase() || '';
+            filename = "Filtered_Live_Alerts";
+            csvContent += "Timestamp,Room,Resident,Alert Level,Alert Type,Notes\n";
+            
+            let filtered = baseData.filter(d => !String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') && !String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+            
+            if(currentSecurityFilter === 'routine') {
+                filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
+            } else if (currentSecurityFilter === 'critical') {
+                filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
+            }
+            
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+            dataToExport.forEach(log => {
+                const res = window.getResidentForRoom(log.Room);
+                const cleanNotes = String(log.Notes || log.Description || '').replace(/"/g, '""');
+                csvContent += `"${log.Timestamp || ''}","${log.Room || ''}","${res.name}","${log.Alert_Level || ''}","${log.Alert_Type || ''}","${cleanNotes}"\n`;
+            });
+            
+        } else if (tabType === 'history') {
+            const searchVal = document.getElementById('search-security-hist')?.value.toLowerCase() || '';
+            filename = "Filtered_Alert_History";
+            csvContent += "Timestamp,Room,Alert Level,Alert Type,Notes,Status\n";
+            
+            let filtered = baseData.filter(d => String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') || String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+            dataToExport.forEach(log => {
+                const cleanNotes = String(log.Notes || log.Description || '').replace(/"/g, '""');
+                csvContent += `"${log.Timestamp || ''}","${log.Room || ''}","${log.Alert_Level || ''}","${log.Alert_Type || ''}","${cleanNotes}","Cleared"\n`;
+            });
+        }
+
+        if(dataToExport.length === 0) return window.showToast("No data to export.", "error");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+</script>
