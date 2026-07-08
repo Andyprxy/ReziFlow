@@ -61,13 +61,10 @@
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
 
-<!-- Main Component Structure -->
 <div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
     
-    <!-- Canvas (Left) -->
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
-        <!-- Primary KPI / Filter Grid -->
         <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="sec-kpi-grid">
             <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
                 <button onclick="window.setSecurityFilter('all')" id="sec-stat-all" class="glass-seg-btn active accent-blue">
@@ -87,7 +84,6 @@
             </div>
         </div>
 
-        <!-- TAB 1: Live Alerts -->
         <div id="sec-pane-live" class="sec-dashboard-tab active flex flex-col h-full">
             <div class="glass-panel overflow-hidden flex flex-col h-full border border-rose-100/50 shadow-[0_0_40px_rgba(225,29,72,0.03)]">
                 <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -123,7 +119,6 @@
             </div>
         </div>
 
-        <!-- TAB 2: Alert History -->
         <div id="sec-pane-history" class="sec-dashboard-tab flex flex-col h-full">
             <div class="glass-panel overflow-hidden flex flex-col h-full">
                 <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
@@ -160,7 +155,6 @@
 
     </div>
 
-    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
     <div id="sec-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         
         <div onclick="window.toggleSecSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
@@ -225,11 +219,6 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODALS -->
-<!-- ========================================== -->
-
-<!-- Log Incident Modal -->
 <div id="logIncidentModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -262,7 +251,6 @@
     </div>
 </div>
 
-<!-- Emergency Dispatch Modal -->
 <div id="dispatchModal" class="modal-overlay">
     <div class="modal-content w-full max-w-sm relative">
         <button onclick="document.getElementById('dispatchModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
@@ -300,6 +288,15 @@
         return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0).reverse();
     };
 
+    // Robust Date Formatter to avoid .split() TypeErrors on non-strings
+    window.formatSafeDate = function(val) {
+        if (!val) return { date: '--', time: '' };
+        const s = String(val);
+        if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
+        if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
+        return { date: s, time: '' };
+    };
+
     // ----------------------------------------------------
     // ARCHITECTURAL DATA PIPELINE FALLBACK
     // ----------------------------------------------------
@@ -316,14 +313,13 @@
                 if (response.ok) { window.globalSecurityData = window.parseSecurityLedger(await response.json()); }
             } catch (e) { }
         }
-        
         window.renderSecurityData();
     })();
 
     // ----------------------------------------------------
     // LOCAL CONFIGURATION VARS
     // ----------------------------------------------------
-    var currentSecurityFilter = 'all'; // all, open (routine), critical
+    var currentSecurityFilter = 'all'; 
     var currentSecTab = 'live';
 
     window.toggleSecSidebar = function() {
@@ -418,100 +414,131 @@
     window.renderSecurityData = function() {
         const body = document.getElementById('security-live-body'); if(!body) return;
         
-        let baseData = window.globalSecurityData || [];
-        if(baseData.length === 0) { 
-            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No live security feeds.</td></tr>`; 
-            if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = '0';
-            if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = '0';
-            if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = '0';
-            return; 
-        }
+        try {
+            let baseData = window.globalSecurityData || [];
+            if(baseData.length === 0) { 
+                body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No live security feeds.</td></tr>`; 
+                if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = '0';
+                if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = '0';
+                if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = '0';
+                return; 
+            }
 
-        // Parse logic (Exclude resolved/cleared)
-        let liveAlerts = baseData.filter(d => !String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') && !String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+            // Exclude anything clearly marked as resolved
+            let liveAlerts = baseData.filter(d => {
+                const stat = String(d.Dispatch_Status || d.Status || d.state || '').toLowerCase().trim();
+                return !(stat.includes('clear') || stat.includes('resolve') || stat.includes('close'));
+            });
 
-        let allCount = liveAlerts.length; 
-        let criticalCount = liveAlerts.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')).length;
-        let routineCount = allCount - criticalCount;
+            let allCount = liveAlerts.length; 
+            let criticalCount = liveAlerts.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')).length;
+            let routineCount = allCount - criticalCount;
 
-        if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = allCount;
-        if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = routineCount;
-        if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = criticalCount;
+            if(document.getElementById('kpi-sec-all')) document.getElementById('kpi-sec-all').textContent = allCount;
+            if(document.getElementById('kpi-sec-routine')) document.getElementById('kpi-sec-routine').textContent = routineCount;
+            if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = criticalCount;
 
-        let filtered = liveAlerts;
-        if(currentSecurityFilter === 'routine') {
-            filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
-        } else if (currentSecurityFilter === 'critical') {
-            filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
-        }
-        
-        if(filtered.length === 0) { 
-            body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No alerts match filter.</td></tr>`; return; 
-        }
-
-        filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
-
-        let htmlStr = '';
-        filtered.forEach(log => {
-            const res = window.getResidentForRoom(log.Room);
-            const isCritical = String(log.Alert_Level).toLowerCase().includes('critical') || String(log.Alert_Level).toLowerCase().includes('high');
-
-            const levelBadge = isCritical 
-                ? `<span class="bg-white border border-rose-200 text-rose-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest animate-pulse"><i class="fa-solid fa-triangle-exclamation"></i> ${log.Alert_Level || 'Critical'}</span>`
-                : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Alert_Level || 'Routine'}</span>`;
+            let filtered = liveAlerts;
+            if(currentSecurityFilter === 'routine') {
+                filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
+            } else if (currentSecurityFilter === 'critical') {
+                filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
+            }
             
-            htmlStr += `
-                <tr class="${isCritical ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
-                    <td class="align-top">
-                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? String(log.Timestamp).split('T')[0] : '--'}</div>
-                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? String(log.Timestamp).split('T')[1]?.split('.')[0] || '' : ''}</div>
-                    </td>
-                    <td class="align-top">
-                        <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-20 sm:w-28 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
-                    </td>
-                    <td class="align-top">${levelBadge}</td>
-                    <td class="align-top">
-                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate" title="${log.Notes || log.Description || '--'}"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
-                    </td>
-                    <td class="text-right align-top">
-                        <button onclick="window.resolveSecurity('${log.Timestamp}', '${log.Room}', this)" class="bg-[#1d1d1f] hover:bg-rose-600 hover:text-white text-white text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-md whitespace-nowrap uppercase tracking-widest transition-colors">Clear Area</button>
-                    </td>
-                </tr>
-            `;
-        });
-        body.innerHTML = htmlStr;
+            if(filtered.length === 0) { 
+                body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No alerts match filter.</td></tr>`; return; 
+            }
+
+            // Safe robust sorting
+            filtered.sort((a, b) => {
+                const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+            });
+
+            let htmlStr = '';
+            filtered.forEach(log => {
+                const res = window.getResidentForRoom(log.Room);
+                const isCritical = String(log.Alert_Level).toLowerCase().includes('critical') || String(log.Alert_Level).toLowerCase().includes('high');
+                const t = window.formatSafeDate(log.Timestamp);
+
+                const levelBadge = isCritical 
+                    ? `<span class="bg-white border border-rose-200 text-rose-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest animate-pulse"><i class="fa-solid fa-triangle-exclamation"></i> ${log.Alert_Level || 'Critical'}</span>`
+                    : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Alert_Level || 'Routine'}</span>`;
+                
+                // Escape quotes for inline click
+                const safeTime = String(log.Timestamp || '').replace(/'/g, "\\'");
+                const safeRoom = String(log.Room || '').replace(/'/g, "\\'");
+
+                htmlStr += `
+                    <tr class="${isCritical ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
+                        <td class="align-top">
+                            <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${t.date}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5">${t.time}</div>
+                        </td>
+                        <td class="align-top">
+                            <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
+                            <div class="text-[8px] text-slate-500 mt-0.5 truncate w-20 sm:w-28 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                        </td>
+                        <td class="align-top">${levelBadge}</td>
+                        <td class="align-top">
+                            <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate" title="${log.Notes || log.Description || '--'}"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
+                        </td>
+                        <td class="text-right align-top">
+                            <button onclick="window.resolveSecurity('${safeTime}', '${safeRoom}', this)" class="bg-[#1d1d1f] hover:bg-rose-600 hover:text-white text-white text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-md whitespace-nowrap uppercase tracking-widest transition-colors">Clear Area</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            body.innerHTML = htmlStr;
+        } catch (e) {
+            console.error(e);
+            body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[10px]">Error rendering data.</td></tr>`;
+        }
     };
 
     window.renderSecurityHistory = function() {
         const body = document.getElementById('security-hist-body'); if(!body) return;
-        let baseData = window.globalSecurityData || [];
         
-        if(baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
-        
-        let filtered = baseData.filter(l => String(l.Dispatch_Status || l.Status).toLowerCase().includes('clear') || String(l.Dispatch_Status || l.Status).toLowerCase().includes('resolve'));
-        if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No cleared incidents.</td></tr>`; return; }
+        try {
+            let baseData = window.globalSecurityData || [];
+            if(baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
+            
+            let filtered = baseData.filter(l => {
+                const stat = String(l.Dispatch_Status || l.Status || l.state || '').toLowerCase().trim();
+                return stat.includes('clear') || stat.includes('resolve') || stat.includes('close');
+            });
+            
+            if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No cleared incidents.</td></tr>`; return; }
 
-        filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+            filtered.sort((a, b) => {
+                const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+            });
 
-        let htmlStr = '';
-        filtered.forEach(log => {
-            htmlStr += `
-                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
-                    <td class="align-top">
-                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? String(log.Timestamp).split('T')[0] : '--'}</div>
-                        <div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? String(log.Timestamp).split('T')[1]?.split('.')[0] || '' : ''}</div>
-                    </td>
-                    <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
-                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Alert_Level}">${log.Alert_Level || '--'}</span></td>
-                    <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p></td>
-                    <td class="text-right align-top">
-                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-shield-check"></i> Cleared</span>
-                    </td>
-                </tr>
-            `;
-        });
-        body.innerHTML = htmlStr;
+            let htmlStr = '';
+            filtered.forEach(log => {
+                const t = window.formatSafeDate(log.Timestamp);
+                
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100">
+                        <td class="align-top">
+                            <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap">${t.date}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5">${t.time}</div>
+                        </td>
+                        <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
+                        <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Alert_Level}">${log.Alert_Level || '--'}</span></td>
+                        <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p></td>
+                        <td class="text-right align-top">
+                            <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-shield-check"></i> Cleared</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            body.innerHTML = htmlStr;
+        } catch (e) {
+            console.error(e);
+            body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[10px]">Error rendering archive.</td></tr>`;
+        }
     };
 
     window.resolveSecurity = async function(timestamp, room, btnElement) {
@@ -521,7 +548,7 @@
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Timestamp: timestamp, Room: room, Dispatch_Status: "Area Cleared" })
             });
-            const idx = (window.globalSecurityData || []).findIndex(a => a.Timestamp == timestamp && a.Room == room);
+            const idx = (window.globalSecurityData || []).findIndex(a => String(a.Timestamp) === String(timestamp) && String(a.Room) === String(room));
             if(idx > -1) window.globalSecurityData[idx].Dispatch_Status = "Area Cleared";
             window.renderSecurityData();
             window.showToast("Alert cleared successfully.");
@@ -542,16 +569,16 @@
             Alert_Level: document.getElementById('inc-level').value,
             Alert_Type: "Manual Log",
             Notes: document.getElementById('inc-desc').value,
-            Timestamp: new Date().toISOString()
+            Timestamp: new Date().toISOString(),
+            Dispatch_Status: "Active"
         };
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Logging...'; btn.disabled = true;
         try {
             await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             
-            // Push locally so it renders immediately
             if(!window.globalSecurityData) window.globalSecurityData = [];
-            window.globalSecurityData.unshift({...payload, Dispatch_Status: "Active"});
+            window.globalSecurityData.unshift(payload);
             window.renderSecurityData();
 
             document.getElementById('logIncidentModal').classList.remove('active'); e.target.reset();
@@ -604,7 +631,10 @@
             filename = "Filtered_Live_Alerts";
             csvContent += "Timestamp,Room,Resident,Alert Level,Alert Type,Notes\n";
             
-            let filtered = baseData.filter(d => !String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') && !String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+            let filtered = baseData.filter(d => {
+                const stat = String(d.Dispatch_Status || d.Status || d.state || '').toLowerCase().trim();
+                return !(stat.includes('clear') || stat.includes('resolve') || stat.includes('close'));
+            });
             
             if(currentSecurityFilter === 'routine') {
                 filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
@@ -625,7 +655,11 @@
             filename = "Filtered_Alert_History";
             csvContent += "Timestamp,Room,Alert Level,Alert Type,Notes,Status\n";
             
-            let filtered = baseData.filter(d => String(d.Dispatch_Status || d.Status).toLowerCase().includes('clear') || String(d.Dispatch_Status || d.Status).toLowerCase().includes('resolve'));
+            let filtered = baseData.filter(d => {
+                const stat = String(d.Dispatch_Status || d.Status || d.state || '').toLowerCase().trim();
+                return stat.includes('clear') || stat.includes('resolve') || stat.includes('close');
+            });
+            
             dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
 
             dataToExport.forEach(log => {
