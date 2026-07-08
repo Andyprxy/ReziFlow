@@ -56,12 +56,12 @@
         <!-- Primary KPI View Switcher -->
         <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0">
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
-                <button onclick="window.toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue">
+                <button onclick="window.toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue text-[10px] sm:text-xs">
                     <i class="fa-solid fa-users"></i> Allocated Students
                     <span id="stat-allocated-beds" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
                 </button>
                 <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
-                <button onclick="window.toggleOccupancyView('rooms')" id="btn-occ-rooms" class="glass-seg-btn accent-emerald">
+                <button onclick="window.toggleOccupancyView('rooms')" id="btn-occ-rooms" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
                     <i class="fa-solid fa-bed"></i> Room Inventory
                     <span id="stat-available-beds" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
                 </button>
@@ -72,7 +72,7 @@
         <div class="glass-panel rounded-[20px] lg:rounded-[24px] overflow-hidden mt-1 shrink-0 flex flex-col">
             
             <div class="px-3 py-3 border-b border-white/60 flex flex-col xl:flex-row gap-3 justify-between xl:items-center bg-white/50 backdrop-blur-md">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="occ-icon" class="fa-solid fa-chart-pie text-xs"></i></div>
                     <h3 id="occupancy-title" class="font-black text-slate-800 text-xs sm:text-sm whitespace-nowrap">Allocated Students</h3>
                 </div>
@@ -93,11 +93,16 @@
                         </div>
                     </div>
 
+                    <!-- NEW: Download Report Button -->
+                    <button onclick="window.downloadOccupancyReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                    </button>
+
                     <div class="relative w-full sm:w-36">
                         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
                         <input type="text" id="search-occupancy" onkeyup="window.filterOccupancyTable()" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-blue-400 shadow-sm">
                     </div>
-                    <button onclick="if(typeof window.fetchStatsData === 'function') window.fetchStatsData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                    <button onclick="if(typeof window.fetchStatsData === 'function') window.fetchStatsData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm flex items-center shrink-0 text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
                 </div>
             </div>
             
@@ -128,15 +133,6 @@
             <div class="space-y-1">
                 <button onclick="document.getElementById('roomSwapModal').classList.add('active')" class="block-btn bg-emerald-600 hover:bg-emerald-700 text-white justify-center gap-1 !py-1.5 shadow-sm border-none transition-colors">
                     <i class="fa-solid fa-right-left text-[9px]"></i> <span class="truncate text-[8px] nav-text">Initiate Room Swap</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="nav-block">
-            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate nav-text">Data Actions</p>
-            <div class="space-y-1">
-                <button onclick="window.downloadOccupancyReport()" class="block-btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
-                    <i class="fa-solid fa-file-csv text-slate-500 text-[9px]"></i> <span class="truncate text-[8px] nav-text">Download Filtered List</span>
                 </button>
             </div>
         </div>
@@ -235,7 +231,6 @@
     // ARCHITECTURAL DATA PIPELINE FALLBACK (Ensures 0 rows bug never happens)
     // ----------------------------------------------------
     (async function initPipelineCheck() {
-        // Fallback catch if background execution inside parent shell missed an event sequence
         if (typeof window.globalRoomData === 'undefined' || window.globalRoomData.length === 0) {
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
@@ -286,13 +281,19 @@
 
         const title = document.getElementById('occupancy-title'); 
         const filters = document.getElementById('occupancy-room-filters');
+        const icon = document.getElementById('occ-icon');
+        const searchInput = document.getElementById('search-occupancy');
+        
+        if(searchInput) searchInput.value = '';
         
         if(view === 'rooms') { 
             if(title) title.textContent = 'Live Room Inventory'; 
             if(filters) { filters.classList.remove('hidden'); filters.classList.add('flex'); }
+            if(icon) { icon.className = "fa-solid fa-bed text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
         } else { 
             if(title) title.textContent = 'Allocated Students'; 
             if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } 
+            if(icon) { icon.className = "fa-solid fa-chart-pie text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"; }
         }
         window.processStatsData();
     };
@@ -315,8 +316,9 @@
         if (typeof globalRoomData === 'undefined' || typeof globalStudentData === 'undefined') return;
 
         let totalBeds = 0; let occupiedBeds = 0;
-        globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || r.Capacity || 0); occupiedBeds += parseInt(r.Occupied_Beds || r.Occupied || 0); });
-        
+        if(globalRoomData && globalRoomData.length > 0) {
+            globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || r.Capacity || 0); occupiedBeds += parseInt(r.Occupied_Beds || r.Occupied || 0); });
+        }
         const allocatedStudents = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length;
         
         if(document.getElementById('stat-available-beds')) document.getElementById('stat-available-beds').textContent = Math.max(0, totalBeds - occupiedBeds);
@@ -340,28 +342,28 @@
                 return matchBlock && matchGender;
             });
             
-            if(filteredRooms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No rooms matched.</td></tr>'; return; }
+            if(filteredRooms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No rooms match filters.</td></tr>'; return; }
 
             filteredRooms.forEach(room => {
                 const total = parseInt(room.Total_Beds || room.Capacity || 0); const occ = parseInt(room.Occupied_Beds || room.Occupied || 0); const avail = total - occ;
-                let statusBadge = avail <= 0 ? `<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-widest">Full</span>` : `<span class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-widest">${avail} Open</span>`;
+                let statusBadge = avail <= 0 ? `<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-widest border border-slate-200">Full</span>` : `<span class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[8px] font-bold uppercase tracking-widest border border-emerald-100">${avail} Open</span>`;
                 
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
-                        <td><div class="font-mono font-bold text-slate-800 text-[10px]">${room.Room_ID}</div><div class="text-[8px] text-slate-400 mt-0.5 capitalize">${room.Room_Type || 'Single'}</div></td>
-                        <td><div class="font-bold text-slate-600 text-[9px]">Block ${room.Block || '-'}</div></td>
-                        <td><div class="text-[9px] font-medium text-slate-600">${occ} / ${total} Beds</div></td>
+                        <td><div class="font-mono font-bold text-slate-800 text-[11px]">${room.Room_ID}</div><div class="text-[9px] text-slate-500 mt-0.5 capitalize">${room.Room_Type || 'Single'} Unit</div></td>
+                        <td><div class="font-bold text-slate-600 text-[10px]">Block ${room.Block || '-'}</div></td>
+                        <td><div class="text-[10px] font-medium text-slate-600">${occ} / ${total} Assigned</div><div class="w-16 bg-slate-200 rounded-full h-1 mt-1.5 overflow-hidden shadow-inner"><div class="${avail <= 0 ? 'bg-slate-400' : 'bg-emerald-400'} h-full" style="width: ${(occ/total)*100}%"></div></div></td>
                         <td class="text-right">${statusBadge}</td>
-                    </tr>`;
+                    </tr>
+                `;
             });
             tbody.innerHTML = htmlStr;
 
         } else {
             thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Resident Identity</th><th class="w-1/4">Room Assignment</th><th class="w-1/4">Gender / Block</th><th class="text-right">Dossier</th></tr>`;
             
-            // Render only valid, fully allocated records
             const allocated = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--' && s.First_Name);
-            if(allocated.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No resident data active.</td></tr>'; return; }
+            if(allocated.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No resident data active.</td></tr>'; return; }
 
             allocated.forEach(s => {
                 const blockChar = String(s.Room_Allocation).charAt(0).toUpperCase(); 
@@ -372,9 +374,9 @@
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
                         <td><div class="font-black text-slate-800 text-[10px]">${s.First_Name || ''} ${s.Surname || ''}</div><div class="text-[8px] font-mono font-bold text-slate-400 mt-0.5">${s.Student_Number || '--'}</div></td>
-                        <td><span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-bold border border-emerald-100">${s.Room_Allocation}</span></td>
+                        <td><span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-bold border border-emerald-100 shadow-sm">${s.Room_Allocation}</span></td>
                         <td><div class="text-[9px] font-bold text-slate-600"><i class="fa-solid ${icon} ${blockColor} mr-1"></i> ${s.Gender || 'N/A'} (Blk ${blockChar})</div></td>
-                        <td class="text-right"><button onclick="window.viewResidentDossier('${safeId}')" class="bg-white border border-slate-200 text-slate-500 hover:text-blue-600 text-[8px] font-bold px-2 py-1 rounded transition-all shadow-sm">View File</button></td>
+                        <td class="text-right"><button onclick="window.viewResidentDossier('${safeId}')" class="bg-white border border-slate-200 text-slate-500 hover:text-blue-600 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm">View File</button></td>
                     </tr>`;
             });
             tbody.innerHTML = htmlStr;
@@ -386,7 +388,7 @@
     // ----------------------------------------------------
     window.viewResidentDossier = function(studentId) {
         const student = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); 
-        if(!student) return;
+        if(!student) return window.showToast("Student data not found", "error");
 
         document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
         document.getElementById('dos-id').textContent = student.Student_Number; 
@@ -482,4 +484,7 @@
         link.click();
         document.body.removeChild(link);
     };
+
+    // Trigger render safely on load
+    if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0) { window.processStatsData(); }
 </script>
