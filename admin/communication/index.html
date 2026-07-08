@@ -1,68 +1,349 @@
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] p-6 lg:p-10 max-w-4xl mx-auto relative overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
-    <div class="flex items-center gap-4 mb-8 border-b border-slate-200/60 pb-6">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-400 text-white flex items-center justify-center text-xl shadow-md shadow-blue-500/20"><i class="fa-solid fa-paper-plane"></i></div>
-        <div>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Dispatch Communication</h2>
-            <p class="text-xs text-slate-500 font-medium">Broadcast secure messages to student portals</p>
+<style>
+    /* ---------------------------------------------------
+       FLUID COMPACT LAYOUT & SIDEBAR CONFIG
+       --------------------------------------------------- */
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 3px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 3px; align-items: center;
+    }
+    
+    .glass-seg-btn {
+        padding: 6px 12px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; justify-content: center;
+    }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } 
+    
+    /* Right Sidebar (Collapsed by default, 10% Shrink) */
+    .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
+    
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+    
+    /* Custom ID Chips */
+    .student-chip { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0.8); opacity: 0; }
+    @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+
+    /* High-End Modals */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(59, 130, 246, 0.2) 60%, #3b82f6 80%, #2563eb 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
+</style>
+
+<!-- Main Component Structure -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
+    
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
+        
+        <div class="glass-panel p-5 sm:p-8 flex flex-col h-full border border-blue-100/50 shadow-[0_0_40px_rgba(59,130,246,0.03)] relative overflow-hidden">
+            
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-200/60 pb-5">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-sm border border-blue-100"><i class="fa-solid fa-paper-plane"></i></div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-slate-800 tracking-tight">Message Center</h2>
+                    <p class="text-[10px] text-slate-500 font-medium">Broadcast alerts and notices directly to residents[cite: 7].</p>
+                </div>
+            </div>
+
+            <form id="commForm" onsubmit="window.sendCommunication(event)" class="flex flex-col flex-1 relative z-10 space-y-6">
+                
+                <!-- STEP 1: AUDIENCE BUILDER -->
+                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
+                    <label class="block text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-3"><i class="fa-solid fa-1 mr-1"></i> Target Audience[cite: 7]</label>
+                    <div class="glass-segmented w-full flex-wrap sm:flex-nowrap mb-4">
+                        <button type="button" onclick="window.setCommAudience('all')" id="comm-aud-all" class="glass-seg-btn active accent-blue flex-1 text-[10px]">All Residents</button>
+                        <button type="button" onclick="window.setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 text-[10px]">Filtered Group</button>
+                        <button type="button" onclick="window.setCommAudience('specific')" id="comm-aud-specific" class="glass-seg-btn flex-1 text-[10px]">Custom List</button>
+                    </div>
+
+                    <!-- Dynamic Filter Group -->
+                    <div id="comm-filter-group" class="hidden animate-[paneFade_0.3s_forwards]">
+                        <p class="text-[9px] font-bold text-slate-400 mb-2">Filter Demographics[cite: 7]</p>
+                        <div class="glass-segmented overflow-x-auto w-full">
+                            <button type="button" onclick="window.setCommDemo('nsfas')" id="comm-dem-nsfas" class="glass-seg-btn active accent-blue text-[9px]">NSFAS</button>
+                            <button type="button" onclick="window.setCommDemo('bursary')" id="comm-dem-bursary" class="glass-seg-btn text-[9px]">Bursary</button>
+                            <button type="button" onclick="window.setCommDemo('cash')" id="comm-dem-cash" class="glass-seg-btn text-[9px]">Cash</button>
+                            <button type="button" onclick="window.setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn text-[9px]">Male</button>
+                            <button type="button" onclick="window.setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn text-[9px]">Female</button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Specific List Builder -->
+                    <div id="comm-specific-group" class="hidden animate-[paneFade_0.3s_forwards]">
+                        <p class="text-[9px] font-bold text-slate-400 mb-2">Add Specific Residents</p>
+                        <div class="flex items-center gap-2 mb-3">
+                            <input type="text" id="comm-student-id" class="flex-1 bg-white border border-slate-200 rounded-xl py-2 px-3 text-[10px] font-mono outline-none focus:border-blue-400 shadow-sm" placeholder="Type Student Number...[cite: 7]">
+                            <button type="button" onclick="window.addStudentToList()" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 flex items-center justify-center shadow-sm transition-colors shrink-0"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="comm-custom-list" class="flex flex-wrap gap-2 min-h-[30px] p-2 bg-slate-50 border border-slate-100 rounded-xl">
+                            <span class="text-[9px] text-slate-400 font-medium italic py-1 px-2" id="comm-custom-empty">List is empty. Add IDs above.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: COMPOSER -->
+                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm flex-1 flex flex-col">
+                    <label class="block text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-3"><i class="fa-solid fa-2 mr-1"></i> Message Composer</label>
+                    
+                    <div class="glass-segmented w-full flex-wrap sm:flex-nowrap mb-4">
+                        <button type="button" onclick="window.setCommTemplate('custom')" id="comm-tpl-custom" class="glass-seg-btn active accent-blue flex-1 text-[9px]">Blank</button>
+                        <button type="button" onclick="window.setCommTemplate('house_meeting')" id="comm-tpl-house" class="glass-seg-btn flex-1 text-[9px]">House Meeting</button>
+                        <button type="button" onclick="window.setCommTemplate('maintenance')" id="comm-tpl-maint" class="glass-seg-btn flex-1 text-[9px]">Maintenance Notice</button>
+                    </div>
+
+                    <div class="flex-1 flex flex-col relative">
+                        <textarea id="comm-message" class="flex-1 w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-[11px] font-medium text-slate-700 outline-none focus:border-blue-400 shadow-sm resize-none" placeholder="Type your broadcast message here...[cite: 7]" required></textarea>
+                        <div class="absolute bottom-3 right-3 text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">Broadcast Payload</div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT -->
+                <button type="submit" id="btn-send-comm" class="w-full bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold rounded-[14px] py-4 shadow-xl transition-all flex items-center justify-center gap-2 text-[11px] uppercase tracking-widest shrink-0">
+                    <i class="fa-solid fa-satellite-dish"></i> Execute Broadcast[cite: 7]
+                </button>
+            </form>
         </div>
+
     </div>
 
-    <form id="commForm" onsubmit="sendCommunication(event)" class="space-y-6 relative z-10">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-white/50 border border-white rounded-2xl shadow-sm">
-            <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Target Audience</label>
-                <div class="glass-segmented w-full justify-between">
-                    <button type="button" onclick="setCommAudience('all')" id="comm-aud-all" class="glass-seg-btn active accent-blue flex-1 justify-center">All Students</button>
-                    <button type="button" onclick="setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 justify-center">Filter Options</button>
-                    <button type="button" onclick="setCommAudience('specific')" id="comm-aud-specific" class="glass-seg-btn flex-1 justify-center">Specific ID</button>
+    <!-- RIGHT SIDEBAR (Collapsed by Default) -->
+    <div id="comm-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
+        
+        <div onclick="window.toggleCommSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
+            <div class="flex items-center gap-1.5 w-full">
+                <div class="w-7 h-7 bg-gradient-to-br from-blue-500 to-sky-500 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
+                    <i class="fa-solid fa-message"></i>
                 </div>
+                <div class="flex flex-col nav-text flex-1 overflow-hidden">
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Msg<span class="text-blue-500">Ctrl</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Outreach Panel</span>
+                </div>
+            </div>
+            <i id="comm-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Message Tools</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('commForm').reset(); window.setCommAudience('all'); window.setCommTemplate('custom');" class="block-btn bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
+                    <i class="fa-solid fa-pen-to-square text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">New Draft</span>
+                </button>
+                <button onclick="document.getElementById('sentLogModal').classList.add('active')" class="block-btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-500 text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">View Sent Log</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
+            <div class="flex flex-col nav-text overflow-hidden">
+                <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none truncate">Engineered By</span>
+                <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none truncate">AUTOMANIA</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Sent Log Modal -->
+<div id="sentLogModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-md relative">
+        <div class="magic-border-inner flex flex-col h-[60vh]">
+            <button onclick="document.getElementById('sentLogModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4 shrink-0">
+                <div class="w-10 h-10 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div><h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Broadcast History</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Recent Dispatches</p></div>
             </div>
             
-            <div id="comm-filter-group" class="hidden">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Filter Demographics</label>
-                <div class="glass-segmented overflow-x-auto w-full">
-                    <button type="button" onclick="setCommDemo('nsfas')" id="comm-dem-nsfas" class="glass-seg-btn active accent-blue">NSFAS</button>
-                    <button type="button" onclick="setCommDemo('bursary')" id="comm-dem-bursary" class="glass-seg-btn">Bursary</button>
-                    <button type="button" onclick="setCommDemo('cash')" id="comm-dem-cash" class="glass-seg-btn">Cash</button>
-                    <button type="button" onclick="setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn">Male</button>
-                    <button type="button" onclick="setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn">Female</button>
+            <div class="flex-1 overflow-y-auto custom-scroll space-y-3 pr-2">
+                <!-- Mock Logs for visual completeness -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[7px] font-bold uppercase tracking-widest">To: All Residents</span>
+                        <span class="text-[8px] font-medium text-slate-400">Today, 09:00 AM</span>
+                    </div>
+                    <p class="text-[9px] font-medium text-slate-700 line-clamp-2">"Notice: Water interruption scheduled for Block A between 10 AM and 1 PM..."</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[7px] font-bold uppercase tracking-widest">To: Custom List (3)</span>
+                        <span class="text-[8px] font-medium text-slate-400">Yesterday, 14:30 PM</span>
+                    </div>
+                    <p class="text-[9px] font-medium text-slate-700 line-clamp-2">"Reminder: Please sign your updated lease agreements at the admin office."</p>
                 </div>
             </div>
-
-            <div id="comm-specific-group" class="hidden">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Student Number</label>
-                <input type="text" id="comm-student-id" class="modern-input font-mono bg-white/90" placeholder="e.g. 221227336">
-            </div>
         </div>
-
-        <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Message Template</label>
-            <div class="glass-segmented w-full flex-wrap">
-                <button type="button" onclick="setCommTemplate('custom')" id="comm-tpl-custom" class="glass-seg-btn active accent-blue">Custom Input</button>
-                <button type="button" onclick="setCommTemplate('house_meeting')" id="comm-tpl-house" class="glass-seg-btn">House Meeting</button>
-                <button type="button" onclick="setCommTemplate('group_study')" id="comm-tpl-study" class="glass-seg-btn">Group Study</button>
-                <button type="button" onclick="setCommTemplate('maintenance')" id="comm-tpl-maint" class="glass-seg-btn">Maintenance</button>
-            </div>
-        </div>
-
-        <div id="comm-dynamic-fields" class="hidden grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
-            <div>
-                <label class="block text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1" id="label-comm-1">Date & Time</label>
-                <input type="text" id="comm-input-1" class="modern-input text-sm" placeholder="e.g. Tomorrow at 18:00" oninput="generatePreview()">
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1" id="label-comm-2">Location / Topic</label>
-                <input type="text" id="comm-input-2" class="modern-input text-sm" placeholder="e.g. Main Lounge" oninput="generatePreview()">
-            </div>
-        </div>
-
-        <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Dispatch Payload</label>
-            <textarea id="comm-message" rows="4" class="modern-input resize-none font-medium text-slate-700 bg-white/90" placeholder="Type your message here..." required></textarea>
-        </div>
-
-        <button type="submit" id="btn-send-comm" class="w-full bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold text-sm rounded-xl py-4 shadow-xl transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-satellite-dish"></i> Broadcast Communication
-        </button>
-    </form>
+    </div>
 </div>
+
+<script>
+    // ----------------------------------------------------
+    // LOCAL CONFIGURATION VARS
+    // ----------------------------------------------------
+    window.currentCommAudience = 'all'; 
+    window.currentCommFilter = 'nsfas';
+    window.customBroadcastList = [];
+
+    // ----------------------------------------------------
+    // UI CONTROLS
+    // ----------------------------------------------------
+    window.toggleCommSidebar = function() {
+        const sidebar = document.getElementById('comm-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('comm-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+            }
+        }
+    };
+    
+    if (window.innerWidth < 768) { window.toggleCommSidebar(); }
+
+    function safeUpdateSegmented(pfx, val, opts) {
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600'); } }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); 
+        if(aEl) { aEl.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600'); }
+    }
+
+    window.setCommAudience = function(type) {
+        window.currentCommAudience = type;
+        safeUpdateSegmented('comm-aud', type, ['all', 'filter', 'specific']);
+        
+        document.getElementById('comm-filter-group').style.display = type === 'filter' ? 'block' : 'none';
+        document.getElementById('comm-specific-group').style.display = type === 'specific' ? 'block' : 'none';
+    };
+
+    window.setCommDemo = function(filter) {
+        window.currentCommFilter = filter;
+        safeUpdateSegmented('comm-dem', filter, ['nsfas', 'bursary', 'cash', 'male', 'female']);
+    };
+
+    window.setCommTemplate = function(tpl) {
+        safeUpdateSegmented('comm-tpl', tpl, ['custom', 'house', 'maint']);
+        const textarea = document.getElementById('comm-message');
+        
+        if(tpl === 'custom') { textarea.value = ''; }
+        else if(tpl === 'house') { textarea.value = "HOUSE MEETING NOTICE:\n\nDear Resident, please be advised that there will be a mandatory house meeting.\n\nTime: [Enter Time]\nVenue: Main Lounge\n\nAttendance is strictly required."; }
+        else if(tpl === 'maint') { textarea.value = "MAINTENANCE ALERT:\n\nDear Resident, please be advised that our maintenance team will be conducting scheduled repairs in your block today.\n\nApologies for any inconvenience."; }
+    };
+
+    // ----------------------------------------------------
+    // CUSTOM LIST BUILDER
+    // ----------------------------------------------------
+    window.addStudentToList = function() {
+        const input = document.getElementById('comm-student-id');
+        const id = input.value.trim();
+        if(!id) return;
+        
+        if(!window.customBroadcastList.includes(id)) {
+            window.customBroadcastList.push(id);
+            window.renderCustomList();
+        }
+        input.value = '';
+    };
+
+    window.removeStudentFromList = function(id) {
+        window.customBroadcastList = window.customBroadcastList.filter(item => item !== String(id));
+        window.renderCustomList();
+    };
+
+    window.renderCustomList = function() {
+        const container = document.getElementById('comm-custom-list');
+        if(window.customBroadcastList.length === 0) {
+            container.innerHTML = '<span class="text-[9px] text-slate-400 font-medium italic py-1 px-2" id="comm-custom-empty">List is empty. Add IDs above.</span>';
+            return;
+        }
+
+        let html = '';
+        window.customBroadcastList.forEach(id => {
+            html += `
+                <div class="student-chip flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg text-[9px] font-bold shadow-sm">
+                    <i class="fa-solid fa-user text-[8px] text-blue-400"></i> ${id}
+                    <button type="button" onclick="window.removeStudentFromList('${id}')" class="ml-1 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark text-[8px]"></i></button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    };
+
+    // Listen for "Enter" key on the input to add student
+    document.getElementById('comm-student-id')?.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); window.addStudentToList(); }
+    });
+
+    // ----------------------------------------------------
+    // SUBMIT PIPELINE
+    // ----------------------------------------------------
+    window.sendCommunication = async function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btn-send-comm'); 
+        const ogText = btn.innerHTML;
+        const msg = document.getElementById('comm-message').value;
+
+        // Validation
+        if(window.currentCommAudience === 'specific' && window.customBroadcastList.length === 0) {
+            return window.showToast("Add at least one student ID to the list.", "error");
+        }
+        
+        // Construct Payload for n8n
+        const payload = {
+            Audience_Type: window.currentCommAudience,
+            Filter_Group: window.currentCommAudience === 'filter' ? window.currentCommFilter : 'N/A',
+            Specific_Targets: window.currentCommAudience === 'specific' ? window.customBroadcastList.join(',') : 'N/A',
+            Message: msg,
+            Timestamp: new Date().toISOString()
+        };
+        
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting Payload...'; 
+        btn.disabled = true;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-mass-comm', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
+            });
+            
+            // Reset UI on success
+            document.getElementById('commForm').reset();
+            window.customBroadcastList = [];
+            window.renderCustomList();
+            window.setCommAudience('all');
+            
+            window.showToast("Broadcast transmitted to n8n successfully.");
+        } catch(error) { 
+            window.showToast("Failed to connect to transmission node.", "error"); 
+        } finally { 
+            btn.innerHTML = ogText; 
+            btn.disabled = false; 
+        }
+    };
+
+    // Init Defaults
+    window.setCommAudience('all');
+</script>
