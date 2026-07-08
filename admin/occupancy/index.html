@@ -1,45 +1,421 @@
-<div class="flex justify-center w-full">
-    <div class="glass-segmented">
-        <button onclick="toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue">
-            <i class="fa-solid fa-users"></i> Allocated Students
-            <span id="stat-allocated-beds" class="bg-blue-50 border border-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
-        </button>
-        <div class="w-px h-6 bg-slate-300/50 mx-1"></div>
-        <button onclick="toggleOccupancyView('rooms')" id="btn-occ-rooms" class="glass-seg-btn accent-emerald">
-            <i class="fa-solid fa-bed"></i> Room Inventory
-            <span id="stat-available-beds" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2.5 py-0.5 rounded-full text-[10px] shadow-sm">-</span>
-        </button>
+<style>
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 4px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    }
+    .glass-seg-btn {
+        padding: 6px 14px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; 
+        transition: all 0.3s ease; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent;
+    }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85); border: 1px solid rgba(255, 255, 255, 1); transform: scale(1.01);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; }
+
+    .hub-sidebar { transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; overflow-x: hidden; }
+    .hub-sidebar.collapsed { width: 64px !important; min-width: 64px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 8px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 12px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.2rem; }
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 16px; padding: 10px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    
+    .compact-table th { padding: 10px 12px; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 8px 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.7rem; }
+    
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(16, 185, 129, 0.2) 60%, #10b981 80%, #047857 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
+</style>
+
+<!-- Main Container -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-4 overflow-hidden relative">
+    
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
+        
+        <!-- Primary KPI / View Toggle -->
+        <div class="flex justify-start sm:justify-center w-full mb-4 z-10 relative shrink-0">
+            <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
+                <button onclick="window.toggleOccupancyView('students')" id="btn-occ-students" class="glass-seg-btn active accent-blue text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-users"></i> Allocated Students
+                    <span id="stat-allocated-beds" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.toggleOccupancyView('rooms')" id="btn-occ-rooms" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-bed"></i> Room Inventory
+                    <span id="stat-available-beds" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-2 shrink-0 flex flex-col">
+            
+            <div class="px-4 py-4 border-b border-white/60 flex flex-col xl:flex-row gap-4 justify-between xl:items-center bg-white/50 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i id="occ-icon" class="fa-solid fa-chart-pie text-sm"></i></div>
+                    <h3 id="occupancy-title" class="font-bold text-slate-800 text-sm sm:text-base whitespace-nowrap">Allocated Students</h3>
+                </div>
+                
+                <div class="flex items-center gap-2 flex-wrap xl:flex-nowrap justify-end">
+                    <!-- Dynamic Sub-Filters (Blocks & Gender) -->
+                    <div id="occupancy-room-filters" class="hidden flex-wrap gap-2">
+                        <div class="glass-segmented scale-95 origin-right">
+                            <button onclick="window.setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-blue text-[9px]">All Blocks</button>
+                            <button onclick="window.setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-blue text-[9px]">Block A</button>
+                            <button onclick="window.setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-blue text-[9px]">Block B</button>
+                        </div>
+                        <div class="glass-segmented scale-95 origin-right">
+                            <button onclick="window.setOccupancyGender('all')" id="occ-gen-all" class="glass-seg-btn active accent-emerald text-[9px]">All Wings</button>
+                            <button onclick="window.setOccupancyGender('male')" id="occ-gen-male" class="glass-seg-btn accent-emerald text-[9px]">Male</button>
+                            <button onclick="window.setOccupancyGender('female')" id="occ-gen-female" class="glass-seg-btn accent-emerald text-[9px]">Female</button>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full sm:w-40">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                        <input type="text" id="search-occupancy" onkeyup="window.filterTable('search-occupancy', 'stats-inventory-body')" placeholder="Search..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-emerald-400 shadow-sm">
+                    </div>
+                    <button onclick="if(typeof window.fetchStatsData === 'function') window.fetchStatsData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-emerald-500"></i></button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
+                <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                    <thead id="occupancy-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm"></thead>
+                    <tbody id="stats-inventory-body" class="divide-y divide-slate-100/50"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Sidebar (Right) -->
+    <div id="occ-right-sidebar" class="hub-sidebar w-full lg:w-64 min-w-[200px] shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
+        <div class="nav-block flex items-center justify-between !p-2 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleOccSidebar()">
+            <div class="flex items-center gap-2 w-full">
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="flex flex-col flex-1 overflow-hidden nav-text">
+                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none truncate">Space<span class="text-emerald-500">Ctrl</span></span>
+                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Planning Tools</span>
+                </div>
+            </div>
+            <i id="occ-sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Logistics</p>
+            <div class="space-y-1.5">
+                <button onclick="document.getElementById('roomSwapModal').classList.add('active')" class="block-btn bg-emerald-600 hover:bg-emerald-700 text-white justify-center gap-1.5 !py-2 shadow-md border-none transition-colors">
+                    <i class="fa-solid fa-right-left text-[10px]"></i> <span class="truncate text-[9px] nav-text">Initiate Room Swap</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Compliance</p>
+            <div class="space-y-1.5">
+                <button onclick="window.downloadOccupancyReport()" class="block-btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 justify-center gap-1.5 !py-2 shadow-sm transition-colors">
+                    <i class="fa-solid fa-file-export text-slate-500 text-[10px]"></i> <span class="truncate text-[9px] nav-text">Export Ledger (CSV)</span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-6">
-    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
-        <h3 id="occupancy-title" class="font-bold text-slate-800 text-base sm:text-lg">Allocated Students</h3>
-        <div class="flex items-center gap-3 flex-wrap md:flex-nowrap justify-end">
-            <div id="occupancy-room-filters" class="hidden flex-wrap gap-2">
-                <div class="glass-segmented">
-                    <button onclick="setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-blue">All Blocks</button>
-                    <button onclick="setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-blue">Block A</button>
-                    <button onclick="setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-blue">Block B</button>
-                </div>
-                <div class="glass-segmented">
-                    <button onclick="setOccupancyGender('all')" id="occ-gen-all" class="glass-seg-btn active accent-emerald">All Wings</button>
-                    <button onclick="setOccupancyGender('male')" id="occ-gen-male" class="glass-seg-btn accent-emerald">Male</button>
-                    <button onclick="setOccupancyGender('female')" id="occ-gen-female" class="glass-seg-btn accent-emerald">Female</button>
+<!-- ========================================== -->
+<!-- OCCUPANCY MODALS                           -->
+<!-- ========================================== -->
+
+<!-- The Resident Dossier (Comprehensive Pull) -->
+<div id="residentDossierModal" class="modal-overlay">
+    <div class="modal-content glass-panel w-full max-w-2xl rounded-[24px] shadow-2xl p-0 relative flex flex-col max-h-[90vh] overflow-hidden">
+        
+        <!-- Header -->
+        <div class="p-6 sm:p-8 border-b border-slate-200/60 bg-white/50 backdrop-blur-md relative overflow-hidden flex justify-between items-start">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-400 rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-16 h-16 rounded-[16px] bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 text-3xl shadow-sm"><i class="fa-solid fa-user-graduate"></i></div>
+                <div>
+                    <h2 id="dos-name" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">--</h2>
+                    <p id="dos-id" class="text-sm font-mono text-slate-500 font-bold mt-1">--</p>
+                    <div class="mt-2 flex gap-2">
+                        <span id="dos-room" class="inline-block bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-100 shadow-sm">Room: --</span>
+                        <span id="dos-funding" class="inline-block bg-white text-slate-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-slate-200 shadow-sm">Fund: --</span>
+                    </div>
                 </div>
             </div>
-            <div class="relative w-full sm:w-48">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="search-occupancy" onkeyup="filterTable('search-occupancy', 'stats-inventory-body')" placeholder="Search..." class="modern-input search-input py-2 bg-white/80">
+            <button onclick="document.getElementById('residentDossierModal').classList.remove('active')" class="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm transition-colors relative z-10"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+        </div>
+
+        <!-- Scrollable Dossier Body -->
+        <div class="p-5 sm:p-8 bg-slate-50/50 flex-1 overflow-y-auto custom-scroll space-y-6">
+            
+            <!-- Academic & Identity Profile -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white/60 p-4 rounded-[16px] border border-white shadow-sm">
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-id-badge mr-1"></i> Demographics</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">National ID / Passport</p><p id="dos-nat-id" class="text-[11px] font-mono font-semibold text-slate-700">--</p></div>
+                        <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Gender</p><p id="dos-gender" class="text-[11px] font-semibold text-slate-700">--</p></div>
+                        <div class="col-span-2"><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Academic Program</p><p id="dos-course" class="text-[11px] font-semibold text-slate-700">--</p></div>
+                    </div>
+                </div>
+                <div class="bg-white/60 p-4 rounded-[16px] border border-white shadow-sm">
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-address-book mr-1"></i> Direct Contact</h4>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Mobile Phone</p><p id="dos-phone" class="text-[11px] font-semibold text-slate-700">--</p></div>
+                        <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Email Address</p><p id="dos-email" class="text-[11px] font-semibold text-slate-700 truncate">--</p></div>
+                    </div>
+                </div>
             </div>
-            <button onclick="downloadOccupancyReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span></button>
-            <button onclick="fetchStatsData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 flex-shrink-0 text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+
+            <!-- Emergency & Guardian -->
+            <div class="bg-white/60 p-4 rounded-[16px] border border-rose-100 shadow-sm">
+                <h4 class="text-[9px] font-bold text-rose-500 uppercase tracking-widest mb-3"><i class="fa-solid fa-truck-medical mr-1"></i> Emergency Guardian & Medical</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Guardian Name</p><p id="dos-em-name" class="text-[11px] font-bold text-slate-800">--</p></div>
+                    <div><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Guardian Phone</p><p id="dos-em-phone" class="text-[11px] font-bold text-slate-800">--</p></div>
+                    <div class="sm:col-span-3"><p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Medical Conditions / Allergies</p><p id="dos-medical" class="text-[11px] font-medium text-slate-700 bg-rose-50/50 p-2 rounded-lg border border-rose-100/50 mt-1">--</p></div>
+                </div>
+            </div>
+
+            <!-- Vetted Documents -->
+            <div class="bg-white/60 p-4 rounded-[16px] border border-white shadow-sm">
+                <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3"><i class="fa-solid fa-folder-open mr-1"></i> Encrypted Documents</h4>
+                <div class="flex flex-wrap gap-3" id="dos-docs-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
         </div>
     </div>
-    <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[500px]">
-        <table class="w-full text-left text-sm border-collapse min-w-[600px]">
-            <thead id="occupancy-thead" class="sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-slate-200/50"></thead>
-            <tbody id="stats-inventory-body" class="divide-y divide-slate-100/50"></tbody>
-        </table>
+</div>
+
+<!-- Room Swap Modal -->
+<div id="roomSwapModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('roomSwapModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-right-left"></i></div>
+                <div><h2 class="text-lg font-black text-slate-900 tracking-tight leading-none">Room Transfer</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Update Allocation Ledger</p></div>
+            </div>
+            <form onsubmit="window.processRoomSwap(event)">
+                <div class="mb-3">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
+                    <input type="text" id="swap-student-id" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-emerald-400 shadow-sm" required>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">New Room ID</label>
+                    <input type="text" id="swap-new-room" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-emerald-400 shadow-sm" placeholder="e.g. A-102" required>
+                </div>
+                <button type="submit" id="btn-submit-swap" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px]">Execute Transfer <i class="fa-solid fa-check"></i></button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    // ----------------------------------------------------
+    // LOCAL STATE & SIDEBAR TOGGLE
+    // ----------------------------------------------------
+    var currentOccupancyView = 'students'; 
+    var currentOccupancyBlock = 'all'; 
+    var currentOccupancyGender = 'all';
+
+    window.toggleOccSidebar = function() {
+        const sidebar = document.getElementById('occ-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('occ-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+            }
+        }
+    };
+    
+    if (window.innerWidth < 768) { window.toggleOccSidebar(); }
+
+    function updateSegmentedActive(pfx, val, opts) { 
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber'); }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); 
+        if(aEl) { 
+            aEl.classList.add('active'); 
+            if(pfx === 'btn-occ' && val === 'students') aEl.classList.add('accent-blue'); 
+            else if(pfx === 'btn-occ' && val === 'rooms') aEl.classList.add('accent-emerald'); 
+            else if(pfx === 'occ-blk') aEl.classList.add('accent-blue');
+            else if(pfx === 'occ-gen') aEl.classList.add('accent-emerald');
+        } 
+    }
+
+    // ----------------------------------------------------
+    // RENDERING ENGINE
+    // ----------------------------------------------------
+    window.toggleOccupancyView = function(view) {
+        currentOccupancyView = view; 
+        updateSegmentedActive('btn-occ', view, ['students', 'rooms']);
+        
+        const title = document.getElementById('occupancy-title'); 
+        const filters = document.getElementById('occupancy-room-filters');
+        const searchInput = document.getElementById('search-occupancy'); 
+        const icon = document.getElementById('occ-icon');
+        
+        if(searchInput) searchInput.value = '';
+        
+        if(view === 'rooms') { 
+            if(title) title.textContent = 'Live Room Inventory'; 
+            if(filters) { filters.classList.remove('hidden'); filters.classList.add('flex'); }
+            if(icon) { icon.className = "fa-solid fa-bed text-sm"; icon.parentElement.className = "w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
+        } else { 
+            if(title) title.textContent = 'Allocated Students'; 
+            if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } 
+            if(icon) { icon.className = "fa-solid fa-chart-pie text-sm"; icon.parentElement.className = "w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"; }
+        }
+        window.processStatsData();
+    };
+
+    window.setOccupancyBlock = function(block) { currentOccupancyBlock = block; updateSegmentedActive('occ-blk', block, ['all', 'A', 'B', 'C']); window.processStatsData(); };
+    window.setOccupancyGender = function(gender) { currentOccupancyGender = gender; updateSegmentedActive('occ-gen', gender, ['all', 'male', 'female']); window.processStatsData(); };
+
+    window.processStatsData = function() {
+        if (typeof globalRoomData === 'undefined' || typeof globalStudentData === 'undefined') return;
+
+        let totalBeds = 0; let occupiedBeds = 0;
+        if(globalRoomData && globalRoomData.length > 0) {
+            globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || r.Capacity || 0); occupiedBeds += parseInt(r.Occupied_Beds || r.Occupied || 0); });
+        }
+        const allocatedStudents = globalStudentData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length;
+        
+        if(document.getElementById('stat-available-beds')) document.getElementById('stat-available-beds').textContent = Math.max(0, totalBeds - occupiedBeds);
+        if(document.getElementById('stat-allocated-beds')) document.getElementById('stat-allocated-beds').textContent = allocatedStudents;
+
+        const thead = document.getElementById('occupancy-thead'); const tbody = document.getElementById('stats-inventory-body');
+        if(!tbody || !thead) return;
+        let htmlStr = '';
+
+        if (currentOccupancyView === 'rooms') {
+            thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/4">Room Details</th><th class="w-1/4">Zone / Block</th><th class="w-1/4">Bed Capacity</th><th class="text-right">Live Status</th></tr>`;
+            
+            let filteredRooms = globalRoomData.filter(room => {
+                let matchBlock = true; let matchGender = true;
+                if (currentOccupancyBlock !== 'all') matchBlock = String(room.Block).toUpperCase() === currentOccupancyBlock.toUpperCase();
+                if (currentOccupancyGender !== 'all') { const blk = String(room.Block).toUpperCase(); if (currentOccupancyGender === 'male') matchGender = (blk === 'A'); else if (currentOccupancyGender === 'female') matchGender = (blk === 'B' || blk === 'C'); }
+                return matchBlock && matchGender;
+            });
+            
+            if(filteredRooms.length === 0) { tbody.innerHTML = '<tr class="no-results"><td colspan="4" class="p-10 text-center text-slate-400 text-[10px] font-bold">No rooms match filters.</td></tr>'; return; }
+
+            filteredRooms.forEach(room => {
+                const total = parseInt(room.Total_Beds || room.Capacity || 0); const occ = parseInt(room.Occupied_Beds || room.Occupied || 0); const avail = total - occ;
+                let statusBadge = avail <= 0 ? `<span class="bg-slate-100 border border-slate-200 text-slate-500 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-sm">Full</span>` : `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-sm">${avail} Open</span>`;
+                
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="font-mono font-bold text-slate-800 text-[11px]">${room.Room_ID}</div><div class="text-[9px] text-slate-500 mt-0.5 capitalize">${room.Room_Type || 'Single'} Unit</div></td>
+                        <td><div class="font-bold text-slate-600 text-[10px]">Block ${room.Block || '-'}</div></td>
+                        <td><div class="text-[10px] font-medium text-slate-600">${occ} / ${total} Assigned</div><div class="w-16 bg-slate-200 rounded-full h-1 mt-1.5 overflow-hidden"><div class="${avail <= 0 ? 'bg-slate-400' : 'bg-emerald-400'} h-full" style="width: ${(occ/total)*100}%"></div></div></td>
+                        <td class="text-right">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+
+        } else {
+            thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Resident Identity</th><th class="w-1/4">Room Assignment</th><th class="w-1/4">Gender / Block</th><th class="text-right">Dossier</th></tr>`;
+            const allocated = globalStudentData.filter(s => s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--');
+            
+            if(allocated.length === 0) { tbody.innerHTML = '<tr class="no-results"><td colspan="4" class="p-10 text-center text-slate-400 text-[10px] font-bold">No students allocated.</td></tr>'; return; }
+
+            allocated.forEach(s => {
+                const blockChar = String(s.Room_Allocation).charAt(0).toUpperCase(); const blockColor = blockChar === 'A' ? 'text-blue-500' : 'text-pink-500'; const icon = String(s.Gender).toLowerCase() === 'male' ? 'fa-mars' : 'fa-venus';
+                const safeId = String(s.Student_Number || '').replace(/'/g, "\\'");
+
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="font-black text-slate-800 text-[11px]">${s.First_Name || ''} ${s.Surname || ''}</div><div class="text-[9px] font-mono font-bold text-slate-400 mt-0.5">${s.Student_Number || '--'}</div></td>
+                        <td><span class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md text-[9px] font-bold shadow-sm border border-emerald-100">${s.Room_Allocation}</span></td>
+                        <td><div class="text-[10px] font-bold text-slate-600"><i class="fa-solid ${icon} ${blockColor} mr-1"></i> ${s.Gender || 'N/A'}</div></td>
+                        <td class="text-right"><button onclick="window.viewResidentDossier('${safeId}')" class="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 text-slate-500 hover:text-blue-600 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">View File</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+        }
+    };
+
+    // ----------------------------------------------------
+    // ACTIONS & MODALS
+    // ----------------------------------------------------
+    window.viewResidentDossier = function(studentId) {
+        const student = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); 
+        if(!student) return window.showToast("Student data not found", "error");
+
+        document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
+        document.getElementById('dos-id').textContent = student.Student_Number; 
+        document.getElementById('dos-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
+        document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || 'Pending'}`;
+        
+        document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || 'Not Provided';
+        document.getElementById('dos-gender').textContent = student.Gender || 'Not Provided';
+        document.getElementById('dos-course').textContent = student.Course || 'Not Provided';
+        
+        document.getElementById('dos-phone').textContent = student.Phone || student.Contact_Number || 'N/A'; 
+        document.getElementById('dos-email').textContent = student.Email || student.Email_Address || 'N/A';
+        
+        document.getElementById('dos-em-name').textContent = student.Emergency_Contact_Name || student.Guardian_Name || 'N/A'; 
+        document.getElementById('dos-em-phone').textContent = student.Emergency_Contact_Number || student.Emergency_Phone || 'N/A'; 
+        
+        const med = student.Medical_Conditions || student.Medical_Notes;
+        document.getElementById('dos-medical').textContent = med && String(med).trim() !== '' && String(med).toLowerCase() !== 'none' ? med : 'None indicated on registration.';
+
+        // Map Documents
+        const docContainer = document.getElementById('dos-docs-container');
+        let docsHtml = '';
+        if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity / Passport</a>`;
+        if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition-colors shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Proof of Registration</a>`;
+        if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-[9px] font-bold text-slate-600 hover:text-emerald-600 hover:border-emerald-300 transition-colors shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Proof of Funding</a>`;
+        
+        docContainer.innerHTML = docsHtml || '<span class="text-[9px] font-medium text-slate-400 italic">No documents uploaded.</span>';
+
+        document.getElementById('residentDossierModal').classList.add('active');
+    };
+
+    window.processRoomSwap = async function(e) {
+        e.preventDefault(); 
+        const btn = document.getElementById('btn-submit-swap'); const ogText = btn.innerHTML;
+        const studentId = document.getElementById('swap-student-id').value;
+        const newRoom = document.getElementById('swap-new-room').value;
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transferring...'; btn.disabled = true;
+        try {
+            // Note: Replace with actual Swap webhook if you build one in n8n. Falling back to standard allocate for now.
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-allocate', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ Student_Number: studentId, Room_ID: newRoom, Swap: true }) 
+            });
+            
+            document.getElementById('roomSwapModal').classList.remove('active'); e.target.reset();
+            if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true); 
+            if(typeof window.fetchStatsData === 'function') window.fetchStatsData(true);
+            window.showToast(`Transfer successful. ${studentId} moved to ${newRoom}.`);
+        } catch(error) { 
+            window.showToast("Failed to connect to backend.", "error"); 
+        } finally { 
+            btn.innerHTML = ogText; btn.disabled = false; 
+        }
+    };
+
+    // Trigger render safely
+    if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0) { window.processStatsData(); }
+</script>
