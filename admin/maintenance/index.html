@@ -1,137 +1,115 @@
 <style>
     /* ---------------------------------------------------
-       FLUID COMPACT LAYOUT & GRID ENFORCEMENT
+       FLUID COMPACT LAYOUT & SIDEBAR CONFIG
        --------------------------------------------------- */
-    .maint-container {
-        display: flex; flex-direction: row; width: 100%; height: 100%; gap: 0.5rem; overflow: hidden;
-    }
-    @media (min-width: 640px) { .maint-container { gap: 1rem; } }
-
-    .maint-canvas {
-        flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
-    }
-
-    .maint-sidebar {
-        width: 25%; max-width: 260px; min-width: 160px; flex-shrink: 0; 
-        display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; overflow-x: hidden;
-        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative;
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 3px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 3px; align-items: center;
     }
     
-    .maint-sidebar.collapsed { width: 56px !important; min-width: 56px !important; }
-    .maint-sidebar.collapsed .nav-text { display: none !important; opacity: 0; }
-    .maint-sidebar.collapsed .nav-block { padding: 8px 4px !important; }
-    .maint-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; border-radius: 12px; }
-    .maint-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
-    .maint-sidebar.collapsed .engineered-pill { padding: 10px 0 !important; justify-content: center !important; }
-
-    @media (max-width: 768px) { .maint-sidebar { width: 28%; min-width: 130px; } }
-
-    /* ---------------------------------------------------
-       HIGH-DENSITY COMPONENT STYLES
-       --------------------------------------------------- */
-    .nav-block {
-        background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);
-        border-radius: 18px; padding: 12px; transition: all 0.3s ease;
+    .glass-seg-btn {
+        padding: 4px 10px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid transparent;
     }
-    .block-btn {
-        width: 100%; display: flex; align-items: center; gap: 8px;
-        padding: 8px 12px; border-radius: 12px; font-size: 0.7rem;
-        font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden;
+    @media (min-width: 640px) { .glass-seg-btn { padding: 6px 12px; font-size: 0.7rem; gap: 6px; border-radius: 10px; } }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
     }
-    .block-btn-active { background-color: #ffffff; color: #4f46e5; border: 1.5px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transform: scale(1.02); }
-    .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
-    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } 
+    .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-rose { color: #f43f5e; }
+
+    /* Right Sidebar (Collapsed by default, 10% Shrink) */
+    .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
     
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    
+    /* Specific Maintenance Button Colors */
     .btn-primary-purple { background-color: #5b4fe5; color: white; border: 1.5px solid #5b4fe5; box-shadow: 0 4px 12px rgba(91, 79, 229, 0.25); }
     .btn-primary-purple:hover { background-color: #4f46e5; }
     .btn-secondary-white { background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
     .btn-secondary-white:hover { border-color: #cbd5e1; background-color: #f8fafc; }
-    
+    .block-btn-active { background-color: #ffffff; color: #4f46e5; border: 1.5px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transform: scale(1.02); }
+    .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
+    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
+
+    /* Tab Switching Animations */
     .maint-dashboard-tab { display: none; animation: paneFade 0.3s forwards; }
     .maint-dashboard-tab.active { display: block; }
-    @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .compact-table th { padding: 10px 12px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
-    .compact-table td { padding: 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; }
     
+    /* Compact Table Constraints */
+    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; font-size: 0.68rem; }
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
     
-    .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-    /* ---------------------------------------------------
-       HIGH-END ANIMATED MODALS (No Background Blur/Dim)
-       --------------------------------------------------- */
-    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 2000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; background: transparent; }
+    /* High-End Modals */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    
-    /* Conic Gradient Spinning Border */
-    .magic-border-container {
-        position: relative; padding: 3px; border-radius: 28px; overflow: hidden;
-        background: transparent; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-    }
-    .modal-overlay.active .magic-border-container { transform: scale(1) translateY(0); }
-    
-    .magic-border-container::before {
-        content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%;
-        background: conic-gradient(from 0deg, transparent 40%, rgba(59, 130, 246, 0.2) 60%, #3b82f6 80%, #4f46e5 100%);
-        transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0;
-    }
-    @keyframes magic-spin {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    
-    .magic-border-inner {
-        position: relative; z-index: 10; background: #ffffff; border-radius: 25px;
-        width: 100%; height: 100%; padding: 1.25rem 1.5rem;
-    }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(99, 102, 241, 0.2) 60%, #6366f1 80%, #4f46e5 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
 
-<div class="maint-container custom-scroll">
+<!-- Main Component Structure (Uses exact flexbox layout as Occupancy/Finance) -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
     
-    <div class="maint-canvas custom-scroll pr-1 pb-10">
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
-        <div class="flex justify-start sm:justify-center w-full mb-4" id="maint-kpi-grid">
-            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap bg-white/60 p-1 rounded-[14px] border border-white flex items-center">
-                <button onclick="setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue px-3 py-1.5 text-[9px] sm:text-[10px] font-bold text-slate-500 rounded-[10px] transition-colors whitespace-nowrap">
-                    <i class="fa-solid fa-layer-group mr-1"></i> All Open
+        <!-- Primary KPI / Filter Grid -->
+        <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="maint-kpi-grid">
+            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
+                <button onclick="window.setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue">
+                    <i class="fa-solid fa-layer-group"></i> All Open
                     <span id="kpi-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
                 </button>
                 <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
-                <button onclick="setMaintenanceStatus('open')" id="maint-stat-open" class="glass-seg-btn accent-amber px-3 py-1.5 text-[9px] sm:text-[10px] font-bold text-slate-500 rounded-[10px] transition-colors whitespace-nowrap">
-                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> Pending
+                <button onclick="window.setMaintenanceStatus('open')" id="maint-stat-open" class="glass-seg-btn accent-amber">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Pending
                     <span id="kpi-open" class="bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
                 </button>
                 <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
-                <button onclick="setMaintenanceStatus('critical')" id="maint-stat-critical" class="glass-seg-btn accent-rose px-3 py-1.5 text-[9px] sm:text-[10px] font-bold text-slate-500 rounded-[10px] transition-colors whitespace-nowrap">
-                    <i class="fa-solid fa-fire mr-1"></i> Critical
+                <button onclick="window.setMaintenanceStatus('critical')" id="maint-stat-critical" class="glass-seg-btn accent-rose">
+                    <i class="fa-solid fa-fire"></i> Critical
                     <span id="kpi-critical" class="bg-rose-50 border border-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
                 </button>
             </div>
         </div>
 
-        <div id="maint-pane-snags" class="maint-dashboard-tab active">
-            <div class="glass-panel overflow-hidden">
-                <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+        <!-- TAB 1: Live Tickets -->
+        <div id="maint-pane-snags" class="maint-dashboard-tab active flex flex-col h-full">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-screwdriver-wrench text-[10px]"></i></div>
-                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Live Queue</h3>
+                        <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-screwdriver-wrench text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight whitespace-nowrap">Live Queue</h3>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadMaintReport('snags')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
                         <div class="relative w-full sm:w-40">
                             <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                            <input type="text" id="search-maintenance" onkeyup="filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] font-medium text-slate-700 outline-none focus:border-indigo-400">
+                            <input type="text" id="search-maintenance" onkeyup="window.filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-indigo-400 shadow-sm">
                         </div>
-                        <button onclick="forceRefreshMaintenance()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-rotate text-blue-500 text-[10px]"></i></button>
+                        <button onclick="if(typeof window.fetchMaintenanceData === 'function') window.fetchMaintenanceData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm shrink-0"><i class="fa-solid fa-rotate text-indigo-500 text-[10px]"></i></button>
                     </div>
                 </div>
-                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[65vh]">
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
-                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
                             <tr>
                                 <th class="w-24">Ticket ID</th>
                                 <th class="w-32">Location</th>
@@ -140,30 +118,33 @@
                                 <th class="w-24 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="maintenance-body" class="divide-y divide-slate-100/50">
-                            </tbody>
+                        <tbody id="maintenance-body" class="divide-y divide-slate-100/50"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="maint-pane-history" class="maint-dashboard-tab">
-            <div class="glass-panel overflow-hidden">
-                <div class="px-4 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+        <!-- TAB 2: Archive History -->
+        <div id="maint-pane-history" class="maint-dashboard-tab flex flex-col h-full">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-[10px]"></i></div>
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-[10px]"></i></div>
                         <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Archive <span class="bg-emerald-100 text-emerald-700 text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase ml-1">Resolved</span></h3>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadMaintReport('history')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
                         <div class="relative w-full sm:w-40">
                             <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                            <input type="text" id="search-history" onkeyup="filterTable('search-history', 'history-body')" placeholder="Search archive..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-7 pr-2 text-[9px] sm:text-[10px] font-medium outline-none focus:border-indigo-400">
+                            <input type="text" id="search-history" onkeyup="window.filterTable('search-history', 'history-body')" placeholder="Search archive..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-indigo-400 shadow-sm">
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm max-h-[65vh]">
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
-                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
                             <tr>
                                 <th class="w-24">Ticket ID</th>
                                 <th class="w-32">Location</th>
@@ -172,34 +153,34 @@
                                 <th class="w-24 text-right">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="history-body" class="divide-y divide-slate-100/50">
-                            </tbody>
+                        <tbody id="history-body" class="divide-y divide-slate-100/50"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="maint-pane-inventory" class="maint-dashboard-tab">
-            <div class="glass-panel overflow-hidden">
-                <div class="px-4 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
+        <!-- TAB 3: Stock Vault -->
+        <div id="maint-pane-inventory" class="maint-dashboard-tab flex flex-col h-full">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-boxes-stacked text-[10px]"></i></div>
+                        <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-boxes-stacked text-[10px]"></i></div>
                         <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Stock Vault</h3>
                     </div>
                     <div class="flex items-center gap-2 overflow-x-auto custom-scroll flex-nowrap w-full sm:w-auto">
-                        <div class="bg-white/60 p-1 rounded-[10px] border border-white flex flex-nowrap flex-shrink-0">
-                            <button onclick="setInventoryCategory('all')" id="inv-cat-all" class="px-2.5 py-1 text-[9px] font-bold text-slate-600 rounded-[8px] active bg-white shadow-sm text-blue-600">All</button>
-                            <button onclick="setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="px-2.5 py-1 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50">Plumbing</button>
-                            <button onclick="setInventoryCategory('electrical')" id="inv-cat-electrical" class="px-2.5 py-1 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50">Electrical</button>
-                            <button onclick="setInventoryCategory('furniture')" id="inv-cat-furniture" class="px-2.5 py-1 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50">Furniture</button>
+                        <div class="glass-segmented">
+                            <button onclick="window.setInventoryCategory('all')" id="inv-cat-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px]">All</button>
+                            <button onclick="window.setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Plumbing</button>
+                            <button onclick="window.setInventoryCategory('electrical')" id="inv-cat-electrical" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Electrical</button>
+                            <button onclick="window.setInventoryCategory('furniture')" id="inv-cat-furniture" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Furniture</button>
                         </div>
-                        <button onclick="document.getElementById('stockModal').classList.add('active')" class="bg-[#1d1d1f] text-white font-bold px-2.5 py-1 rounded-lg shadow-md text-[9px] flex items-center flex-shrink-0"><i class="fa-solid fa-plus mr-1"></i> Add</button>
+                        <button onclick="document.getElementById('stockModal').classList.add('active')" class="bg-[#1d1d1f] text-white font-bold px-2.5 py-1.5 rounded-lg shadow-md text-[9px] flex items-center shrink-0"><i class="fa-solid fa-plus mr-1"></i> Add</button>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
+                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm flex-1">
                     <table class="w-full text-left border-collapse compact-table min-w-[500px]">
-                        <thead class="bg-white/70 sticky top-0 backdrop-blur-xl z-10 shadow-sm border-b border-slate-200">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
                             <tr>
                                 <th class="w-48">Item & SKU</th>
                                 <th>Category</th>
@@ -207,112 +188,111 @@
                                 <th class="text-right w-20">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="inventory-body" class="divide-y divide-white/60">
-                            </tbody>
+                        <tbody id="inventory-body" class="divide-y divide-white/60"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="maint-pane-vendors" class="maint-dashboard-tab">
-            <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
-                <div>
-                    <h2 class="text-base sm:text-lg font-black text-slate-800 tracking-tight">Service Providers</h2>
-                </div>
-                <div class="bg-white/60 p-1 rounded-[10px] border border-white flex flex-nowrap overflow-x-auto custom-scroll w-full sm:w-auto">
-                    <button onclick="setVendorCategory('all')" id="ven-cat-all" class="px-3 py-1.5 text-[9px] font-bold text-slate-600 rounded-[8px] active bg-white shadow-sm text-blue-600 whitespace-nowrap">All</button>
-                    <button onclick="setVendorCategory('plumbing')" id="ven-cat-plumbing" class="px-3 py-1.5 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50 whitespace-nowrap">Plumbing</button>
-                    <button onclick="setVendorCategory('electrical')" id="ven-cat-electrical" class="px-3 py-1.5 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50 whitespace-nowrap">Electrical</button>
-                    <button onclick="setVendorCategory('furniture')" id="ven-cat-furniture" class="px-3 py-1.5 text-[9px] font-bold text-slate-500 rounded-[8px] hover:bg-white/50 whitespace-nowrap">Furniture</button>
+        <!-- TAB 4: Vendors -->
+        <div id="maint-pane-vendors" class="maint-dashboard-tab flex flex-col h-full">
+            <div class="mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                <div><h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Service Providers</h2></div>
+                <div class="glass-segmented overflow-x-auto custom-scroll w-full sm:w-auto">
+                    <button onclick="window.setVendorCategory('all')" id="ven-cat-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">All</button>
+                    <button onclick="window.setVendorCategory('plumbing')" id="ven-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Plumbing</button>
+                    <button onclick="window.setVendorCategory('electrical')" id="ven-cat-electrical" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Electrical</button>
+                    <button onclick="window.setVendorCategory('furniture')" id="ven-cat-furniture" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Furniture</button>
                 </div>
             </div>
-            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto max-h-[65vh] pb-4 custom-scroll">
-                </div>
+            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto flex-1 custom-scroll pb-4"></div>
         </div>
 
     </div>
 
-    <div id="maint-right-sidebar" class="maint-sidebar custom-scroll">
+    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <div id="maint-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         
-        <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-2 cursor-pointer hover:bg-white/80 transition-colors group">
-            <div class="flex items-center gap-2 w-full">
-                <div class="w-8 h-8 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs flex-shrink-0 transition-transform group-hover:scale-105">
+        <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
+            <div class="flex items-center gap-1.5 w-full">
+                <div class="w-7 h-7 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
                 <div class="flex flex-col nav-text flex-1 overflow-hidden">
-                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none truncate">Rezi<span class="text-indigo-500">Ops</span></span>
-                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Command Toggle</span>
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Rezi<span class="text-indigo-500">Ops</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Command Toggle</span>
                 </div>
             </div>
-            <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] nav-text pr-1 transition-transform group-hover:translate-x-1"></i>
+            <i id="maint-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
         </div>
 
         <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Work Orders</p>
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Work Orders</p>
             <div class="space-y-1">
                 <button onclick="window.switchMaintTab('snags', this, true)" class="block-btn block-btn-active" title="Live Tickets">
-                    <i class="fa-solid fa-clipboard-list text-[13px] w-4 text-center text-indigo-500"></i> 
-                    <span class="nav-text truncate text-[9px]">Live Tickets</span>
+                    <i class="fa-solid fa-clipboard-list text-[11px] w-4 text-center text-indigo-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Live Tickets</span>
                 </button>
                 <button onclick="window.switchMaintTab('history', this, false)" class="block-btn block-btn-inactive" title="Repair History">
-                    <i class="fa-solid fa-clock-rotate-left text-[13px] w-4 text-center text-slate-500"></i> 
-                    <span class="nav-text truncate text-[9px]">Repair History</span>
+                    <i class="fa-solid fa-clock-rotate-left text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Repair History</span>
                 </button>
             </div>
         </div>
 
         <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Quick Actions</p>
-            <div class="space-y-1.5">
-                <button onclick="document.getElementById('maintSnagModal').classList.add('active')" class="block-btn btn-primary-purple justify-center gap-1.5 !py-2" title="Log Ticket">
-                    <i class="fa-solid fa-plus text-[10px]"></i> 
-                    <span class="nav-text truncate text-[9px]">Log Ticket</span>
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Quick Actions</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('maintSnagModal').classList.add('active')" class="block-btn btn-primary-purple justify-center gap-1 !py-1.5" title="Log Ticket">
+                    <i class="fa-solid fa-plus text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Log Ticket</span>
                 </button>
-                <button onclick="window.switchMaintTab('inventory', document.getElementById('btn-nav-inventory'), false); document.getElementById('stockModal').classList.add('active');" class="block-btn btn-secondary-white justify-center gap-1.5 !py-2" title="Add Stock">
-                    <i class="fa-solid fa-boxes-packing text-slate-500 text-[10px]"></i> 
-                    <span class="nav-text truncate text-[9px]">Add Stock</span>
-                </button>
-                <button onclick="document.getElementById('poModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-1.5 !py-2" title="Generate PO">
-                    <i class="fa-solid fa-file-invoice-dollar text-slate-500 text-[10px]"></i> 
-                    <span class="nav-text truncate text-[9px]">Generate PO</span>
+                <button onclick="window.switchMaintTab('inventory', document.getElementById('btn-nav-inventory'), false); document.getElementById('stockModal').classList.add('active');" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Add Stock">
+                    <i class="fa-solid fa-boxes-packing text-slate-500 text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Add Stock</span>
                 </button>
             </div>
         </div>
 
         <div class="nav-block">
-            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 nav-text truncate">Supply Chain</p>
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Supply Chain</p>
             <div class="space-y-1">
                 <button id="btn-nav-inventory" onclick="window.switchMaintTab('inventory', this, false)" class="block-btn block-btn-inactive" title="Stock & Vault">
-                    <i class="fa-solid fa-boxes-stacked text-[13px] w-4 text-center text-slate-500"></i> 
-                    <span class="nav-text truncate text-[9px]">Stock & Vault</span>
+                    <i class="fa-solid fa-boxes-stacked text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Stock & Vault</span>
                 </button>
                 <button onclick="window.switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive" title="Service Providers">
-                    <i class="fa-solid fa-user-gear text-[13px] w-4 text-center text-slate-500"></i> 
-                    <span class="nav-text truncate text-[9px]">Providers</span>
+                    <i class="fa-solid fa-user-gear text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Service Providers</span>
                 </button>
             </div>
         </div>
 
-        <div class="mt-auto flex-shrink-0 relative overflow-hidden bg-[#111827] p-2 rounded-[14px] border border-slate-700 shadow-xl flex items-center gap-2 engineered-pill">
-            <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0"><i class="fa-solid fa-bolt text-[8px]"></i></div>
-            <div class="flex flex-col relative z-10 nav-text overflow-hidden">
-                <span class="text-[6px] font-bold text-slate-400 uppercase tracking-widest truncate">Engineered</span>
-                <span class="text-[9px] font-black text-white tracking-widest mt-0.5 truncate">AUTOMANIA</span>
+        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
+            <div class="flex flex-col nav-text overflow-hidden">
+                <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none truncate">Engineered By</span>
+                <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none truncate">AUTOMANIA</span>
             </div>
         </div>
 
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Log Snag Ticket Modal -->
 <div id="maintSnagModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
             <button onclick="document.getElementById('maintSnagModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-8 h-8 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-clipboard-list"></i></div>
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">Log Incident</h2>
+                <h2 class="text-base font-black text-slate-900 tracking-tight">Log Incident</h2>
             </div>
-            <form onsubmit="submitManualSnag(event)">
+            <form onsubmit="window.submitManualSnag(event)">
                 <div class="mb-3">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Room / Location</label>
                     <input type="text" id="snag-room" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" placeholder="e.g. Block A Lounge" required>
@@ -328,21 +308,22 @@
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Description</label>
                     <textarea id="snag-desc" rows="2" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 resize-none shadow-sm" placeholder="Details..." required></textarea>
                 </div>
-                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px] sm:text-xs">Submit Ticket</button>
+                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]">Submit Ticket</button>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Add Stock Modal -->
 <div id="stockModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
             <button onclick="document.getElementById('stockModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-boxes-stacked"></i></div>
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">Add Stock</h2>
+                <h2 class="text-base font-black text-slate-900 tracking-tight">Add Stock</h2>
             </div>
-            <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); alert('Stock Added'); e.target.reset();">
+            <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); window.showToast('Stock Added Locally'); e.target.reset();">
                 <div class="mb-3">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Item Name</label>
                     <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
@@ -364,74 +345,65 @@
                         <option value="plumbing">Plumbing</option><option value="electrical">Electrical</option><option value="hardware">Hardware</option><option value="furniture">Furniture</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[10px] py-2.5 shadow-md text-[10px] sm:text-xs">Add To Vault</button>
+                <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[10px] py-2 shadow-md text-[10px]">Add To Vault</button>
             </form>
         </div>
     </div>
 </div>
 
-<div id="poModal" class="modal-overlay">
-    <div class="modal-content magic-border-container w-full max-w-sm">
-        <div class="magic-border-inner flex flex-col relative">
-            <button onclick="document.getElementById('poModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-8 h-8 bg-amber-50 text-amber-600 border border-amber-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">Purchase Order</h2>
-            </div>
-            <form onsubmit="event.preventDefault(); document.getElementById('poModal').classList.remove('active'); alert('PO Generated.');">
-                <div class="mb-3">
-                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Provider</label>
-                    <select class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
-                        <option value="" disabled selected>Choose...</option>
-                        <option>AquaFlow Plumbers</option><option>SparkLine Electrical</option><option>WoodCrafters Co.</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Request</label>
-                    <textarea rows="2" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 resize-none shadow-sm" required></textarea>
-                </div>
-                <div class="mb-5">
-                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Cost (ZAR)</label>
-                    <input type="number" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[10px] font-mono font-bold outline-none focus:border-indigo-400 shadow-sm" placeholder="0.00" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px] sm:text-xs">Issue PO <i class="fa-solid fa-paper-plane"></i></button>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
     // ----------------------------------------------------
-    // RESPONSIVE SIDEBAR TOGGLE
+    // ARCHITECTURAL DATA PIPELINE FALLBACK
     // ----------------------------------------------------
+    (async function initMaintenanceModule() {
+        if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
+                if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        if (typeof window.globalMaintenanceData === 'undefined' || window.globalMaintenanceData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
+                if (response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        
+        window.renderMaintenanceData();
+    })();
+
+    // ----------------------------------------------------
+    // LOCAL CONFIGURATION VARS
+    // ----------------------------------------------------
+    var currentMaintenanceStatus = 'all';
+    var currentMaintTab = 'snags';
+
     window.toggleMaintSidebar = function() {
         const sidebar = document.getElementById('maint-right-sidebar');
         if(sidebar) {
             sidebar.classList.toggle('collapsed');
-            const icon = document.getElementById('sidebar-toggle-icon');
+            const icon = document.getElementById('maint-sidebar-toggle-icon');
             if(icon) {
-                if(sidebar.classList.contains('collapsed')) {
-                    icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left');
-                } else {
-                    icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right');
-                }
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
             }
         }
     };
     
-    if (window.innerWidth < 768) {
-        const sidebar = document.getElementById('maint-right-sidebar');
-        if(sidebar) {
-            sidebar.classList.add('collapsed');
-            const icon = document.getElementById('sidebar-toggle-icon');
-            if(icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); }
-        }
+    if (window.innerWidth < 768) { window.toggleMaintSidebar(); }
+
+    function safeUpdateSegmented(pfx, val, opts) {
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'accent-blue'); } }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); if(aEl) { aEl.classList.add('active', 'accent-blue'); }
     }
 
     // ----------------------------------------------------
     // TAB SWITCHER
     // ----------------------------------------------------
     window.switchMaintTab = function(tabId, btnElement, showKpis) {
+        window.currentMaintTab = tabId;
+        
         document.querySelectorAll('.maint-dashboard-tab').forEach(tab => tab.classList.remove('active'));
         const pane = document.getElementById('maint-pane-' + tabId);
         if(pane) pane.classList.add('active');
@@ -454,15 +426,6 @@
         else if (tabId === 'inventory') window.renderInventoryData('all');
         else if (tabId === 'vendors') window.renderProvidersData('all');
     };
-
-    function safeUpdateSegmented(pfx, val, opts) {
-        opts.forEach(o => { 
-            const el = document.getElementById(`${pfx}-${o}`); 
-            if(el) { el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600'); el.classList.add('hover:bg-white/50'); }
-        }); 
-        const aEl = document.getElementById(`${pfx}-${val}`); 
-        if(aEl) { aEl.classList.remove('hover:bg-white/50'); aEl.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600'); }
-    }
 
     // ----------------------------------------------------
     // INVENTORY / VAULT LOGIC
@@ -488,9 +451,7 @@
         let filtered = dummyInventory;
         if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
 
-        if(filtered.length === 0) {
-            body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return;
-        }
+        if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return; }
 
         let htmlStr = '';
         filtered.forEach(item => {
@@ -499,13 +460,13 @@
             const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
 
             htmlStr += `
-                <tr class="${isLow ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} border-b border-slate-100/50">
+                <tr class="${isLow ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
                     <td class="align-middle">
                         <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none" title="${item.name}">${item.name}</div>
                         <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-full shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
                         <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
@@ -547,14 +508,14 @@
         let htmlStr = '';
         filtered.forEach(p => {
             htmlStr += `
-                <div class="glass-panel p-4 hover:-translate-y-1 transition-transform border border-white/80 shadow-sm bg-gradient-to-br from-white/90 to-white/50 flex flex-col h-full">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="w-8 h-8 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-[8px] flex items-center justify-center text-sm shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
+                <div class="glass-panel p-3 hover:-translate-y-1 transition-transform border border-white/80 shadow-sm bg-gradient-to-br from-white/90 to-white/50 flex flex-col h-full rounded-[16px]">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="w-7 h-7 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-lg flex items-center justify-center text-[10px] shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
                         <span class="text-emerald-600 text-[6px] font-black uppercase tracking-widest">Active SLA</span>
                     </div>
                     <h4 class="font-black text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate" title="${p.name}">${p.name}</h4>
-                    <p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate" title="${p.desc}">${p.desc}</p>
-                    <div class="space-y-1 mt-auto text-[8px] sm:text-[9px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
+                    <p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-2 flex-1 truncate" title="${p.desc}">${p.desc}</p>
+                    <div class="space-y-1 mt-auto text-[8px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-3 text-center text-slate-400"></i> ${p.phone}</p>
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-3 text-center text-slate-400"></i> ${p.email}</p>
                     </div>
@@ -565,11 +526,33 @@
     };
 
     // ----------------------------------------------------
-    // LIVE TICKETS LOGIC (OPEN & CRITICAL ONLY) - 50% Shrunk Ratio
+    // LIVE TICKETS LOGIC 
     // ----------------------------------------------------
+    window.fetchMaintenanceData = async function(forcedRefresh = true) {
+        const body = document.getElementById('maintenance-body');
+        if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-2xl"></i></td></tr>'; }
+        
+        try { 
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance'); 
+            if (response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
+        } catch (e) { } 
+        finally { window.renderMaintenanceData(); }
+    };
+
+    window.getResidentForRoom = function(roomStr) {
+        if(!roomStr || roomStr === '--') return { name: 'Unknown', id: '' };
+        if(window.globalStudentData) {
+            const student = window.globalStudentData.find(s => s.Room_Allocation === roomStr);
+            if(student) return { name: `${student.First_Name || ''} ${student.Surname || ''}`, id: student.Student_Number };
+        }
+        return { name: 'Unassigned/Unknown', id: '' };
+    };
+
     window.renderMaintenanceData = function() {
         const body = document.getElementById('maintenance-body'); if(!body) return;
-        if(!globalMaintenanceData || globalMaintenanceData.length === 0) { 
+        
+        let baseData = window.globalMaintenanceData || [];
+        if(baseData.length === 0) { 
             body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No logs found.</td></tr>`; 
             if(document.getElementById('kpi-all')) document.getElementById('kpi-all').textContent = '0';
             if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = '0';
@@ -578,7 +561,7 @@
         }
 
         let openCount = 0; let criticalCount = 0;
-        globalMaintenanceData.forEach(d => {
+        baseData.forEach(d => {
             if (!String(d.Repair_Status).toLowerCase().includes('resolved')) {
                 openCount++;
                 const cat = String(d.Category).toLowerCase(); const desc = String(d.Description).toLowerCase();
@@ -590,7 +573,8 @@
         if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = (openCount - criticalCount);
         if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').textContent = criticalCount;
 
-        let filtered = globalMaintenanceData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
+        let filtered = baseData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
+        
         if(currentMaintenanceStatus === 'open') {
             filtered = filtered.filter(l => {
                 const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase();
@@ -618,19 +602,18 @@
 
         let htmlStr = '';
         filtered.forEach(log => {
-            let resName = 'Unknown';
-            if (typeof getResidentForRoom === 'function') { const r = getResidentForRoom(log.Room); resName = r.name; }
+            const res = window.getResidentForRoom(log.Room);
+            const resName = res.name;
             
             const cat = String(log.Category).toLowerCase(); const desc = String(log.Description).toLowerCase();
             const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
 
-            // Exact 50% scaling applied to badges
             const statusBadge = isCritical 
                 ? `<div class="flex items-center gap-1 text-rose-500 font-bold text-[6px] uppercase tracking-widest animate-pulse"><i class="fa-solid fa-fire"></i> Critical</div>`
                 : `<div class="flex items-center gap-1 text-amber-500 font-bold text-[6px] uppercase tracking-widest"><i class="fa-solid fa-clock"></i> Pending</div>`;
             
             htmlStr += `
-                <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-white/60'} transition-colors border-b border-slate-100/50">
+                <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
                     <td class="align-top">
                         <div class="font-mono font-bold text-slate-600 text-[10px]">${log.Ticket_ID || '--'}</div>
                         <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
@@ -640,18 +623,18 @@
                         <div class="text-[8px] text-slate-500 mt-0.5 truncate w-20 sm:w-28 font-medium" title="${resName}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${resName}</div>
                     </td>
                     <td class="align-top">
-                        <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-full text-[6px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span>
+                        <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span>
                     </td>
                     <td class="align-top">
-                        <p class="text-[10px] sm:text-[11px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate" title="${log.Description || '--'}">${log.Description || '--'}</p>
                         <div class="mt-1 flex items-center gap-1 max-w-[120px] sm:max-w-[140px] bg-white/60 p-0.5 rounded border border-slate-200 shadow-sm focus-within:border-indigo-400 transition-all">
-                            <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[8px] sm:text-[9px] outline-none pl-1 text-slate-700 font-medium">
+                            <input type="text" placeholder="Update..." class="flex-1 bg-transparent text-[8px] outline-none pl-1 text-slate-700 font-medium">
                             <button class="w-4 h-4 rounded border border-slate-100 text-slate-400 flex items-center justify-center bg-slate-50 hover:text-indigo-600"><i class="fa-solid fa-paper-plane text-[7px]"></i></button>
                         </div>
                     </td>
                     <td class="text-right align-top flex flex-col items-end gap-1.5">
                         ${statusBadge}
-                        <button onclick="resolveMaintenance('${log.Ticket_ID}', this)" class="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-[6px] font-bold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap uppercase tracking-widest transition-colors">Mark Resolved</button>
+                        <button onclick="window.resolveMaintenance('${log.Ticket_ID}', this)" class="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-[7px] font-bold px-2 py-1 rounded shadow-sm whitespace-nowrap uppercase tracking-widest transition-colors">Mark Resolved</button>
                     </td>
                 </tr>
             `;
@@ -661,9 +644,11 @@
 
     window.renderHistoryData = function() {
         const body = document.getElementById('history-body'); if(!body) return;
-        if(!globalMaintenanceData || globalMaintenanceData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
+        let baseData = window.globalMaintenanceData || [];
         
-        let filtered = globalMaintenanceData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
+        if(baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
+        
+        let filtered = baseData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
         if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No resolved tickets.</td></tr>`; return; }
 
         filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
@@ -677,10 +662,10 @@
                         <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${(log.Timestamp || '').split(' ')[0] || '--'}</div>
                     </td>
                     <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
-                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-full text-[6px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span></td>
-                    <td class="align-top"><p class="text-[10px] sm:text-[11px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p></td>
+                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span></td>
+                    <td class="align-top"><p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate">${log.Description || '--'}</p></td>
                     <td class="text-right align-top">
-                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-full text-[6px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Closed</span>
+                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-widest shadow-sm inline-flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Closed</span>
                     </td>
                 </tr>
             `;
@@ -690,10 +675,10 @@
 
     window.setMaintenanceStatus = function(status) {
         currentMaintenanceStatus = status;
-        const allBtn = document.getElementById('maint-stat-all'); const openBtn = document.getElementById('maint-stat-open'); const critBtn = document.getElementById('maint-stat-critical');
-        if(allBtn) allBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600');
-        if(openBtn) openBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-amber-600');
-        if(critBtn) critBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-rose-600');
+        ['all', 'open', 'critical'].forEach(s => {
+            const btn = document.getElementById(`maint-stat-${s}`);
+            if(btn) btn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-amber-600', 'text-rose-600');
+        });
 
         const activeBtn = document.getElementById(`maint-stat-${status}`);
         if(activeBtn) {
@@ -717,12 +702,79 @@
                 body: JSON.stringify({ Student_Number: "STAFF-LOG", Room: room, Category: category, Description: desc })
             });
             document.getElementById('maintSnagModal').classList.remove('active'); e.target.reset();
-            if(typeof fetchMaintenanceData === 'function') fetchMaintenanceData(true); 
-        } catch(error) { alert("Failed to log ticket to pipeline."); } finally { btn.innerHTML = ogText; btn.disabled = false; }
-    }
+            window.fetchMaintenanceData(true);
+            window.showToast("Ticket logged to pipeline.");
+        } catch(error) { window.showToast("Failed to log ticket.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+    
+    window.resolveMaintenance = async function(ticketId, btnElement) {
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Ticket_ID: ticketId, Repair_Status: "Resolved" })
+            });
+            const idx = (window.globalMaintenanceData || []).findIndex(t => String(t.Ticket_ID) === String(ticketId));
+            if (idx > -1) window.globalMaintenanceData[idx].Repair_Status = "Resolved";
+            window.renderMaintenanceData();
+            window.showToast("Ticket marked resolved.");
+        } catch(e) { 
+            btnElement.innerHTML = 'Mark Resolved'; btnElement.disabled = false; 
+            window.showToast("Failed to resolve ticket.", "error");
+        }
+    };
 
-    setTimeout(() => {
-        if (typeof globalMaintenanceData !== 'undefined' && globalMaintenanceData.length > 0) window.renderMaintenanceData();
-        else if (typeof fetchMaintenanceData === 'function') fetchMaintenanceData(true);
-    }, 150);
+    // ----------------------------------------------------
+    // FILTER-AWARE DATA EXTRACTOR (Excel/CSV Export)
+    // ----------------------------------------------------
+    window.downloadMaintReport = function(tabType) {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        let filename = "";
+        let dataToExport = [];
+        let baseData = window.globalMaintenanceData || [];
+
+        if (tabType === 'snags') {
+            const searchVal = document.getElementById('search-maintenance')?.value.toLowerCase() || '';
+            filename = "Filtered_Live_Tickets";
+            csvContent += "Ticket ID,Timestamp,Room,Resident,Category,Description\n";
+            
+            let filtered = baseData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
+            
+            if(currentMaintenanceStatus === 'open') {
+                filtered = filtered.filter(l => { const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase(); return !(cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')); });
+            } else if (currentMaintenanceStatus === 'critical') {
+                filtered = filtered.filter(l => { const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase(); return (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')); });
+            }
+            
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+            dataToExport.forEach(log => {
+                const res = window.getResidentForRoom(log.Room);
+                const cleanDesc = String(log.Description || '').replace(/"/g, '""');
+                csvContent += `"${log.Ticket_ID || ''}","${log.Timestamp || ''}","${log.Room || ''}","${res.name}","${log.Category || ''}","${cleanDesc}"\n`;
+            });
+            
+        } else if (tabType === 'history') {
+            const searchVal = document.getElementById('search-history')?.value.toLowerCase() || '';
+            filename = "Filtered_Repair_History";
+            csvContent += "Ticket ID,Timestamp,Room,Category,Description,Status\n";
+            
+            let filtered = baseData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+            dataToExport.forEach(log => {
+                const cleanDesc = String(log.Description || '').replace(/"/g, '""');
+                csvContent += `"${log.Ticket_ID || ''}","${log.Timestamp || ''}","${log.Room || ''}","${log.Category || ''}","${cleanDesc}","Resolved"\n`;
+            });
+        }
+
+        if(dataToExport.length === 0) return window.showToast("No data to export.", "error");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
 </script>
