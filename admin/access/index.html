@@ -1,28 +1,490 @@
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden">
-    <div class="px-4 sm:px-6 lg:px-8 py-5 border-b border-white/60 flex flex-wrap justify-between items-center bg-white/50 backdrop-blur-md gap-4">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-door-open text-sm"></i></div>
-            <h3 class="font-bold text-slate-800 text-base sm:text-lg">Visitor Gateway Log</h3>
-        </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            <div class="relative w-full sm:w-48">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="search-access" onkeyup="filterTable('search-access', 'visitor-body')" placeholder="Search logs..." class="modern-input search-input py-2 bg-white/80">
+<style>
+    /* ---------------------------------------------------
+       FLUID COMPACT LAYOUT & SIDEBAR CONFIG
+       --------------------------------------------------- */
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 3px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 3px; align-items: center;
+    }
+    
+    .glass-seg-btn {
+        padding: 4px 10px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid transparent;
+    }
+    @media (min-width: 640px) { .glass-seg-btn { padding: 6px 12px; font-size: 0.7rem; gap: 6px; border-radius: 10px; } }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } 
+    .glass-seg-btn.active.accent-emerald { color: #10b981; }
+    .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-purple { color: #9333ea; }
+
+    /* Right Sidebar (Collapsed by default, 10% Shrink) */
+    .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
+    
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    .block-btn-inactive { background-color: transparent; color: #64748b; }
+    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
+    
+    /* Compact Table Constraints */
+    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; font-size: 0.68rem; }
+    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+    
+    /* High-End Modals */
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(147, 51, 234, 0.2) 60%, #9333ea 80%, #7e22ce 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
+</style>
+
+<!-- Main Component Structure -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
+    
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
+        
+        <!-- Primary KPI / Filter Grid -->
+        <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="acc-kpi-grid">
+            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
+                <button onclick="window.setAccessFilter('all')" id="acc-btn-all" class="glass-seg-btn active accent-blue text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-layer-group"></i> All Passes
+                    <span id="kpi-acc-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setAccessFilter('pending')" id="acc-btn-pending" class="glass-seg-btn accent-amber text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-clock"></i> Pending Arrival
+                    <span id="kpi-acc-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setAccessFilter('active')" id="acc-btn-active" class="glass-seg-btn accent-emerald text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-door-open"></i> Checked-In
+                    <span id="kpi-acc-active" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                </button>
             </div>
-            <button onclick="fetchVisitorData(true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition-all shadow-sm text-sm"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="glass-panel rounded-[20px] lg:rounded-[24px] overflow-hidden mt-1 shrink-0 flex flex-col border border-purple-100/50 shadow-[0_0_40px_rgba(147,51,234,0.03)]">
+            
+            <div class="px-3 py-3 border-b border-white/60 flex flex-col xl:flex-row gap-3 justify-between xl:items-center bg-white/50 backdrop-blur-md">
+                <div class="flex items-center gap-2 shrink-0">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card-clip text-xs"></i></div>
+                    <h3 class="font-black text-slate-800 text-xs sm:text-sm whitespace-nowrap">Visitor Gateway Ledger</h3>
+                </div>
+                
+                <div class="flex items-center gap-2 flex-wrap xl:flex-nowrap justify-end w-full xl:w-auto">
+                    <!-- Download Report Button -->
+                    <button onclick="window.downloadAccessReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                    </button>
+
+                    <div class="relative w-full sm:w-48">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
+                        <input type="text" id="search-access" onkeyup="window.filterTable('search-access', 'access-body')" placeholder="Search PIN, Host, or Name..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-purple-400 shadow-sm">
+                    </div>
+                    <button onclick="if(typeof window.fetchVisitorData === 'function') window.fetchVisitorData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-purple-500"></i></button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
+                <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                    <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                        <tr>
+                            <th class="w-32">Pass Code</th>
+                            <th class="w-1/4">Visitor Profile</th>
+                            <th class="w-1/4">Host Resident & Space</th>
+                            <th class="w-24">Gate Status</th>
+                            <th class="text-right">Outreach</th>
+                        </tr>
+                    </thead>
+                    <tbody id="access-body" class="divide-y divide-slate-100/50"></tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm">
-        <table class="w-full text-left text-sm border-collapse min-w-[600px]">
-            <thead>
-                <tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[10px] border-b border-slate-200/50">
-                    <th class="p-4 sm:p-6">Generated PIN</th>
-                    <th class="p-4 sm:p-6">Visitor Details</th>
-                    <th class="p-4 sm:p-6">Host (Student)</th>
-                    <th class="p-4 sm:p-6 text-right">Gate Status</th>
-                </tr>
-            </thead>
-            <tbody id="visitor-body" class="divide-y divide-slate-100/50"></tbody>
-        </table>
+
+    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <div id="acc-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
+        <div class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleAccSidebar()">
+            <div class="flex items-center gap-1.5 w-full">
+                <div class="w-7 h-7 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0"><i class="fa-solid fa-door-open"></i></div>
+                <div class="flex flex-col flex-1 overflow-hidden nav-text">
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Gate<span class="text-purple-500">Ctrl</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Access Tools</span>
+                </div>
+            </div>
+            <i id="acc-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate nav-text">Gate Operations</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('manualVisitorModal').classList.add('active')" class="block-btn bg-purple-600 hover:bg-purple-700 text-white justify-center gap-1 !py-1.5 shadow-sm border-none transition-colors">
+                    <i class="fa-solid fa-id-card-clip text-[9px]"></i> <span class="truncate text-[8px] nav-text">Pre-Authorize Visitor</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate nav-text">Security Compliance</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('bulkCheckoutModal').classList.add('active')" class="block-btn bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
+                    <i class="fa-solid fa-person-walking-arrow-right text-[9px]"></i> <span class="truncate text-[8px] nav-text">Force Bulk Checkout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
+            <div class="flex flex-col nav-text">
+                <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none">Engineered By</span>
+                <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none">AUTOMANIA</span>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- ========================================== -->
+<!-- ACCESS MODALS                              -->
+<!-- ========================================== -->
+
+<!-- Pre-Authorize Visitor Modal -->
+<div id="manualVisitorModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm relative">
+        <div class="magic-border-inner flex flex-col">
+            <button onclick="document.getElementById('manualVisitorModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-purple-50 text-purple-600 border border-purple-100 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-address-card"></i></div>
+                <div><h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Pre-Authorize</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Generate Gateway PIN</p></div>
+            </div>
+            
+            <form onsubmit="window.submitManualVisitor(event)">
+                <div class="mb-3">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Host Student Number</label>
+                    <input type="text" id="man-vis-host" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-purple-400 shadow-sm" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Visitor Full Name</label>
+                    <input type="text" id="man-vis-name" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-purple-400 shadow-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Visitor Mobile No.</label>
+                    <input type="text" id="man-vis-phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-purple-400 shadow-sm" placeholder="e.g. 082 555 1234" required>
+                </div>
+                <button type="submit" id="btn-submit-vis" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]"><i class="fa-solid fa-paper-plane"></i> Generate & Send PIN</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Send Message Modal -->
+<div id="visitorCommModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-sm relative">
+        <button onclick="document.getElementById('visitorCommModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl flex items-center justify-center text-sm"><i class="fa-brands fa-whatsapp"></i></div>
+            <div><h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Contact Visitor</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">To: <span id="vis-comm-name" class="text-slate-700"></span></p></div>
+        </div>
+        <form onsubmit="window.sendVisitorComm(event)">
+            <input type="hidden" id="vis-comm-phone">
+            <div class="mb-4">
+                <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Message</label>
+                <textarea id="vis-comm-msg" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[10px] outline-none focus:border-indigo-400 shadow-sm resize-none" placeholder="Type instructions or resend PIN..." required></textarea>
+            </div>
+            <button type="submit" id="btn-send-vis-comm" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]"><i class="fa-solid fa-paper-plane"></i> Dispatch</button>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Checkout Modal -->
+<div id="bulkCheckoutModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-sm relative border-2 border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.15)]">
+        <button onclick="document.getElementById('bulkCheckoutModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-person-walking-arrow-right"></i></div>
+            <div><h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Curfew Override</h2><p class="text-[8px] font-bold text-rose-400 mt-1 uppercase tracking-widest">Force Bulk Checkout</p></div>
+        </div>
+        <div class="bg-rose-50/50 border border-rose-100 p-3 rounded-xl mb-4 flex gap-2 items-start">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-xs mt-0.5"></i>
+            <p class="text-[9px] font-medium text-rose-800">You are about to force-expire all active ("Checked-In") Gateway PINs. Are you sure?</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="document.getElementById('bulkCheckoutModal').classList.remove('active')" class="w-1/2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-[10px] py-2 shadow-sm text-[10px]">Cancel</button>
+            <button onclick="window.executeBulkCheckout(this)" class="w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]">Execute <i class="fa-solid fa-check"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // INITIALIZATION & DUMMY DATA TEMPLATES
+    // ----------------------------------------------------
+    const dummyVisitors = [
+        { Generated_PIN: "884-291", Visitor_Name: "Thabo Mbeki", Visitor_Phone: "082 555 1234", Student_Number: "223452329", Room: "A-101", Gate_Status: "Checked-In", Timestamp: new Date().toISOString() },
+        { Generated_PIN: "419-772", Visitor_Name: "Sarah Ndlovu", Visitor_Phone: "071 234 5678", Student_Number: "21988374", Room: "B-205", Gate_Status: "Pending", Timestamp: new Date(Date.now() - 3600000).toISOString() }
+    ];
+
+    (async function initAccessModule() {
+        if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
+                if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        if (typeof window.globalVisitorData === 'undefined' || window.globalVisitorData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-visitors');
+                if (response.ok) { 
+                    let parsed = window.parseN8n(await response.json()); 
+                    // If no actual visitor data, load templates to show UI
+                    window.globalVisitorData = parsed.length > 0 ? parsed : dummyVisitors;
+                }
+            } catch (e) { window.globalVisitorData = dummyVisitors; }
+        }
+        window.renderVisitorData();
+    })();
+
+    // ----------------------------------------------------
+    // LOCAL CONFIGURATION VARS
+    // ----------------------------------------------------
+    var currentAccessFilter = 'all'; 
+
+    window.toggleAccSidebar = function() {
+        const sidebar = document.getElementById('acc-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('acc-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+            }
+        }
+    };
+    
+    if (window.innerWidth < 768) { window.toggleAccSidebar(); }
+
+    function updateSegmentedActive(pfx, val, opts) { 
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber', 'accent-purple'); } }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); 
+        if(aEl) { 
+            aEl.classList.add('active'); 
+            if(val === 'active') aEl.classList.add('accent-emerald'); 
+            else if(val === 'pending') aEl.classList.add('accent-amber');
+            else aEl.classList.add('accent-blue');
+        } 
+    }
+
+    // ----------------------------------------------------
+    // RENDERING LOGIC MATRIX
+    // ----------------------------------------------------
+    window.setAccessFilter = function(filter) {
+        currentAccessFilter = filter;
+        updateSegmentedActive('acc-btn', filter, ['all', 'pending', 'active']);
+        window.renderVisitorData();
+    };
+
+    window.fetchVisitorData = async function(forcedRefresh = true) {
+        const body = document.getElementById('visitor-body');
+        if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-purple-500 text-2xl"></i></td></tr>'; }
+        
+        try { 
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-visitors'); 
+            if (response.ok) { window.globalVisitorData = window.parseN8n(await response.json()); }
+        } catch (e) { } 
+        finally { window.renderVisitorData(); }
+    };
+
+    window.getResidentForRoom = function(studentNo, roomStr) {
+        if(window.globalStudentData) {
+            const student = window.globalStudentData.find(s => String(s.Student_Number) === String(studentNo) || s.Room_Allocation === roomStr);
+            if(student) return { name: `${student.First_Name || ''} ${student.Surname || ''}`, room: student.Room_Allocation || roomStr };
+        }
+        return { name: 'Unknown Resident', room: roomStr || '--' };
+    };
+
+    window.renderVisitorData = function() {
+        const body = document.getElementById('visitor-body'); if(!body) return;
+        
+        let baseData = window.globalVisitorData || [];
+
+        if (baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold text-[10px]">No visitor records found.</td></tr>`; return; }
+
+        let allCount = 0; let activeCount = 0; let pendingCount = 0;
+        
+        baseData.forEach(d => {
+            const stat = String(d.Gate_Status || '').toLowerCase();
+            allCount++;
+            if (stat.includes('in') || stat.includes('active')) activeCount++;
+            else if (stat.includes('pend')) pendingCount++;
+        });
+
+        if(document.getElementById('kpi-acc-all')) document.getElementById('kpi-acc-all').textContent = allCount;
+        if(document.getElementById('kpi-acc-active')) document.getElementById('kpi-acc-active').textContent = activeCount;
+        if(document.getElementById('kpi-acc-pending')) document.getElementById('kpi-acc-pending').textContent = pendingCount;
+
+        // Apply Status Filter
+        let filteredData = baseData;
+        if (currentAccessFilter === 'active') filteredData = baseData.filter(d => String(d.Gate_Status || '').toLowerCase().includes('in') || String(d.Gate_Status || '').toLowerCase().includes('active'));
+        else if (currentAccessFilter === 'pending') filteredData = baseData.filter(d => String(d.Gate_Status || '').toLowerCase().includes('pend'));
+
+        if (filteredData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold text-[10px]">No records match current filter.</td></tr>`; return; }
+
+        // Sort latest first
+        filteredData.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+
+        let htmlStr = '';
+        filteredData.forEach(log => {
+            const res = window.getResidentForRoom(log.Student_Number, log.Room);
+            const stat = String(log.Gate_Status || 'Pending').toLowerCase();
+            
+            let statusBadge = '';
+            if (stat.includes('in') || stat.includes('active')) {
+                statusBadge = `<span class="bg-emerald-50 border border-emerald-200 shadow-sm text-emerald-600 px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-wider"><i class="fa-solid fa-door-open mr-1"></i> Checked-In</span>`;
+            } else if (stat.includes('pend')) {
+                statusBadge = `<span class="bg-amber-50 border border-amber-200 shadow-sm text-amber-600 px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-wider"><i class="fa-solid fa-clock mr-1"></i> Pending</span>`;
+            } else {
+                statusBadge = `<span class="bg-slate-100 border border-slate-200 shadow-sm text-slate-500 px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-wider">Expired / Out</span>`;
+            }
+
+            const safeName = String(log.Visitor_Name || 'Visitor').replace(/'/g, "\\'");
+            const safePhone = String(log.Visitor_Phone || log.Visitor_Email || '').replace(/'/g, "\\'");
+
+            htmlStr += `
+                <tr class="hover:bg-white/80 transition-colors border-b border-slate-100/50">
+                    <td class="align-middle">
+                        <div class="font-mono text-[12px] font-black tracking-widest text-purple-600 bg-purple-50 px-2.5 py-1.5 rounded-lg inline-block border border-purple-100 shadow-sm">${log.Generated_PIN || '---'}</div>
+                    </td>
+                    <td class="align-middle">
+                        <div class="font-black text-slate-800 text-[11px]">${log.Visitor_Name || '--'}</div>
+                        <div class="text-[9px] font-medium text-slate-500 mt-0.5"><i class="fa-solid fa-phone mr-1 text-slate-300"></i>${log.Visitor_Phone || log.Visitor_Email || 'No Contact Info'}</div>
+                    </td>
+                    <td class="align-middle">
+                        <div class="font-bold text-slate-700 text-[10px]">${res.name}</div>
+                        <div class="text-[8px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">Room: ${res.room}</div>
+                    </td>
+                    <td class="align-middle">${statusBadge}</td>
+                    <td class="text-right align-middle">
+                        <button onclick="window.openVisitorCommModal('${safeName}', '${safePhone}')" class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 text-[8px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 ml-auto"><i class="fa-solid fa-paper-plane"></i> Contact</button>
+                    </td>
+                </tr>`;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    // ----------------------------------------------------
+    // MODALS & QUICK ACTIONS
+    // ----------------------------------------------------
+    window.openVisitorCommModal = function(name, phone) {
+        document.getElementById('vis-comm-name').textContent = name;
+        document.getElementById('vis-comm-phone').value = phone;
+        document.getElementById('vis-comm-msg').value = '';
+        document.getElementById('visitorCommModal').classList.add('active');
+    };
+
+    window.sendVisitorComm = async function(e) {
+        e.preventDefault(); const btn = document.getElementById('btn-send-vis-comm'); const ogText = btn.innerHTML;
+        const target = document.getElementById('vis-comm-phone').value;
+        const msg = document.getElementById('vis-comm-msg').value;
+        
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Dispatching...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Target: target, Message: msg }) });
+            document.getElementById('visitorCommModal').classList.remove('active');
+            window.showToast("Message dispatched to visitor.");
+        } catch(error) { window.showToast("Failed to send message.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.submitManualVisitor = async function(e) {
+        e.preventDefault(); const btn = document.getElementById('btn-submit-vis'); const ogText = btn.innerHTML;
+        
+        const host = document.getElementById('man-vis-host').value;
+        const name = document.getElementById('man-vis-name').value;
+        const phone = document.getElementById('man-vis-phone').value;
+        const generatedPin = Math.floor(100000 + Math.random() * 900000).toString().replace(/(\d{3})(\d{3})/, "$1-$2");
+        
+        const payload = {
+            Generated_PIN: generatedPin,
+            Visitor_Name: name,
+            Visitor_Phone: phone,
+            Student_Number: host,
+            Gate_Status: "Pending",
+            Timestamp: new Date().toISOString()
+        };
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authorizing...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-log-visitor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            
+            if(!window.globalVisitorData) window.globalVisitorData = [];
+            window.globalVisitorData.unshift(payload);
+            window.renderVisitorData();
+
+            document.getElementById('manualVisitorModal').classList.remove('active'); e.target.reset();
+            window.showToast(`Visitor authorized. PIN: ${generatedPin}`);
+        } catch(error) { window.showToast("Failed to generate pass.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.executeBulkCheckout = async function(btn) {
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Executing...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-bulk-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Action: "Checkout_All" }) });
+            
+            // Update local memory
+            if(window.globalVisitorData) {
+                window.globalVisitorData.forEach(v => {
+                    if(String(v.Gate_Status).toLowerCase().includes('in')) v.Gate_Status = "Checked-Out";
+                });
+            }
+            window.renderVisitorData();
+            document.getElementById('bulkCheckoutModal').classList.remove('active');
+            window.showToast("Curfew enforced. All passes expired.");
+        } catch(error) { window.showToast("Network fault.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.downloadAccessReport = function() {
+        const searchVal = document.getElementById('search-access')?.value.toLowerCase() || '';
+        let csvContent = "data:text/csv;charset=utf-8,";
+        let filename = `ReziFlow_Gateway_Ledger`;
+
+        csvContent += "PIN,Visitor Name,Contact,Host Student,Room,Status,Timestamp\n";
+        
+        let baseData = window.globalVisitorData || [];
+        
+        let filteredData = baseData;
+        if (currentAccessFilter === 'active') filteredData = baseData.filter(d => String(d.Gate_Status || '').toLowerCase().includes('in') || String(d.Gate_Status || '').toLowerCase().includes('active'));
+        else if (currentAccessFilter === 'pending') filteredData = baseData.filter(d => String(d.Gate_Status || '').toLowerCase().includes('pend'));
+
+        filteredData = filteredData.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+        if(filteredData.length === 0) return window.showToast("No data to export.", "error");
+
+        filteredData.forEach(log => {
+            const res = window.getResidentForRoom(log.Student_Number, log.Room);
+            const cleanName = String(log.Visitor_Name || '').replace(/"/g, '""');
+            const cleanPhone = String(log.Visitor_Phone || log.Visitor_Email || '').replace(/"/g, '""');
+            
+            csvContent += `"${log.Generated_PIN || ''}","${cleanName}","${cleanPhone}","${res.name}","${res.room}","${log.Gate_Status || ''}","${log.Timestamp || ''}"\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+</script>
