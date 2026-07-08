@@ -1,79 +1,161 @@
-<div class="glass-panel rounded-[24px] lg:rounded-[32px] p-6 lg:p-10 max-w-7xl mx-auto relative overflow-hidden animate-[paneFade_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 border-b border-slate-200/60 pb-6 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-400 text-white flex items-center justify-center text-xl shadow-md shadow-indigo-500/20"><i class="fa-solid fa-van-shuttle"></i></div>
-            <div>
-                <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Transport Operations</h2>
-                <p class="text-xs text-slate-500 font-medium">Live fleet tracking and dispatch center</p>
+<style>
+    /* ---------------------------------------------------
+       FLUID COMPACT LAYOUT & SIDEBAR CONFIG
+       --------------------------------------------------- */
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 3px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 3px; align-items: center;
+    }
+    
+    .glass-seg-btn {
+        padding: 6px 12px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; justify-content: center;
+    }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } 
+    .glass-seg-btn.active.accent-indigo { color: #6366f1; }
+    .glass-seg-btn.active.accent-rose { color: #e11d48; }
+
+    /* Right Sidebar (Slightly wider for communication panel: 28%) */
+    .hub-sidebar { width: 28%; max-width: 300px; min-width: 250px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 10px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+    
+    /* Map Container Fixes */
+    #admin-fleet-map { border-radius: 20px; z-index: 10; }
+    .leaflet-control-container { z-index: 10 !important; }
+    .leaflet-bottom { z-index: 10 !important; }
+</style>
+
+<!-- Main Component Structure -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
+    
+    <!-- Canvas (Left) - Map Area -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 custom-scroll pr-1 pb-10">
+        
+        <div class="glass-panel p-3 sm:p-4 flex flex-col h-full border border-indigo-100/50 shadow-[0_0_40px_rgba(99,102,241,0.03)] relative overflow-hidden">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-3 border-b border-slate-200/60 pb-3 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white flex items-center justify-center text-lg shadow-sm border border-indigo-200"><i class="fa-solid fa-van-shuttle"></i></div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Fleet Command</h2>
+                        <p class="text-[9px] text-slate-500 font-medium">Live shuttle tracking & routing</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="fleet-status-badge" class="bg-amber-50 text-amber-600 text-[8px] font-bold px-2 py-1 rounded-md border border-amber-100 flex items-center gap-1.5 shadow-sm uppercase tracking-widest"><i class="fa-solid fa-circle-notch fa-spin"></i> Awaiting Signal</span>
+                    <button onclick="window.fetchFleetLocation()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold w-8 h-8 rounded-lg transition-all shadow-sm flex items-center justify-center text-[10px]" title="Force Sync"><i class="fa-solid fa-rotate text-indigo-500"></i></button>
+                </div>
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <span id="fleet-status-badge" class="bg-amber-50 text-amber-600 text-[10px] font-bold px-3 py-1.5 rounded-full border border-amber-100 flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Awaiting Signal</span>
-            <button onclick="fetchFleetLocation()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold w-9 h-9 rounded-xl transition-all shadow-sm flex items-center justify-center text-sm" title="Force Sync"><i class="fa-solid fa-rotate text-indigo-500"></i></button>
+
+            <!-- Map Container -->
+            <div class="flex-1 relative rounded-[20px] overflow-hidden border border-white shadow-inner bg-slate-100 z-10 w-full min-h-0">
+                <div id="admin-fleet-map" class="w-full h-full absolute inset-0"></div>
+                
+                <!-- Loading Overlay -->
+                <div id="map-loading-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center transition-opacity duration-300">
+                    <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl shadow-sm mb-3 border border-indigo-100"><i class="fa-solid fa-satellite-dish animate-pulse"></i></div>
+                    <span class="text-[9px] font-bold text-slate-700 tracking-widest uppercase">Connecting to Fleet...</span>
+                </div>
+
+                <!-- Live Info Widget (Overlay on Map) -->
+                <div class="absolute bottom-4 left-4 z-[400] bg-white/90 backdrop-blur-md p-3 rounded-[16px] shadow-lg border border-white max-w-[200px] transition-transform transform translate-y-0">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Active Unit</span>
+                        <span class="bg-emerald-100 text-emerald-700 text-[7px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shadow-sm">On Route</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shadow-inner"><i class="fa-solid fa-user-astronaut text-sm"></i></div>
+                        <div class="overflow-hidden">
+                            <p class="font-black text-slate-800 text-[11px] truncate">Shuttle 01</p>
+                            <p class="text-[8px] font-semibold text-slate-500 font-mono truncate" id="shuttle-last-updated">Last ping: --</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 h-[600px]">
-        <div class="lg:col-span-2 relative rounded-[24px] overflow-hidden border border-white shadow-inner bg-slate-100 flex flex-col z-10">
-            <div id="admin-fleet-map" class="w-full h-full z-10 relative"></div>
-            <div id="map-loading-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center transition-opacity duration-300">
-                <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-3xl shadow-sm mb-4 border border-indigo-100"><i class="fa-solid fa-satellite-dish animate-pulse"></i></div>
-                <span class="text-xs font-bold text-slate-700 tracking-widest uppercase">Connecting to Fleet...</span>
-            </div>
-            <div class="absolute bottom-6 left-6 z-[400] bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-white max-w-xs transition-transform transform translate-y-0">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Unit</span>
-                    <span class="bg-emerald-100 text-emerald-700 text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-wider shadow-sm">On Route</span>
+
+    <!-- RIGHT SIDEBAR (Communications Panel) -->
+    <div id="trans-right-sidebar" class="hub-sidebar bg-transparent shrink-0">
+        
+        <!-- Toggle Button for Sidebar -->
+        <div onclick="window.toggleTransSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors border border-white shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] rounded-[14px] mb-3">
+            <div class="flex items-center gap-1.5 w-full">
+                <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
+                    <i class="fa-solid fa-walkie-talkie"></i>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shadow-inner"><i class="fa-solid fa-user-astronaut text-lg"></i></div>
-                    <div>
-                        <p class="font-black text-slate-800 text-sm">Shuttle 01</p>
-                        <p class="text-[10px] font-semibold text-slate-500 font-mono" id="shuttle-last-updated">Last ping: --</p>
-                    </div>
+                <div class="flex flex-col nav-text flex-1 overflow-hidden">
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Trans<span class="text-indigo-500">Ctrl</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Communications</span>
                 </div>
             </div>
+            <i id="trans-sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[8px] pr-1"></i>
         </div>
-        <div class="flex flex-col gap-5 h-full">
-            <div class="glass-segmented w-full flex-shrink-0">
-                <button onclick="toggleTransportView('inbox')" id="btn-trans-inbox" class="glass-seg-btn active accent-blue flex-1 justify-center py-2 text-xs"><i class="fa-solid fa-inbox"></i> Student Requests</button>
-                <button onclick="toggleTransportView('dispatch')" id="btn-trans-dispatch" class="glass-seg-btn accent-indigo flex-1 justify-center py-2 text-xs"><i class="fa-solid fa-walkie-talkie"></i> Direct Dispatch</button>
-            </div>
-            <div id="transport-view-inbox" class="flex-1 flex flex-col min-h-0 bg-white/40 rounded-[24px] border border-white shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-white/60 flex justify-between items-center bg-white/50 backdrop-blur-md flex-shrink-0">
-                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Incoming Feed</h3>
-                    <span class="bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-blue-100 shadow-sm" id="transport-inbox-count">2 Pending</span>
+
+        <!-- The Comm Panel Wrapper -->
+        <div class="flex-1 flex flex-col min-h-0 bg-white/60 rounded-[20px] border border-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 nav-text" id="trans-comm-panel">
+            
+            <!-- Segmented Control -->
+            <div class="p-2 border-b border-white/60 shrink-0">
+                <div class="glass-segmented w-full">
+                    <button onclick="window.toggleTransportView('inbox')" id="btn-trans-inbox" class="glass-seg-btn active accent-blue flex-1 text-[9px]"><i class="fa-solid fa-inbox mr-1"></i> Inbox</button>
+                    <button onclick="window.toggleTransportView('dispatch')" id="btn-trans-dispatch" class="glass-seg-btn accent-indigo flex-1 text-[9px]"><i class="fa-solid fa-satellite-dish mr-1"></i> Dispatch</button>
                 </div>
-                <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3" id="transport-inbox-feed">
-                    <div class="bg-white border border-slate-200 rounded-[16px] p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            </div>
+
+            <!-- VIEW 1: Inbox -->
+            <div id="transport-view-inbox" class="flex-1 flex flex-col min-h-0">
+                <div class="px-3 py-2 border-b border-slate-200/50 flex justify-between items-center bg-white/50 backdrop-blur-md flex-shrink-0">
+                    <h3 class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Student Requests</h3>
+                    <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[8px] font-bold border border-blue-100 shadow-sm" id="transport-inbox-count">1 Pending</span>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2" id="transport-inbox-feed">
+                    <!-- Template Request -->
+                    <div class="bg-white border border-slate-200 rounded-[12px] p-3 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
                         <div class="flex justify-between items-start mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-bold"><i class="fa-solid fa-user"></i></div>
-                                <span class="text-xs font-black text-slate-800">221227336</span>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[8px] font-bold"><i class="fa-solid fa-user"></i></div>
+                                <span class="text-[10px] font-black text-slate-800">221227336</span>
                             </div>
-                            <span class="text-[9px] font-mono text-slate-400 font-bold">14:02</span>
+                            <span class="text-[7px] font-mono text-slate-400 font-bold">14:02</span>
                         </div>
-                        <p class="text-[11px] text-slate-600 font-medium mb-3 italic">"Pickup requested at Campus Main Gate. Will be waiting."</p>
-                        <div class="flex gap-2">
-                            <button onclick="forwardToDriver('REQ-001')" class="flex-1 bg-[#1d1d1f] hover:bg-indigo-600 text-white text-[10px] font-bold py-2 rounded-xl transition-colors shadow-sm">Forward to Driver</button>
-                            <button onclick="dismissRequest(this)" class="w-8 flex-shrink-0 bg-slate-50 border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 rounded-xl transition-colors flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                        <p class="text-[9px] text-slate-600 font-medium mb-3 italic leading-relaxed">"Pickup requested at Campus Main Gate. Will be waiting."</p>
+                        <div class="flex gap-1.5">
+                            <button onclick="window.forwardToDriver('221227336', 'Pickup requested at Campus Main Gate.')" class="flex-1 bg-[#1d1d1f] hover:bg-indigo-600 text-white text-[8px] font-bold py-1.5 rounded-lg transition-colors shadow-sm">Forward</button>
+                            <button onclick="this.parentElement.parentElement.remove(); document.getElementById('transport-inbox-count').textContent = '0 Pending';" class="w-6 flex-shrink-0 bg-slate-50 border border-slate-200 text-slate-400 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 rounded-lg transition-colors flex items-center justify-center shadow-sm"><i class="fa-solid fa-xmark text-[8px]"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="transport-view-dispatch" class="hidden flex-1 flex-col min-h-0 bg-white/60 p-5 rounded-[24px] border border-white shadow-sm overflow-y-auto custom-scroll relative">
-                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Master Override</h3>
-                <form class="space-y-4 flex-1 flex flex-col" onsubmit="sendDispatchToDriver(event)">
+
+            <!-- VIEW 2: Direct Dispatch -->
+            <div id="transport-view-dispatch" class="hidden flex-1 flex-col min-h-0 bg-white/40 p-3 overflow-y-auto custom-scroll">
+                <form class="space-y-3 flex-1 flex flex-col" onsubmit="window.sendDispatchToDriver(event)">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Priority Level</label>
+                        <label class="block text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Priority Level</label>
                         <div class="glass-segmented w-full">
-                            <button type="button" onclick="setDispatchPriority('normal')" id="btn-pri-normal" class="glass-seg-btn active accent-blue flex-1 justify-center py-1.5 text-[10px]">Normal</button>
-                            <button type="button" onclick="setDispatchPriority('urgent')" id="btn-pri-urgent" class="glass-seg-btn accent-rose flex-1 justify-center py-1.5 text-[10px]">Urgent</button>
+                            <button type="button" onclick="window.setDispatchPriority('normal')" id="btn-pri-normal" class="glass-seg-btn active accent-blue flex-1 py-1 text-[8px]">Normal</button>
+                            <button type="button" onclick="window.setDispatchPriority('urgent')" id="btn-pri-urgent" class="glass-seg-btn accent-rose flex-1 py-1 text-[8px]">Urgent</button>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Route Instruction</label>
-                        <select id="dispatch-route" class="modern-input py-2.5 font-medium bg-white/90 text-sm">
+                        <label class="block text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Route Instruction</label>
+                        <select id="dispatch-route" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-2 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm">
                             <option value="Standard Campus Run">Standard Campus Run</option>
                             <option value="Mall Trip (Weekend)">Mall Trip (Weekend)</option>
                             <option value="Emergency Pickup">Emergency Pickup</option>
@@ -81,14 +163,207 @@
                         </select>
                     </div>
                     <div class="flex-1 flex flex-col">
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Message Payload</label>
-                        <textarea id="dispatch-message" class="modern-input resize-none font-medium text-slate-700 bg-white/90 h-full min-h-[100px] flex-1" placeholder="Type instructions to push directly to Shuttle 01 console..."></textarea>
+                        <label class="block text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Message Payload</label>
+                        <textarea id="dispatch-message" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400 shadow-sm resize-none h-full min-h-[80px] flex-1" placeholder="Type instructions..."></textarea>
                     </div>
-                    <button type="submit" id="btn-send-dispatch" class="w-full mt-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm rounded-xl py-3.5 shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-satellite-dish"></i> Transmit to Driver
+                    <button type="submit" id="btn-send-dispatch" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-[10px] py-2.5 shadow-md transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-satellite-dish"></i> Transmit
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- LEAFLET JS FOR MAPS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    // ----------------------------------------------------
+    // LOCAL CONFIGURATION VARS
+    // ----------------------------------------------------
+    window.currentTransView = 'inbox';
+    window.currentDispatchPriority = 'normal';
+    window.fleetMap = null;
+    window.shuttleMarker = null;
+
+    // ----------------------------------------------------
+    // UI CONTROLS
+    // ----------------------------------------------------
+    window.toggleTransSidebar = function() {
+        const sidebar = document.getElementById('trans-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('trans-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { 
+                    icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); 
+                } 
+                else { 
+                    icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); 
+                }
+            }
+        }
+    };
+    
+    // Auto-collapse sidebar on very small screens, keep open on desktop
+    if (window.innerWidth < 1024) { window.toggleTransSidebar(); }
+
+    window.toggleTransportView = function(view) {
+        window.currentTransView = view;
+        
+        const inboxBtn = document.getElementById('btn-trans-inbox');
+        const dispatchBtn = document.getElementById('btn-trans-dispatch');
+        const inboxView = document.getElementById('transport-view-inbox');
+        const dispatchView = document.getElementById('transport-view-dispatch');
+
+        if(inboxBtn) inboxBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-indigo-600');
+        if(dispatchBtn) dispatchBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-indigo-600');
+
+        if(view === 'inbox') {
+            if(inboxBtn) inboxBtn.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600');
+            if(inboxView) { inboxView.classList.remove('hidden'); inboxView.classList.add('flex'); }
+            if(dispatchView) { dispatchView.classList.remove('flex'); dispatchView.classList.add('hidden'); }
+        } else {
+            if(dispatchBtn) dispatchBtn.classList.add('active', 'bg-white', 'shadow-sm', 'text-indigo-600');
+            if(inboxView) { inboxView.classList.remove('flex'); inboxView.classList.add('hidden'); }
+            if(dispatchView) { dispatchView.classList.remove('hidden'); dispatchView.classList.add('flex'); }
+        }
+    };
+
+    window.setDispatchPriority = function(priority) {
+        window.currentDispatchPriority = priority;
+        const normBtn = document.getElementById('btn-pri-normal');
+        const urgBtn = document.getElementById('btn-pri-urgent');
+        
+        if(normBtn) normBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-rose-600');
+        if(urgBtn) urgBtn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-rose-600');
+
+        if(priority === 'normal') {
+            if(normBtn) normBtn.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600');
+        } else {
+            if(urgBtn) urgBtn.classList.add('active', 'bg-white', 'shadow-sm', 'text-rose-600');
+        }
+    };
+
+    // ----------------------------------------------------
+    // MAP & FLEET TRACKING INITIALIZATION
+    // ----------------------------------------------------
+    window.initFleetMap = function() {
+        const mapEl = document.getElementById('admin-fleet-map');
+        if(!mapEl || window.fleetMap) return;
+
+        // Initialize Map centered on Pretoria/Tshwane
+        window.fleetMap = L.map('admin-fleet-map', { zoomControl: false }).setView([-25.7479, 28.2293], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(window.fleetMap);
+
+        // Custom Shuttle Icon
+        const shuttleIcon = L.divIcon({
+            html: '<div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce"><i class="fa-solid fa-van-shuttle text-xs"></i></div>',
+            className: '',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        window.shuttleMarker = L.marker([-25.7479, 28.2293], {icon: shuttleIcon}).addTo(window.fleetMap);
+        window.fetchFleetLocation();
+    };
+
+    window.fetchFleetLocation = async function() {
+        const overlay = document.getElementById('map-loading-overlay');
+        const statusBadge = document.getElementById('fleet-status-badge');
+        const timeBadge = document.getElementById('shuttle-last-updated');
+        
+        if(overlay) overlay.style.opacity = '1';
+        if(statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Syncing...';
+
+        try {
+            // Fake delay for UI realism. Replace with actual n8n fetch to GPS API if required.
+            await new Promise(r => setTimeout(r, 1200)); 
+            
+            // Generate slight random movement around base coordinates
+            const baseLat = -25.7479; const baseLng = 28.2293;
+            const newLat = baseLat + (Math.random() - 0.5) * 0.01;
+            const newLng = baseLng + (Math.random() - 0.5) * 0.01;
+            
+            if(window.shuttleMarker && window.fleetMap) {
+                window.shuttleMarker.setLatLng([newLat, newLng]);
+                window.fleetMap.panTo([newLat, newLng]);
+            }
+
+            if(overlay) overlay.style.opacity = '0';
+            setTimeout(() => { if(overlay) overlay.style.display = 'none'; }, 300);
+            
+            if(statusBadge) {
+                statusBadge.className = "bg-emerald-50 text-emerald-600 text-[8px] font-bold px-2 py-1 rounded-md border border-emerald-100 flex items-center gap-1.5 shadow-sm uppercase tracking-widest";
+                statusBadge.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> Signal Locked';
+            }
+            if(timeBadge) {
+                const now = new Date();
+                timeBadge.textContent = `Last ping: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            }
+
+        } catch(e) {
+            if(statusBadge) {
+                statusBadge.className = "bg-rose-50 text-rose-600 text-[8px] font-bold px-2 py-1 rounded-md border border-rose-100 flex items-center gap-1.5 shadow-sm uppercase tracking-widest";
+                statusBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Sync Failed';
+            }
+            if(overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+        }
+    };
+
+    // ----------------------------------------------------
+    // COMMUNICATION WEBHOOKS (Forward & Dispatch)
+    // ----------------------------------------------------
+    window.forwardToDriver = async function(studentId, msg) {
+        const payload = {
+            Target: "Shuttle_01_Console",
+            Message: `FORWARDED REQUEST FROM ${studentId}: ${msg}`,
+            Priority: "Normal"
+        };
+        
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
+            });
+            window.showToast("Request forwarded to driver console.");
+        } catch(error) { 
+            window.showToast("Network fault while forwarding.", "error"); 
+        }
+    };
+
+    window.sendDispatchToDriver = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-send-dispatch'); const ogText = btn.innerHTML;
+        const route = document.getElementById('dispatch-route').value;
+        const msg = document.getElementById('dispatch-message').value;
+
+        const payload = {
+            Target: "Shuttle_01_Console",
+            Route: route,
+            Message: msg,
+            Priority: window.currentDispatchPriority
+        };
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
+            });
+            e.target.reset();
+            window.showToast("Dispatch transmitted to driver.");
+        } catch(error) { 
+            window.showToast("Failed to transmit dispatch.", "error"); 
+        } finally { 
+            btn.innerHTML = ogText; btn.disabled = false; 
+        }
+    };
+
+    // Init Map when tab loads
+    setTimeout(() => { window.initFleetMap(); }, 200);
+</script>
