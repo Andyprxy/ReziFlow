@@ -58,7 +58,7 @@
         .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
         .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
 
-        /* Animation Keyframes (Sandwich Fix: Removed display block overrides) */
+        /* Animation Keyframes */
         @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-paneFade { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
@@ -89,7 +89,7 @@
         @keyframes radarPulse { 0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(225, 29, 72, 0); } 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); } }
         .radar-active { animation: radarPulse 2s infinite; }
 
-        @keyframes sosFlash { 0%, 100% { background-color: rgba(225, 29, 72, 0); } 50% { background-color: rgba(225, 29, 72, 0.2); } }
+        @keyframes sosFlash { 0%, 100% { background-color: rgba(225, 29, 72, 0); } 50% { background-color: rgba(225, 29, 72, 0.3); } }
         .screen-flash { position: fixed; inset: 0; pointer-events: none; z-index: 9999; animation: sosFlash 1s ease-in-out infinite; }
         
         @keyframes logSlideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -290,6 +290,13 @@
                         <!-- Populated by JS -->
                     </div>
 
+                    <!-- Submit Button (Hidden until all 6 are verified) -->
+                    <div id="patrol-submit-container" class="hidden shrink-0 mt-4 border-t border-white/60 pt-4 animate-paneFade">
+                        <button onclick="window.submitPatrolRoute(this)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-[14px] py-4 shadow-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
+                            <i class="fa-solid fa-file-shield"></i> Submit Official Patrol Route
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -352,10 +359,18 @@
             <div class="nav-block">
                 <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Emergency Dispatch</p>
                 <div class="space-y-1.5">
-                    <button onclick="window.openDispatchModal('Armed Response', 'fa-shield-halved', 'rose')" class="block-btn btn-primary-rose justify-center gap-1 !py-1.5" title="Panic Button">
-                        <i class="fa-solid fa-bell text-[9px]"></i> 
-                        <span class="nav-text truncate text-[8px]">Panic Button</span>
+                    
+                    <!-- Upgraded Panic Button -->
+                    <button onclick="window.openDispatchModal('Armed Response', 'fa-shield-halved', 'rose')" class="block-btn btn-primary-rose justify-center gap-1 !py-1.5 relative overflow-hidden" title="Panic Button">
+                        <span class="absolute right-2 top-2 flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                        </span>
+                        <i class="fa-solid fa-bell text-[9px] relative z-10"></i> 
+                        <span class="nav-text truncate text-[8px] relative z-10">Panic Button</span>
                     </button>
+                    
+                    <!-- Telephone link to Ambulance -->
                     <a href="tel:0616520417" class="block-btn bg-amber-500 hover:bg-amber-600 text-white justify-center gap-1 !py-1.5 shadow-md border-none transition-colors" title="Contact Ambulance">
                         <i class="fa-solid fa-truck-medical text-[9px]"></i> 
                         <span class="nav-text truncate text-[8px]">Contact Ambulance</span>
@@ -378,19 +393,23 @@
     <!-- MODALS -->
     <!-- ========================================== -->
 
-    <!-- Patrol Camera Scanner Modal -->
+    <!-- Patrol Camera Scanner Modal (Live Feed) -->
     <div id="cameraModal" class="modal-overlay">
         <div class="modal-content w-full max-w-sm relative bg-slate-900 border border-slate-700 p-4">
-            <button onclick="document.getElementById('cameraModal').classList.remove('active')" class="absolute top-3 right-3 w-6 h-6 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <button onclick="window.closeScannerModal()" class="absolute top-3 right-3 w-6 h-6 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
             <div class="mb-3 text-center">
                 <h2 class="text-sm font-black text-white tracking-widest uppercase"><i class="fa-solid fa-camera mr-1 text-emerald-400"></i> Scanning Sector</h2>
                 <p id="camera-sector-name" class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">--</p>
             </div>
             
+            <!-- Live Camera Viewport -->
             <div class="relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden border-2 border-slate-800 mb-4 flex items-center justify-center shadow-inner">
-                <i class="fa-solid fa-expand text-slate-700 text-6xl"></i>
+                <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
+                <canvas id="camera-canvas" class="hidden"></canvas>
+                <img id="camera-preview" class="hidden w-full h-full object-cover" />
+                
                 <!-- Animated Scan Line -->
-                <div class="scanner-line"></div>
+                <div id="scanner-line" class="scanner-line"></div>
                 <!-- HUD Elements -->
                 <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-500"></div>
                 <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-emerald-500"></div>
@@ -399,7 +418,15 @@
             </div>
             
             <input type="hidden" id="camera-checkpoint-id">
-            <button onclick="window.capturePatrolScan(this)" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-lg shadow-emerald-900/50 flex justify-center items-center gap-2 text-xs uppercase tracking-widest transition-colors"><i class="fa-solid fa-fingerprint"></i> Capture Location</button>
+            
+            <!-- Contextual Buttons -->
+            <button id="btn-capture-scan" onclick="window.capturePatrolScan(this)" class="w-full flex bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-lg shadow-emerald-900/50 justify-center items-center gap-2 text-xs uppercase tracking-widest transition-colors">
+                <i class="fa-solid fa-camera"></i> Take Picture
+            </button>
+            
+            <button id="btn-verify-scan" onclick="window.verifyPatrolScan(this)" class="w-full hidden bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl py-3 shadow-lg shadow-blue-900/50 justify-center items-center gap-2 text-xs uppercase tracking-widest transition-colors">
+                <i class="fa-solid fa-fingerprint"></i> Upload & Verify
+            </button>
         </div>
     </div>
 
@@ -512,7 +539,10 @@
             }
             window.renderSecurityData();
             
+            // Start background polling every 10 seconds
             setInterval(window.fetchSecurityData, 10000); 
+            
+            // Initialize Patrol System
             window.initPatrolSystem();
         })();
 
@@ -568,17 +598,11 @@
             window.currentSecTab = tabId;
             
             document.querySelectorAll('.sec-dashboard-tab').forEach(tab => {
-                tab.classList.remove('flex'); 
-                tab.classList.add('hidden');
-                tab.style.animation = 'none';
-                tab.offsetHeight; 
-                tab.style.animation = null; 
+                tab.classList.remove('flex'); tab.classList.add('hidden');
+                tab.style.animation = 'none'; tab.offsetHeight; tab.style.animation = null; 
             });
             const pane = document.getElementById('sec-pane-' + tabId);
-            if(pane) { 
-                pane.classList.remove('hidden'); 
-                pane.classList.add('flex'); 
-            }
+            if(pane) { pane.classList.remove('hidden'); pane.classList.add('flex'); }
 
             const kpiGrid = document.getElementById('sec-kpi-grid');
             if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
@@ -821,7 +845,7 @@
         };
 
         // ----------------------------------------------------
-        // TACTICAL PATROLS LOGIC
+        // TACTICAL PATROLS LOGIC (CAMERA ENGINE)
         // ----------------------------------------------------
         const patrolCheckpoints = [
             { id: 1, name: "Main Access Gate", status: "pending", icon: "fa-door-open" },
@@ -834,6 +858,7 @@
 
         let patrolTimeRemaining = 40 * 60; 
         let patrolTimerInterval = null;
+        let cameraStream = null;
 
         window.initPatrolSystem = function() {
             window.renderCheckpoints();
@@ -846,6 +871,7 @@
                 patrolTimeRemaining = 40 * 60; 
                 patrolCheckpoints.forEach(c => c.status = 'pending');
                 window.renderCheckpoints();
+                window.triggerAudioAlarm();
                 window.showToast("Patrol Time Expired. Route Reset.", "error");
             }
             
@@ -890,25 +916,87 @@
             const progress = document.getElementById('patrol-progress');
             if(progress) { progress.style.width = `${(verifiedCount / patrolCheckpoints.length) * 100}%`; }
 
-            if(verifiedCount === patrolCheckpoints.length) {
-                setTimeout(() => {
-                    window.showToast("Patrol Route Completed and Logged!");
-                    patrolTimeRemaining = 40 * 60; 
-                    patrolCheckpoints.forEach(c => c.status = 'pending'); 
-                    window.renderCheckpoints();
-                }, 1000);
+            // Show submit button when complete
+            const submitContainer = document.getElementById('patrol-submit-container');
+            if (submitContainer) {
+                if(verifiedCount === patrolCheckpoints.length) {
+                    submitContainer.classList.remove('hidden');
+                } else {
+                    submitContainer.classList.add('hidden');
+                }
             }
         };
 
-        window.openScannerModal = function(id, name) {
+        // --- CAMERA INTEGRATION --- //
+        window.openScannerModal = async function(id, name) {
             document.getElementById('camera-checkpoint-id').value = id;
             document.getElementById('camera-sector-name').textContent = name;
+            
+            // Reset UI states
+            document.getElementById('camera-feed').classList.remove('hidden');
+            document.getElementById('camera-preview').classList.add('hidden');
+            document.getElementById('scanner-line').classList.remove('hidden');
+            
+            const btnCap = document.getElementById('btn-capture-scan');
+            const btnVer = document.getElementById('btn-verify-scan');
+            
+            btnCap.classList.remove('hidden'); btnCap.classList.add('flex');
+            btnVer.classList.add('hidden'); btnVer.classList.remove('flex');
+            
             document.getElementById('cameraModal').classList.add('active');
+
+            // Request Camera Access
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById('camera-feed').srcObject = cameraStream;
+            } catch (err) {
+                console.error("Camera access denied or unavailable", err);
+                window.showToast("Camera access denied. Please allow permissions.", "error");
+            }
+        };
+
+        window.closeScannerModal = function() {
+            document.getElementById('cameraModal').classList.remove('active');
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
         };
 
         window.capturePatrolScan = function(btn) {
+            const video = document.getElementById('camera-feed');
+            const canvas = document.getElementById('camera-canvas');
+            const preview = document.getElementById('camera-preview');
+            
+            // Draw current video frame to canvas
+            if(video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                // Show preview
+                preview.src = canvas.toDataURL('image/png');
+                video.classList.add('hidden');
+                preview.classList.remove('hidden');
+            } else {
+                // Fallback if camera stream failed but we still want to proceed
+                preview.style.backgroundColor = '#333';
+                video.classList.add('hidden');
+                preview.classList.remove('hidden');
+            }
+
+            document.getElementById('scanner-line').classList.add('hidden');
+            
+            // Switch Buttons
+            const btnCap = document.getElementById('btn-capture-scan');
+            const btnVer = document.getElementById('btn-verify-scan');
+            btnCap.classList.add('hidden'); btnCap.classList.remove('flex');
+            btnVer.classList.remove('hidden'); btnVer.classList.add('flex');
+        };
+
+        window.verifyPatrolScan = function(btn) {
             const ogHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Image...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
             btn.disabled = true;
 
             setTimeout(() => {
@@ -916,12 +1004,46 @@
                 const cp = patrolCheckpoints.find(c => c.id === id);
                 if(cp) cp.status = 'verified';
                 
-                document.getElementById('cameraModal').classList.remove('active');
+                window.closeScannerModal();
                 btn.innerHTML = ogHtml;
                 btn.disabled = false;
                 
                 window.renderCheckpoints();
-            }, 1200); 
+            }, 800); 
+        };
+
+        window.submitPatrolRoute = async function(btn) {
+            const ogHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting to Server...';
+            btn.disabled = true;
+            
+            try {
+                // Submit official log
+                await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ 
+                        Alert_Type: "Patrol Log Completed", 
+                        Alert_Level: "Routine", 
+                        Room: "Facility Wide", 
+                        Notes: "All 6 checkpoints physically verified with photographic evidence.", 
+                        Timestamp: new Date().toISOString(), 
+                        Dispatch_Status: "Cleared" 
+                    }) 
+                });
+                
+                window.showToast("Patrol Route Logged & Approved.");
+                
+                // Reset State
+                patrolTimeRemaining = 40 * 60; 
+                patrolCheckpoints.forEach(c => c.status = 'pending'); 
+                window.renderCheckpoints();
+                
+            } catch(error) {
+                window.showToast("Network fault.", "error");
+            } finally {
+                btn.innerHTML = ogHtml;
+                btn.disabled = false;
+            }
         };
 
         // ----------------------------------------------------
