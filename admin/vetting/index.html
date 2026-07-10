@@ -375,7 +375,7 @@
                         <td><span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Funding_Type || 'Pending'}</span></td>
                         <td class="text-center">
                             <button onclick="window.fetchDocuments('${safeId}', this)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-[9px] font-bold px-3 py-1 rounded-md transition-all shadow-sm inline-flex items-center gap-1.5">
-                                <i class="fa-solid fa-cloud-arrow-down"></i> Fetch
+                                <i class="fa-solid fa-folder-open"></i> View Docs
                             </button>
                         </td>
                         <td class="text-right">
@@ -425,7 +425,7 @@
 
     window.fetchDocuments = async function(studentId, btnElement) {
         const ogText = btnElement.innerHTML;
-        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Fetching...'; 
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Loading...'; 
         btnElement.disabled = true;
         
         try {
@@ -435,31 +435,56 @@
                 body: JSON.stringify({ Student_Number: studentId })
             });
             
-            const data = await response.json();
+            let data = await response.json();
+            
+            // Check for both direct arrays and nested data wrappers from n8n
+            if (Array.isArray(data) && data.length > 0) {
+                data = data[0];
+            } else if (data && data.data && Array.isArray(data.data)) {
+                data = data.data[0];
+            }
             
             document.getElementById('docs-student-id').textContent = studentId;
             const listContainer = document.getElementById('docs-list-container');
             listContainer.innerHTML = ''; 
             
-            if (data && data.documents && data.documents.length > 0) {
-                data.documents.forEach(doc => {
-                    listContainer.innerHTML += `
-                        <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50 hover:border-indigo-300 transition-colors mb-2">
-                            <div class="flex items-center gap-3">
-                                <div class="text-rose-500 text-lg"><i class="fa-regular fa-file-pdf"></i></div>
-                                <div class="font-semibold text-[11px] text-slate-700">${doc.name || 'Uploaded Document'}</div>
+            // Mapping specific n8n keys directly to UI elements
+            const documentMap = [
+                { key: 'Doc_1_URL_ID', name: 'ID / Passport Document' },
+                { key: 'Doc_2_URL_Reg', name: 'Proof of Registration' },
+                { key: 'Doc_3_URL_Funding', name: 'Proof of Funding' },
+                { key: 'Doc_4_URL_Payslip', name: 'Payslip / Financials' }
+            ];
+
+            let docsFound = false;
+
+            if (data) {
+                documentMap.forEach(doc => {
+                    const url = data[doc.key];
+                    
+                    // Verify URL actually exists and is valid string
+                    if (url && typeof url === 'string' && url.trim() !== '' && url !== '--') {
+                        docsFound = true;
+                        listContainer.innerHTML += `
+                            <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50 hover:border-indigo-300 transition-colors mb-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-rose-500 text-lg"><i class="fa-regular fa-file-pdf"></i></div>
+                                    <div class="font-semibold text-[11px] text-slate-700">${doc.name}</div>
+                                </div>
+                                <a href="${url}" target="_blank" class="bg-white border border-slate-200 hover:border-indigo-400 text-indigo-600 px-4 py-1.5 rounded-lg text-[9px] font-black shadow-sm transition-all flex items-center gap-1.5 uppercase tracking-wide">
+                                    View <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
                             </div>
-                            <a href="${doc.url}" target="_blank" class="bg-white border border-slate-200 hover:border-indigo-400 text-indigo-600 px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-sm transition-all flex items-center gap-1.5">
-                                View <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
-            } else {
+            }
+            
+            if (!docsFound) {
                 listContainer.innerHTML = `
                     <div class="p-6 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-300 bg-slate-50">
                         <i class="fa-solid fa-folder-open text-2xl text-slate-300 mb-2 block"></i>
-                        No documents found for this applicant yet.
+                        No valid document links returned from the system.
                     </div>`;
             }
             
@@ -469,6 +494,7 @@
             if(typeof window.showToast === 'function') {
                 window.showToast("Failed to fetch documents from server.", "error");
             } else {
+                console.error(error);
                 alert("Failed to connect to document server.");
             }
         } finally {
