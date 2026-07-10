@@ -58,9 +58,9 @@
         .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
         .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
 
-        .maint-dashboard-tab { display: none; animation: paneFade 0.3s forwards; }
-        .maint-dashboard-tab.active { display: block; }
+        /* Animation Keyframes */
         @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-paneFade { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         /* Compact Table Constraints */
         .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
@@ -106,8 +106,8 @@
             
             <header class="mb-4 flex items-center justify-between shrink-0">
                 <div>
-                    <h1 id="matrixTitle" class="text-xl sm:text-2xl font-black tracking-tight text-slate-800">Snag Board</h1>
-                    <p id="matrixSub" class="text-[10px] sm:text-xs text-slate-500 font-medium">Live Ticket Resolution</p>
+                    <h1 id="matrixTitle" class="text-xl sm:text-2xl font-black tracking-tight text-slate-800">Maintenance Board</h1>
+                    <p id="matrixSub" class="text-[10px] sm:text-xs text-slate-500 font-medium">Live Ticket Resolution Routing</p>
                 </div>
                 <div class="h-8 px-3 rounded-full bg-white border border-white flex items-center gap-2 shadow-sm text-xs font-bold text-slate-700 hidden sm:flex">
                     <div class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[9px]"><i class="fa-solid fa-hard-hat"></i></div> Crew Lead
@@ -135,7 +135,7 @@
             </div>
 
             <!-- TAB 1: Live Tickets -->
-            <div id="maint-pane-snags" class="maint-dashboard-tab active flex flex-col h-full">
+            <div id="maint-pane-snags" class="maint-dashboard-tab flex-col h-full animate-paneFade flex">
                 <div class="glass-panel overflow-hidden flex flex-col h-full">
                     <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                         <div class="flex items-center gap-2">
@@ -171,7 +171,7 @@
             </div>
 
             <!-- TAB 2: Archive History -->
-            <div id="maint-pane-history" class="maint-dashboard-tab flex flex-col h-full">
+            <div id="maint-pane-history" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
                 <div class="glass-panel overflow-hidden flex flex-col h-full">
                     <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                         <div class="flex items-center gap-2">
@@ -206,7 +206,7 @@
             </div>
 
             <!-- TAB 3: Stock Vault -->
-            <div id="maint-pane-inventory" class="maint-dashboard-tab flex flex-col h-full">
+            <div id="maint-pane-inventory" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
                 <div class="glass-panel overflow-hidden flex flex-col h-full">
                     <div class="px-3 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
                         <div class="flex items-center gap-2">
@@ -241,7 +241,7 @@
             </div>
 
             <!-- TAB 4: Vendors -->
-            <div id="maint-pane-vendors" class="maint-dashboard-tab flex flex-col h-full">
+            <div id="maint-pane-vendors" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
                 <div class="mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                     <div><h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Service Providers</h2></div>
                     <div class="glass-segmented overflow-x-auto custom-scroll w-full sm:w-auto">
@@ -422,6 +422,25 @@
 
     <script>
         // ----------------------------------------------------
+        // DATA PARSERS (Highly forgiving logic)
+        // ----------------------------------------------------
+        window.parseN8n = function(d) { 
+            if (!d) return []; let arr = []; 
+            if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
+            arr = arr.map(i => i.json ? i.json : i); 
+            // Ensures we grab anything that's an object without strict key requirements
+            return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0).reverse(); 
+        };
+
+        window.formatSafeDate = function(val) {
+            if (!val) return { date: '--', time: '' };
+            const s = String(val);
+            if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
+            if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
+            return { date: s, time: '' };
+        };
+
+        // ----------------------------------------------------
         // ARCHITECTURAL DATA PIPELINE FALLBACK
         // ----------------------------------------------------
         (async function initMaintenanceModule() {
@@ -440,22 +459,6 @@
             
             window.renderMaintenanceData();
         })();
-
-        // Data Parsers
-        window.parseN8n = function(d) { 
-            if (!d) return []; let arr = []; 
-            if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
-            arr = arr.map(i => i.json ? i.json : i); 
-            return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0 && (i.Ticket_ID || i.Student_Number || i.Room)).reverse(); 
-        };
-
-        window.formatSafeDate = function(val) {
-            if (!val) return { date: '--', time: '' };
-            const s = String(val);
-            if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
-            if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
-            return { date: s, time: '' };
-        };
 
         // ----------------------------------------------------
         // LOCAL CONFIGURATION VARS
@@ -489,9 +492,12 @@
             for (let i = 0; i < tr.length; i++) {
                 if (tr[i].classList.contains('no-results') || tr[i].classList.contains('detail-row')) continue;
                 tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
+                
                 // Hide associated detail row if parent is hidden
                 const detailRow = document.getElementById(`detail-${tr[i].dataset.ticketId}`);
-                if (detailRow && tr[i].style.display === 'none') { detailRow.classList.add('hidden'); }
+                if (detailRow && tr[i].style.display === 'none') { 
+                    detailRow.classList.add('hidden'); 
+                }
             }
         };
 
@@ -501,14 +507,20 @@
         }
 
         // ----------------------------------------------------
-        // TAB SWITCHER
+        // TAB SWITCHER (Uses Tailwind Hidden/Flex to avoid overlaps)
         // ----------------------------------------------------
         window.switchMaintTab = function(tabId, btnElement, showKpis) {
             window.currentMaintTab = tabId;
             
-            document.querySelectorAll('.maint-dashboard-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.maint-dashboard-tab').forEach(tab => {
+                tab.classList.remove('flex');
+                tab.classList.add('hidden');
+            });
             const pane = document.getElementById('maint-pane-' + tabId);
-            if(pane) pane.classList.add('active');
+            if(pane) {
+                pane.classList.remove('hidden');
+                pane.classList.add('flex');
+            }
 
             const kpiGrid = document.getElementById('maint-kpi-grid');
             if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
@@ -523,10 +535,11 @@
                 const i = btnElement.querySelector('i'); if(i) { i.classList.remove('text-slate-500'); i.classList.add('text-indigo-500'); }
             }
 
-            if(tabId === 'history') window.renderHistoryData();
-            else if (tabId === 'snags') window.setMaintenanceStatus('all');
-            else if (tabId === 'inventory') window.renderInventoryData('all');
-            else if (tabId === 'vendors') window.renderProvidersData('all');
+            const title = document.getElementById('matrixTitle');
+            if(tabId === 'history') { title.textContent = "Repair Archive"; window.renderHistoryData(); }
+            else if (tabId === 'snags') { title.textContent = "Maintenance Board"; window.setMaintenanceStatus('all'); }
+            else if (tabId === 'inventory') { title.textContent = "Stock Vault"; window.renderInventoryData('all'); }
+            else if (tabId === 'vendors') { title.textContent = "Service Providers"; window.renderProvidersData('all'); }
         };
 
         // ----------------------------------------------------
@@ -612,13 +625,16 @@
                 body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">Queue is clear.</td></tr>`; return; 
             }
 
+            // Deep sort safely handling missing timestamps
             filtered.sort((a, b) => {
                 const catA = String(a.Category).toLowerCase(); const descA = String(a.Description).toLowerCase();
                 const catB = String(b.Category).toLowerCase(); const descB = String(b.Description).toLowerCase();
                 const critA = (catA.includes('elect') || catA.includes('plumb') || descA.includes('leak') || descA.includes('power')) ? 1 : 0;
                 const critB = (catB.includes('elect') || catB.includes('plumb') || descB.includes('leak') || descB.includes('power')) ? 1 : 0;
                 if (critA !== critB) return critB - critA; 
-                return new Date(a.Timestamp || 0).getTime() - new Date(b.Timestamp || 0).getTime(); 
+                
+                const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
             });
 
             let htmlStr = '';
@@ -708,7 +724,10 @@
             let filtered = baseData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
             if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No resolved tickets.</td></tr>`; return; }
 
-            filtered.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+            filtered.sort((a, b) => {
+                const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+                return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+            });
 
             let htmlStr = '';
             filtered.forEach(log => {
@@ -837,7 +856,6 @@
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; btn.disabled = true;
 
             try {
-                // Mock webhook to admin comms
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Target: "Admin_Dashboard", Message: `CREW STOCK REQUEST: ${qty}x ${item} for Ticket ${ref || 'General'}` })
@@ -903,7 +921,7 @@
         };
 
         // ----------------------------------------------------
-        // SERVICE PROVIDERS LOGIC (With External Reach out)
+        // SERVICE PROVIDERS LOGIC
         // ----------------------------------------------------
         const dummyProviders = [
             { name: 'AquaFlow Plumbers', type: 'plumbing', desc: 'Primary Pipes', phone: '011 555 0192', email: 'dispatch@aquaflow.co.za', icon: 'fa-droplet', color: 'blue' },
