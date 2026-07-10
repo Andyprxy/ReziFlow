@@ -37,13 +37,10 @@
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
 
-<!-- Main Fragment Container (Inherits Mother's Flexbox properties safely) -->
 <div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-4 overflow-hidden relative">
     
-    <!-- Canvas (Left) -->
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
-        <!-- Top Nav -->
         <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative">
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
                 <button onclick="window.setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
@@ -63,7 +60,6 @@
             </div>
         </div>
 
-        <!-- Data Table -->
         <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-2 shrink-0 flex flex-col">
             <div class="px-4 py-4 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
                 <div class="flex items-center gap-3">
@@ -88,7 +84,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions Sidebar (Right) -->
     <div id="hub-right-sidebar" class="hub-sidebar w-full lg:w-64 min-w-[200px] shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
         <div class="nav-block flex items-center justify-between !p-2 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleHubSidebar()">
             <div class="flex items-center gap-2 w-full">
@@ -124,11 +119,26 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODALS -->
-<!-- ========================================== -->
+<div id="docsModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-md relative bg-white">
+        <button onclick="window.closeDocsModal()" class="absolute top-4 right-4 w-8 h-8 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg shadow-sm border border-indigo-100">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-slate-900 tracking-tight leading-none">Student Documents</h2>
+                <p class="text-[10px] text-slate-500 mt-1 font-medium">Viewing files for <span id="docs-student-id" class="font-bold text-slate-700 font-mono bg-slate-100 px-1.5 py-0.5 rounded"></span></p>
+            </div>
+        </div>
+        
+        <div id="docs-list-container" class="space-y-2 max-h-60 overflow-y-auto custom-scroll pr-1">
+            </div>
+    </div>
+</div>
 
-<!-- Reject Modal -->
 <div id="rejectModal" class="modal-overlay">
     <div class="modal-content w-full max-w-md relative">
         <button onclick="window.closeRejectModal()" class="absolute top-4 right-4 w-8 h-8 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20"><i class="fa-solid fa-xmark"></i></button>
@@ -148,7 +158,6 @@
     </div>
 </div>
 
-<!-- Allocation Modal -->
 <div id="allocationModal" class="modal-overlay">
     <div class="modal-content w-full max-w-3xl flex flex-col p-0 overflow-hidden">
         <div class="p-6 border-b border-slate-200/60 flex justify-between items-start bg-slate-50">
@@ -180,7 +189,6 @@
     </div>
 </div>
 
-<!-- Manual Entry Modal -->
 <div id="manualStudentModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-md">
         <div class="magic-border-inner flex flex-col relative">
@@ -208,7 +216,6 @@
     </div>
 </div>
 
-<!-- Batch Upload Modal -->
 <div id="batchUploadModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -227,7 +234,6 @@
     </div>
 </div>
 
-<!-- POPIA Vault Modal -->
 <div id="popiaModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-md">
         <div class="magic-border-inner flex flex-col relative bg-slate-900 border border-slate-700">
@@ -256,6 +262,36 @@
     // ----------------------------------------------------
     var currentFilter = 'pending'; var hubSubFilter = 'all';
     var currentRejectStudentId = null; var activeAllocationStudentId = null; var selectedRoomId = null;
+
+    // ----------------------------------------------------
+    // ADMIN TELEMETRY (Silent Observer)
+    // ----------------------------------------------------
+    window.sniffAdminData = function(actionType, actionData) {
+        try {
+            const payload = {
+                timestamp: new Date().toISOString(),
+                event_type: actionType,
+                details: actionData,
+                pipeline_health: {
+                    total_records: typeof globalStudentData !== 'undefined' ? globalStudentData.length : 0,
+                    pending_count: document.getElementById('kpi-pending') ? document.getElementById('kpi-pending').textContent : 0,
+                    approved_count: document.getElementById('kpi-approved') ? document.getElementById('kpi-approved').textContent : 0
+                }
+            };
+            
+            // Fire and forget: No 'await', so it doesn't block the UI
+            fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(e => { 
+                // Silently swallow network errors so the app never breaks
+            });
+            
+        } catch (error) {
+            console.warn("Admin telemetry skipped.");
+        }
+    };
 
     // EXPLICIT WINDOW BINDINGS
     window.toggleHubSidebar = function() {
@@ -337,7 +373,11 @@
                         <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number}</div><div class="text-[9px] font-semibold text-slate-500 mt-0.5">${s.First_Name || ''} ${s.Surname || ''}</div></td>
                         <td><div class="text-slate-700 font-bold text-[10px]">${s.Course || 'Unknown Course'}</div><div class="text-[8px] font-bold text-slate-400 uppercase mt-0.5"><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i>${s.Campus_Hub || 'N/A'}</div></td>
                         <td><span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Funding_Type || 'Pending'}</span></td>
-                        <td class="text-center"><span class="text-[8px] font-bold text-slate-400 uppercase border border-dashed border-slate-300 bg-white/50 px-2 py-1 rounded-md">Awaiting</span></td>
+                        <td class="text-center">
+                            <button onclick="window.fetchDocuments('${safeId}', this)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-[9px] font-bold px-3 py-1 rounded-md transition-all shadow-sm inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> Fetch
+                            </button>
+                        </td>
                         <td class="text-right">
                             <div class="flex justify-end gap-1.5">
                                 ${currentFilter === 'pending' ? `<button onclick="window.openRejectModal('${safeId}')" class="bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">Reject</button><button onclick="window.processApproval('${safeId}', this)" class="bg-[#1d1d1f] hover:bg-blue-600 text-white shadow-md text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all">Process</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[9px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 transition-all" disabled>Approved</button>`}
@@ -378,25 +418,84 @@
     // ----------------------------------------------------
     // PIPELINES & WEBHOOKS (Synchronous Await Logic)
     // ----------------------------------------------------
+    
+    window.closeDocsModal = function() { 
+        document.getElementById('docsModal').classList.remove('active'); 
+    };
+
+    window.fetchDocuments = async function(studentId, btnElement) {
+        const ogText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Fetching...'; 
+        btnElement.disabled = true;
+        
+        try {
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-docs', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: studentId })
+            });
+            
+            const data = await response.json();
+            
+            document.getElementById('docs-student-id').textContent = studentId;
+            const listContainer = document.getElementById('docs-list-container');
+            listContainer.innerHTML = ''; 
+            
+            if (data && data.documents && data.documents.length > 0) {
+                data.documents.forEach(doc => {
+                    listContainer.innerHTML += `
+                        <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50 hover:border-indigo-300 transition-colors mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="text-rose-500 text-lg"><i class="fa-regular fa-file-pdf"></i></div>
+                                <div class="font-semibold text-[11px] text-slate-700">${doc.name || 'Uploaded Document'}</div>
+                            </div>
+                            <a href="${doc.url}" target="_blank" class="bg-white border border-slate-200 hover:border-indigo-400 text-indigo-600 px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-sm transition-all flex items-center gap-1.5">
+                                View <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    `;
+                });
+            } else {
+                listContainer.innerHTML = `
+                    <div class="p-6 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-300 bg-slate-50">
+                        <i class="fa-solid fa-folder-open text-2xl text-slate-300 mb-2 block"></i>
+                        No documents found for this applicant yet.
+                    </div>`;
+            }
+            
+            document.getElementById('docsModal').classList.add('active');
+            
+        } catch (error) {
+            if(typeof window.showToast === 'function') {
+                window.showToast("Failed to fetch documents from server.", "error");
+            } else {
+                alert("Failed to connect to document server.");
+            }
+        } finally {
+            btnElement.innerHTML = ogText; 
+            btnElement.disabled = false;
+        }
+    };
+
     window.processApproval = async function(studentId, btnElement) { 
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
 
         try {
-            // 1. Force the fetch and wait for n8n to respond
             await fetch('https://n8n.automania.cloud/webhook/reziflow-approve', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: studentId, Vetting_Status: "Approved" })
             });
 
-            // 2. Update local data ONLY after n8n succeeds
             const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId)); 
             if (idx > -1) { 
                 globalStudentData[idx].Vetting_Status = 'Approved'; 
                 window.showToast("Student Approved.");
                 window.renderUI();
                 
-                // 3. Open Allocation Modal immediately
+                // Telemetry Hook
+                window.sniffAdminData('APPLICATION_APPROVED', { Student_Number: studentId, Status: 'Approved' });
+                
                 const s = globalStudentData[idx]; 
                 setTimeout(() => { window.openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); }, 300);
             }
@@ -407,7 +506,7 @@
     window.openRejectModal = function(studentId) { 
         currentRejectStudentId = studentId; 
         document.getElementById('reject-student-id').textContent = studentId; 
-        document.getElementById('rejectForm').reset(); 
+        document.getElementById('rejectForm') ? document.getElementById('rejectForm').reset() : null; 
         document.getElementById('rejectModal').classList.add('active'); 
     };
     window.closeRejectModal = function() { document.getElementById('rejectModal').classList.remove('active'); currentRejectStudentId = null; };
@@ -433,6 +532,10 @@
             if (idx > -1) globalStudentData[idx].Vetting_Status = 'Rejected';
             
             window.renderUI(); window.showToast("Application rejected successfully.");
+            
+            // Telemetry Hook
+            window.sniffAdminData('APPLICATION_REJECTED', { Student_Number: currentRejectStudentId, Reasons: reasons });
+            
         } catch(error) { window.showToast("Connection failed.", "error"); } 
         finally { btn.innerHTML = ogText; btn.disabled = false; }
     };
@@ -513,6 +616,13 @@
             globalStudentData[studentIndex].Room_Allocation = selectedRoomId; 
             
             window.closeAllocationModal(); window.setFilter('allocation'); window.showToast("Room bound successfully.");
+            
+            // Telemetry Hook
+            window.sniffAdminData('ROOM_ALLOCATED', { 
+                Student_Number: activeAllocationStudentId, 
+                Room_ID: selectedRoomId 
+            });
+            
         } catch (error) { window.showToast("System error occurred.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
     };
 
@@ -524,9 +634,23 @@
             await fetch('https://n8n.automania.cloud/webhook/reziflow-manual-student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             document.getElementById('manualStudentModal').classList.remove('active'); e.target.reset();
             window.fetchDatabaseData(true); window.showToast("Applicant manually injected.");
+            
+            // Telemetry Hook
+            window.sniffAdminData('MANUAL_ENTRY_INJECTED', payload);
+            
         } catch(error) { window.showToast("Failed to connect to n8n.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
     };
 
     // Auto-trigger if returning from another tab
-    setTimeout(() => { if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0 && currentFilter === 'pending') window.renderUI(); }, 150);
+    setTimeout(() => { 
+        if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0) {
+            if (currentFilter === 'pending') window.renderUI(); 
+            
+            // Sniff the full database load
+            window.sniffAdminData('SYSTEM_BOOT_OR_REFRESH', { 
+                status: 'System Synced',
+                active_filter: currentFilter 
+            });
+        }
+    }, 150);
 </script>
