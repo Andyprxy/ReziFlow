@@ -58,10 +58,9 @@
         .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
         .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
 
-        /* Tab Switching Animations */
-        .sec-dashboard-tab { display: none; animation: paneFade 0.3s forwards; }
-        .sec-dashboard-tab.active { display: block; }
+        /* Animation Keyframes (Sandwich Fix: Removed display block overrides) */
         @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-paneFade { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         /* Compact Table Constraints */
         .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
@@ -159,7 +158,7 @@
             </div>
 
             <!-- TAB 1: Live Alerts -->
-            <div id="sec-pane-live" class="sec-dashboard-tab active flex flex-col h-full">
+            <div id="sec-pane-live" class="sec-dashboard-tab flex-col h-full animate-paneFade flex">
                 <div class="glass-panel overflow-hidden flex flex-col h-full border border-rose-100/50 shadow-[0_0_40px_rgba(225,29,72,0.03)]">
                     <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                         <div class="flex items-center gap-2">
@@ -352,15 +351,15 @@
 
             <div class="nav-block">
                 <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Emergency Dispatch</p>
-                <div class="space-y-1">
-                    <button onclick="window.openDispatchModal('Armed Response', 'fa-shield-halved', 'rose')" class="block-btn btn-primary-rose justify-center gap-1 !py-1.5" title="Contact Security">
-                        <i class="fa-solid fa-shield-halved text-[9px]"></i> 
-                        <span class="nav-text truncate text-[8px]">Contact Security</span>
+                <div class="space-y-1.5">
+                    <button onclick="window.openDispatchModal('Armed Response', 'fa-shield-halved', 'rose')" class="block-btn btn-primary-rose justify-center gap-1 !py-1.5" title="Panic Button">
+                        <i class="fa-solid fa-bell text-[9px]"></i> 
+                        <span class="nav-text truncate text-[8px]">Panic Button</span>
                     </button>
-                    <button onclick="window.openDispatchModal('Medical Ambulance', 'fa-truck-medical', 'amber')" class="block-btn bg-amber-500 hover:bg-amber-600 text-white justify-center gap-1 !py-1.5 shadow-md border-none transition-colors" title="Contact Ambulance">
+                    <a href="tel:0616520417" class="block-btn bg-amber-500 hover:bg-amber-600 text-white justify-center gap-1 !py-1.5 shadow-md border-none transition-colors" title="Contact Ambulance">
                         <i class="fa-solid fa-truck-medical text-[9px]"></i> 
                         <span class="nav-text truncate text-[8px]">Contact Ambulance</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -513,10 +512,7 @@
             }
             window.renderSecurityData();
             
-            // Start background polling every 10 seconds
             setInterval(window.fetchSecurityData, 10000); 
-            
-            // Initialize Patrol System
             window.initPatrolSystem();
         })();
 
@@ -572,10 +568,17 @@
             window.currentSecTab = tabId;
             
             document.querySelectorAll('.sec-dashboard-tab').forEach(tab => {
-                tab.classList.remove('flex'); tab.classList.add('hidden');
+                tab.classList.remove('flex'); 
+                tab.classList.add('hidden');
+                tab.style.animation = 'none';
+                tab.offsetHeight; 
+                tab.style.animation = null; 
             });
             const pane = document.getElementById('sec-pane-' + tabId);
-            if(pane) { pane.classList.remove('hidden'); pane.classList.add('flex'); }
+            if(pane) { 
+                pane.classList.remove('hidden'); 
+                pane.classList.add('flex'); 
+            }
 
             const kpiGrid = document.getElementById('sec-kpi-grid');
             if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
@@ -780,7 +783,7 @@
                         <td class="align-top"><div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div></td>
                         <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Alert_Level}">${log.Alert_Level || '--'}</span></td>
                         <td class="align-top">
-                            <p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
+                            <p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[180px] truncate"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
                             <p class="text-[8px] text-slate-500 italic mt-1">${log.Comment || 'Resolved. No comment.'}</p>
                         </td>
                         <td class="text-right align-top">
@@ -818,7 +821,7 @@
         };
 
         // ----------------------------------------------------
-        // TACTICAL PATROLS LOGIC (The New Engine)
+        // TACTICAL PATROLS LOGIC
         // ----------------------------------------------------
         const patrolCheckpoints = [
             { id: 1, name: "Main Access Gate", status: "pending", icon: "fa-door-open" },
@@ -829,7 +832,7 @@
             { id: 6, name: "Admin Office", status: "pending", icon: "fa-briefcase" }
         ];
 
-        let patrolTimeRemaining = 40 * 60; // 40 minutes in seconds
+        let patrolTimeRemaining = 40 * 60; 
         let patrolTimerInterval = null;
 
         window.initPatrolSystem = function() {
@@ -840,7 +843,6 @@
 
         window.updatePatrolTimer = function() {
             if(patrolTimeRemaining <= 0) {
-                // If time runs out, reset and perhaps log a "Missed Patrol" (skipped for demo)
                 patrolTimeRemaining = 40 * 60; 
                 patrolCheckpoints.forEach(c => c.status = 'pending');
                 window.renderCheckpoints();
@@ -885,16 +887,14 @@
 
             grid.innerHTML = htmlStr;
             
-            // Update Progress Bar
             const progress = document.getElementById('patrol-progress');
             if(progress) { progress.style.width = `${(verifiedCount / patrolCheckpoints.length) * 100}%`; }
 
-            // Check if route complete
             if(verifiedCount === patrolCheckpoints.length) {
                 setTimeout(() => {
                     window.showToast("Patrol Route Completed and Logged!");
-                    patrolTimeRemaining = 40 * 60; // Reset timer
-                    patrolCheckpoints.forEach(c => c.status = 'pending'); // Reset points
+                    patrolTimeRemaining = 40 * 60; 
+                    patrolCheckpoints.forEach(c => c.status = 'pending'); 
                     window.renderCheckpoints();
                 }, 1000);
             }
@@ -921,7 +921,7 @@
                 btn.disabled = false;
                 
                 window.renderCheckpoints();
-            }, 1200); // Simulate upload/processing delay
+            }, 1200); 
         };
 
         // ----------------------------------------------------
@@ -943,7 +943,6 @@
             responseBox.classList.add('hidden');
 
             try {
-                // Mock validation logic based on dummy template
                 await new Promise(r => setTimeout(r, 1000));
                 const matchedVisitor = dummyVisitors.find(v => String(v.Generated_PIN) === input);
 
