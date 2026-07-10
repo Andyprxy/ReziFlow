@@ -9,15 +9,18 @@
     }
     
     .glass-seg-btn {
-        padding: 6px 12px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; 
-        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent; justify-content: center;
+        padding: 4px 10px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; 
+        transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid transparent;
     }
+    @media (min-width: 640px) { .glass-seg-btn { padding: 6px 12px; font-size: 0.7rem; gap: 6px; border-radius: 10px; } }
     .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
     .glass-seg-btn.active {
         background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid rgba(255, 255, 255, 1);
     }
     .glass-seg-btn.active.accent-blue { color: #0071e3; } 
-    
+    .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-rose { color: #f43f5e; }
+
     /* Right Sidebar (Collapsed by default, 10% Shrink) */
     .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
     .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
@@ -29,12 +32,26 @@
     .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
     .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
     
-    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
-    
-    /* Custom ID Chips */
-    .student-chip { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0.8); opacity: 0; }
-    @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+    .btn-primary-purple { background-color: #5b4fe5; color: white; border: 1.5px solid #5b4fe5; box-shadow: 0 4px 12px rgba(91, 79, 229, 0.25); }
+    .btn-primary-purple:hover { background-color: #4f46e5; }
+    .btn-secondary-white { background-color: #ffffff; color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .btn-secondary-white:hover { border-color: #cbd5e1; background-color: #f8fafc; }
+    .block-btn-active { background-color: #ffffff; color: #4f46e5; border: 1.5px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transform: scale(1.02); }
+    .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
+    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
 
+    @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-paneFade { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    /* Compact Table Constraints */
+    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; font-size: 0.68rem; }
+    .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+
+    /* Expandable Row Styling */
+    .detail-row td { padding: 0 !important; border-bottom: none; }
+    .detail-row-content { background: linear-gradient(to right, rgba(248,250,252,0.9), rgba(255,255,255,0.95)); border-bottom: 1px solid #e2e8f0; animation: paneFade 0.3s ease forwards; }
+    
     /* High-End Modals */
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -42,7 +59,7 @@
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
     .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
-    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(59, 130, 246, 0.2) 60%, #3b82f6 80%, #2563eb 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(99, 102, 241, 0.2) 60%, #6366f1 80%, #4f46e5 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
     @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
@@ -53,103 +70,202 @@
     <!-- Canvas (Left) -->
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
-        <div class="glass-panel p-5 sm:p-8 flex flex-col h-full border border-blue-100/50 shadow-[0_0_40px_rgba(59,130,246,0.03)] relative overflow-hidden">
-            
-            <div class="flex items-center gap-3 mb-6 border-b border-slate-200/60 pb-5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-sm border border-blue-100"><i class="fa-solid fa-paper-plane"></i></div>
-                <div>
-                    <h2 class="text-lg sm:text-xl font-black text-slate-800 tracking-tight">Message Center</h2>
-                    <p class="text-[10px] text-slate-500 font-medium">Broadcast alerts and notices directly to residents[cite: 7].</p>
+        <!-- Primary KPI / Filter Grid -->
+        <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="maint-kpi-grid">
+            <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
+                <button onclick="window.setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue">
+                    <i class="fa-solid fa-layer-group"></i> All Open
+                    <span id="kpi-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setMaintenanceStatus('open')" id="maint-stat-open" class="glass-seg-btn accent-amber">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Pending
+                    <span id="kpi-open" class="bg-amber-50 border border-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
+                <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setMaintenanceStatus('critical')" id="maint-stat-critical" class="glass-seg-btn accent-rose">
+                    <i class="fa-solid fa-fire"></i> Critical
+                    <span id="kpi-critical" class="bg-rose-50 border border-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full text-[8px] ml-1">-</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: Live Tickets -->
+        <div id="maint-pane-snags" class="maint-dashboard-tab flex flex-col h-full animate-paneFade">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-screwdriver-wrench text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight whitespace-nowrap">Live Queue</h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadMaintReport('snags')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
+                        <div class="relative w-full sm:w-40">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
+                            <input type="text" id="search-maintenance" onkeyup="window.filterTable('search-maintenance', 'maintenance-body')" placeholder="Search tickets..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-indigo-400 shadow-sm">
+                        </div>
+                        <button onclick="if(typeof window.fetchMaintenanceData === 'function') window.fetchMaintenanceData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm shrink-0"><i class="fa-solid fa-rotate text-indigo-500 text-[10px]"></i></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[650px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-24">Ticket ID</th>
+                                <th class="w-32">Location</th>
+                                <th class="w-20">Category</th>
+                                <th>Issue & Resolution Notes</th>
+                                <th class="w-24 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintenance-body" class="divide-y divide-slate-100/50"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <form id="commForm" onsubmit="window.sendCommunication(event)" class="flex flex-col flex-1 relative z-10 space-y-6">
+        <!-- TAB 2: Archive History (Hidden by Default) -->
+        <div id="maint-pane-history" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clock-rotate-left text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Archive <span class="bg-emerald-100 text-emerald-700 text-[8px] px-1.5 py-0.5 rounded-md font-bold uppercase ml-1">Resolved</span></h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.downloadMaintReport('history')" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        </button>
+                        <div class="relative w-full sm:w-40">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
+                            <input type="text" id="search-history" onkeyup="window.filterTable('search-history', 'history-body')" placeholder="Search archive..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-indigo-400 shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto custom-scroll bg-white/30 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[600px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-24">Ticket ID</th>
+                                <th class="w-32">Location</th>
+                                <th class="w-20">Category</th>
+                                <th>Status Summary</th>
+                                <th class="w-24 text-right">Audit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body" class="divide-y divide-slate-100/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Stock Vault (Hidden by Default) -->
+        <div id="maint-pane-inventory" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-boxes-stacked text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Stock Vault</h3>
+                    </div>
+                    <div class="flex items-center gap-2 overflow-x-auto custom-scroll flex-nowrap w-full sm:w-auto">
+                        <div class="glass-segmented">
+                            <button onclick="window.setInventoryCategory('all')" id="inv-cat-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px]">All</button>
+                            <button onclick="window.setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Plumbing</button>
+                            <button onclick="window.setInventoryCategory('electrical')" id="inv-cat-electrical" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Electrical</button>
+                            <button onclick="window.setInventoryCategory('furniture')" id="inv-cat-furniture" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Furniture</button>
+                        </div>
+                        <button onclick="document.getElementById('stockModal').classList.add('active')" class="bg-[#1d1d1f] text-white font-bold px-2.5 py-1.5 rounded-lg shadow-md text-[9px] flex items-center shrink-0"><i class="fa-solid fa-plus mr-1"></i> Add</button>
+                    </div>
+                </div>
                 
-                <!-- STEP 1: AUDIENCE BUILDER -->
-                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm">
-                    <label class="block text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-3"><i class="fa-solid fa-1 mr-1"></i> Target Audience[cite: 7]</label>
-                    <div class="glass-segmented w-full flex-wrap sm:flex-nowrap mb-4">
-                        <button type="button" onclick="window.setCommAudience('all')" id="comm-aud-all" class="glass-seg-btn active accent-blue flex-1 text-[10px]">All Residents</button>
-                        <button type="button" onclick="window.setCommAudience('filter')" id="comm-aud-filter" class="glass-seg-btn flex-1 text-[10px]">Filtered Group</button>
-                        <button type="button" onclick="window.setCommAudience('specific')" id="comm-aud-specific" class="glass-seg-btn flex-1 text-[10px]">Custom List</button>
-                    </div>
-
-                    <!-- Dynamic Filter Group -->
-                    <div id="comm-filter-group" class="hidden animate-[paneFade_0.3s_forwards]">
-                        <p class="text-[9px] font-bold text-slate-400 mb-2">Filter Demographics[cite: 7]</p>
-                        <div class="glass-segmented overflow-x-auto w-full">
-                            <button type="button" onclick="window.setCommDemo('nsfas')" id="comm-dem-nsfas" class="glass-seg-btn active accent-blue text-[9px]">NSFAS</button>
-                            <button type="button" onclick="window.setCommDemo('bursary')" id="comm-dem-bursary" class="glass-seg-btn text-[9px]">Bursary</button>
-                            <button type="button" onclick="window.setCommDemo('cash')" id="comm-dem-cash" class="glass-seg-btn text-[9px]">Cash</button>
-                            <button type="button" onclick="window.setCommDemo('male')" id="comm-dem-male" class="glass-seg-btn text-[9px]">Male</button>
-                            <button type="button" onclick="window.setCommDemo('female')" id="comm-dem-female" class="glass-seg-btn text-[9px]">Female</button>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Specific List Builder -->
-                    <div id="comm-specific-group" class="hidden animate-[paneFade_0.3s_forwards]">
-                        <p class="text-[9px] font-bold text-slate-400 mb-2">Add Specific Residents</p>
-                        <div class="flex items-center gap-2 mb-3">
-                            <input type="text" id="comm-student-id" class="flex-1 bg-white border border-slate-200 rounded-xl py-2 px-3 text-[10px] font-mono outline-none focus:border-blue-400 shadow-sm" placeholder="Type Student Number...[cite: 7]">
-                            <button type="button" onclick="window.addStudentToList()" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 flex items-center justify-center shadow-sm transition-colors shrink-0"><i class="fa-solid fa-plus"></i></button>
-                        </div>
-                        <div id="comm-custom-list" class="flex flex-wrap gap-2 min-h-[30px] p-2 bg-slate-50 border border-slate-100 rounded-xl">
-                            <span class="text-[9px] text-slate-400 font-medium italic py-1 px-2" id="comm-custom-empty">List is empty. Add IDs above.</span>
-                        </div>
-                    </div>
+                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[500px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-48">Item & SKU</th>
+                                <th>Category</th>
+                                <th class="w-32">Stock Level</th>
+                                <th class="text-right w-20">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body" class="divide-y divide-white/60"></tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
 
-                <!-- STEP 2: COMPOSER -->
-                <div class="bg-white/60 p-5 rounded-[20px] border border-white shadow-sm flex-1 flex flex-col">
-                    <label class="block text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-3"><i class="fa-solid fa-2 mr-1"></i> Message Composer</label>
-                    
-                    <div class="glass-segmented w-full flex-wrap sm:flex-nowrap mb-4">
-                        <button type="button" onclick="window.setCommTemplate('custom')" id="comm-tpl-custom" class="glass-seg-btn active accent-blue flex-1 text-[9px]">Blank</button>
-                        <button type="button" onclick="window.setCommTemplate('house_meeting')" id="comm-tpl-house" class="glass-seg-btn flex-1 text-[9px]">House Meeting</button>
-                        <button type="button" onclick="window.setCommTemplate('maintenance')" id="comm-tpl-maint" class="glass-seg-btn flex-1 text-[9px]">Maintenance Notice</button>
-                    </div>
-
-                    <div class="flex-1 flex flex-col relative">
-                        <textarea id="comm-message" class="flex-1 w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-[11px] font-medium text-slate-700 outline-none focus:border-blue-400 shadow-sm resize-none" placeholder="Type your broadcast message here...[cite: 7]" required></textarea>
-                        <div class="absolute bottom-3 right-3 text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">Broadcast Payload</div>
-                    </div>
+        <!-- TAB 4: Vendors (Hidden by Default) -->
+        <div id="maint-pane-vendors" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
+            <div class="mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+                <div><h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Service Providers</h2></div>
+                <div class="glass-segmented overflow-x-auto custom-scroll w-full sm:w-auto">
+                    <button onclick="window.setVendorCategory('all')" id="ven-cat-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">All</button>
+                    <button onclick="window.setVendorCategory('plumbing')" id="ven-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Plumbing</button>
+                    <button onclick="window.setVendorCategory('electrical')" id="ven-cat-electrical" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Electrical</button>
+                    <button onclick="window.setVendorCategory('furniture')" id="ven-cat-furniture" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px] whitespace-nowrap">Furniture</button>
                 </div>
-
-                <!-- SUBMIT -->
-                <button type="submit" id="btn-send-comm" class="w-full bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold rounded-[14px] py-4 shadow-xl transition-all flex items-center justify-center gap-2 text-[11px] uppercase tracking-widest shrink-0">
-                    <i class="fa-solid fa-satellite-dish"></i> Execute Broadcast[cite: 7]
-                </button>
-            </form>
+            </div>
+            <div id="vendors-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto flex-1 custom-scroll pb-4"></div>
         </div>
 
     </div>
 
-    <!-- RIGHT SIDEBAR (Collapsed by Default) -->
-    <div id="comm-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
+    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <div id="maint-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         
-        <div onclick="window.toggleCommSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
+        <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
             <div class="flex items-center gap-1.5 w-full">
-                <div class="w-7 h-7 bg-gradient-to-br from-blue-500 to-sky-500 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
-                    <i class="fa-solid fa-message"></i>
+                <div class="w-7 h-7 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
+                    <i class="fa-solid fa-layer-group"></i>
                 </div>
                 <div class="flex flex-col nav-text flex-1 overflow-hidden">
-                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Msg<span class="text-blue-500">Ctrl</span></span>
-                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Outreach Panel</span>
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Rezi<span class="text-indigo-500">Ops</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Command Toggle</span>
                 </div>
             </div>
-            <i id="comm-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
+            <i id="maint-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
         </div>
 
         <div class="nav-block">
-            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Message Tools</p>
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Work Orders</p>
             <div class="space-y-1">
-                <button onclick="document.getElementById('commForm').reset(); window.setCommAudience('all'); window.setCommTemplate('custom');" class="block-btn bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
-                    <i class="fa-solid fa-pen-to-square text-[9px]"></i> 
-                    <span class="nav-text truncate text-[8px]">New Draft</span>
+                <button onclick="window.switchMaintTab('snags', this, true)" class="block-btn block-btn-active" title="Live Tickets">
+                    <i class="fa-solid fa-clipboard-list text-[11px] w-4 text-center text-indigo-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Live Tickets</span>
                 </button>
-                <button onclick="document.getElementById('sentLogModal').classList.add('active')" class="block-btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
-                    <i class="fa-solid fa-clock-rotate-left text-slate-500 text-[9px]"></i> 
-                    <span class="nav-text truncate text-[8px]">View Sent Log</span>
+                <button onclick="window.switchMaintTab('history', this, false)" class="block-btn block-btn-inactive" title="Repair History">
+                    <i class="fa-solid fa-clock-rotate-left text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Repair History</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Quick Actions</p>
+            <div class="space-y-1">
+                <button onclick="document.getElementById('maintSnagModal').classList.add('active')" class="block-btn btn-primary-purple justify-center gap-1 !py-1.5" title="Log Ticket">
+                    <i class="fa-solid fa-plus text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Log Ticket</span>
+                </button>
+                <button onclick="window.switchMaintTab('inventory', document.getElementById('btn-nav-inventory'), false); document.getElementById('stockModal').classList.add('active');" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Add Stock">
+                    <i class="fa-solid fa-boxes-packing text-slate-500 text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Add Stock</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 nav-text truncate">Supply Chain</p>
+            <div class="space-y-1">
+                <button id="btn-nav-inventory" onclick="window.switchMaintTab('inventory', this, false)" class="block-btn block-btn-inactive" title="Stock Vault">
+                    <i class="fa-solid fa-boxes-stacked text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Stock & Vault</span>
+                </button>
+                <button id="btn-nav-vendors" onclick="window.switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive" title="Service Providers">
+                    <i class="fa-solid fa-user-gear text-[11px] w-4 text-center text-slate-500"></i> 
+                    <span class="nav-text truncate text-[8px]">Service Providers</span>
                 </button>
             </div>
         </div>
@@ -169,53 +285,125 @@
 <!-- MODALS -->
 <!-- ========================================== -->
 
-<!-- Sent Log Modal -->
-<div id="sentLogModal" class="modal-overlay">
-    <div class="modal-content magic-border-container w-full max-w-md relative">
-        <div class="magic-border-inner flex flex-col h-[60vh]">
-            <button onclick="document.getElementById('sentLogModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-            <div class="flex items-center gap-3 mb-4 shrink-0">
-                <div class="w-10 h-10 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div><h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Broadcast History</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Recent Dispatches</p></div>
+<!-- Log Snag Ticket Modal -->
+<div id="maintSnagModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('maintSnagModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-clipboard-list"></i></div>
+                <h2 class="text-base font-black text-slate-900 tracking-tight">Log Incident</h2>
             </div>
-            
-            <div class="flex-1 overflow-y-auto custom-scroll space-y-3 pr-2">
-                <!-- Mock Logs for visual completeness -->
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[7px] font-bold uppercase tracking-widest">To: All Residents</span>
-                        <span class="text-[8px] font-medium text-slate-400">Today, 09:00 AM</span>
-                    </div>
-                    <p class="text-[9px] font-medium text-slate-700 line-clamp-2">"Notice: Water interruption scheduled for Block A between 10 AM and 1 PM..."</p>
+            <form onsubmit="window.submitManualSnag(event)">
+                <div class="mb-3">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Room / Location</label>
+                    <input type="text" id="snag-room" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" placeholder="e.g. Block A Lounge" required>
                 </div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[7px] font-bold uppercase tracking-widest">To: Custom List (3)</span>
-                        <span class="text-[8px] font-medium text-slate-400">Yesterday, 14:30 PM</span>
-                    </div>
-                    <p class="text-[9px] font-medium text-slate-700 line-clamp-2">"Reminder: Please sign your updated lease agreements at the admin office."</p>
+                <div class="mb-3">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Category</label>
+                    <select id="snag-category" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <option value="" disabled selected>Select issue...</option>
+                        <option value="Plumbing">Plumbing</option><option value="Electrical">Electrical</option><option value="Hardware">Hardware</option><option value="Furniture">Furniture</option>
+                    </select>
                 </div>
-            </div>
+                <div class="mb-5">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Description</label>
+                    <textarea id="snag-desc" rows="2" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 resize-none shadow-sm" placeholder="Details..." required></textarea>
+                </div>
+                <button type="submit" id="btn-submit-snag" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]">Submit Ticket</button>
+            </form>
         </div>
     </div>
 </div>
 
+<!-- Add Stock Modal -->
+<div id="stockModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('stockModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-boxes-stacked"></i></div>
+                <h2 class="text-base font-black text-slate-900 tracking-tight">Add Stock</h2>
+            </div>
+            <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); window.showToast('Stock Added Locally'); e.target.reset();">
+                <div class="mb-3">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Item Name</label>
+                    <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                </div>
+                <div class="mb-3 flex gap-2">
+                    <div class="w-1/2">
+                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">SKU</label>
+                        <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    </div>
+                    <div class="w-1/2">
+                        <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Qty</label>
+                        <input type="number" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Category</label>
+                    <select class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <option value="" disabled selected>Select...</option>
+                        <option value="plumbing">Plumbing</option><option value="electrical">Electrical</option><option value="hardware">Hardware</option><option value="furniture">Furniture</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[10px] py-2 shadow-md text-[10px]">Add To Vault</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script>
+    // ----------------------------------------------------
+    // DATA PARSERS (Highly forgiving logic)
+    // ----------------------------------------------------
+    window.parseN8n = function(d) { 
+        if (!d) return []; let arr = []; 
+        if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
+        arr = arr.map(i => i.json ? i.json : i); 
+        return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0).reverse(); 
+    };
+
+    window.formatSafeDate = function(val) {
+        if (!val) return { date: '--', time: '' };
+        const s = String(val);
+        if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
+        if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
+        return { date: s, time: '' };
+    };
+
+    // ----------------------------------------------------
+    // ARCHITECTURAL DATA PIPELINE FALLBACK
+    // ----------------------------------------------------
+    (async function initAdminMaintenance() {
+        if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
+                if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        if (typeof window.globalMaintenanceData === 'undefined' || window.globalMaintenanceData.length === 0) {
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
+                if (response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
+            } catch (e) { }
+        }
+        
+        window.renderMaintenanceData();
+    })();
+
     // ----------------------------------------------------
     // LOCAL CONFIGURATION VARS
     // ----------------------------------------------------
-    window.currentCommAudience = 'all'; 
-    window.currentCommFilter = 'nsfas';
-    window.customBroadcastList = [];
+    var currentMaintenanceStatus = 'all';
+    var currentMaintTab = 'snags';
 
-    // ----------------------------------------------------
-    // UI CONTROLS
-    // ----------------------------------------------------
-    window.toggleCommSidebar = function() {
-        const sidebar = document.getElementById('comm-right-sidebar');
+    window.toggleMaintSidebar = function() {
+        const sidebar = document.getElementById('maint-right-sidebar');
         if(sidebar) {
             sidebar.classList.toggle('collapsed');
-            const icon = document.getElementById('comm-sidebar-toggle-icon');
+            const icon = document.getElementById('maint-sidebar-toggle-icon');
             if(icon) {
                 if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
                 else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
@@ -223,127 +411,537 @@
         }
     };
     
-    if (window.innerWidth < 768) { window.toggleCommSidebar(); }
+    if (window.innerWidth < 768) { window.toggleMaintSidebar(); }
 
-    function safeUpdateSegmented(pfx, val, opts) {
-        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600'); } }); 
-        const aEl = document.getElementById(`${pfx}-${val}`); 
-        if(aEl) { aEl.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600'); }
+    if (typeof window.showToast !== 'function') {
+        window.showToast = function(m, t = 'success') { alert(m); };
     }
 
-    window.setCommAudience = function(type) {
-        window.currentCommAudience = type;
-        safeUpdateSegmented('comm-aud', type, ['all', 'filter', 'specific']);
-        
-        document.getElementById('comm-filter-group').style.display = type === 'filter' ? 'block' : 'none';
-        document.getElementById('comm-specific-group').style.display = type === 'specific' ? 'block' : 'none';
-    };
-
-    window.setCommDemo = function(filter) {
-        window.currentCommFilter = filter;
-        safeUpdateSegmented('comm-dem', filter, ['nsfas', 'bursary', 'cash', 'male', 'female']);
-    };
-
-    window.setCommTemplate = function(tpl) {
-        safeUpdateSegmented('comm-tpl', tpl, ['custom', 'house', 'maint']);
-        const textarea = document.getElementById('comm-message');
-        
-        if(tpl === 'custom') { textarea.value = ''; }
-        else if(tpl === 'house') { textarea.value = "HOUSE MEETING NOTICE:\n\nDear Resident, please be advised that there will be a mandatory house meeting.\n\nTime: [Enter Time]\nVenue: Main Lounge\n\nAttendance is strictly required."; }
-        else if(tpl === 'maint') { textarea.value = "MAINTENANCE ALERT:\n\nDear Resident, please be advised that our maintenance team will be conducting scheduled repairs in your block today.\n\nApologies for any inconvenience."; }
-    };
-
-    // ----------------------------------------------------
-    // CUSTOM LIST BUILDER
-    // ----------------------------------------------------
-    window.addStudentToList = function() {
-        const input = document.getElementById('comm-student-id');
-        const id = input.value.trim();
-        if(!id) return;
-        
-        if(!window.customBroadcastList.includes(id)) {
-            window.customBroadcastList.push(id);
-            window.renderCustomList();
+    window.filterTable = function(inputId, tbodyId) {
+        const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
+        const tr = tbody.getElementsByTagName('tr');
+        for (let i = 0; i < tr.length; i++) {
+            if (tr[i].classList.contains('no-results') || tr[i].classList.contains('detail-row')) continue;
+            tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
+            
+            // Hide associated detail row if parent is hidden
+            const detailRow = document.getElementById(`detail-${tr[i].dataset.ticketId}`);
+            if (detailRow && tr[i].style.display === 'none') { 
+                detailRow.classList.add('hidden'); 
+            }
         }
-        input.value = '';
     };
 
-    window.removeStudentFromList = function(id) {
-        window.customBroadcastList = window.customBroadcastList.filter(item => item !== String(id));
-        window.renderCustomList();
+    function safeUpdateSegmented(pfx, val, opts) {
+        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) { el.classList.remove('active', 'accent-blue'); } }); 
+        const aEl = document.getElementById(`${pfx}-${val}`); if(aEl) { aEl.classList.add('active', 'accent-blue'); }
+    }
+
+    // ----------------------------------------------------
+    // TAB SWITCHER (Uses Tailwind Hidden/Flex to avoid overlaps)
+    // ----------------------------------------------------
+    window.switchMaintTab = function(tabId, btnElement, showKpis) {
+        window.currentMaintTab = tabId;
+        
+        document.querySelectorAll('.maint-dashboard-tab').forEach(tab => {
+            tab.classList.remove('flex');
+            tab.classList.add('hidden');
+        });
+        const pane = document.getElementById('maint-pane-' + tabId);
+        if(pane) {
+            pane.classList.remove('hidden');
+            pane.classList.add('flex');
+        }
+
+        const kpiGrid = document.getElementById('maint-kpi-grid');
+        if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
+
+        document.querySelectorAll('.block-btn-active').forEach(btn => {
+            btn.classList.remove('block-btn-active'); btn.classList.add('block-btn-inactive');
+            const i = btn.querySelector('i'); if(i) { i.classList.remove('text-indigo-500'); i.classList.add('text-slate-500'); }
+        });
+
+        if(btnElement) {
+            btnElement.classList.remove('block-btn-inactive'); btnElement.classList.add('block-btn-active');
+            const i = btnElement.querySelector('i'); if(i) { i.classList.remove('text-slate-500'); i.classList.add('text-indigo-500'); }
+        }
+
+        if(tabId === 'history') window.renderHistoryData();
+        else if (tabId === 'snags') window.setMaintenanceStatus('all');
+        else if (tabId === 'inventory') window.renderInventoryData('all');
+        else if (tabId === 'vendors') window.renderProvidersData('all');
     };
 
-    window.renderCustomList = function() {
-        const container = document.getElementById('comm-custom-list');
-        if(window.customBroadcastList.length === 0) {
-            container.innerHTML = '<span class="text-[9px] text-slate-400 font-medium italic py-1 px-2" id="comm-custom-empty">List is empty. Add IDs above.</span>';
+    // ----------------------------------------------------
+    // ROW EXPANSION LOGIC
+    // ----------------------------------------------------
+    window.toggleRowDetails = function(ticketId, event) {
+        // Prevent row expansion if clicking inside the expansion or on an input/button
+        if (event && (event.target.tagName === 'BUTTON' || event.target.closest('button') || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
             return;
         }
+        
+        // Find all matching detail rows to ensure we toggle both if necessary, though IDs should be unique
+        const detailRows = document.querySelectorAll(`#detail-${ticketId}`);
+        detailRows.forEach(detailRow => {
+            if(detailRow.classList.contains('hidden')) {
+                detailRow.classList.remove('hidden');
+                const innerDiv = detailRow.querySelector('.detail-row-content');
+                if(innerDiv) { innerDiv.style.animation = 'none'; void innerDiv.offsetWidth; innerDiv.style.animation = null; }
+            } else {
+                detailRow.classList.add('hidden');
+            }
+        });
+    };
 
-        let html = '';
-        window.customBroadcastList.forEach(id => {
-            html += `
-                <div class="student-chip flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg text-[9px] font-bold shadow-sm">
-                    <i class="fa-solid fa-user text-[8px] text-blue-400"></i> ${id}
-                    <button type="button" onclick="window.removeStudentFromList('${id}')" class="ml-1 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-xmark text-[8px]"></i></button>
+    // ----------------------------------------------------
+    // LIVE TICKETS LOGIC
+    // ----------------------------------------------------
+    window.fetchMaintenanceData = async function(forcedRefresh = true) {
+        const body = document.getElementById('maintenance-body');
+        if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-2xl"></i></td></tr>'; }
+        
+        try { 
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance'); 
+            if (response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
+        } catch (e) { } 
+        finally { 
+            if(window.currentMaintTab === 'snags') window.renderMaintenanceData();
+            else if(window.currentMaintTab === 'history') window.renderHistoryData();
+        }
+    };
+
+    window.getResidentForRoom = function(roomStr) {
+        if(!roomStr || roomStr === '--') return { name: 'Unknown', id: '' };
+        if(window.globalStudentData) {
+            const student = window.globalStudentData.find(s => s.Room_Allocation === roomStr);
+            if(student) return { name: `${student.First_Name || ''} ${student.Surname || ''}`, id: student.Student_Number };
+        }
+        return { name: 'Unassigned/Unknown', id: '' };
+    };
+
+    window.renderMaintenanceData = function() {
+        const body = document.getElementById('maintenance-body'); if(!body) return;
+        
+        let baseData = window.globalMaintenanceData || [];
+        if(baseData.length === 0) { 
+            body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No logs found.</td></tr>`; 
+            if(document.getElementById('kpi-all')) document.getElementById('kpi-all').textContent = '0';
+            if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = '0';
+            if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').textContent = '0';
+            return; 
+        }
+
+        let openCount = 0; let criticalCount = 0;
+        baseData.forEach(d => {
+            if (!String(d.Repair_Status).toLowerCase().includes('resolved')) {
+                openCount++;
+                const cat = String(d.Category).toLowerCase(); const desc = String(d.Description).toLowerCase();
+                if (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')) criticalCount++;
+            }
+        });
+
+        if(document.getElementById('kpi-all')) document.getElementById('kpi-all').textContent = openCount;
+        if(document.getElementById('kpi-open')) document.getElementById('kpi-open').textContent = (openCount - criticalCount);
+        if(document.getElementById('kpi-critical')) document.getElementById('kpi-critical').textContent = criticalCount;
+
+        let filtered = baseData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
+        
+        if(currentMaintenanceStatus === 'open') {
+            filtered = filtered.filter(l => {
+                const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase();
+                return !(cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
+            });
+        } else if (currentMaintenanceStatus === 'critical') {
+            filtered = filtered.filter(l => {
+                const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase();
+                return (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
+            });
+        }
+        
+        if(filtered.length === 0) { 
+            body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">Queue is clear.</td></tr>`; return; 
+        }
+
+        filtered.sort((a, b) => {
+            const catA = String(a.Category).toLowerCase(); const descA = String(a.Description).toLowerCase();
+            const catB = String(b.Category).toLowerCase(); const descB = String(b.Description).toLowerCase();
+            const critA = (catA.includes('elect') || catA.includes('plumb') || descA.includes('leak') || descA.includes('power')) ? 1 : 0;
+            const critB = (catB.includes('elect') || catB.includes('plumb') || descB.includes('leak') || descB.includes('power')) ? 1 : 0;
+            if (critA !== critB) return critB - critA; 
+            
+            const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+            return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+        });
+
+        let htmlStr = '';
+        filtered.forEach(log => {
+            const res = window.getResidentForRoom(log.Room);
+            const t = window.formatSafeDate(log.Timestamp);
+            
+            const cat = String(log.Category).toLowerCase(); const desc = String(log.Description).toLowerCase();
+            const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
+
+            const statusBadge = isCritical 
+                ? `<span class="bg-rose-50 border border-rose-100 text-rose-500 font-bold px-2 py-0.5 rounded text-[7px] sm:text-[8px] uppercase tracking-widest animate-pulse inline-block"><i class="fa-solid fa-fire"></i> Critical</span>`
+                : `<span class="bg-amber-50 border border-amber-100 text-amber-500 font-bold px-2 py-0.5 rounded text-[7px] sm:text-[8px] uppercase tracking-widest inline-block"><i class="fa-solid fa-clock"></i> Pending</span>`;
+            
+            const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
+
+            htmlStr += `
+                <tr class="${isCritical ? 'bg-rose-50/20' : 'bg-transparent'} hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 cursor-pointer" onclick="window.toggleRowDetails('${safeId}', event)" data-ticket-id="${safeId}">
+                    <td class="align-top">
+                        <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
+                    </td>
+                    <td class="align-top">
+                        <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                    </td>
+                    <td class="align-top">
+                        <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span>
+                    </td>
+                    <td class="align-top">
+                        <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate" title="${log.Description || '--'}">${log.Description || '--'}</p>
+                        <div class="mt-1.5 flex items-center gap-1 max-w-[120px] sm:max-w-[160px] bg-white p-0.5 rounded border border-slate-200 shadow-sm focus-within:border-indigo-400 transition-all">
+                            <input type="text" id="inline-comment-${safeId}" placeholder="Resolution note..." class="flex-1 bg-transparent text-[8px] outline-none pl-1.5 text-slate-700 font-medium">
+                        </div>
+                        <div class="mt-1.5">${statusBadge}</div>
+                    </td>
+                    <td class="text-right align-middle">
+                        <div class="flex flex-col gap-1.5 items-end justify-center">
+                            <button onclick="window.resolveMaintenance('${safeId}', this, 'inline')" class="bg-indigo-50 border border-indigo-100 hover:bg-indigo-600 hover:text-white text-indigo-600 text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-sm whitespace-nowrap transition-colors w-24 text-center"><i class="fa-solid fa-check-double mr-1"></i> Resolve</button>
+                            <button onclick="window.toggleRowDetails('${safeId}', event)" class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 text-[8px] font-bold px-3 py-1 rounded-lg shadow-sm whitespace-nowrap transition-colors w-24 text-center"><i class="fa-solid fa-expand mr-1"></i> View</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- EXPANDED DETAIL ROW (ADMIN VIEW) -->
+                <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
+                    <td colspan="5" class="p-0 border-b border-slate-200/50">
+                        <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 animate-paneFade">
+                            
+                            <!-- Left Col: Details -->
+                            <div class="space-y-4 border-r border-slate-200/50 pr-4">
+                                <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
+                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details provided.'}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span>${res.name} <br><span class="text-slate-400 text-[8px] font-mono">${log.Student_Number || '--'}</span></div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
+                                </div>
+                            </div>
+
+                            <!-- Right Col: Admin Actions -->
+                            <div class="flex flex-col justify-between">
+                                <div>
+                                    <label class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-clipboard-check mr-1"></i> Admin Resolution Notes</label>
+                                    <textarea id="resolve-note-${safeId}" rows="2" class="w-full bg-white border border-indigo-100 rounded-xl py-2 px-3 text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400 shadow-sm resize-none mb-3" placeholder="Enter administrative notes..."></textarea>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mt-auto">
+                                    <button type="button" onclick="window.switchMaintTab('vendors', null, false)" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl py-2 shadow-sm text-[9px] transition-colors"><i class="fa-solid fa-user-gear mr-1"></i> Vendor</button>
+                                    <button type="button" onclick="window.resolveMaintenance('${safeId}', this, 'expanded')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-2 shadow-md flex items-center justify-center gap-1 text-[9px] transition-all"><i class="fa-solid fa-check-double"></i> Resolve Ticket</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    window.renderHistoryData = function() {
+        const body = document.getElementById('history-body'); if(!body) return;
+        let baseData = window.globalMaintenanceData || [];
+        
+        if(baseData.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No archive logs found.</td></tr>`; return; }
+        
+        let filtered = baseData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
+        if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 text-[8px] sm:text-[9px]">No resolved tickets.</td></tr>`; return; }
+
+        filtered.sort((a, b) => {
+            const timeA = new Date(a.Timestamp).getTime(); const timeB = new Date(b.Timestamp).getTime();
+            return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+        });
+
+        let htmlStr = '';
+        filtered.forEach(log => {
+            const res = window.getResidentForRoom(log.Room);
+            const t = window.formatSafeDate(log.Timestamp);
+            const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
+
+            htmlStr += `
+                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}', event)" data-ticket-id="${safeId}">
+                    <td class="align-top">
+                        <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
+                        <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
+                    </td>
+                    <td class="align-top">
+                        <div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                    </td>
+                    <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span></td>
+                    <td class="align-top">
+                        <p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate">${log.Description || '--'}</p>
+                        <div class="flex items-center gap-1 text-emerald-500 font-bold text-[7px] sm:text-[8px] uppercase tracking-widest mt-1.5"><i class="fa-solid fa-check-double"></i> Closed</div>
+                    </td>
+                    <td class="text-right align-middle">
+                        <button class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-sm whitespace-nowrap transition-colors"><i class="fa-solid fa-expand mr-1"></i> View</button>
+                    </td>
+                </tr>
+                
+                <!-- EXPANDED DETAIL ROW (HISTORY) -->
+                <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
+                    <td colspan="5" class="p-0 border-b border-slate-200/50">
+                        <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 animate-paneFade">
+                            
+                            <div class="space-y-4 border-r border-slate-200/50 pr-4">
+                                <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Original Fault Description</p>
+                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details.'}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter</span>${res.name}</div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="block text-[8px] font-bold text-emerald-600 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-clipboard-check mr-1"></i> Official Resolution Log</label>
+                                <div class="bg-white border border-emerald-100 rounded-xl p-3 text-[10px] font-medium text-slate-700 shadow-sm flex-1 mb-2 italic">
+                                    ${log.Tech_Notes || 'Resolved by Admin. No additional notes provided.'}
+                                </div>
+                                <div class="text-right"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-1 rounded shadow-sm text-[8px] font-bold uppercase tracking-widest">Status: Finalized</span></div>
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    window.setMaintenanceStatus = function(status) {
+        currentMaintenanceStatus = status;
+        ['all', 'open', 'critical'].forEach(s => {
+            const btn = document.getElementById(`maint-stat-${s}`);
+            if(btn) btn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'text-amber-600', 'text-rose-600');
+        });
+
+        const activeBtn = document.getElementById(`maint-stat-${status}`);
+        if(activeBtn) {
+            activeBtn.classList.add('active', 'bg-white', 'shadow-sm');
+            if(status === 'all') activeBtn.classList.add('text-blue-600');
+            if(status === 'open') activeBtn.classList.add('text-amber-600');
+            if(status === 'critical') activeBtn.classList.add('text-rose-600');
+        }
+        window.renderMaintenanceData();
+    };
+
+    window.resolveMaintenance = async function(ticketId, btnElement, source = 'expanded') {
+        const ogHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; 
+        btnElement.disabled = true;
+        
+        let techNotes = 'Resolved by Admin';
+        
+        // Differentiate between the inline quick-comment and the expanded detail comment
+        if (source === 'inline') {
+            const inlineNote = document.getElementById(`inline-comment-${ticketId}`);
+            if (inlineNote && inlineNote.value.trim() !== '') techNotes = inlineNote.value;
+        } else {
+            const expandedNote = document.getElementById(`resolve-note-${ticketId}`);
+            if (expandedNote && expandedNote.value.trim() !== '') techNotes = expandedNote.value;
+        }
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-resolve-snag', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Ticket_ID: ticketId, Repair_Status: "Resolved", Tech_Notes: techNotes })
+            });
+            const idx = (window.globalMaintenanceData || []).findIndex(t => String(t.Ticket_ID) === String(ticketId));
+            if (idx > -1) { 
+                window.globalMaintenanceData[idx].Repair_Status = "Resolved";
+                window.globalMaintenanceData[idx].Tech_Notes = techNotes;
+            }
+            window.renderMaintenanceData();
+            window.showToast("Ticket marked resolved.");
+        } catch(e) { 
+            btnElement.innerHTML = ogHtml; 
+            btnElement.disabled = false; 
+            window.showToast("Failed to resolve ticket.", "error");
+        }
+    };
+
+    window.submitManualSnag = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-snag'); const ogText = btn.innerHTML;
+        const room = document.getElementById('snag-room').value; const category = document.getElementById('snag-category').value; const desc = document.getElementById('snag-desc').value;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...'; btn.disabled = true;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: "ADMIN-LOG", Room: room, Category: category, Description: desc, Timestamp: new Date().toISOString(), Repair_Status: "Pending" })
+            });
+            document.getElementById('maintSnagModal').classList.remove('active'); e.target.reset();
+            window.fetchMaintenanceData(true);
+            window.showToast("Ticket logged to pipeline.");
+        } catch(error) { window.showToast("Failed to log ticket.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    // ----------------------------------------------------
+    // INVENTORY / VAULT LOGIC
+    // ----------------------------------------------------
+    const dummyInventory = [
+        { name: "LED Ceiling Bulb (B22)", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
+        { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
+        { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
+        { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
+        { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
+        { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
+        { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
+        { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
+    ];
+
+    window.setInventoryCategory = function(cat) {
+        safeUpdateSegmented('inv-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
+        window.renderInventoryData(cat);
+    };
+
+    window.renderInventoryData = function(filterCategory = 'all') {
+        const body = document.getElementById('inventory-body'); if(!body) return;
+        let filtered = dummyInventory;
+        if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
+
+        if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return; }
+
+        let htmlStr = '';
+        filtered.forEach(item => {
+            const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
+            const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
+            const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
+
+            htmlStr += `
+                <tr class="${isLow ? 'bg-rose-50/20' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
+                    <td class="align-middle">
+                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${item.name}</div>
+                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                    </td>
+                    <td class="align-middle">
+                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                    </td>
+                    <td class="align-middle w-20 sm:w-32">
+                        <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
+                            <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
+                            <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
+                        </div>
+                        <div class="w-full bg-slate-200/70 rounded-full h-1 overflow-hidden shadow-inner"><div class="${barColor} h-full rounded-full transition-all" style="width: ${widthPct}%"></div></div>
+                    </td>
+                    <td class="text-right align-middle w-12 sm:w-16">${badge}</td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
+    };
+
+    // ----------------------------------------------------
+    // SERVICE PROVIDERS LOGIC
+    // ----------------------------------------------------
+    const dummyProviders = [
+        { name: 'AquaFlow Plumbers', type: 'plumbing', desc: 'Primary Pipes', phone: '011 555 0192', email: 'dispatch@aquaflow.co.za', icon: 'fa-droplet', color: 'blue' },
+        { name: 'PipeMasters', type: 'plumbing', desc: 'Emergencies', phone: '011 555 0200', email: 'help@pipemasters.co.za', icon: 'fa-wrench', color: 'blue' },
+        { name: 'SparkLine Elec.', type: 'electrical', desc: 'Wiring & Cert', phone: '011 555 0833', email: 'ops@sparkline.co.za', icon: 'fa-bolt', color: 'amber' },
+        { name: 'VoltWorks', type: 'electrical', desc: 'Backup Lighting', phone: '011 555 0999', email: 'fix@voltworks.co.za', icon: 'fa-plug', color: 'amber' },
+        { name: 'WoodCrafters Co.', type: 'furniture', desc: 'Furniture Repair', phone: '012 345 6789', email: 'info@woodcrafters.co.za', icon: 'fa-hammer', color: 'rose' }
+    ];
+
+    window.setVendorCategory = function(cat) {
+        safeUpdateSegmented('ven-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
+        window.renderProvidersData(cat);
+    };
+
+    window.renderProvidersData = function(filterCategory = 'all') {
+        const grid = document.getElementById('vendors-grid'); if(!grid) return;
+        let filtered = dummyProviders;
+        if(filterCategory !== 'all') filtered = dummyProviders.filter(p => p.type === filterCategory);
+
+        if(filtered.length === 0) { grid.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No providers found.</div>`; return; }
+
+        let htmlStr = '';
+        filtered.forEach(p => {
+            htmlStr += `
+                <div class="glass-panel p-3 hover:-translate-y-1 transition-transform border border-white/80 shadow-sm bg-gradient-to-br from-white/90 to-white/50 flex flex-col h-full rounded-[16px]">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="w-7 h-7 bg-${p.color}-50 text-${p.color}-600 border border-${p.color}-100 rounded-lg flex items-center justify-center text-[10px] shadow-sm"><i class="fa-solid ${p.icon}"></i></div>
+                        <span class="text-emerald-600 text-[6px] font-black uppercase tracking-widest">Active SLA</span>
+                    </div>
+                    <h4 class="font-black text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate">${p.name}</h4>
+                    <p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate">${p.desc}</p>
+                    <div class="space-y-1 mt-auto text-[8px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
+                        <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-3 text-center text-slate-400"></i> ${p.phone}</p>
+                        <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-3 text-center text-slate-400"></i> ${p.email}</p>
+                    </div>
                 </div>
             `;
         });
-        container.innerHTML = html;
+        grid.innerHTML = htmlStr;
     };
 
-    // Listen for "Enter" key on the input to add student
-    document.getElementById('comm-student-id')?.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); window.addStudentToList(); }
-    });
-
     // ----------------------------------------------------
-    // SUBMIT PIPELINE
+    // FILTER-AWARE DATA EXTRACTOR (Excel/CSV Export)
     // ----------------------------------------------------
-    window.sendCommunication = async function(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById('btn-send-comm'); 
-        const ogText = btn.innerHTML;
-        const msg = document.getElementById('comm-message').value;
+    window.downloadMaintReport = function(tabType) {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        let filename = "";
+        let dataToExport = [];
+        let baseData = window.globalMaintenanceData || [];
 
-        // Validation
-        if(window.currentCommAudience === 'specific' && window.customBroadcastList.length === 0) {
-            return window.showToast("Add at least one student ID to the list.", "error");
-        }
-        
-        // Construct Payload for n8n
-        const payload = {
-            Audience_Type: window.currentCommAudience,
-            Filter_Group: window.currentCommAudience === 'filter' ? window.currentCommFilter : 'N/A',
-            Specific_Targets: window.currentCommAudience === 'specific' ? window.customBroadcastList.join(',') : 'N/A',
-            Message: msg,
-            Timestamp: new Date().toISOString()
-        };
-        
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting Payload...'; 
-        btn.disabled = true;
-
-        try {
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-mass-comm', { 
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
+        if (tabType === 'snags') {
+            const searchVal = document.getElementById('search-maintenance')?.value.toLowerCase() || '';
+            filename = "Admin_Live_Tickets";
+            csvContent += "Ticket ID,Timestamp,Room,Resident,Category,Description\n";
+            
+            let filtered = baseData.filter(l => !String(l.Repair_Status).toLowerCase().includes('resolved'));
+            if(currentMaintenanceStatus === 'open') {
+                filtered = filtered.filter(l => { const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase(); return !(cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')); });
+            } else if (currentMaintenanceStatus === 'critical') {
+                filtered = filtered.filter(l => { const cat = String(l.Category).toLowerCase(); const desc = String(l.Description).toLowerCase(); return (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power')); });
+            }
+            
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+            dataToExport.forEach(log => {
+                const res = window.getResidentForRoom(log.Room);
+                const cleanDesc = String(log.Description || '').replace(/"/g, '""');
+                csvContent += `"${log.Ticket_ID || ''}","${log.Timestamp || ''}","${log.Room || ''}","${res.name}","${log.Category || ''}","${cleanDesc}"\n`;
             });
             
-            // Reset UI on success
-            document.getElementById('commForm').reset();
-            window.customBroadcastList = [];
-            window.renderCustomList();
-            window.setCommAudience('all');
+        } else if (tabType === 'history') {
+            const searchVal = document.getElementById('search-history')?.value.toLowerCase() || '';
+            filename = "Admin_Repair_History";
+            csvContent += "Ticket ID,Timestamp,Room,Category,Description,Admin Notes,Status\n";
             
-            window.showToast("Broadcast transmitted to n8n successfully.");
-        } catch(error) { 
-            window.showToast("Failed to connect to transmission node.", "error"); 
-        } finally { 
-            btn.innerHTML = ogText; 
-            btn.disabled = false; 
+            let filtered = baseData.filter(l => String(l.Repair_Status).toLowerCase().includes('resolved'));
+            dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
+
+            dataToExport.forEach(log => {
+                const cleanDesc = String(log.Description || '').replace(/"/g, '""');
+                const cleanNotes = String(log.Tech_Notes || 'Resolved by Admin').replace(/"/g, '""');
+                csvContent += `"${log.Ticket_ID || ''}","${log.Timestamp || ''}","${log.Room || ''}","${log.Category || ''}","${cleanDesc}","${cleanNotes}","Resolved"\n`;
+            });
         }
+
+        if(dataToExport.length === 0) return window.showToast("No data to export.", "error");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
-    // Init Defaults
-    window.setCommAudience('all');
 </script>
