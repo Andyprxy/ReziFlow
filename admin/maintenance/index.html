@@ -19,7 +19,7 @@
     }
     .glass-seg-btn.active.accent-blue { color: #0071e3; } 
     .glass-seg-btn.active.accent-amber { color: #f59e0b; }
-    .glass-seg-btn.active.accent-rose { color: #e11d48; }
+    .glass-seg-btn.active.accent-rose { color: #f43f5e; }
 
     /* Right Sidebar (Collapsed by default, 10% Shrink) */
     .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
@@ -40,10 +40,8 @@
     .block-btn-inactive { background-color: transparent; color: #64748b; border: 1.5px solid transparent; }
     .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
 
-    /* Tab Switching Animations */
-    .maint-dashboard-tab { display: none; animation: paneFade 0.3s forwards; }
-    .maint-dashboard-tab.active { display: block; }
     @keyframes paneFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-paneFade { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     
     /* Compact Table Constraints */
     .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
@@ -66,10 +64,13 @@
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
 
+<!-- Main Component Structure -->
 <div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-3 overflow-hidden relative">
     
+    <!-- Canvas (Left) -->
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
+        <!-- Primary KPI / Filter Grid -->
         <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0" id="maint-kpi-grid">
             <div class="glass-segmented shadow-sm w-full sm:w-auto overflow-x-auto custom-scroll flex-nowrap">
                 <button onclick="window.setMaintenanceStatus('all')" id="maint-stat-all" class="glass-seg-btn active accent-blue">
@@ -89,7 +90,8 @@
             </div>
         </div>
 
-        <div id="maint-pane-snags" class="maint-dashboard-tab active flex flex-col h-full">
+        <!-- TAB 1: Live Tickets -->
+        <div id="maint-pane-snags" class="flex flex-col h-full animate-paneFade">
             <div class="glass-panel overflow-hidden flex flex-col h-full">
                 <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-2">
@@ -124,7 +126,8 @@
             </div>
         </div>
 
-        <div id="maint-pane-history" class="maint-dashboard-tab flex flex-col h-full">
+        <!-- TAB 2: Archive History -->
+        <div id="maint-pane-history" class="hidden flex-col h-full animate-paneFade">
             <div class="glass-panel overflow-hidden flex flex-col h-full">
                 <div class="px-3 py-3 border-b border-white/60 flex flex-col sm:flex-row gap-3 justify-between sm:items-center bg-white/50 backdrop-blur-md">
                     <div class="flex items-center gap-2">
@@ -158,7 +161,8 @@
             </div>
         </div>
 
-        <div id="maint-pane-inventory" class="maint-dashboard-tab flex flex-col h-full">
+        <!-- TAB 3: Stock Vault -->
+        <div id="maint-pane-inventory" class="hidden flex-col h-full animate-paneFade">
             <div class="glass-panel overflow-hidden flex flex-col h-full">
                 <div class="px-3 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
                     <div class="flex items-center gap-2">
@@ -192,7 +196,8 @@
             </div>
         </div>
 
-        <div id="maint-pane-vendors" class="maint-dashboard-tab flex flex-col h-full">
+        <!-- TAB 4: Vendors -->
+        <div id="maint-pane-vendors" class="hidden flex-col h-full animate-paneFade">
             <div class="mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                 <div><h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Service Providers</h2></div>
                 <div class="glass-segmented overflow-x-auto custom-scroll w-full sm:w-auto">
@@ -207,6 +212,7 @@
 
     </div>
 
+    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
     <div id="maint-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         
         <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
@@ -257,7 +263,7 @@
                     <i class="fa-solid fa-boxes-stacked text-[11px] w-4 text-center text-slate-500"></i> 
                     <span class="nav-text truncate text-[8px]">Stock Vault</span>
                 </button>
-                <button onclick="window.switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive" title="Service Providers">
+                <button id="btn-nav-vendors" onclick="window.switchMaintTab('vendors', this, false)" class="block-btn block-btn-inactive" title="Service Providers">
                     <i class="fa-solid fa-user-gear text-[11px] w-4 text-center text-slate-500"></i> 
                     <span class="nav-text truncate text-[8px]">Service Providers</span>
                 </button>
@@ -275,6 +281,11 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Log Snag Ticket Modal -->
 <div id="maintSnagModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -305,6 +316,7 @@
     </div>
 </div>
 
+<!-- Add Stock Modal -->
 <div id="stockModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -401,9 +413,9 @@
     
     if (window.innerWidth < 768) { window.toggleMaintSidebar(); }
 
-    window.showToast = function(m, t = 'success') { 
-        alert(m); // Fallback for admin if toast container isn't rendered
-    };
+    if (typeof window.showToast !== 'function') {
+        window.showToast = function(m, t = 'success') { alert(m); };
+    }
 
     window.filterTable = function(inputId, tbodyId) {
         const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
@@ -463,12 +475,16 @@
     // ----------------------------------------------------
     // ROW EXPANSION LOGIC
     // ----------------------------------------------------
-    window.toggleRowDetails = function(ticketId) {
+    window.toggleRowDetails = function(ticketId, event) {
+        // Prevent row expansion if clicking inside the expansion or on a button
+        if (event && (event.target.tagName === 'BUTTON' || event.target.closest('button') || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
+            return;
+        }
+        
         const detailRow = document.getElementById(`detail-${ticketId}`);
         if (detailRow) {
             if(detailRow.classList.contains('hidden')) {
                 detailRow.classList.remove('hidden');
-                // Add entry animation to child
                 const innerDiv = detailRow.querySelector('.detail-row-content');
                 if(innerDiv) { innerDiv.style.animation = 'none'; void innerDiv.offsetWidth; innerDiv.style.animation = null; }
             } else {
@@ -569,7 +585,7 @@
             const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
 
             htmlStr += `
-                <tr class="${isCritical ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50 cursor-pointer" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
+                <tr class="${isCritical ? 'bg-rose-50/20' : 'bg-transparent'} hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 cursor-pointer" onclick="window.toggleRowDetails('${safeId}', event)" data-ticket-id="${safeId}">
                     <td class="align-top">
                         <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                         <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
@@ -590,10 +606,12 @@
                     </td>
                 </tr>
                 
+                <!-- EXPANDED DETAIL ROW (ADMIN VIEW) -->
                 <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
                     <td colspan="5" class="p-0 border-b border-slate-200/50">
-                        <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 animate-paneFade">
                             
+                            <!-- Left Col: Details -->
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
@@ -605,6 +623,7 @@
                                 </div>
                             </div>
 
+                            <!-- Right Col: Admin Actions -->
                             <div class="flex flex-col justify-between">
                                 <div>
                                     <label class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-clipboard-check mr-1"></i> Admin Resolution Notes</label>
@@ -645,7 +664,7 @@
             const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
 
             htmlStr += `
-                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
+                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}', event)" data-ticket-id="${safeId}">
                     <td class="align-top">
                         <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                         <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
@@ -664,9 +683,10 @@
                     </td>
                 </tr>
                 
+                <!-- EXPANDED DETAIL ROW (HISTORY) -->
                 <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
                     <td colspan="5" class="p-0 border-b border-slate-200/50">
-                        <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 animate-paneFade">
                             
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
@@ -682,7 +702,7 @@
                             <div class="flex flex-col">
                                 <label class="block text-[8px] font-bold text-emerald-600 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-clipboard-check mr-1"></i> Official Resolution Log</label>
                                 <div class="bg-white border border-emerald-100 rounded-xl p-3 text-[10px] font-medium text-slate-700 shadow-sm flex-1 mb-2 italic">
-                                    ${log.Tech_Notes || 'Issue resolved. No additional notes provided.'}
+                                    ${log.Tech_Notes || 'Resolved by Admin. No additional notes.'}
                                 </div>
                                 <div class="text-right"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-1 rounded shadow-sm text-[8px] font-bold uppercase tracking-widest">Status: Finalized</span></div>
                             </div>
@@ -725,7 +745,7 @@
                 body: JSON.stringify({ Ticket_ID: ticketId, Repair_Status: "Resolved", Tech_Notes: techNotes })
             });
             const idx = (window.globalMaintenanceData || []).findIndex(t => String(t.Ticket_ID) === String(ticketId));
-            if (idx > -1) {
+            if (idx > -1) { 
                 window.globalMaintenanceData[idx].Repair_Status = "Resolved";
                 window.globalMaintenanceData[idx].Tech_Notes = techNotes;
             }
@@ -842,7 +862,7 @@
                     </div>
                     <h4 class="font-black text-slate-800 text-[10px] sm:text-[11px] leading-tight truncate">${p.name}</h4>
                     <p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-3 flex-1 truncate">${p.desc}</p>
-                    <div class="space-y-1 mt-auto text-[8px] sm:text-[9px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
+                    <div class="space-y-1 mt-auto text-[8px] font-medium text-slate-600 border-t border-slate-200/60 pt-2">
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer"><i class="fa-solid fa-phone w-3 text-center text-slate-400"></i> ${p.phone}</p>
                         <p class="flex items-center gap-1.5 hover:text-indigo-600 transition-colors cursor-pointer truncate" title="${p.email}"><i class="fa-solid fa-envelope w-3 text-center text-slate-400"></i> ${p.email}</p>
                     </div>
