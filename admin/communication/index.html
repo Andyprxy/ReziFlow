@@ -487,7 +487,7 @@
         btn.disabled = true;
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-send-mass-comm', { 
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-send-mass-comm', { 
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) 
             });
             
