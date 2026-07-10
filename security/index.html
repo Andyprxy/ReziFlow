@@ -549,8 +549,8 @@
         // ----------------------------------------------------
         // LOCAL CONFIGURATION VARS & UI HELPERS
         // ----------------------------------------------------
-        window.currentSecurityFilter = 'all'; 
-        window.currentSecTab = 'live';
+        var currentSecurityFilter = 'all'; 
+        var currentSecTab = 'live';
 
         window.showToast = function(m, t = 'success') { 
             const tc = document.getElementById('toast-container'); 
@@ -682,7 +682,7 @@
         };
 
         window.setSecurityFilter = function(filter) {
-            window.currentSecurityFilter = filter;
+            currentSecurityFilter = filter;
             safeUpdateSegmented('sec-stat', filter, ['all', 'routine', 'critical']);
             window.renderSecurityData();
         };
@@ -713,9 +713,9 @@
             if(document.getElementById('kpi-sec-critical')) document.getElementById('kpi-sec-critical').textContent = criticalCount;
 
             let filtered = liveAlerts;
-            if(window.currentSecurityFilter === 'routine') {
+            if(currentSecurityFilter === 'routine') {
                 filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high') || String(l.Alert_Level).toLowerCase().includes('sos')));
-            } else if (window.currentSecurityFilter === 'critical') {
+            } else if (currentSecurityFilter === 'critical') {
                 filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high') || String(l.Alert_Level).toLowerCase().includes('sos'));
             }
             
@@ -740,7 +740,6 @@
                 
                 const safeTime = String(log.Timestamp || '').replace(/'/g, "\\'");
                 const safeRoom = String(log.Room || '').replace(/'/g, "\\'");
-                const dynamicId = (safeRoom + safeTime).replace(/\W/g, '');
 
                 htmlStr += `
                     <tr class="${isCritical ? 'bg-rose-50/30 hover:bg-rose-50/50' : 'hover:bg-slate-50/50'} transition-colors border-b border-slate-100/50">
@@ -756,7 +755,7 @@
                         <td class="align-top">
                             <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate" title="${log.Notes || log.Description || '--'}"><span class="font-bold text-slate-800 mr-1">${log.Alert_Type || 'Issue'}:</span>${log.Notes || log.Description || '--'}</p>
                             <div class="mt-1">
-                                <input type="text" id="comment-${dynamicId}" placeholder="Resolution comment..." class="bg-white/80 border border-slate-200 text-[8px] px-2 py-1 rounded outline-none focus:border-rose-400 shadow-sm w-full max-w-[180px]">
+                                <input type="text" id="comment-${safeTime.replace(/\W/g, '')}" placeholder="Resolution comment..." class="bg-white/80 border border-slate-200 text-[8px] px-2 py-1 rounded outline-none focus:border-rose-400 shadow-sm w-full max-w-[180px]">
                             </div>
                         </td>
                         <td class="text-right align-top flex flex-col items-end gap-1.5">
@@ -1048,10 +1047,11 @@
         };
 
         // ----------------------------------------------------
-        // VISITOR GATEWAY LOGIC (LIVE WEBHOOK)
+        // VISITOR GATEWAY LOGIC 
         // ----------------------------------------------------
-        // Replace this URL with your actual n8n webhook URL that outputs the Google Sheet data
-        const VISITOR_WEBHOOK_URL = 'https://n8n.automania.cloud/webhook/reziflow-get-visitors'; 
+        const dummyVisitors = [
+            { Generated_PIN: "884-291", Visitor_Name: "Thabo Mbeki", Room: "A-101" }
+        ];
 
         window.verifyVisitorPIN = async function() {
             const input = document.getElementById('terminal-pin').value;
@@ -1061,34 +1061,19 @@
             
             if(input.length !== 6) { alert("Please enter a valid 6-digit PIN."); return; }
 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...'; 
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...'; btn.disabled = true;
             responseBox.classList.add('hidden');
 
             try {
-                // Fetch active tickets from your Google Sheet via webhook
-                const response = await fetch(VISITOR_WEBHOOK_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const rawData = await response.json();
-                
-                // Parse the n8n data using your existing fallback parser
-                const activeVisitors = window.parseN8n(rawData);
-
-                // Check if the input PIN exists in the fetched active tickets
-                const matchedVisitor = activeVisitors.find(v => 
-                    String(v.Generated_PIN) === input || 
-                    String(v.PIN) === input
-                );
+                await new Promise(r => setTimeout(r, 1000));
+                const matchedVisitor = dummyVisitors.find(v => String(v.Generated_PIN) === input);
 
                 document.getElementById('terminal-pin').value = ''; 
                 responseBox.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'bg-emerald-50', 'border-emerald-200');
                 if (scanFeed.innerHTML.includes('Awaiting Terminal')) scanFeed.innerHTML = '';
+                const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 if (matchedVisitor) {
-                    const vName = matchedVisitor.Visitor_Name || matchedVisitor.Name || matchedVisitor.Visitor || 'Authorized Guest';
-                    const vRoom = matchedVisitor.Room || matchedVisitor.Room_Number || matchedVisitor.Host_Room || 'N/A';
-
                     responseBox.classList.add('bg-emerald-50', 'border-emerald-200');
                     responseBox.innerHTML = `
                         <div class="flex items-start gap-4">
@@ -1096,8 +1081,8 @@
                             <div>
                                 <p class="text-emerald-700 font-black text-lg mb-1 uppercase tracking-widest">Access Granted</p>
                                 <div class="text-sm font-bold text-slate-800 bg-white px-4 py-3 rounded-xl border border-emerald-100 shadow-sm inline-block w-full">
-                                    <div class="flex justify-between border-b border-slate-100 pb-1 mb-1"><span class="text-slate-500 text-xs">Host Room</span><span>${vRoom}</span></div>
-                                    <div class="flex justify-between"><span class="text-slate-500 text-xs">Visitor</span><span>${vName}</span></div>
+                                    <div class="flex justify-between border-b border-slate-100 pb-1 mb-1"><span class="text-slate-500 text-xs">Host Room</span><span>${matchedVisitor.Room}</span></div>
+                                    <div class="flex justify-between"><span class="text-slate-500 text-xs">Visitor</span><span>${matchedVisitor.Visitor_Name}</span></div>
                                 </div>
                             </div>
                         </div>
@@ -1106,8 +1091,8 @@
                         <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-start gap-3 animate-logSlide">
                             <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
                             <div>
-                                <p class="font-bold text-slate-800 text-[10px]">Granted: ${vName}</p>
-                                <p class="text-[8px] font-bold text-slate-400 uppercase">Host: Room ${vRoom}</p>
+                                <p class="font-bold text-slate-800 text-[10px]">Granted: ${matchedVisitor.Visitor_Name}</p>
+                                <p class="text-[8px] font-bold text-slate-400 uppercase">Host: Room ${matchedVisitor.Room}</p>
                             </div>
                         </div>
                     `);
@@ -1129,14 +1114,8 @@
                         </div>
                     `);
                 }
-            } catch (error) { 
-                console.error("Gateway Error:", error);
-                alert("Failed to connect to ledger. Please check network connection."); 
-            } 
-            finally { 
-                btn.innerHTML = '<i class="fa-solid fa-fingerprint"></i> Validate Access'; 
-                btn.disabled = false; 
-            }
+            } catch (error) { alert("Failed to connect to ledger."); } 
+            finally { btn.innerHTML = '<i class="fa-solid fa-fingerprint"></i> Validate Access'; btn.disabled = false; }
         };
 
         // ----------------------------------------------------
@@ -1183,8 +1162,8 @@
                 const searchVal = document.getElementById('search-security-live')?.value.toLowerCase() || ''; filename = "Filtered_Live_Alerts";
                 csvContent += "Timestamp,Room,Resident,Alert Level,Alert Type,Notes\n";
                 let filtered = baseData.filter(d => { const stat = String(d.Dispatch_Status || d.Status || d.state || '').toLowerCase().trim(); return !(stat.includes('clear') || stat.includes('resolve') || stat.includes('close')); });
-                if(window.currentSecurityFilter === 'routine') filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
-                else if (window.currentSecurityFilter === 'critical') filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
+                if(currentSecurityFilter === 'routine') filtered = filtered.filter(l => !(String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high')));
+                else if (currentSecurityFilter === 'critical') filtered = filtered.filter(l => String(l.Alert_Level).toLowerCase().includes('critical') || String(l.Alert_Level).toLowerCase().includes('high'));
                 dataToExport = filtered.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
                 dataToExport.forEach(log => { const res = window.getResidentForRoom(log.Room); const cleanNotes = String(log.Notes || log.Description || '').replace(/"/g, '""'); csvContent += `"${log.Timestamp || ''}","${log.Room || ''}","${res.name}","${log.Alert_Level || ''}","${log.Alert_Type || ''}","${cleanNotes}"\n`; });
             } else if (tabType === 'history') {
