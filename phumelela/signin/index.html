@@ -104,17 +104,28 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = 'Authenticating...'; btn.disabled = true;
+            
+            // Clean the email data before sending
+            const rawEmail = document.getElementById('email').value;
+            const cleanEmail = rawEmail.toLowerCase().trim();
+
             try {
+                // Ensure your n8n workflow toggle is set to ACTIVE for /webhook/ to work
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ Email_Address: document.getElementById('email').value, Password: document.getElementById('password').value })
+                    body: JSON.stringify({ Email_Address: cleanEmail, Password: document.getElementById('password').value })
                 });
+                
+                // If n8n returns an error (like a 404 because the webhook is off)
+                if (!res.ok) throw new Error("Invalid email or password.");
+                
                 const data = await res.json();
                 if (data.status === 'success') { window.location.href = '/phumelela/portal/'; }
-                else throw new Error(data.message || "Login failed");
+                else throw new Error(data.message || "Invalid email or password.");
             } catch (err) {
-                document.getElementById('apiErrorText').textContent = err.message;
+                // Now displays exactly what you requested
+                document.getElementById('apiErrorText').textContent = err.message || "Invalid email or password.";
                 document.getElementById('apiError').classList.remove('hidden');
                 btn.innerHTML = 'Sign In'; btn.disabled = false;
             }
@@ -125,12 +136,21 @@
             const btn = document.getElementById('forgotBtn');
             const feedback = document.getElementById('forgotFeedback');
             btn.innerHTML = 'Sending...'; btn.disabled = true;
+            
+            // Clean the email data before sending
+            const rawEmail = document.getElementById('forgotEmail').value;
+            const cleanEmail = rawEmail.toLowerCase().trim();
+
             try {
+                // Ensure your n8n workflow toggle is set to ACTIVE for /webhook/ to work
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ Email_Address: document.getElementById('forgotEmail').value })
+                    body: JSON.stringify({ Email_Address: cleanEmail })
                 });
+                
+                if (!res.ok) throw new Error("Connection failed.");
+
                 const data = await res.json();
                 feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
                 feedback.classList.add('bg-emerald-50', 'text-emerald-700');
