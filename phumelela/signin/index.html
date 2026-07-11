@@ -105,7 +105,7 @@
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = 'Authenticating...'; btn.disabled = true;
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-sign', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ Email_Address: document.getElementById('email').value, Password: document.getElementById('password').value })
@@ -126,7 +126,7 @@
             const feedback = document.getElementById('forgotFeedback');
             btn.innerHTML = 'Sending...'; btn.disabled = true;
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-forgot-password', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ Email_Address: document.getElementById('forgotEmail').value })
