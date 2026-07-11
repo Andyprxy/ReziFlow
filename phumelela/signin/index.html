@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
         body { font-family: 'Inter', sans-serif; background-color: #e2e8f0; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
 
         .liquid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; z-index: 0; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
@@ -16,7 +15,6 @@
         .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #60a5fa; animation-delay: 0s; }
         .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #2dd4bf; animation-delay: -4s; }
         .blob-3 { top: 40%; left: 60%; width: 40vw; height: 40vw; background: #818cf8; animation-delay: -8s; }
-
         @keyframes breathe { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.1) translate(20px, -20px); } }
 
         .glass-panel { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(40px) saturate(150%); -webkit-backdrop-filter: blur(40px) saturate(150%); border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.1), 0 15px 25px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,1), inset 0 0 20px rgba(255,255,255,0.5); }
@@ -45,7 +43,7 @@
         <div class="flex flex-col items-center justify-center gap-4 mb-8">
             <div class="relative">
                 <div class="absolute inset-0 bg-white rounded-3xl blur-md opacity-60"></div>
-                <img src="../signup/phumelela.jpg" onerror="this.src='phumelela.jpg'" alt="Phumelela Residence Logo" class="relative w-24 h-24 object-cover rounded-3xl shadow-xl shadow-blue-900/10 ring-2 ring-white/80">
+                <img src="../signup/phumelela.jpg" onerror="this.src='phumelela.jpg'" alt="Logo" class="relative w-24 h-24 object-cover rounded-3xl shadow-xl shadow-blue-900/10 ring-2 ring-white/80">
             </div>
             <span class="font-black text-2xl tracking-tight text-slate-800 drop-shadow-sm text-center">Phumelela Residence</span>
         </div>
@@ -53,19 +51,18 @@
         <div class="glass-panel rounded-[32px] p-8 sm:p-10 w-full relative overflow-hidden">
             <div class="text-center mb-8">
                 <h1 class="text-xl font-black text-slate-900 mb-2 tracking-tight">Welcome Back</h1>
-                <p class="text-xs text-slate-500 font-medium leading-relaxed px-4">Enter your credentials to access the resident portal.</p>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed px-4">Enter your credentials to access the portal.</p>
             </div>
 
             <form id="signinForm" onsubmit="handleSignin(event)">
                 <div class="space-y-5 mb-6">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-2">Email Address</label>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 pl-2">Email</label>
                         <div class="relative group">
                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"><i class="fa-solid fa-envelope"></i></div>
-                            <input type="email" id="email" name="Email_Address" class="input-field" placeholder="student@email.com" required>
+                            <input type="email" id="email" class="input-field" placeholder="student@email.com" required>
                         </div>
                     </div>
-
                     <div>
                         <div class="flex justify-between items-center mb-2 pl-2 pr-1">
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
@@ -73,73 +70,76 @@
                         </div>
                         <div class="relative group">
                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"><i class="fa-solid fa-lock"></i></div>
-                            <input type="password" id="password" name="Password" class="input-field pr-12" placeholder="••••••••" required>
+                            <input type="password" id="password" class="input-field pr-12" placeholder="••••••••" required>
                             <i class="fa-solid fa-eye password-toggle" onclick="togglePassword('password', this)"></i>
                         </div>
                     </div>
                 </div>
-
-                <div id="apiError" class="hidden mb-6 bg-white/60 backdrop-blur-md border border-rose-200 rounded-2xl p-3 flex items-center justify-center gap-2 text-rose-600 text-xs font-bold shadow-sm">
-                    <i class="fa-solid fa-shield-xmark"></i>
-                    <span id="apiErrorText">Invalid credentials.</span>
+                <div id="apiError" class="hidden mb-6 bg-rose-50 border border-rose-200 rounded-2xl p-3 flex items-center justify-center gap-2 text-rose-600 text-xs font-bold shadow-sm">
+                    <span id="apiErrorText">Error message here</span>
                 </div>
-
-                <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-blue-600 text-white rounded-2xl py-4 font-bold transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2 tap-effect text-sm">
-                    Sign In <i class="fa-solid fa-arrow-right ml-1"></i>
-                </button>
+                <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-blue-600 text-white rounded-2xl py-4 font-bold transition-all shadow-xl shadow-slate-900/20 tap-effect text-sm">Sign In</button>
             </form>
-
-            <div class="mt-8 pt-6 border-t border-slate-300/50 text-center">
-                <p class="text-xs font-medium text-slate-500">Don't have an account? <br>
-                    <a href="/phumelela/signup/" class="font-bold text-slate-900 hover:text-blue-600 transition-colors inline-block mt-2 px-5 py-2.5 bg-white/50 border border-white/80 rounded-xl hover:bg-white/80 shadow-sm">Sign Up Here</a>
-                </p>
-            </div>
         </div>
     </main>
 
+    <div id="forgotModal" class="fixed inset-0 z-[200] modal-overlay flex items-center justify-center p-4">
+        <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] p-8">
+            <button onclick="closeModal('forgotModal')" class="absolute top-6 right-6 text-slate-400"><i class="fa-solid fa-times"></i></button>
+            <h2 class="text-xl font-black text-slate-900 mb-2">Reset Password</h2>
+            <form id="forgotForm" onsubmit="handleForgotPassword(event)">
+                <input type="email" id="forgotEmail" class="input-field mb-4" placeholder="Enter registered email" required>
+                <div id="forgotFeedback" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center"></div>
+                <button type="submit" id="forgotBtn" class="w-full bg-blue-600 text-white rounded-xl py-3 font-bold">Send Reset Link</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === "password" ? "text" : "password";
-            icon.classList.toggle("fa-eye");
-            icon.classList.toggle("fa-eye-slash");
-        }
+        function togglePassword(id, icon) { const i = document.getElementById(id); i.type = i.type === "password" ? "text" : "password"; icon.classList.toggle("fa-eye"); icon.classList.toggle("fa-eye-slash"); }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         async function handleSignin(e) {
             e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            const apiErrorBox = document.getElementById('apiError');
-            
-            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
-            submitBtn.disabled = true;
-
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = 'Authenticating...'; btn.disabled = true;
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-sign', {
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-sign', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        Email_Address: document.getElementById('email').value, 
-                        Password: document.getElementById('password').value 
-                    })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ Email_Address: document.getElementById('email').value, Password: document.getElementById('password').value })
                 });
+                const data = await res.json();
+                if (data.status === 'success') { window.location.href = '/phumelela/portal/'; }
+                else throw new Error(data.message || "Login failed");
+            } catch (err) {
+                document.getElementById('apiErrorText').textContent = err.message;
+                document.getElementById('apiError').classList.remove('hidden');
+                btn.innerHTML = 'Sign In'; btn.disabled = false;
+            }
+        }
 
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
-                    submitBtn.classList.replace('bg-slate-900', 'bg-emerald-500');
-                    // Redirect to new portal path
-                    setTimeout(() => { window.location.href = '/phumelela/portal/'; }, 1000);
-                } else {
-                    throw new Error(data.message || "Invalid credentials.");
-                }
-            } catch (error) {
-                document.getElementById('apiErrorText').textContent = error.message;
-                apiErrorBox.classList.remove('hidden');
-                submitBtn.innerHTML = 'Sign In Failed - Retry';
-                submitBtn.disabled = false;
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const btn = document.getElementById('forgotBtn');
+            const feedback = document.getElementById('forgotFeedback');
+            btn.innerHTML = 'Sending...'; btn.disabled = true;
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-forgot-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ Email_Address: document.getElementById('forgotEmail').value })
+                });
+                const data = await res.json();
+                feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
+                feedback.classList.add('bg-emerald-50', 'text-emerald-700');
+                feedback.textContent = "Check your email for the reset link.";
+            } catch (err) {
+                feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
+                feedback.classList.add('bg-rose-50', 'text-rose-700');
+                feedback.textContent = "Email not found or error occurred.";
+                btn.innerHTML = 'Retry'; btn.disabled = false;
             }
         }
     </script>
