@@ -31,7 +31,7 @@
             const btn = document.getElementById('resetBtn');
             btn.innerHTML = 'Updating...'; btn.disabled = true;
 
-            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-reset-password-final', {
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-reset-password-final', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ token: token, password: pass })
