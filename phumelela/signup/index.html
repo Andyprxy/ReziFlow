@@ -316,8 +316,8 @@
             submitBtn.disabled = true;
 
             try {
-                // Main Signup Webhook
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-create-user', {
+                // TEST WEBHOOK INJECTED HERE
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Email_Address: email, Password: password })
@@ -358,7 +358,7 @@
             forgotBtn.disabled = true;
 
             try {
-                // Forgot Password Webhook
+                // Forgot Password Webhook (Left as production, switch to /webhook-test/ if testing this flow)
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
