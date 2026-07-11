@@ -63,7 +63,7 @@
 
             try {
                 // Post to the n8n backend securely
-                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-verify', {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: token })
