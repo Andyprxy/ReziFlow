@@ -132,36 +132,56 @@
         }
 
         async function handleForgotPassword(e) {
-            e.preventDefault();
-            const btn = document.getElementById('forgotBtn');
-            const feedback = document.getElementById('forgotFeedback');
-            btn.innerHTML = 'Sending...'; btn.disabled = true;
-            
-            // Clean the email data before sending
-            const rawEmail = document.getElementById('forgotEmail').value;
-            const cleanEmail = rawEmail.toLowerCase().trim();
+    e.preventDefault();
+    const btn = document.getElementById('forgotBtn');
+    const feedback = document.getElementById('forgotFeedback');
+    
+    // 1. Start the loading state
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; 
+    btn.disabled = true;
+    
+    const rawEmail = document.getElementById('forgotEmail').value;
+    const cleanEmail = rawEmail.toLowerCase().trim();
 
-            try {
-                // Ensure your n8n workflow toggle is set to ACTIVE for /webhook/ to work
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ Email_Address: cleanEmail })
-                });
-                
-                if (!res.ok) throw new Error("Connection failed.");
+    try {
+        const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ Email_Address: cleanEmail })
+        });
+        
+        if (!res.ok) throw new Error("Connection failed.");
 
-                const data = await res.json();
-                feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
-                feedback.classList.add('bg-emerald-50', 'text-emerald-700');
-                feedback.textContent = "Check your email for the reset link.";
-            } catch (err) {
-                feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
-                feedback.classList.add('bg-rose-50', 'text-rose-700');
-                feedback.textContent = "Email not found or error occurred.";
-                btn.innerHTML = 'Retry'; btn.disabled = false;
-            }
+        const data = await res.json();
+        
+        // 2. Did n8n tell us the email doesn't exist?
+        // If your n8n workflow returns {"status": "error"} when an email isn't in the sheet
+        if (data.status === 'error') {
+            throw new Error("Email not found. Please sign up to create an account.");
         }
+
+        // 3. Success Path!
+        feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
+        feedback.classList.add('bg-emerald-50', 'text-emerald-700');
+        feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> Check your email for the reset link.';
+        
+        // 4. FIX: Stop the loading state! 
+        // We change the text to "Link Sent" but keep it disabled so they don't spam the button.
+        btn.innerHTML = 'Link Sent'; 
+
+    } catch (err) {
+        // 5. Error Path (Email not found or network issue)
+        feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
+        feedback.classList.add('bg-rose-50', 'text-rose-700');
+        
+        // This will now display "Email not found. Please sign up to create an account."
+        feedback.textContent = err.message || "An error occurred. Please try again.";
+        
+        // FIX: Re-enable the button so they can try again if they made a typo
+        btn.innerHTML = 'Try Again'; 
+        btn.disabled = false;
+    }
+}
     </script>
 </body>
 </html>
