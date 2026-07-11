@@ -1,0 +1,45 @@
+<!-- Save this in your phumelela/reset-password/ folder -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reset Password | Phumelela</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Reuse the same glass-panel and styles as your sign-in page */
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-slate-100">
+    <div class="glass-panel w-full max-w-sm p-8 rounded-[32px] bg-white/50 backdrop-blur-xl">
+        <h2 class="text-xl font-black mb-6">Create New Password</h2>
+        <form id="resetForm" onsubmit="handleReset(event)">
+            <input type="password" id="newPassword" class="input-field mb-4" placeholder="New Password" required>
+            <input type="password" id="confirmPassword" class="input-field mb-6" placeholder="Confirm Password" required>
+            <button type="submit" id="resetBtn" class="w-full bg-blue-600 text-white rounded-xl py-3 font-bold">Update Password</button>
+        </form>
+    </div>
+
+    <script>
+        async function handleReset(e) {
+            e.preventDefault();
+            const token = new URLSearchParams(window.location.search).get('token');
+            const pass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (pass !== confirm) { alert("Passwords do not match!"); return; }
+
+            const btn = document.getElementById('resetBtn');
+            btn.innerHTML = 'Updating...'; btn.disabled = true;
+
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-reset-password-final', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token: token, password: pass })
+            });
+
+            if (res.ok) { window.location.href = '/phumelela/signin/'; } 
+            else { alert("Reset failed or link expired."); }
+        }
+    </script>
+</body>
+</html>
