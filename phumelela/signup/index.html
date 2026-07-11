@@ -317,7 +317,7 @@
 
             try {
                 // TEST WEBHOOK INJECTED HERE
-                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-signup', {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Email_Address: email, Password: password })
