@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- STRICT VIEWPORT LOCK: Prevents zooming, adjusts to safe areas -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ReziFlow | Student Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -92,6 +93,7 @@
             </div>
         </div>
 
+        <!-- AUTH GUARD OVERLAY -->
         <div id="authGuard" class="absolute inset-0 bg-white z-[1900] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-opacity duration-500">
             <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mb-4 text-2xl shadow-sm animate-pulse">
                 <i class="fa-solid fa-layer-group"></i>
@@ -100,8 +102,9 @@
             <p class="text-xs text-slate-500">Securing your session payload...</p>
         </div>
 
-        <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900 flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
-            <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-slate-700">
+        <!-- HARD GATE: INITIALIZATION MODAL (Frosted Glass UI) -->
+        <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
+            <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
                     <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
                     <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
@@ -132,6 +135,7 @@
             </div>
         </div>
         
+        <!-- HEADER: Fixed to top via Flexbox -->
         <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
             <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
                 <div class="flex items-center gap-2">
@@ -150,6 +154,7 @@
             </div>
         </header>
 
+        <!-- MAIN CONTENT: Scrollable independent area -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-6">
             <div id="tab-home" class="tab-content active space-y-5">
                 
@@ -176,6 +181,7 @@
                     </div>
                 </section>
 
+                <!-- GATEWAY PROTOCOL CARD (The Unlocker) -->
                 <section id="gateway-unlock-card" onclick="openWizardModal()" class="bg-white card-shadow soft-border rounded-[28px] p-5 cursor-pointer tap-effect relative overflow-hidden transition-all duration-300 border-2 border-transparent">
                     <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
                     
@@ -221,12 +227,14 @@
                 </section>
             </div>
 
+            <!-- Functionality Tabs (Content hidden by default, locked by JS) -->
             <div id="tab-wifi" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">ReziFlow_5G</h2><p class="text-sm text-slate-500 mb-6">High-Speed Campus Network</p></div></div>
             <div id="tab-snags" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Maintenance</h2></div></div>
             <div id="tab-security" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Emergency SOS</h2></div></div>
             <div id="tab-profile" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">My Profile</h2></div></div>
         </main>
 
+        <!-- NAVIGATION: Fixed to bottom via Flexbox, respects Apple Safe Area Inset -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
                 <button onclick="switchTab('home', this)" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors">
@@ -249,6 +257,7 @@
         </nav>
     </div>
 
+    <!-- Modals remain Absolute to overlay the entire screen -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[1500] modal-overlay flex items-end justify-center"><div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col"><div class="flex-1"></div><button onclick="closeShuttleMap()" class="w-full bg-slate-900 text-white rounded-xl py-4 font-bold mt-auto tap-effect">Close Map</button></div></div>
 
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
@@ -296,9 +305,74 @@
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Contact Number</label><input type="tel" name="Guardian_Number" class="input-field" required></div>
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label><select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option></select></div>
                         </div>
+                        <div class="pt-4 border-t border-slate-200/60">
+                            <label class="block text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1 pl-1"><i class="fa-solid fa-staff-snake mr-1"></i> Medical Condition (Optional)</label>
+                            <textarea name="Medical_Condition" rows="3" class="input-field resize-none" placeholder="Please list any allergies, chronic conditions, or required medications for emergencies..."></textarea>
+                        </div>
                     </div>
                     <div id="wizard-step-3" class="doc-section">
-                        <div class="flex flex-col items-center text-center py-6 opacity-60"><i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Document Upload API Connected</p></div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Select Funding Source</label>
+                        <div class="grid grid-cols-3 gap-2 mb-6">
+                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3>
+                            </div>
+                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3>
+                            </div>
+                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3>
+                            </div>
+                        </div>
+
+                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60">
+                            <i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i>
+                            <p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p>
+                        </div>
+
+                        <!-- NSFAS Docs -->
+                        <div id="req-nsfas" class="doc-section space-y-3">
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Proof of Funding</p></div>
+                            </div>
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Student ID Copy</p></div>
+                            </div>
+                        </div>
+
+                        <!-- Bursary Docs -->
+                        <div id="req-bursary" class="doc-section space-y-3">
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-file-contract"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Confirmation Letter</p></div>
+                            </div>
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card-clip"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Certified ID Copy</p></div>
+                            </div>
+                        </div>
+
+                        <!-- Cash Docs -->
+                        <div id="req-cash" class="doc-section space-y-3">
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-building-columns"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Bank Statement</p></div>
+                            </div>
+                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">ID Copy (Payer & Student)</p></div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -314,7 +388,7 @@
     <script>
         let gatewayPercentage = 0;
         let currentWizardStep = 1;
-        let activeFundingType = 'cash'; // Defaulted for prototype
+        let activeFundingType = 'none'; 
 
         const requiredProfileFields = [
             'First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 
@@ -334,15 +408,25 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const session = getSessionData();
-            const isInitialized = localStorage.getItem('reziflow_portal_init');
             
-            // 1. HARD GATE LOGIC
-            if (!isInitialized || !session.First_Name || !session.Student_Number || session.Student_Number === '--' || session.First_Name === 'New') {
+            // 1. DATA-DRIVEN HARD GATE
+            // We check the payload directly. If n8n sends a blank or placeholder for these critical fields, lock them out.
+            const needsInitialization = !session.First_Name || 
+                                      session.First_Name === 'New' || 
+                                      !session.Student_Number || 
+                                      session.Student_Number === '--' ||
+                                      session.Student_Number === '';
+            
+            if (needsInitialization) {
                 const guard = document.getElementById('authGuard');
                 if(guard) guard.remove();
                 
                 document.getElementById('welcomeModal').classList.remove('hidden');
+                
+                // Pre-hydrate the background shell so it looks like the app is loaded behind the frosted glass
+                hydrateGatewayEngine();
             } else {
+                // Database sent valid info. Bypass the gate.
                 document.getElementById('welcomeModal').classList.add('hidden');
                 
                 setTimeout(() => {
@@ -370,11 +454,10 @@
             const sName = document.getElementById('setup-sname').value.trim();
             const studentNum = document.getElementById('setup-student-num').value.trim();
             
-            // Critical for lookup in Google Sheets
             const email = session.Email_Address || session.Email || 'unknown@student.com'; 
 
             try {
-                // TRANSMISSION TO n8n
+                // TRANSMISSION TO n8n to append Name, Surname, and Student Number to their row
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-init-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -392,17 +475,16 @@
                 session.First_Name = fName;
                 session.Surname = sName;
                 session.Student_Number = studentNum;
-                session.Email_Address = email; // Ensure it's preserved for the wizard
+                session.Email_Address = email; 
 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
-                localStorage.setItem('reziflow_portal_init', 'true'); 
 
                 const welcomeModal = document.getElementById('welcomeModal');
                 welcomeModal.style.opacity = '0';
                 
                 setTimeout(() => {
                     welcomeModal.classList.add('hidden');
-                    hydrateGatewayEngine(); // Boot the portal UI
+                    hydrateGatewayEngine(); // Refresh UI with their actual info
                 }, 500);
 
             } catch (error) {
@@ -496,7 +578,6 @@
 
         function handleLogout() {
             localStorage.removeItem('reziflow_session');
-            localStorage.removeItem('reziflow_portal_init');
             window.location.href = 'https://reziflow.online/login/'; 
         }
 
@@ -540,7 +621,30 @@
             }
         }
 
+        function selectFunding(type) {
+            activeFundingType = type;
+            document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('btn-' + type).classList.add('active');
+            document.querySelectorAll('#wizard-step-3 .doc-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('req-' + type).classList.add('active');
+        }
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const zone = input.closest('.upload-zone');
+                zone.classList.add('success-state');
+                const icon = zone.querySelector('.icon-container');
+                icon.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            }
+        }
+
         async function submitApplication() {
+            if (activeFundingType === 'none') {
+                showToast("Select a funding pipeline.", "error");
+                return;
+            }
+
             const btn = document.getElementById('btn-wizard-submit');
             const ogHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pushing...';
@@ -559,6 +663,12 @@
             formData.append('Funding_Type', activeFundingType);
             session.Funding_Type = activeFundingType;
 
+            const activeSection = document.getElementById('req-' + activeFundingType);
+            const fileInputs = activeSection.querySelectorAll('input[type="file"]');
+            fileInputs.forEach((input, index) => {
+                if (input.files.length > 0) formData.append(`Document_${index + 1}`, input.files[0]);
+            });
+
             try {
                 // Ensure this points to your active webhook
                 const response = await fetch('https://n8n.automania.cloud/webhook/ReziFlowReg', { method: 'POST', body: formData });
@@ -570,7 +680,7 @@
 
                 setTimeout(() => {
                     closeWizardModal();
-                    hydrateGatewayEngine(); // Unlocks the UI
+                    hydrateGatewayEngine(); // Unlocks the UI visually
                     showToast("Profile fully verified and synced.", "success");
                     btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900');
                 }, 800);
