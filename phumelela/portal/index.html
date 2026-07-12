@@ -306,7 +306,7 @@
 
             try {
                 // Ensure n8n UPDATE ROW uses this exact email column to find and append data
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-init-profile', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-init-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Email_Address: email, First_Name: fName, Surname: sName, Student_Number: studentNum })
