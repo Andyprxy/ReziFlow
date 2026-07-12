@@ -375,7 +375,7 @@
 
             try {
                 // TRANSMISSION TO n8n
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-init-profile', {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-init-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
