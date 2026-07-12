@@ -114,7 +114,6 @@
             const cleanEmail = rawEmail.toLowerCase().trim();
 
             try {
-                // 1. Wipe old environment entirely
                 localStorage.removeItem('reziflow_session');
                 localStorage.removeItem('reziflow_portal_init');
 
@@ -128,23 +127,46 @@
                 
                 const data = await res.json();
                 
-                // 2. UNIVERSAL PAYLOAD PARSER
-                let userData = null;
-                if (Array.isArray(data) && data.length > 0) {
-                    userData = data[0]; 
-                } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-                    if (data.status === 'error') throw new Error(data.message || "Invalid email or password.");
-                    userData = data; 
+                // --- THE INDESTRUCTIBLE PAYLOAD EXTRACTOR ---
+                // This recursive function drills through any arrays or wrapper objects
+                // to find the exact database row containing the First_Name.
+                function extractProfile(obj) {
+                    if (!obj) return null;
+                    // If we hit the actual row data, return it immediately
+                    if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
+                    
+                    if (Array.isArray(obj)) {
+                        for (let item of obj) {
+                            let found = extractProfile(item);
+                            if (found) return found;
+                        }
+                    } else if (typeof obj === 'object') {
+                        // Check specifically for n8n error formats before digging deeper
+                        if (obj.status === 'error') throw new Error(obj.message || "Invalid email or password.");
+                        
+                        for (let key in obj) {
+                            let found = extractProfile(obj[key]);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
                 }
 
-                if (!userData) throw new Error("Invalid email or password.");
+                let userData = extractProfile(data);
 
-                // 3. THE HANDSHAKE
+                // Failsafe: if the row is entirely blank but n8n didn't error out
+                if (!userData) {
+                    if (Array.isArray(data) && data.length > 0) userData = data[0]; 
+                    else userData = data; 
+                }
+
+                if (!userData || userData.status === 'error') throw new Error("Invalid email or password.");
+
+                // Lock the email in to prevent 'unknown@student.com'
                 userData.Email_Address = userData.Email_Address || cleanEmail;
 
                 localStorage.setItem('reziflow_session', JSON.stringify(userData));
 
-                // 4. SUCCESS UI & REDIRECT
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Success'; 
                 btn.classList.replace('bg-slate-900', 'bg-emerald-500');
 
@@ -179,24 +201,18 @@
                 });
                 
                 if (!res.ok) throw new Error("Connection failed.");
-
                 const data = await res.json();
-                
-                if (data.status === 'error') {
-                    throw new Error("Email not found. Please sign up to create an account.");
-                }
+                if (data.status === 'error') throw new Error("Email not found. Please sign up to create an account.");
 
                 feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
                 feedback.classList.add('bg-emerald-50', 'text-emerald-700');
                 feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> Check your email for the reset link.';
-                
                 btn.innerHTML = 'Link Sent'; 
 
             } catch (err) {
                 feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
                 feedback.classList.add('bg-rose-50', 'text-rose-700');
                 feedback.textContent = err.message || "An error occurred. Please try again.";
-                
                 btn.innerHTML = 'Try Again'; 
                 btn.disabled = false;
             }
