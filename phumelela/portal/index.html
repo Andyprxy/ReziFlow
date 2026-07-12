@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ReziFlow | Student Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,29 +13,42 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        body { 
+        /* HARD UI LOCK: Prevents elastic bouncing and scrolling the body */
+        body, html { 
             font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+            position: fixed; 
+            overflow: hidden;
+            overscroll-behavior-y: none;
             background-color: #0f172a; 
             -webkit-font-smoothing: antialiased;
         }
 
-        .desktop-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #0f172a; display: none; }
+        .desktop-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0f172a; display: none; }
         @media (min-width: 640px) { .desktop-bg { display: block; } }
         .desktop-bg::before { content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%; background: #3b82f6; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
         .desktop-bg::after { content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%; background: #06b6d4; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
 
-        .mobile-container { width: 100%; height: 100vh; background: #f0f4f8; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        /* FLEXBOX SHELL: Uses 100dvh for dynamic browser bars */
+        .mobile-container { 
+            width: 100%; 
+            height: 100dvh; 
+            background: #f0f4f8; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+
         @media (min-width: 640px) {
+            body { display: flex; align-items: center; justify-content: center; position: static; overflow: auto; }
             .mobile-container { width: 390px; height: 844px; max-height: 90vh; border-radius: 44px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255,255,255,0.2); border: 8px solid #1e293b; margin: 20px auto; }
         }
 
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; padding-bottom: 24px; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -48,7 +61,7 @@
         .card-shadow { box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04); }
         .soft-border { border: 1px solid rgba(226, 232, 240, 0.6); }
 
-        .modal-overlay { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 1000; }
+        .modal-overlay { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 2000; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-content { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); }
         .modal-overlay.active .modal-content { transform: translateY(0); }
@@ -56,30 +69,14 @@
         #toast-container { transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         #toast-container.show { transform: translateY(0); }
 
-        /* Setup Wizard Inputs */
         .input-field { width: 100%; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.875rem 1rem; font-size: 0.75rem; font-weight: 600; color: #0f172a; transition: all 0.2s ease; }
         .input-field:focus { outline: none; border-color: #3b82f6; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .input-field::placeholder { color: #94a3b8; font-weight: 500; }
-        select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; }
-
-        /* Document Upload Zones */
-        .upload-zone { border: 2px dashed rgba(203, 213, 225, 0.8); background: rgba(255, 255, 255, 0.5); transition: all 0.2s ease; }
-        .upload-zone:hover { border-color: #3b82f6; background-color: rgba(239, 246, 255, 0.8); }
-        .upload-zone.success-state { border: 2px solid #10b981; background-color: rgba(236, 253, 245, 0.9); }
         
-        .funding-card { background: rgba(255, 255, 255, 0.6); transition: all 0.2s ease; }
-        .funding-card.active { border-color: #3b82f6; background-color: #eff6ff; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2); }
-        .doc-section { display: none; animation: fadeIn 0.4s ease forwards; }
-        .doc-section.active { display: block; }
-
-        /* Lock State UI */
-        .nav-locked { opacity: 0.5; transition: opacity 0.3s ease; }
+        /* Lock State UI for Shell Mode */
+        .nav-locked { opacity: 0.5; filter: grayscale(100%); transition: all 0.3s ease; }
         .nav-locked:active { transform: none; }
         
         #telemetry-map { width: 100%; height: 380px; border-radius: 24px; }
-        .shuttle-marker { background: #06b6d4; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); }
-        .shuttle-marker::after { content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 2px solid #06b6d4; animation: radarPulse 2s infinite ease-out; }
-        @keyframes radarPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -95,7 +92,7 @@
             </div>
         </div>
 
-        <div id="authGuard" class="absolute inset-0 bg-white z-[999] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-opacity duration-500">
+        <div id="authGuard" class="absolute inset-0 bg-white z-[1900] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-opacity duration-500">
             <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mb-4 text-2xl shadow-sm animate-pulse">
                 <i class="fa-solid fa-layer-group"></i>
             </div>
@@ -128,14 +125,14 @@
                             <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" placeholder="Required for access" required>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">
+                    <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">
                         Initialize Portal <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </form>
             </div>
         </div>
         
-        <header class="pt-6 px-5 z-40 sticky top-0 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
+        <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
             <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
@@ -153,7 +150,7 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto no-scrollbar px-5 pb-32 relative z-10">
+        <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-6">
             <div id="tab-home" class="tab-content active space-y-5">
                 
                 <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
@@ -230,7 +227,7 @@
             <div id="tab-profile" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">My Profile</h2></div></div>
         </main>
 
-        <nav class="absolute bottom-0 left-0 w-full bg-white pt-3 px-6 pb-8 z-50 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] flex flex-col">
+        <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
                 <button onclick="switchTab('home', this)" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors">
                     <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
@@ -248,15 +245,14 @@
                     <i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span>
                 </button>
             </div>
-            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-5 flex-shrink-0"></div>
+            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
         </nav>
     </div>
 
-    <div id="shuttleMapModal" class="absolute inset-0 z-[500] modal-overlay flex items-end justify-center"><div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8"><button onclick="closeShuttleMap()" class="w-full bg-slate-900 text-white rounded-xl py-3 font-bold mt-auto">Close Map</button></div></div>
+    <div id="shuttleMapModal" class="absolute inset-0 z-[1500] modal-overlay flex items-end justify-center"><div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col"><div class="flex-1"></div><button onclick="closeShuttleMap()" class="w-full bg-slate-900 text-white rounded-xl py-4 font-bold mt-auto tap-effect">Close Map</button></div></div>
 
-    <div id="setupWizardModal" class="absolute inset-0 z-[600] modal-overlay flex items-end justify-center">
+    <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
-            
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
                 <div>
                     <h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2>
@@ -268,8 +264,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50 relative">
-                <form id="wizardForm" onsubmit="handleWizardSubmit(event)">
-                    
+                <form id="wizardForm">
                     <div id="wizard-step-1" class="space-y-4 doc-section active">
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">First Name</label><input type="text" name="First_Name" class="input-field" required></div>
@@ -278,28 +273,15 @@
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Mobile Number</label><input type="tel" name="Mobile_Number" class="input-field" placeholder="081 234 5678" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" name="Student_Number" class="input-field" required></div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label>
-                                <select name="Gender" class="input-field" required>
-                                    <option value="" disabled selected>Select</option><option>Male</option><option>Female</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label><select name="Gender" class="input-field" required><option value="" disabled selected>Select</option><option>Male</option><option>Female</option></select></div>
                         </div>
-                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label><input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"></div>
-                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Email Address</label><input type="email" name="Email_Address" class="input-field" required></div>
-                        
+                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label><input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13"></div>
+                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Email Address</label><input type="email" name="Email_Address" class="input-field" required readonly></div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label>
-                                <select name="Campus_Hub" class="input-field" required><option value="" disabled selected>Select</option><option>TUT Pretoria</option><option>TUT Arcadia</option><option>UP Main</option></select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label>
-                                <select name="Year_Level" class="input-field" required><option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgrad</option></select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label><select name="Campus_Hub" class="input-field" required><option value="" disabled selected>Select</option><option>TUT Pretoria</option><option>UP Main</option></select></div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label><select name="Year_Level" class="input-field" required><option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgrad</option></select></div>
                         </div>
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Course Name</label><input type="text" name="Course" class="input-field" placeholder="e.g. Industrial Engineering" required></div>
-                        
                         <div class="border-t border-slate-200/60 pt-4 mt-2">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Street Address</label><input type="text" name="Street_Address" class="input-field" required></div>
                             <div class="grid grid-cols-2 gap-3 mt-4">
@@ -308,99 +290,31 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="wizard-step-2" class="space-y-4 doc-section">
-                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Guardian Name</label><input type="text" name="Guardian_Name" class="input-field" placeholder="Full Name" required></div>
+                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Guardian Name</label><input type="text" name="Guardian_Name" class="input-field" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Contact Number</label><input type="tel" name="Guardian_Number" class="input-field" required></div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label>
-                                <select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option></select>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-200/60">
-                            <label class="block text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1 pl-1"><i class="fa-solid fa-staff-snake mr-1"></i> Medical Condition (Optional)</label>
-                            <textarea name="Medical_Condition" rows="3" class="input-field resize-none" placeholder="Please list any allergies, chronic conditions, or required medications for emergencies..."></textarea>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label><select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option></select></div>
                         </div>
                     </div>
-
                     <div id="wizard-step-3" class="doc-section">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Select Funding Source</label>
-                        <div class="grid grid-cols-3 gap-2 mb-6">
-                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3>
-                            </div>
-                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3>
-                            </div>
-                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3>
-                            </div>
-                        </div>
-
-                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60">
-                            <i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i>
-                            <p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p>
-                        </div>
-
-                        <div id="req-nsfas" class="doc-section space-y-3">
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Proof of Funding</p></div>
-                            </div>
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Student ID Copy</p></div>
-                            </div>
-                        </div>
-
-                        <div id="req-bursary" class="doc-section space-y-3">
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-file-contract"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Confirmation Letter</p></div>
-                            </div>
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card-clip"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Certified ID Copy</p></div>
-                            </div>
-                        </div>
-
-                        <div id="req-cash" class="doc-section space-y-3">
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-building-columns"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">Bank Statement</p></div>
-                            </div>
-                            <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm"><i class="fa-solid fa-id-card"></i></div>
-                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800">ID Copy (Payer & Student)</p></div>
-                            </div>
-                        </div>
+                        <div class="flex flex-col items-center text-center py-6 opacity-60"><i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Document Upload API Connected</p></div>
                     </div>
                 </form>
             </div>
 
-            <div class="p-6 bg-white border-t border-slate-100 flex-shrink-0 grid grid-cols-2 gap-3 z-10">
-                <button type="button" id="btn-wizard-back" onclick="wizardStep(-1)" class="w-full py-4 bg-slate-100 text-slate-500 font-bold rounded-xl text-xs transition-colors hidden">Back</button>
-                <button type="button" id="btn-wizard-next" onclick="wizardStep(1)" class="col-span-2 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2">Next Step <i class="fa-solid fa-arrow-right"></i></button>
-                <button type="button" id="btn-wizard-submit" onclick="submitApplication()" class="w-full py-4 bg-slate-900 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Upload to Vault</button>
+            <div class="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-slate-100 flex-shrink-0 grid grid-cols-2 gap-3 z-10">
+                <button type="button" id="btn-wizard-back" onclick="wizardStep(-1)" class="w-full py-4 bg-slate-100 text-slate-500 font-bold rounded-xl text-xs transition-colors hidden tap-effect">Back</button>
+                <button type="button" id="btn-wizard-next" onclick="wizardStep(1)" class="col-span-2 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" id="btn-wizard-submit" onclick="submitApplication()" class="w-full py-4 bg-slate-900 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-cloud-arrow-up"></i> Push to Vault</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- GLOBAL STATE & CORE LOGIC ---
         let gatewayPercentage = 0;
         let currentWizardStep = 1;
-        let activeFundingType = 'none';
+        let activeFundingType = 'cash'; // Defaulted for prototype
 
         const requiredProfileFields = [
             'First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 
@@ -412,7 +326,7 @@
         function getSessionData() {
             let rawSession = localStorage.getItem('reziflow_session');
             if (!rawSession) {
-                rawSession = JSON.stringify({});
+                rawSession = JSON.stringify({ Email_Address: 'pending@student.com' });
                 localStorage.setItem('reziflow_session', rawSession);
             }
             return JSON.parse(rawSession);
@@ -420,18 +334,15 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const session = getSessionData();
-            
-            // 1. HARD GATE INTERCEPTOR (Ghost Data & Init Check)
             const isInitialized = localStorage.getItem('reziflow_portal_init');
             
-            if (!isInitialized || !session.First_Name || !session.Student_Number || session.Student_Number === '--') {
+            // 1. HARD GATE LOGIC
+            if (!isInitialized || !session.First_Name || !session.Student_Number || session.Student_Number === '--' || session.First_Name === 'New') {
                 const guard = document.getElementById('authGuard');
                 if(guard) guard.remove();
                 
-                // Show strict welcome interceptor
                 document.getElementById('welcomeModal').classList.remove('hidden');
             } else {
-                // Verified session exists. Remove auth guard and load.
                 document.getElementById('welcomeModal').classList.add('hidden');
                 
                 setTimeout(() => {
@@ -445,35 +356,68 @@
             }
         });
 
-        // 2. HARD GATE SUBMISSION ENGINE
-        function submitWelcomeSetup(e) {
+        // 2. n8n DATABASE SYNC ENGINE (New Webhook Integration)
+        async function submitWelcomeSetup(e) {
             e.preventDefault();
+            
+            const btn = document.getElementById('btn-init-portal');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...';
+            btn.disabled = true;
+
             const session = getSessionData();
+            const fName = document.getElementById('setup-fname').value.trim();
+            const sName = document.getElementById('setup-sname').value.trim();
+            const studentNum = document.getElementById('setup-student-num').value.trim();
             
-            // OVERWRITE ghost data with accurate user input
-            session.First_Name = document.getElementById('setup-fname').value.trim();
-            session.Surname = document.getElementById('setup-sname').value.trim();
-            session.Student_Number = document.getElementById('setup-student-num').value.trim();
+            // Critical for lookup in Google Sheets
+            const email = session.Email_Address || session.Email || 'unknown@student.com'; 
 
-            localStorage.setItem('reziflow_session', JSON.stringify(session));
-            localStorage.setItem('reziflow_portal_init', 'true'); // Lock out the gate
+            try {
+                // TRANSMISSION TO n8n
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-init-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Email_Address: email,
+                        First_Name: fName,
+                        Surname: sName,
+                        Student_Number: studentNum
+                    })
+                });
 
-            const welcomeModal = document.getElementById('welcomeModal');
-            welcomeModal.style.opacity = '0';
-            
-            setTimeout(() => {
-                welcomeModal.classList.add('hidden');
-                hydrateGatewayEngine();
-            }, 500);
+                if (!res.ok) throw new Error("Backend synchronization failed.");
+
+                // Overwrite any cached ghost data
+                session.First_Name = fName;
+                session.Surname = sName;
+                session.Student_Number = studentNum;
+                session.Email_Address = email; // Ensure it's preserved for the wizard
+
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                localStorage.setItem('reziflow_portal_init', 'true'); 
+
+                const welcomeModal = document.getElementById('welcomeModal');
+                welcomeModal.style.opacity = '0';
+                
+                setTimeout(() => {
+                    welcomeModal.classList.add('hidden');
+                    hydrateGatewayEngine(); // Boot the portal UI
+                }, 500);
+
+            } catch (error) {
+                showToast("Connection error. Ensure network is stable.", "error");
+                btn.innerHTML = ogText;
+                btn.disabled = false;
+            }
         }
 
-        // 3. GATEWAY PERCENTAGE ENGINE
+        // 3. PROGRESSIVE DISCLOSURE UI ENGINE
         function hydrateGatewayEngine() {
             const session = getSessionData();
             
-            // Hydrate Header and Blue Card
             document.getElementById('header-initials').textContent = ((session.First_Name || 'R').charAt(0) + (session.Surname || 'F').charAt(0)).toUpperCase();
-            document.getElementById('dyn-fullname-home').textContent = `${session.First_Name || 'New'} ${session.Surname || 'Resident'}`;
+            document.getElementById('dyn-fullname-home').textContent = `${session.First_Name || 'New'} ${session.Surname || ''}`;
             document.getElementById('dyn-id-home').textContent = session.Student_Number || '--';
 
             let filledCount = 0;
@@ -488,7 +432,6 @@
             const totalWeight = requiredProfileFields.length + 2;
             gatewayPercentage = Math.round((filledCount / totalWeight) * 100);
             
-            // Update Gateway Unlock Card UI
             const progressBar = document.getElementById('gateway-progress-bar');
             const progressText = document.getElementById('gateway-progress-text');
             const gatewayCard = document.getElementById('gateway-unlock-card');
@@ -506,11 +449,11 @@
                 statusText.textContent = "All systems active. Gateway fully unlocked.";
                 gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
                 
-                // Unlock visually disabled Nav Icons
+                // UNLOCK NAV ICONS
                 document.querySelectorAll('.nav-locked').forEach(el => el.classList.remove('nav-locked'));
             }
 
-            // Pre-fill wizard inputs with session data (e.g., the student number just entered)
+            // Pre-fill setup wizard
             const inputs = document.getElementById('wizardForm').elements;
             for (let i = 0; i < inputs.length; i++) {
                 if (inputs[i].name && session[inputs[i].name]) {
@@ -519,11 +462,14 @@
             }
         }
 
-        // 4. TAB & NAVIGATION INTERCEPTOR
+        // 4. NAV INTERCEPTOR
         function switchTab(tabId, btnElement) {
-            if (gatewayPercentage < 100 && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security')) {
+            // THE SHELL LOCK
+            if (gatewayPercentage < 100 && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security' || tabId === 'transport')) {
                 showToast("Access Denied: Complete Gateway Setup first.", "error");
-                pulseGatewayCard();
+                const card = document.getElementById('gateway-unlock-card');
+                card.classList.add('border-rose-400', 'bg-rose-50');
+                setTimeout(() => card.classList.remove('border-rose-400', 'bg-rose-50'), 600);
                 return;
             }
 
@@ -540,40 +486,23 @@
 
         function openShuttleMap() {
             if (gatewayPercentage < 100) {
-                showToast("Access Denied: Complete Gateway Setup first.", "error");
-                pulseGatewayCard();
+                switchTab('transport', null); // Triggers the toast and animation
                 return;
             }
             document.getElementById('shuttleMapModal').classList.add('active');
         }
 
-        function closeShuttleMap() {
-            document.getElementById('shuttleMapModal').classList.remove('active');
-        }
-
-        function pulseGatewayCard() {
-            const card = document.getElementById('gateway-unlock-card');
-            card.classList.add('border-rose-400', 'bg-rose-50');
-            setTimeout(() => card.classList.remove('border-rose-400', 'bg-rose-50'), 600);
-        }
+        function closeShuttleMap() { document.getElementById('shuttleMapModal').classList.remove('active'); }
 
         function handleLogout() {
-            // Nuke memory for testing
             localStorage.removeItem('reziflow_session');
             localStorage.removeItem('reziflow_portal_init');
-            window.location.href = 'https://reziflow.online/login/'; // Fallback redirect
-            location.reload(); 
+            window.location.href = 'https://reziflow.online/login/'; 
         }
 
-        // 5. 3-STEP WIZARD ENGINE
-        function openWizardModal() {
-            document.getElementById('setupWizardModal').classList.add('active');
-            wizardStep(0, true); 
-        }
-        
-        function closeWizardModal() {
-            document.getElementById('setupWizardModal').classList.remove('active');
-        }
+        // 5. WIZARD ENGINE
+        function openWizardModal() { document.getElementById('setupWizardModal').classList.add('active'); wizardStep(0, true); }
+        function closeWizardModal() { document.getElementById('setupWizardModal').classList.remove('active'); }
 
         function wizardStep(dir, forceReset = false) {
             if (forceReset) currentWizardStep = 1;
@@ -603,45 +532,15 @@
             const btnSubmit = document.getElementById('btn-wizard-submit');
 
             if (currentWizardStep === 1) {
-                btnBack.classList.add('hidden');
-                btnNext.classList.remove('hidden'); btnNext.classList.replace('col-span-1', 'col-span-2');
-                btnSubmit.classList.add('hidden');
+                btnBack.classList.add('hidden'); btnNext.classList.remove('hidden'); btnNext.classList.replace('col-span-1', 'col-span-2'); btnSubmit.classList.add('hidden');
             } else if (currentWizardStep === 2) {
-                btnBack.classList.remove('hidden');
-                btnNext.classList.remove('hidden'); btnNext.classList.replace('col-span-2', 'col-span-1');
-                btnSubmit.classList.add('hidden');
+                btnBack.classList.remove('hidden'); btnNext.classList.remove('hidden'); btnNext.classList.replace('col-span-2', 'col-span-1'); btnSubmit.classList.add('hidden');
             } else if (currentWizardStep === 3) {
-                btnBack.classList.remove('hidden');
-                btnNext.classList.add('hidden');
-                btnSubmit.classList.remove('hidden');
+                btnBack.classList.remove('hidden'); btnNext.classList.add('hidden'); btnSubmit.classList.remove('hidden');
             }
         }
 
-        function selectFunding(type) {
-            activeFundingType = type;
-            document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
-            document.getElementById('btn-' + type).classList.add('active');
-            document.querySelectorAll('#wizard-step-3 .doc-section').forEach(section => section.classList.remove('active'));
-            document.getElementById('req-' + type).classList.add('active');
-        }
-
-        function handleFileUpload(input) {
-            if (input.files && input.files[0]) {
-                const zone = input.closest('.upload-zone');
-                zone.classList.add('success-state');
-                const icon = zone.querySelector('.icon-container');
-                icon.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm';
-                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
-            }
-        }
-
-        // 6. n8n WEBHOOK TRANSMISSION
         async function submitApplication() {
-            if (activeFundingType === 'none') {
-                showToast("Select a funding pipeline.", "error");
-                return;
-            }
-
             const btn = document.getElementById('btn-wizard-submit');
             const ogHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pushing...';
@@ -649,50 +548,35 @@
 
             const formData = new FormData();
             const inputs = document.getElementById('wizardForm').querySelectorAll('input, select, textarea');
-            
             const session = getSessionData();
+            
             inputs.forEach(input => {
                 if (input.name) {
                     formData.append(input.name, input.value);
                     session[input.name] = input.value;
                 }
             });
-            
             formData.append('Funding_Type', activeFundingType);
             session.Funding_Type = activeFundingType;
 
-            const activeSection = document.getElementById('req-' + activeFundingType);
-            const fileInputs = activeSection.querySelectorAll('input[type="file"]');
-            fileInputs.forEach((input, index) => {
-                if (input.files.length > 0) formData.append(`Document_${index + 1}`, input.files[0]);
-            });
-
             try {
                 // Ensure this points to your active webhook
-                const response = await fetch('https://n8n.automania.cloud/webhook/ReziFlowReg', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch('https://n8n.automania.cloud/webhook/ReziFlowReg', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
-                
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
                 btn.classList.replace('bg-slate-900', 'bg-emerald-500');
 
                 setTimeout(() => {
                     closeWizardModal();
-                    hydrateGatewayEngine(); // Unlocks visually
+                    hydrateGatewayEngine(); // Unlocks the UI
                     showToast("Profile fully verified and synced.", "success");
-                    btn.innerHTML = ogHtml;
-                    btn.disabled = false;
-                    btn.classList.replace('bg-emerald-500', 'bg-slate-900');
+                    btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900');
                 }, 800);
 
             } catch (error) {
-                btn.innerHTML = ogHtml;
-                btn.disabled = false;
+                btn.innerHTML = ogHtml; btn.disabled = false;
                 showToast("Transmission failed. Please check network.", "error");
             }
         }
@@ -702,11 +586,7 @@
             const text = document.getElementById('toast-text');
             const icon = document.getElementById('toast-icon');
             text.textContent = message;
-            if(type === 'error') {
-                icon.className = 'fa-solid fa-triangle-exclamation text-rose-500';
-            } else {
-                icon.className = 'fa-solid fa-circle-check text-emerald-400';
-            }
+            icon.className = type === 'error' ? 'fa-solid fa-triangle-exclamation text-rose-500' : 'fa-solid fa-circle-check text-emerald-400';
             container.classList.add('show');
             setTimeout(() => { container.classList.remove('show'); }, 3500);
         }
