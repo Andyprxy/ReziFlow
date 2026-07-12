@@ -15,15 +15,9 @@
         
         body, html { 
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            position: fixed; 
-            overflow: hidden;
-            overscroll-behavior-y: none;
-            background-color: #0f172a; 
-            -webkit-font-smoothing: antialiased;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            position: fixed; overflow: hidden; overscroll-behavior-y: none;
+            background-color: #0f172a; -webkit-font-smoothing: antialiased;
         }
 
         .desktop-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0f172a; display: none; }
@@ -31,16 +25,7 @@
         .desktop-bg::before { content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%; background: #3b82f6; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
         .desktop-bg::after { content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%; background: #06b6d4; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
 
-        .mobile-container { 
-            width: 100%; 
-            height: 100dvh; 
-            background: #f0f4f8; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden;
-        }
-
+        .mobile-container { width: 100%; height: 100dvh; background: #f0f4f8; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         @media (min-width: 640px) {
             body { display: flex; align-items: center; justify-content: center; position: static; overflow: auto; }
             .mobile-container { width: 390px; height: 844px; max-height: 90vh; border-radius: 44px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255,255,255,0.2); border: 8px solid #1e293b; margin: 20px auto; }
@@ -97,6 +82,7 @@
             <p class="text-xs text-slate-500">Securing your session payload...</p>
         </div>
 
+        <!-- HARD GATE: INITIALIZATION MODAL -->
         <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
             <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
@@ -105,7 +91,7 @@
                 </div>
                 
                 <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
-                <p class="text-slate-500 mb-8 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
+                <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
 
                 <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
                     <div class="space-y-4 mb-6 text-left">
@@ -126,6 +112,9 @@
                         Initialize Portal <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </form>
+                
+                <!-- DIAGNOSTIC TOOL: Visually outputs the payload contents so we can see what broke -->
+                <p id="debug-payload" class="text-[9px] text-slate-400 mt-5 font-mono break-all"></p>
             </div>
         </div>
         
@@ -175,7 +164,6 @@
 
                 <section id="gateway-unlock-card" onclick="openWizardModal()" class="bg-white card-shadow soft-border rounded-[28px] p-5 cursor-pointer tap-effect relative overflow-hidden transition-all duration-300 border-2 border-transparent">
                     <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
-                    
                     <div class="flex items-center gap-4 relative z-10 mb-4">
                         <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
                         <div>
@@ -218,6 +206,7 @@
                 </section>
             </div>
 
+            <!-- Functionality Tabs -->
             <div id="tab-wifi" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">ReziFlow_5G</h2><p class="text-sm text-slate-500 mb-6">High-Speed Campus Network</p></div></div>
             <div id="tab-snags" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Maintenance</h2></div></div>
             <div id="tab-security" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Emergency SOS</h2></div></div>
@@ -226,40 +215,25 @@
 
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
-                <button onclick="switchTab('home', this)" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors">
-                    <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span>
-                </button>
-                <button onclick="switchTab('wifi', this)" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked">
-                    <i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span>
-                </button>
-                <button onclick="switchTab('snags', this)" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked">
-                    <i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span>
-                </button>
-                <button onclick="switchTab('security', this)" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked">
-                    <i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span>
-                </button>
-                <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked">
-                    <i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span>
-                </button>
+                <button onclick="switchTab('home', this)" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
+                <button onclick="switchTab('wifi', this)" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
+                <button onclick="switchTab('snags', this)" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="switchTab('security', this)" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
         </nav>
     </div>
 
+    <!-- Modals -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[1500] modal-overlay flex items-end justify-center"><div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col"><div class="flex-1"></div><button onclick="closeShuttleMap()" class="w-full bg-slate-900 text-white rounded-xl py-4 font-bold mt-auto tap-effect">Close Map</button></div></div>
 
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 3</p>
-                </div>
-                <button onclick="closeWizardModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div><h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2><p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 3</p></div>
+                <button onclick="closeWizardModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50 relative">
                 <form id="wizardForm">
                     <div id="wizard-step-1" class="space-y-4 doc-section active">
@@ -361,7 +335,6 @@
                     </div>
                 </form>
             </div>
-
             <div class="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-slate-100 flex-shrink-0 grid grid-cols-2 gap-3 z-10">
                 <button type="button" id="btn-wizard-back" onclick="wizardStep(-1)" class="w-full py-4 bg-slate-100 text-slate-500 font-bold rounded-xl text-xs transition-colors hidden tap-effect">Back</button>
                 <button type="button" id="btn-wizard-next" onclick="wizardStep(1)" class="col-span-2 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">Next Step <i class="fa-solid fa-arrow-right"></i></button>
@@ -382,24 +355,22 @@
             'Guardian_Number', 'Guardian_Relationship'
         ];
 
-        // 1. THE RECURSIVE PAYLOAD EXTRACTOR
+        // 1. THE FLAT SESSION EXTRACTOR
         function getSessionData() {
             let rawSession = localStorage.getItem('reziflow_session');
-            if (!rawSession) {
-                return { Email_Address: 'pending@student.com' };
-            }
+            if (!rawSession) return { Email_Address: 'pending@student.com' };
+            
             try {
                 let parsed = JSON.parse(rawSession);
                 
                 // Aggressively unwrap arrays to extract the true object
-                while (Array.isArray(parsed) && parsed.length > 0) {
-                    parsed = parsed[0];
-                }
+                if (Array.isArray(parsed) && parsed.length > 0) parsed = parsed[0];
+                
+                // Check if n8n wrapped it in a "data" property
+                if (parsed && parsed.data && Array.isArray(parsed.data)) parsed = parsed.data[0];
                 
                 // Final safety check to ensure it's an object
-                if (!parsed || typeof parsed !== 'object') {
-                    parsed = {};
-                }
+                if (!parsed || typeof parsed !== 'object') return { Email_Address: 'pending@student.com' };
                 
                 return parsed;
             } catch (e) {
@@ -417,12 +388,10 @@
         document.addEventListener("DOMContentLoaded", () => {
             const session = getSessionData();
             
-            // Extract the fields exactly as n8n sent them
             const fName = session.First_Name;
             const sName = session.Surname;
             const sNum = session.Student_Number;
 
-            // Enforce that ALL THREE required baseline fields exist
             const hasValidName = isValidData(fName);
             const hasValidSName = isValidData(sName);
             const hasValidNum = isValidData(sNum);
@@ -432,11 +401,18 @@
             if (needsInitialization) {
                 const guard = document.getElementById('authGuard');
                 if(guard) guard.remove();
+                
                 document.getElementById('welcomeModal').classList.remove('hidden');
+                
+                // INJECT DIAGNOSTIC DATA
+                const debugEl = document.getElementById('debug-payload');
+                if (debugEl) {
+                    debugEl.textContent = `Diag: N=${fName}, S=${sName}, ID=${sNum} | Keys: ${Object.keys(session).join(', ')}`;
+                }
+
                 hydrateGatewayEngine(); 
             } else {
-                // 3. THE NUKE PROTOCOL
-                // Completely annihilate the modal from the DOM to prevent any ghost rendering
+                // THE NUKE PROTOCOL: Erase the modal from DOM if data is valid
                 const welcomeModal = document.getElementById('welcomeModal');
                 if (welcomeModal) welcomeModal.remove();
 
@@ -478,11 +454,10 @@
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
 
                 const welcomeModal = document.getElementById('welcomeModal');
-                welcomeModal.style.opacity = '0';
-                setTimeout(() => {
-                    welcomeModal.remove(); // Nuke upon successful initialization
-                    hydrateGatewayEngine(); 
-                }, 500);
+                if (welcomeModal) {
+                    welcomeModal.style.opacity = '0';
+                    setTimeout(() => { welcomeModal.remove(); hydrateGatewayEngine(); }, 500);
+                }
 
             } catch (error) {
                 showToast("Connection error. Ensure network is stable.", "error");
@@ -490,7 +465,7 @@
             }
         }
 
-        // 4. BULLETPROOF PROGRESS CALCULATOR
+        // 3. BULLETPROOF PROGRESS CALCULATOR
         function hydrateGatewayEngine() {
             const session = getSessionData();
             
@@ -499,7 +474,6 @@
             document.getElementById('dyn-id-home').textContent = session.Student_Number || '--';
 
             let filledCount = 0;
-            // Validate directly using our strict validator
             requiredProfileFields.forEach(field => {
                 if (isValidData(session[field])) filledCount++;
             });
@@ -527,7 +501,6 @@
                 document.querySelectorAll('.nav-locked').forEach(el => el.classList.remove('nav-locked'));
             }
 
-            // Bind values securely to the wizard
             const inputs = document.getElementById('wizardForm').elements;
             for (let i = 0; i < inputs.length; i++) {
                 if (inputs[i].name && session[inputs[i].name]) {
