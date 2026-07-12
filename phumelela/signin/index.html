@@ -90,7 +90,7 @@
             <form id="forgotForm" onsubmit="handleForgotPassword(event)">
                 <input type="email" id="forgotEmail" class="input-field mb-4" placeholder="Enter registered email" required>
                 <div id="forgotFeedback" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center"></div>
-                <button type="submit" id="forgotBtn" class="w-full bg-blue-600 text-white rounded-xl py-3 font-bold">Send Reset Link</button>
+                <button type="submit" id="forgotBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-bold transition-colors shadow-lg shadow-blue-600/30">Send Reset Link</button>
             </form>
         </div>
     </div>
@@ -103,85 +103,104 @@
         async function handleSignin(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerHTML = 'Authenticating...'; btn.disabled = true;
+            const apiError = document.getElementById('apiError');
+            const apiErrorText = document.getElementById('apiErrorText');
             
-            // Clean the email data before sending
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...'; 
+            btn.disabled = true;
+            apiError.classList.add('hidden');
+            
             const rawEmail = document.getElementById('email').value;
             const cleanEmail = rawEmail.toLowerCase().trim();
 
             try {
-                // Ensure your n8n workflow toggle is set to ACTIVE for /webhook/ to work
+                // 1. Wipe old environment entirely
+                localStorage.removeItem('reziflow_session');
+                localStorage.removeItem('reziflow_portal_init');
+
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ Email_Address: cleanEmail, Password: document.getElementById('password').value })
                 });
                 
-                // If n8n returns an error (like a 404 because the webhook is off)
                 if (!res.ok) throw new Error("Invalid email or password.");
                 
                 const data = await res.json();
-                if (data.status === 'success') { window.location.href = '/phumelela/portal/'; }
-                else throw new Error(data.message || "Invalid email or password.");
+                
+                // 2. UNIVERSAL PAYLOAD PARSER
+                let userData = null;
+                if (Array.isArray(data) && data.length > 0) {
+                    userData = data[0]; 
+                } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+                    if (data.status === 'error') throw new Error(data.message || "Invalid email or password.");
+                    userData = data; 
+                }
+
+                if (!userData) throw new Error("Invalid email or password.");
+
+                // 3. THE HANDSHAKE
+                userData.Email_Address = userData.Email_Address || cleanEmail;
+
+                localStorage.setItem('reziflow_session', JSON.stringify(userData));
+
+                // 4. SUCCESS UI & REDIRECT
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Success'; 
+                btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+
+                setTimeout(() => {
+                    window.location.href = '/phumelela/portal/'; 
+                }, 500);
+
             } catch (err) {
-                // Now displays exactly what you requested
-                document.getElementById('apiErrorText').textContent = err.message || "Invalid email or password.";
-                document.getElementById('apiError').classList.remove('hidden');
-                btn.innerHTML = 'Sign In'; btn.disabled = false;
+                apiErrorText.textContent = err.message || "Invalid email or password.";
+                apiError.classList.remove('hidden');
+                btn.innerHTML = 'Sign In'; 
+                btn.disabled = false;
             }
         }
 
         async function handleForgotPassword(e) {
-    e.preventDefault();
-    const btn = document.getElementById('forgotBtn');
-    const feedback = document.getElementById('forgotFeedback');
-    
-    // 1. Start the loading state
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; 
-    btn.disabled = true;
-    
-    const rawEmail = document.getElementById('forgotEmail').value;
-    const cleanEmail = rawEmail.toLowerCase().trim();
+            e.preventDefault();
+            const btn = document.getElementById('forgotBtn');
+            const feedback = document.getElementById('forgotFeedback');
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; 
+            btn.disabled = true;
+            
+            const rawEmail = document.getElementById('forgotEmail').value;
+            const cleanEmail = rawEmail.toLowerCase().trim();
 
-    try {
-        const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ Email_Address: cleanEmail })
-        });
-        
-        if (!res.ok) throw new Error("Connection failed.");
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-forgot-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ Email_Address: cleanEmail })
+                });
+                
+                if (!res.ok) throw new Error("Connection failed.");
 
-        const data = await res.json();
-        
-        // 2. Did n8n tell us the email doesn't exist?
-        // If your n8n workflow returns {"status": "error"} when an email isn't in the sheet
-        if (data.status === 'error') {
-            throw new Error("Email not found. Please sign up to create an account.");
+                const data = await res.json();
+                
+                if (data.status === 'error') {
+                    throw new Error("Email not found. Please sign up to create an account.");
+                }
+
+                feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
+                feedback.classList.add('bg-emerald-50', 'text-emerald-700');
+                feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> Check your email for the reset link.';
+                
+                btn.innerHTML = 'Link Sent'; 
+
+            } catch (err) {
+                feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
+                feedback.classList.add('bg-rose-50', 'text-rose-700');
+                feedback.textContent = err.message || "An error occurred. Please try again.";
+                
+                btn.innerHTML = 'Try Again'; 
+                btn.disabled = false;
+            }
         }
-
-        // 3. Success Path!
-        feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-700');
-        feedback.classList.add('bg-emerald-50', 'text-emerald-700');
-        feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> Check your email for the reset link.';
-        
-        // 4. FIX: Stop the loading state! 
-        // We change the text to "Link Sent" but keep it disabled so they don't spam the button.
-        btn.innerHTML = 'Link Sent'; 
-
-    } catch (err) {
-        // 5. Error Path (Email not found or network issue)
-        feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
-        feedback.classList.add('bg-rose-50', 'text-rose-700');
-        
-        // This will now display "Email not found. Please sign up to create an account."
-        feedback.textContent = err.message || "An error occurred. Please try again.";
-        
-        // FIX: Re-enable the button so they can try again if they made a typo
-        btn.innerHTML = 'Try Again'; 
-        btn.disabled = false;
-    }
-}
     </script>
 </body>
 </html>
