@@ -527,7 +527,6 @@
             const session = getSessionData();
             const email = session.Email_Address || session.Email;
 
-            // Failsafe: only checking hard gate if email exists
             if (email) {
                 checkHardGate(session);
                 try {
@@ -556,7 +555,6 @@
                 
                 startLiveSniffer();
             } else {
-                // Without forced redirects, if they somehow get here with no email, show gate.
                 document.getElementById('welcomeModal').classList.remove('hidden');
             }
         });
@@ -625,14 +623,12 @@
             document.getElementById('dyn-fullname-home').textContent = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
             document.getElementById('dyn-id-home').textContent = isValidData(session.Student_Number) ? session.Student_Number : '--';
 
-            // Profile Progress
             let profileFilledCount = 0;
             profileDataFields.forEach(field => {
                 if (isValidData(session[field])) profileFilledCount++;
             });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
-            // Vault Progress
             vaultPercentage = 0;
             let requiredDocs = 0;
             let filledDocs = 0;
@@ -689,7 +685,6 @@
                 gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
             }
 
-            // DYNAMIC DOCUMENT UI RESTORATION (The "Replace" Feature)
             document.querySelectorAll('.upload-zone').forEach(zone => {
                 const docKey = zone.getAttribute('data-doc-key');
                 const iconContainer = zone.querySelector('.icon-container');
@@ -701,7 +696,6 @@
                 const origTitle = titleText.getAttribute('data-orig-title');
 
                 if (docKey && isValidData(session[docKey])) {
-                    // Document exists on server
                     zone.classList.add('success-state');
                     iconContainer.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm border border-emerald-100';
                     iconContainer.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -714,7 +708,6 @@
                         actionBtn.className = "action-btn text-[10px] font-bold text-slate-500 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors";
                     }
                 } else {
-                    // Document missing or was deleted from sheet
                     zone.classList.remove('success-state');
                     iconContainer.className = `icon-container w-10 h-10 rounded-lg bg-${baseColor}-50 text-${baseColor}-500 flex items-center justify-center shadow-sm border border-${baseColor}-100`;
                     iconContainer.innerHTML = `<i class="fa-solid ${baseIcon}"></i>`;
@@ -870,6 +863,7 @@
             }
         }
 
+        // Transmission Route 1: PROFILE INFO ONLY
         async function submitProfileData() {
             const btn = document.getElementById('btn-profile-submit');
             const ogHtml = btn.innerHTML;
@@ -879,6 +873,8 @@
             const formData = new FormData();
             const session = getSessionData();
             
+            formData.append('Email_Address', session.Email_Address || '');
+
             const appendInputs = (sectionId) => {
                 const inputs = document.getElementById(sectionId).querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
@@ -893,7 +889,7 @@
             appendInputs('wizard-step-2');
 
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/ReziFlowReg', { method: 'POST', body: formData });
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-update-profile', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
@@ -916,6 +912,7 @@
             }
         }
 
+        // Transmission Route 2: VAULT DOCUMENTS ONLY
         async function submitApplication() {
             if (activeFundingType === 'none') { showToast("Select a funding pipeline.", "error"); return; }
             
@@ -935,7 +932,6 @@
             const activeSection = document.getElementById('req-' + activeFundingType);
             const fileInputs = activeSection.querySelectorAll('input[type="file"]');
             
-            // MATH-STRICT OPTIMISTIC UPDATE: Only update fields that actually have a file attached
             fileInputs.forEach((input) => {
                 if (input.files.length > 0) {
                     const zone = input.closest('.upload-zone');
@@ -948,14 +944,12 @@
                     if (docKey === 'Doc_4_URL_Payslip') docNum = 4;
 
                     formData.append(`Document_${docNum}`, input.files[0]);
-                    
-                    // Optimistically jump the UI only for the specific file uploaded
                     session[docKey] = "vaulted_locally";
                 }
             });
 
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/ReziFlowReg', { method: 'POST', body: formData });
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-vault-docs', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
