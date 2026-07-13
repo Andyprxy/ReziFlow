@@ -30,6 +30,16 @@
             .mobile-container { width: 390px; height: 844px; max-height: 90vh; border-radius: 44px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255,255,255,0.2); border: 8px solid #1e293b; margin: 20px auto; }
         }
 
+        /* Apple Liquid Glass Aesthetics */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; padding-bottom: 24px; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -55,8 +65,7 @@
         .input-field:focus { outline: none; border-color: #3b82f6; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; }
 
-        .nav-locked { opacity: 0.5; filter: grayscale(100%); transition: all 0.3s ease; }
-        .nav-locked:active { transform: none; }
+        .nav-locked { opacity: 0.5; filter: grayscale(100%); transition: all 0.3s ease; pointer-events: none; }
         
         .upload-zone { border: 2px dashed rgba(203, 213, 225, 0.8); background: rgba(255, 255, 255, 0.5); transition: all 0.2s ease; }
         .upload-zone:hover { border-color: #3b82f6; background-color: rgba(239, 246, 255, 0.8); }
@@ -89,38 +98,34 @@
             <p id="auth-status-text" class="text-xs text-slate-500">Verifying live server profile...</p>
         </div>
 
-        <!-- HARD GATE: INITIALIZATION MODAL -->
+        <!-- INITIALIZATION MODAL -->
         <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
             <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
                     <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
                     <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
                 </div>
-                
                 <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
                 <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
-
                 <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
                     <div class="space-y-4 mb-6 text-left">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
-                            <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Andile" required>
+                            <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
-                            <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Maphumulo" required>
+                            <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
-                            <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" placeholder="Required for access" required>
+                            <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" required>
                         </div>
                     </div>
                     <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect mb-3">
                         Initialize Portal <i class="fa-solid fa-arrow-right"></i>
                     </button>
-                    <button type="button" onclick="manualSniff()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">
-                        Data already exists? Force Sync
-                    </button>
+                    <button type="button" onclick="manualSniff()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">Data already exists? Force Sync</button>
                 </form>
             </div>
         </div>
@@ -132,7 +137,7 @@
                     <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Secure Logout"><i class="fa-solid fa-power-off"></i></button>
+                    <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect"><i class="fa-solid fa-power-off"></i></button>
                     <button onclick="switchTab('profile', this)" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
                 </div>
             </div>
@@ -140,11 +145,12 @@
 
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-6">
             <div id="tab-home" class="tab-content active space-y-5">
+                
                 <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
                     <div class="relative z-10 flex justify-between items-start mb-8">
                         <div>
-                            <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Verified Resident</p>
+                            <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Vetting Pending</p>
                             <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight tracking-tight">Loading...</h1>
                         </div>
                         <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
@@ -167,32 +173,34 @@
                         </div>
                     </div>
                     
-                    <div class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2">
-                        <!-- Route to Profile Wizard -->
-                        <div onclick="openWizardFlow('profile')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-blue-500 transition-colors"><i class="fa-regular fa-user"></i> Profile Info</span>
-                                    <span id="profile-progress-text" class="text-[10px] font-black text-blue-600">0%</span>
-                                </div>
-                                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div id="profile-progress-bar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div></div>
-                            </div>
-                            <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-blue-500 flex items-center justify-center text-[10px] shadow-sm flex-shrink-0 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                        </div>
-
-                        <!-- Route to Vault Wizard -->
-                        <div onclick="openWizardFlow('documents')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group border-t border-slate-100">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-indigo-500 transition-colors"><i class="fa-regular fa-folder-open"></i> Documents</span>
-                                    <span id="vault-progress-text" class="text-[10px] font-black text-indigo-500">0%</span>
-                                </div>
-                                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div id="vault-progress-bar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div></div>
-                            </div>
-                            <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center text-[10px] shadow-sm flex-shrink-0 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                        </div>
+                    <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300">
+                        <!-- Default Progress Bars inject here -->
                     </div>
                 </section>
+
+                <!-- THE LIQUID GLASS LEASE SLOT (Hidden by default) -->
+                <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-400 opacity-10 rounded-full blur-2xl"></div>
+                    <h3 class="text-base font-black text-slate-900 mb-1 tracking-tight relative z-10">Accommodation Lease</h3>
+                    <p class="text-[11px] text-slate-600 mb-4 font-medium relative z-10">Review and digitally sign your residency agreement.</p>
+                    
+                    <div class="bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] p-4 flex flex-col gap-4 relative z-10 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100/80 text-blue-600 flex items-center justify-center text-lg shadow-sm flex-shrink-0">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 tracking-tight">2026 Academic Year Lease</p>
+                                <p id="home-lease-status" class="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5">
+                                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Signature Required
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="openLeaseModal()" id="btn-home-lease" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect">
+                            Review & Sign <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
 
                 <section>
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
@@ -203,10 +211,44 @@
                 </section>
             </div>
 
+            <!-- Tab: Wi-Fi -->
             <div id="tab-wifi" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">ReziFlow_5G</h2><p class="text-sm text-slate-500 mb-6">High-Speed Campus Network</p></div></div>
+            <!-- Tab: Snags -->
             <div id="tab-snags" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Maintenance</h2></div></div>
+            <!-- Tab: Security -->
             <div id="tab-security" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">Emergency SOS</h2></div></div>
-            <div id="tab-profile" class="tab-content space-y-5"><div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center"><h2 class="text-xl font-bold text-slate-900 mb-1">My Profile</h2></div></div>
+            
+            <!-- Tab: Profile (Updated with Source 3 Elements) -->
+            <div id="tab-profile" class="tab-content space-y-5">
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-5 flex items-center gap-4">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-inner overflow-hidden" id="profile-initials">--</div>
+                    </div>
+                    <div>
+                        <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight tracking-tight">--</h2>
+                        <p id="dyn-details-profile" class="text-xs font-medium text-blue-500 mt-0.5">--</p>
+                    </div>
+                </div>
+
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">ID Number</span><span id="dyn-id-number" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Gender</span><span id="dyn-gender" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-mobile" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Home Address</span><span id="dyn-address" class="text-xs font-bold text-slate-800 text-right max-w-[180px] truncate">--</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-shield-heart text-indigo-500 mr-2"></i> Guardian Details</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Name</span><span id="dyn-guardian-name" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Relationship</span><span id="dyn-guardian-rel" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span></div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -221,27 +263,16 @@
         </nav>
     </div>
 
-    <!-- Modals -->
-    <div id="shuttleMapModal" class="absolute inset-0 z-[1500] modal-overlay flex items-end justify-center"><div class="modal-content bg-white w-full h-[92%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col"><div class="flex-1"></div><button onclick="closeShuttleMap()" class="w-full bg-slate-900 text-white rounded-xl py-4 font-bold mt-auto tap-effect">Close Map</button></div></div>
-
-    <!-- SEPARATED WIZARD MODAL -->
+    <!-- WIZARD MODAL -->
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
-            
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 2</p>
-                </div>
-                <button onclick="closeWizardModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div><h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2><p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 2</p></div>
+                <button onclick="closeWizardModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50 relative">
                 <form id="wizardForm">
-                    
-                    <!-- STEP 1: PERSONAL DETAILS (Profile Flow) -->
+                    <!-- STEP 1: PERSONAL DETAILS -->
                     <div id="wizard-step-1" class="space-y-4 doc-section active">
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">First Name</label><input type="text" name="First_Name" class="input-field" required></div>
@@ -250,31 +281,13 @@
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Mobile Number</label><input type="tel" name="Mobile_Number" class="input-field" placeholder="081 234 5678" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" name="Student_Number" class="input-field font-mono" required></div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label>
-                                <select name="Gender" class="input-field" required>
-                                    <option value="" disabled selected>Select</option><option value="Male">Male</option><option value="Female">Female</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label><select name="Gender" class="input-field" required><option value="" disabled selected>Select</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label>
-                            <input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)">
-                        </div>
+                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label><input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"></div>
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Email Address</label><input type="email" name="Email_Address" class="input-field" required readonly></div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label>
-                                <select name="Campus_Hub" class="input-field" required>
-                                    <option value="" disabled selected>Select</option><option>TUT Pretoria West</option><option>TUT Arcadia</option><option>TUT Arts Campus</option><option>UP Main Campus</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label>
-                                <select name="Year_Level" class="input-field" required>
-                                    <option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgraduate (Hons/Masters)</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label><select name="Campus_Hub" class="input-field" required><option value="" disabled selected>Select</option><option>TUT Pretoria West</option><option>TUT Arcadia</option><option>TUT Arts Campus</option><option>UP Main Campus</option></select></div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label><select name="Year_Level" class="input-field" required><option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgraduate (Hons/Masters)</option></select></div>
                         </div>
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Course Name</label><input type="text" name="Course" class="input-field" placeholder="e.g. Industrial Engineering" required></div>
                         <div class="border-t border-slate-200/60 pt-4 mt-2">
@@ -286,17 +299,12 @@
                         </div>
                     </div>
 
-                    <!-- STEP 2: GUARDIAN & MEDICAL (Profile Flow) -->
+                    <!-- STEP 2: GUARDIAN -->
                     <div id="wizard-step-2" class="space-y-4 doc-section">
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Guardian Name</label><input type="text" name="Guardian_Name" class="input-field" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Contact Number</label><input type="tel" name="Guardian_Number" class="input-field font-mono" required></div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label>
-                                <select name="Guardian_Relationship" class="input-field" required>
-                                    <option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option><option>Other</option>
-                                </select>
-                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label><select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option><option>Other</option></select></div>
                         </div>
                         <div class="pt-4 border-t border-slate-200/60">
                             <label class="block text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1 pl-1"><i class="fa-solid fa-staff-snake mr-1"></i> Medical Condition (Optional)</label>
@@ -304,128 +312,56 @@
                         </div>
                     </div>
 
-                    <!-- STEP 3: THE VAULT (Documents Flow) -->
+                    <!-- STEP 3: VAULT -->
                     <div id="wizard-step-3" class="doc-section">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Select Funding Source</label>
                         <div class="grid grid-cols-3 gap-2 mb-6">
-                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3>
-                            </div>
-                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3>
-                            </div>
-                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
-                                <i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i>
-                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3>
-                            </div>
+                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3></div>
+                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3></div>
+                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3></div>
                         </div>
 
-                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60">
-                            <i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i>
-                            <p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p>
-                        </div>
+                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60"><i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p></div>
 
                         <!-- NSFAS Docs -->
                         <div id="req-nsfas" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-image" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Funding">Proof of Funding</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Screenshot or PDF of portal approval</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Funding">Proof of Funding</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Screenshot or PDF of portal approval</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Student ID Copy">Student ID Copy</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photo or scan</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Student ID Copy">Student ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photo or scan</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-graduation-cap"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                         </div>
 
                         <!-- Bursary Docs -->
                         <div id="req-bursary" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-file-contract" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-file-contract"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Confirmation Letter">Confirmation Letter</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Official letterhead</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-file-contract"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Confirmation Letter">Confirmation Letter</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Official letterhead</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card-clip" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-id-card-clip"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Certified ID Copy">Certified ID Copy</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Certified within last 3 months</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-id-card-clip"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Certified ID Copy">Certified ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Certified within last 3 months</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-graduation-cap"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                         </div>
 
                         <!-- Cash Docs -->
                         <div id="req-cash" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-building-columns" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-building-columns"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="3 Months Bank Statement">3 Months Bank Statement</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Recent stamped statements</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-building-columns"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="3 Months Bank Statement">3 Months Bank Statement</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Recent stamped statements</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_4_URL_Payslip" data-base-icon="fa-file-invoice-dollar" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Latest Payslip">Latest Payslip</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">From the account payer</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-file-invoice-dollar"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Latest Payslip">Latest Payslip</p><p class="subtitle-text text-[9px] text-slate-500 truncate">From the account payer</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-id-card"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="ID Copy (Payer & Student)">ID Copy (Payer & Student)</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photos or scans</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-id-card"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="ID Copy (Payer & Student)">ID Copy (Payer & Student)</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photos or scans</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
-                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-graduation-cap"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p>
-                                    <p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p>
-                                </div>
-                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                         </div>
                     </div>
@@ -437,6 +373,45 @@
                 <button type="button" id="btn-wizard-next" onclick="wizardStep(1)" class="col-span-2 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">Submit & Proceed <i class="fa-solid fa-arrow-right"></i></button>
                 <button type="button" id="btn-profile-submit" onclick="submitProfileData()" class="col-span-1 w-full py-4 bg-slate-900 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-check-double"></i> Save Profile</button>
                 <button type="button" id="btn-vault-submit" onclick="submitApplication()" class="col-span-2 w-full py-4 bg-slate-900 hover:bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-cloud-arrow-up"></i> Push to Vault</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEASE SIGNATURE MODAL -->
+    <div id="leaseModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
+        <div class="modal-content bg-white w-full h-[95%] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Digital Lease</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Legally Binding</p>
+                </div>
+                <button onclick="closeModal('leaseModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium">
+                <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
+                <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols as outlined by the property management.</p>
+                <p class="mb-2">2. This digital signature is legally binding and acknowledges receipt of the full terms of the lease agreement.</p>
+                <p class="mb-2">3. The resident acknowledges that unauthorized visitors or subletting will result in immediate termination of the access pass.</p>
+                <p>4. By signing below, the resident consents to the use of their digital signature to be populated across the master lease PDF and securely stored within the vault infrastructure.</p>
+            </div>
+
+            <div class="flex-shrink-0">
+                <p class="text-xs font-bold text-slate-800 mb-2 flex justify-between items-end">
+                    <span>Draw your signature</span>
+                    <button type="button" onclick="clearSignature()" class="text-[10px] text-blue-500 hover:text-blue-700 uppercase tracking-widest">Clear</button>
+                </p>
+                
+                <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden relative">
+                    <canvas id="signature-pad" class="w-full h-32 touch-none cursor-crosshair"></canvas>
+                    <div id="sig-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-300 font-medium text-sm">Sign here</div>
+                </div>
+
+                <button onclick="submitLeaseSignature(this)" class="w-full mt-4 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-xl py-4 shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-2 tap-effect">
+                    <i class="fa-solid fa-lock"></i> Lock Document
+                </button>
             </div>
         </div>
     </div>
@@ -514,7 +489,6 @@
                                     const welcomeModal = document.getElementById('welcomeModal');
                                     if (welcomeModal) welcomeModal.remove();
                                 }
-                                
                                 hydrateGatewayEngine(true, freshProfile);
                             }
                         }
@@ -616,19 +590,41 @@
             }
         }
 
+        // ==========================================
+        // UI HYDRATION & THE MAGIC BUTTON LOGIC
+        // ==========================================
         function hydrateGatewayEngine(isSilentBackgroundUpdate = false, overrideSession = null) {
             const session = overrideSession || getSessionData();
             
-            document.getElementById('header-initials').textContent = ((session.First_Name || 'R').charAt(0) + (session.Surname || 'F').charAt(0)).toUpperCase();
-            document.getElementById('dyn-fullname-home').textContent = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
-            document.getElementById('dyn-id-home').textContent = isValidData(session.Student_Number) ? session.Student_Number : '--';
+            const initials = ((session.First_Name || 'R').charAt(0) + (session.Surname || 'F').charAt(0)).toUpperCase();
+            document.getElementById('header-initials').textContent = initials;
+            document.getElementById('profile-initials').textContent = initials;
+            
+            const fullName = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
+            document.getElementById('dyn-fullname-home').textContent = fullName;
+            document.getElementById('dyn-fullname-profile').textContent = fullName;
+            
+            const studentId = isValidData(session.Student_Number) ? session.Student_Number : '--';
+            document.getElementById('dyn-id-home').textContent = studentId;
+            document.getElementById('dyn-id-number').textContent = studentId;
 
+            // Header profile data mapping
+            document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
+            document.getElementById('dyn-gender').textContent = isValidData(session.Gender) ? session.Gender : '--';
+            document.getElementById('dyn-mobile').textContent = isValidData(session.Mobile_Number) ? session.Mobile_Number : '--';
+            document.getElementById('dyn-address').textContent = `${isValidData(session.Street_Address) ? session.Street_Address : ''}, ${isValidData(session.City) ? session.City : ''}`.replace(/^, /, '');
+            document.getElementById('dyn-guardian-name').textContent = isValidData(session.Guardian_Name) ? session.Guardian_Name : '--';
+            document.getElementById('dyn-guardian-rel').textContent = isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--';
+            document.getElementById('dyn-guardian-num').textContent = isValidData(session.Guardian_Number) ? session.Guardian_Number : '--';
+
+            // Profile Progress
             let profileFilledCount = 0;
             profileDataFields.forEach(field => {
                 if (isValidData(session[field])) profileFilledCount++;
             });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
+            // Vault Progress dynamically based on funding type
             vaultPercentage = 0;
             let requiredDocs = 0;
             let filledDocs = 0;
@@ -652,45 +648,102 @@
 
             gatewayPercentage = Math.round((profilePercentage + vaultPercentage) / 2);
             
-            const profileBar = document.getElementById('profile-progress-bar');
-            const profileText = document.getElementById('profile-progress-text');
-            const vaultBar = document.getElementById('vault-progress-bar');
-            const vaultText = document.getElementById('vault-progress-text');
+            // Re-render Gateway Card content dynamically
+            const gatewayCardContent = document.getElementById('gateway-dynamic-content');
+            const leaseSlot = document.getElementById('lease-magic-slot');
             const gatewayCard = document.getElementById('gateway-unlock-card');
             const lockIcon = document.getElementById('gateway-lock-icon');
             const statusText = document.getElementById('gateway-status-text');
+            const vettingBadge = document.getElementById('dyn-vetting-badge');
 
-            setTimeout(() => { 
-                if(profileBar) profileBar.style.width = `${profilePercentage}%`; 
-                if(vaultBar) vaultBar.style.width = `${vaultPercentage}%`; 
-            }, 300);
+            // MAGIC BUTTON & LEASE LOGIC
+            if (profilePercentage >= 100 && vaultPercentage >= 100) {
+                
+                // Has the user alerted the admin OR is vetting approved?
+                if (session.Admin_Alerted === true || session.Admin_Alerted === "true" || session.Vetting_Status === "Approved" || isValidData(session.Doc_Lease_URL)) {
+                    
+                    // STATE 3: Admin Alerted -> Show Vetting Status & Reveal Lease Slot
+                    gatewayCardContent.innerHTML = `
+                        <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-check-double"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
+                                <p class="text-xs text-emerald-600 font-medium">Vetting in progress. Lease unlocked.</p>
+                            </div>
+                        </div>
+                    `;
+                    gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
+                    lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
+                    statusText.textContent = "All systems active. Gateway fully unlocked.";
+                    vettingBadge.textContent = session.Vetting_Status === 'Approved' ? 'Verified Resident' : 'Vetting in Progress';
+                    
+                    // Animate the Liquid Glass Lease Slot into view
+                    leaseSlot.classList.remove('hidden');
+                    setTimeout(() => leaseSlot.classList.remove('opacity-0', 'translate-y-4'), 50);
+
+                    // Check if Lease is already signed
+                    if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
+                        document.getElementById('home-lease-status').innerHTML = '<i class="fa-solid fa-check-double mr-1"></i> Signed & Locked';
+                        document.getElementById('home-lease-status').className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
+                        const leaseBtn = document.getElementById('btn-home-lease');
+                        leaseBtn.innerHTML = 'View Signed Lease <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+                        leaseBtn.className = 'w-full bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl py-3 text-xs shadow-md transition-all flex items-center justify-center gap-2 tap-effect';
+                        leaseBtn.onclick = viewSignedLease;
+                    }
+
+                } else {
+                    // STATE 2: 100% Reached, but admin NOT alerted yet -> Show Magic Button
+                    gatewayCardContent.innerHTML = `
+                        <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect glass-panel border-0 text-sm">
+                            <i class="fa-solid fa-paper-plane animate-pulse text-blue-200"></i> Finalize & Alert Admin
+                        </button>
+                    `;
+                    leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
+                    lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
+                    statusText.textContent = "Profile complete. Please alert the admin to finalize your application.";
+                    vettingBadge.textContent = 'Action Required';
+                }
+                document.querySelectorAll('.nav-locked').forEach(el => el.classList.remove('nav-locked', 'pointer-events-none'));
             
-            if(profileText) profileText.textContent = `${profilePercentage}%`;
-            if(vaultText) vaultText.textContent = `${vaultPercentage}%`;
+            } else {
+                // STATE 1: Not 100% -> Show Standard Dual Progress Bars
+                gatewayCardContent.innerHTML = `
+                    <div onclick="openWizardFlow('profile')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-blue-500 transition-colors"><i class="fa-regular fa-user"></i> Profile Info</span>
+                                <span id="profile-progress-text" class="text-[10px] font-black ${profilePercentage >= 100 ? 'text-emerald-500' : 'text-blue-600'}">${profilePercentage}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="${profilePercentage >= 100 ? 'bg-emerald-500' : 'bg-blue-600'} h-1.5 rounded-full transition-all duration-700 ease-out" style="width: ${profilePercentage}%"></div></div>
+                        </div>
+                        <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-blue-500 flex items-center justify-center text-[10px] shadow-sm flex-shrink-0 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
 
-            if (profilePercentage >= 100 && profileBar) profileBar.classList.replace('bg-blue-600', 'bg-emerald-500');
-            else if (profileBar) profileBar.classList.replace('bg-emerald-500', 'bg-blue-600');
-
-            if (vaultPercentage >= 100 && vaultBar) vaultBar.classList.replace('bg-indigo-500', 'bg-emerald-500');
-            else if (vaultBar) vaultBar.classList.replace('bg-emerald-500', 'bg-indigo-500');
-
-            if (gatewayPercentage >= 100 && lockIcon && statusText) {
-                lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
-                statusText.textContent = "All systems active. Gateway fully unlocked.";
-                gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
-                document.querySelectorAll('.nav-locked').forEach(el => el.classList.remove('nav-locked'));
-            } else if (lockIcon && statusText) {
+                    <div onclick="openWizardFlow('documents')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group border-t border-slate-100">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-indigo-500 transition-colors"><i class="fa-regular fa-folder-open"></i> Documents</span>
+                                <span id="vault-progress-text" class="text-[10px] font-black ${vaultPercentage >= 100 ? 'text-emerald-500' : 'text-indigo-500'}">${vaultPercentage}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="${vaultPercentage >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'} h-1.5 rounded-full transition-all duration-700 ease-out" style="width: ${vaultPercentage}%"></div></div>
+                        </div>
+                        <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center text-[10px] shadow-sm flex-shrink-0 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                `;
+                
+                leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
                 lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
                 statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
                 gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
+                vettingBadge.textContent = 'Vetting Pending';
             }
 
+            // DYNAMIC DOCUMENT UI RESTORATION (The "Replace" Feature) inside Wizard
             document.querySelectorAll('.upload-zone').forEach(zone => {
                 const docKey = zone.getAttribute('data-doc-key');
                 const iconContainer = zone.querySelector('.icon-container');
                 const titleText = zone.querySelector('.title-text');
                 const actionBtn = zone.querySelector('.action-btn');
-                
                 const baseColor = zone.getAttribute('data-base-color'); 
                 const baseIcon = zone.getAttribute('data-base-icon'); 
                 const origTitle = titleText.getAttribute('data-orig-title');
@@ -699,10 +752,8 @@
                     zone.classList.add('success-state');
                     iconContainer.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm border border-emerald-100';
                     iconContainer.innerHTML = '<i class="fa-solid fa-check"></i>';
-                    
                     titleText.textContent = "Document Attached";
                     titleText.className = "title-text text-xs font-black text-emerald-700 truncate";
-                    
                     if(actionBtn) {
                         actionBtn.textContent = "Replace";
                         actionBtn.className = "action-btn text-[10px] font-bold text-slate-500 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors";
@@ -711,10 +762,8 @@
                     zone.classList.remove('success-state');
                     iconContainer.className = `icon-container w-10 h-10 rounded-lg bg-${baseColor}-50 text-${baseColor}-500 flex items-center justify-center shadow-sm border border-${baseColor}-100`;
                     iconContainer.innerHTML = `<i class="fa-solid ${baseIcon}"></i>`;
-                    
                     titleText.textContent = origTitle;
                     titleText.className = "title-text text-xs font-bold text-slate-800 truncate";
-                    
                     if(actionBtn) {
                         actionBtn.textContent = "Upload";
                         actionBtn.className = `action-btn text-[10px] font-bold text-${baseColor}-600 bg-${baseColor}-50 px-3 py-1.5 rounded-lg shadow-sm border border-${baseColor}-100 transition-colors`;
@@ -722,6 +771,7 @@
                 }
             });
 
+            // NON-DESTRUCTIVE UPDATE
             const wizardModal = document.getElementById('setupWizardModal');
             const wizardModalActive = wizardModal && wizardModal.classList.contains('active');
             
@@ -735,6 +785,171 @@
             }
         }
 
+        // ==========================================
+        // MAGIC ALERT WEBHOOK
+        // ==========================================
+        async function triggerAdminAlert(btnElement) {
+            const session = getSessionData();
+            const ogHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Alerting...';
+            btnElement.disabled = true;
+
+            try {
+                // Ensure you create this webhook in n8n to send the email
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-finalize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Email_Address: session.Email_Address,
+                        Student_Number: session.Student_Number,
+                        First_Name: session.First_Name,
+                        Surname: session.Surname
+                    })
+                });
+
+                if (!res.ok) throw new Error("Webhook failed");
+
+                session.Admin_Alerted = true;
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+
+                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Alert Sent';
+                
+                setTimeout(() => {
+                    hydrateGatewayEngine(false, session); 
+                    showToast("Admin alerted. Check your email shortly.", "success");
+                }, 800);
+
+            } catch (error) {
+                btnElement.innerHTML = ogHtml;
+                btnElement.disabled = false;
+                showToast("Failed to alert admin. Check connection.", "error");
+            }
+        }
+
+        // ==========================================
+        // LEASE SIGNATURE ENGINE
+        // ==========================================
+        let sigCanvas, sigCtx, isSigning = false, signatureHasDrawn = false;
+        
+        function initSignaturePad() {
+            sigCanvas = document.getElementById('signature-pad');
+            if(!sigCanvas) return;
+            sigCtx = sigCanvas.getContext('2d');
+            
+            const rect = sigCanvas.getBoundingClientRect();
+            sigCanvas.width = rect.width;
+            sigCanvas.height = rect.height;
+            
+            sigCtx.lineWidth = 3;
+            sigCtx.lineCap = 'round';
+            sigCtx.strokeStyle = '#0f172a'; 
+
+            const getPos = (e) => {
+                const r = sigCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - r.left, y: clientY - r.top };
+            };
+
+            const startDraw = (e) => {
+                e.preventDefault(); 
+                isSigning = true;
+                signatureHasDrawn = true;
+                const pos = getPos(e);
+                sigCtx.beginPath();
+                sigCtx.moveTo(pos.x, pos.y);
+                document.getElementById('sig-placeholder').style.display = 'none';
+            };
+
+            const draw = (e) => {
+                if (!isSigning) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                sigCtx.lineTo(pos.x, pos.y);
+                sigCtx.stroke();
+            };
+
+            const stopDraw = (e) => {
+                if (!isSigning) return;
+                e.preventDefault();
+                isSigning = false;
+            };
+
+            sigCanvas.addEventListener('mousedown', startDraw);
+            sigCanvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', stopDraw);
+            
+            sigCanvas.addEventListener('touchstart', startDraw, {passive: false});
+            sigCanvas.addEventListener('touchmove', draw, {passive: false});
+            window.addEventListener('touchend', stopDraw);
+        }
+
+        function clearSignature() {
+            if(!sigCtx || !sigCanvas) return;
+            sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+            signatureHasDrawn = false;
+            document.getElementById('sig-placeholder').style.display = 'flex';
+        }
+
+        function openLeaseModal() {
+            openModal('leaseModal');
+            setTimeout(initSignaturePad, 300); 
+        }
+
+        async function submitLeaseSignature(btnElement) {
+            if (!signatureHasDrawn) {
+                showToast("Please provide a signature before submitting.", "error");
+                return;
+            }
+
+            const session = getSessionData();
+            const ogText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Locking Vault...';
+            btnElement.disabled = true;
+
+            const base64Signature = sigCanvas.toDataURL('image/png');
+
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-sign-lease', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session ? session.Student_Number : 'Unknown',
+                        Email_Address: session ? session.Email_Address : 'Unknown',
+                        Signature: base64Signature
+                    })
+                });
+
+                if (!res.ok) throw new Error("Server error");
+
+                session.Doc_Lease_URL = "vaulted_locally"; 
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+
+                closeModal('leaseModal');
+                hydrateGatewayEngine(false, session);
+                showToast("Lease Signed Successfully!", "success");
+
+            } catch(e) {
+                showToast("Transmission Error. Please try again.", "error");
+                btnElement.innerHTML = ogText;
+                btnElement.disabled = false;
+            }
+        }
+
+        function viewSignedLease() {
+            const session = getSessionData();
+            if (session && session.Doc_Lease_URL && session.Doc_Lease_URL.startsWith('http')) {
+                window.open(session.Doc_Lease_URL, '_blank');
+            } else {
+                showToast("Opening secure lease vault...", "success");
+                window.location.href = `https://n8n.automania.cloud/webhook/816fb2e9-2146-4d28-bef2-45436a156cb2/view-lease/${session.Student_Number}`;
+            }
+        }
+
+
+        // ==========================================
+        // UTILITIES & WIZARD NAVIGATION
+        // ==========================================
         function switchTab(tabId, btnElement) {
             if (gatewayPercentage < 100 && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security' || tabId === 'transport')) {
                 showToast("Access Denied: Complete Gateway Setup first.", "error");
@@ -754,6 +969,9 @@
                 btnElement.classList.remove('text-slate-400'); btnElement.classList.add('text-blue-600');
             }
         }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         function openShuttleMap() {
             if (gatewayPercentage < 100) { switchTab('transport', null); return; }
@@ -863,7 +1081,10 @@
             }
         }
 
-        // Transmission Route 1: PROFILE INFO ONLY
+        // ==========================================
+        // MICROSERVICE TRANSMISSION ROUTES
+        // ==========================================
+        
         async function submitProfileData() {
             const btn = document.getElementById('btn-profile-submit');
             const ogHtml = btn.innerHTML;
@@ -912,7 +1133,6 @@
             }
         }
 
-        // Transmission Route 2: VAULT DOCUMENTS ONLY
         async function submitApplication() {
             if (activeFundingType === 'none') { showToast("Select a funding pipeline.", "error"); return; }
             
