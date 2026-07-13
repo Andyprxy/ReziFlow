@@ -82,7 +82,7 @@
 
     <div class="mobile-container">
         
-        <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none">
+        <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-[9999]">
             <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm border border-slate-700">
                 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
                 <span id="toast-text">Action completed successfully.</span>
@@ -530,7 +530,7 @@
                 <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
                 <p class="mb-4 text-slate-500">Please review the official lease agreement document before providing your signature.</p>
                 
-                <a href="../phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
+                <a href="lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
                     <i class="fa-solid fa-file-pdf text-red-500"></i> Read Full Lease (PDF)
                 </a>
 
@@ -636,19 +636,36 @@
                         if (freshProfile) {
                             freshProfile.Email_Address = email; 
                             
-                            if (JSON.stringify(freshProfile) !== JSON.stringify(session)) {
-                                localStorage.setItem('reziflow_session', JSON.stringify(freshProfile));
-                                
-                                if (isValidData(freshProfile.First_Name) && isValidData(freshProfile.Student_Number)) {
-                                    const welcomeModal = document.getElementById('welcomeModal');
-                                    if (welcomeModal) welcomeModal.remove();
+                            // Smart Merge to preserve local states during backend lag
+                            let mergedSession = { ...session };
+                            let hasChanges = false;
+                            
+                            for (let key in freshProfile) {
+                                if (isValidData(freshProfile[key])) {
+                                    if (mergedSession[key] !== freshProfile[key]) {
+                                        mergedSession[key] = freshProfile[key];
+                                        hasChanges = true;
+                                    }
                                 }
-                                hydrateGatewayEngine(true, freshProfile);
+                            }
+                            
+                            if (hasChanges) {
+                                localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
+                                
+                                if (isValidData(mergedSession.First_Name) && isValidData(mergedSession.Student_Number)) {
+                                    const welcomeModal = document.getElementById('welcomeModal');
+                                    if (welcomeModal && !welcomeModal.classList.contains('hidden')) {
+                                        welcomeModal.remove();
+                                        const guard = document.getElementById('authGuard');
+                                        if (guard) guard.remove();
+                                    }
+                                }
+                                hydrateGatewayEngine(true, mergedSession);
                             }
                         }
                     }
                 } catch (error) {}
-            }, 5000); 
+            }, 3500); 
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -675,8 +692,16 @@
                         let freshProfile = extract(data); 
                         if (freshProfile) {
                             freshProfile.Email_Address = email; 
-                            localStorage.setItem('reziflow_session', JSON.stringify(freshProfile));
-                            checkHardGate(freshProfile);
+                            
+                            let mergedSession = { ...session };
+                            for (let key in freshProfile) {
+                                if (isValidData(freshProfile[key])) {
+                                    mergedSession[key] = freshProfile[key];
+                                }
+                            }
+                            
+                            localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
+                            checkHardGate(mergedSession);
                         }
                     }
                 } catch (error) { console.warn("Live sync delayed, using local cache."); }
@@ -765,7 +790,7 @@
             // Room logic check
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
-            const isVettingApproved = session.Vetting_Status === "Approved";
+            const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
 
             // Profile Tab details
             document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
@@ -816,7 +841,7 @@
             });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
-            // Vault Progress dynamically based on funding type
+            // Vault Progress
             vaultPercentage = 0;
             let requiredDocs = 0;
             let filledDocs = 0;
@@ -839,7 +864,6 @@
 
             gatewayPercentage = Math.round((profilePercentage + vaultPercentage) / 2);
             
-            // Re-render Gateway Card content dynamically
             const gatewayCardContent = document.getElementById('gateway-dynamic-content');
             const leaseSlot = document.getElementById('lease-magic-slot');
             const gatewayCard = document.getElementById('gateway-unlock-card');
@@ -872,7 +896,8 @@
             `;
 
             // ALERTS & STATE CONTROL
-            const isAdminAlerted = session.AD_ALERT === "Alerted" || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isValidData(session.Doc_Lease_URL);
+            const isAdAlerted = isValidData(session.AD_ALERT) && String(session.AD_ALERT).trim().toLowerCase() === 'alerted';
+            const isAdminAlerted = isAdAlerted || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isValidData(session.Doc_Lease_URL);
 
             if (profilePercentage >= 100 && vaultPercentage >= 100) {
                 
