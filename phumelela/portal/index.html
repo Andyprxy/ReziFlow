@@ -183,7 +183,7 @@
                     <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-cyan-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
                     
                     <h3 class="text-base font-black text-slate-900 mb-1 tracking-tight relative z-10">Accommodation Lease</h3>
-                    <p class="text-[11px] text-slate-600 mb-4 font-medium relative z-10 leading-relaxed">Review the terms of residency. You will be able to officially sign the contract once administration allocates your room.</p>
+                    <p class="text-[11px] text-slate-600 mb-4 font-medium relative z-10 leading-relaxed">Review the terms of residency. You will be able to officially sign the contract once administration approves your vetting status.</p>
                     
                     <div class="bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] p-4 flex flex-col gap-4 relative z-10 shadow-sm">
                         <div class="flex items-center gap-3">
@@ -245,6 +245,77 @@
                         <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span></div>
                     </div>
                 </div>
+
+                <!-- DIGITAL VAULT SECTION RESTORED -->
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Digital Vault</h3>
+                    <p class="text-[11px] text-slate-500 mb-5 font-medium">Access your securely uploaded compliance files.</p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-id-card"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-id"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-reg"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-landmark"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-fund"></div>
+                        </div>
+
+                        <!-- Dynamic Payslip for Cash Payers -->
+                        <div id="profile-vault-payslip" class="hidden flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Latest Payslip</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash Payer Docs</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-payslip"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-signature"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-lease"></div>
+                        </div>
+                        
+                    </div>
+                    <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
+                        <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">Automania Architecture</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">Files are stored securely in encrypted cloud nodes.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
 
@@ -272,7 +343,7 @@
             </div>
             <div class="flex-1 overflow-y-auto custom-scroll p-6 bg-slate-50/50 relative">
                 <form id="wizardForm">
-                    <!-- STEP 1: PERSONAL DETAILS -->
+                    <!-- STEP 1: PERSONAL DETAILS (Profile Flow) -->
                     <div id="wizard-step-1" class="space-y-4 doc-section active">
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">First Name</label><input type="text" name="First_Name" class="input-field" required></div>
@@ -281,13 +352,31 @@
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Mobile Number</label><input type="tel" name="Mobile_Number" class="input-field" placeholder="081 234 5678" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" name="Student_Number" class="input-field font-mono" required></div>
-                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label><select name="Gender" class="input-field" required><option value="" disabled selected>Select</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Gender</label>
+                                <select name="Gender" class="input-field" required>
+                                    <option value="" disabled selected>Select</option><option value="Male">Male</option><option value="Female">Female</option>
+                                </select>
+                            </div>
                         </div>
-                        <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label><input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)"></div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">ID Number</label>
+                            <input type="text" name="ID_Number" class="input-field font-mono" placeholder="13 digits" required minlength="13" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13)">
+                        </div>
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Email Address</label><input type="email" name="Email_Address" class="input-field" required readonly></div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label><select name="Campus_Hub" class="input-field" required><option value="" disabled selected>Select</option><option>TUT Pretoria West</option><option>TUT Arcadia</option><option>TUT Arts Campus</option><option>UP Main Campus</option></select></div>
-                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label><select name="Year_Level" class="input-field" required><option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgraduate (Hons/Masters)</option></select></div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Campus</label>
+                                <select name="Campus_Hub" class="input-field" required>
+                                    <option value="" disabled selected>Select</option><option>TUT Pretoria West</option><option>TUT Arcadia</option><option>TUT Arts Campus</option><option>UP Main Campus</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Year Level</label>
+                                <select name="Year_Level" class="input-field" required>
+                                    <option value="" disabled selected>Select</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>Postgraduate (Hons/Masters)</option>
+                                </select>
+                            </div>
                         </div>
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Course Name</label><input type="text" name="Course" class="input-field" placeholder="e.g. Industrial Engineering" required></div>
                         <div class="border-t border-slate-200/60 pt-4 mt-2">
@@ -299,12 +388,17 @@
                         </div>
                     </div>
 
-                    <!-- STEP 2: GUARDIAN -->
+                    <!-- STEP 2: GUARDIAN & MEDICAL (Profile Flow) -->
                     <div id="wizard-step-2" class="space-y-4 doc-section">
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Guardian Name</label><input type="text" name="Guardian_Name" class="input-field" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Contact Number</label><input type="tel" name="Guardian_Number" class="input-field font-mono" required></div>
-                            <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label><select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option><option>Other</option></select></div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label>
+                                <select name="Guardian_Relationship" class="input-field" required>
+                                    <option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option><option>Other</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="pt-4 border-t border-slate-200/60">
                             <label class="block text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1 pl-1"><i class="fa-solid fa-staff-snake mr-1"></i> Medical Condition (Optional)</label>
@@ -312,56 +406,98 @@
                         </div>
                     </div>
 
-                    <!-- STEP 3: VAULT -->
+                    <!-- STEP 3: THE VAULT (Documents Flow) -->
                     <div id="wizard-step-3" class="doc-section">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Select Funding Source</label>
                         <div class="grid grid-cols-3 gap-2 mb-6">
-                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3></div>
-                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3></div>
-                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect"><i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i><h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3></div>
+                            <div id="btn-nsfas" onclick="selectFunding('nsfas')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-landmark text-slate-400 group-hover:text-blue-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-blue-700">NSFAS</h3>
+                            </div>
+                            <div id="btn-bursary" onclick="selectFunding('bursary')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-file-contract text-slate-400 group-hover:text-indigo-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-indigo-700">Bursary</h3>
+                            </div>
+                            <div id="btn-cash" onclick="selectFunding('cash')" class="funding-card border-2 border-slate-200 rounded-[16px] p-3 cursor-pointer text-center group tap-effect">
+                                <i class="fa-solid fa-wallet text-slate-400 group-hover:text-emerald-600 text-xl mb-1 transition-colors"></i>
+                                <h3 class="font-bold text-slate-800 text-[10px] group-hover:text-emerald-700">Cash</h3>
+                            </div>
                         </div>
 
-                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60"><i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i><p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p></div>
+                        <div id="req-default" class="doc-section active flex flex-col items-center text-center py-6 opacity-60">
+                            <i class="fa-solid fa-file-shield text-3xl text-slate-300 mb-2"></i>
+                            <p class="text-xs font-bold text-slate-500">Select pipeline to view requirements.</p>
+                        </div>
 
                         <!-- NSFAS Docs -->
                         <div id="req-nsfas" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-image" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Funding">Proof of Funding</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Screenshot or PDF of portal approval</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-image"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Funding">Proof of Funding</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Screenshot or PDF of portal approval</p></div>
+                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Student ID Copy">Student ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photo or scan</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Student ID Copy">Student ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photo or scan</p></div>
+                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="blue" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm border border-blue-100"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div>
+                                <div class="action-btn text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm border border-blue-100 transition-colors">Upload</div>
                             </div>
                         </div>
 
                         <!-- Bursary Docs -->
                         <div id="req-bursary" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-file-contract" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-file-contract"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Confirmation Letter">Confirmation Letter</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Official letterhead</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-file-contract"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Confirmation Letter">Confirmation Letter</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Official letterhead</p></div>
+                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card-clip" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-id-card-clip"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Certified ID Copy">Certified ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Certified within last 3 months</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-id-card-clip"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Certified ID Copy">Certified ID Copy</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Certified within last 3 months</p></div>
+                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="indigo" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shadow-sm border border-indigo-100"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div>
+                                <div class="action-btn text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100 transition-colors">Upload</div>
                             </div>
                         </div>
 
                         <!-- Cash Docs -->
                         <div id="req-cash" class="doc-section space-y-3">
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_3_URL_Funding" data-base-icon="fa-building-columns" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-building-columns"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="3 Months Bank Statement">3 Months Bank Statement</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Recent stamped statements</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-building-columns"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="3 Months Bank Statement">3 Months Bank Statement</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Recent stamped statements</p></div>
+                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_4_URL_Payslip" data-base-icon="fa-file-invoice-dollar" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-file-invoice-dollar"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Latest Payslip">Latest Payslip</p><p class="subtitle-text text-[9px] text-slate-500 truncate">From the account payer</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Latest Payslip">Latest Payslip</p><p class="subtitle-text text-[9px] text-slate-500 truncate">From the account payer</p></div>
+                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_1_URL_ID" data-base-icon="fa-id-card" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-id-card"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="ID Copy (Payer & Student)">ID Copy (Payer & Student)</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photos or scans</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="ID Copy (Payer & Student)">ID Copy (Payer & Student)</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Clear photos or scans</p></div>
+                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                             <div class="upload-zone rounded-xl p-3 flex items-center gap-3 cursor-pointer tap-effect" data-doc-key="Doc_2_URL_Reg" data-base-icon="fa-graduation-cap" data-base-color="emerald" onclick="this.querySelector('input').click()">
-                                <input type="file" class="hidden" onchange="handleFileUpload(this)"><div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-graduation-cap"></i></div><div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div><div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
+                                <input type="file" class="hidden" onchange="handleFileUpload(this)">
+                                <div class="icon-container w-10 h-10 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div class="flex-1 min-w-0"><p class="title-text text-xs font-bold text-slate-800 truncate" data-orig-title="Proof of Registration">Proof of Registration</p><p class="subtitle-text text-[9px] text-slate-500 truncate">Current academic year</p></div>
+                                <div class="action-btn text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-100 transition-colors">Upload</div>
                             </div>
                         </div>
                     </div>
@@ -392,6 +528,12 @@
 
             <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium relative z-10">
                 <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
+                <p class="mb-4 text-slate-500">Please review the official lease agreement document before providing your signature.</p>
+                
+                <a href="../phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
+                    <i class="fa-solid fa-file-pdf text-red-500"></i> Read Full Lease (PDF)
+                </a>
+
                 <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols as outlined by the property management.</p>
                 <p class="mb-2">2. This digital signature is legally binding and acknowledges receipt of the full terms of the lease agreement.</p>
                 <p class="mb-2">3. The resident acknowledges that unauthorized visitors or subletting will result in immediate termination of the access pass.</p>
@@ -401,14 +543,14 @@
             <!-- Dynamic Signature Area -->
             <div id="signature-area-container" class="flex-shrink-0 relative z-10 bg-white">
                 
-                <!-- Locked State (No Room Assigned) -->
+                <!-- Locked State (Awaiting Vetting Approval) -->
                 <div id="sig-locked-state" class="hidden bg-orange-50 border border-orange-200 rounded-2xl p-5 text-center mt-2">
-                    <i class="fa-solid fa-bed text-orange-400 text-3xl mb-3"></i>
+                    <i class="fa-solid fa-file-shield text-orange-400 text-3xl mb-3"></i>
                     <p class="text-sm font-bold text-orange-700 tracking-tight">Signature Locked</p>
-                    <p class="text-xs text-orange-600 mt-1 font-medium leading-relaxed">You can digitally sign this lease once administration assigns your room.</p>
+                    <p class="text-xs text-orange-600 mt-1 font-medium leading-relaxed">You can digitally sign this lease once administration approves your vetting status.</p>
                 </div>
                 
-                <!-- Active State (Room Assigned) -->
+                <!-- Active State (Ready to Sign) -->
                 <div id="sig-active-state" class="hidden">
                     <p class="text-xs font-bold text-slate-800 mb-2 flex justify-between items-end">
                         <span>Draw your signature</span>
@@ -623,7 +765,7 @@
             // Room logic check
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
-            const isRoomAllocated = roomAllocatedStr.toLowerCase() !== 'unassigned';
+            const isVettingApproved = session.Vetting_Status === "Approved";
 
             // Profile Tab details
             document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
@@ -633,6 +775,39 @@
             document.getElementById('dyn-guardian-name').textContent = isValidData(session.Guardian_Name) ? session.Guardian_Name : '--';
             document.getElementById('dyn-guardian-rel').textContent = isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--';
             document.getElementById('dyn-guardian-num').textContent = isValidData(session.Guardian_Number) ? session.Guardian_Number : '--';
+            
+            // Vault Tab details
+            document.getElementById('dyn-course-name').textContent = isValidData(session.Course) ? session.Course : '--';
+            document.getElementById('dyn-funding-type').textContent = isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending';
+
+            // Document View Rendering
+            const renderDocButton = (containerId, url) => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    if (url && String(url).startsWith('http')) {
+                        container.innerHTML = `<a href="${url}" target="_blank" class="bg-slate-900 hover:bg-blue-600 text-white text-[10px] font-bold px-4 py-2 rounded-[10px] transition-colors shadow-sm inline-flex items-center gap-1.5 tap-effect"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>`;
+                    } else if (url === "vaulted_locally" || url === "signed_and_locked") {
+                        container.innerHTML = `<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">Processing</span>`;
+                    } else {
+                        container.innerHTML = `<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Awaiting</span>`;
+                    }
+                }
+            };
+
+            renderDocButton('doc-btn-id', session.Doc_1_URL_ID);
+            renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
+            renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
+            renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
+
+            const fundingType = session.Funding_Type ? session.Funding_Type.toLowerCase() : 'none';
+            if (fundingType === 'cash' || fundingType === 'cash paying') {
+                const payslipRow = document.getElementById('profile-vault-payslip');
+                if(payslipRow) payslipRow.classList.remove('hidden');
+                renderDocButton('doc-btn-payslip', session.Doc_4_URL_Payslip);
+            } else {
+                const payslipRow = document.getElementById('profile-vault-payslip');
+                if(payslipRow) payslipRow.classList.add('hidden');
+            }
 
             // Profile Progress
             let profileFilledCount = 0;
@@ -641,14 +816,13 @@
             });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
-            // Vault Progress
+            // Vault Progress dynamically based on funding type
             vaultPercentage = 0;
             let requiredDocs = 0;
             let filledDocs = 0;
 
             if (isValidData(session.Funding_Type)) {
-                const type = session.Funding_Type.toLowerCase();
-                if (type === 'cash' || type === 'cash paying') {
+                if (fundingType === 'cash' || fundingType === 'cash paying') {
                     requiredDocs = 4;
                     if (isValidData(session.Doc_1_URL_ID)) filledDocs++;
                     if (isValidData(session.Doc_2_URL_Reg)) filledDocs++;
@@ -665,6 +839,7 @@
 
             gatewayPercentage = Math.round((profilePercentage + vaultPercentage) / 2);
             
+            // Re-render Gateway Card content dynamically
             const gatewayCardContent = document.getElementById('gateway-dynamic-content');
             const leaseSlot = document.getElementById('lease-magic-slot');
             const gatewayCard = document.getElementById('gateway-unlock-card');
@@ -697,7 +872,7 @@
             `;
 
             // ALERTS & STATE CONTROL
-            const isAdminAlerted = session.AD_ALERT === "Alerted" || session.Admin_Alerted === true || session.Admin_Alerted === "true" || session.Vetting_Status === "Approved" || isValidData(session.Doc_Lease_URL);
+            const isAdminAlerted = session.AD_ALERT === "Alerted" || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isValidData(session.Doc_Lease_URL);
 
             if (profilePercentage >= 100 && vaultPercentage >= 100) {
                 
@@ -709,14 +884,14 @@
                             <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
                             <div>
                                 <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
-                                <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once a room is allocated.</p>
+                                <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once vetting is approved.</p>
                             </div>
                         </div>
                     `;
                     gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
                     lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
                     statusText.textContent = "All systems active. Gateway fully unlocked.";
-                    vettingBadge.textContent = session.Vetting_Status === 'Approved' ? 'Verified Resident' : 'Vetting in Progress';
+                    vettingBadge.textContent = isVettingApproved ? 'Verified Resident' : 'Vetting in Progress';
                     
                     // Reveal the Lease Slot
                     leaseSlot.classList.remove('hidden');
@@ -726,7 +901,6 @@
                     const leaseStatusEl = document.getElementById('home-lease-status');
                     const leaseBtnEl = document.getElementById('btn-home-lease');
                     
-                    // Modals areas
                     const sigLockedState = document.getElementById('sig-locked-state');
                     const sigActiveState = document.getElementById('sig-active-state');
                     const signatureAreaContainer = document.getElementById('signature-area-container');
@@ -741,20 +915,27 @@
                         
                         if(signatureAreaContainer) signatureAreaContainer.classList.add('hidden');
 
-                    } else if (!isRoomAllocated) {
-                        // Awaiting Room
-                        leaseStatusEl.innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Awaiting Room Allocation';
+                    } else if (!isVettingApproved) {
+                        // Awaiting Vetting Approval
+                        leaseStatusEl.innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Awaiting Vetting Approval';
                         leaseStatusEl.className = 'text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5';
                         leaseBtnEl.innerHTML = 'Review Terms <i class="fa-solid fa-file-contract"></i>';
                         leaseBtnEl.className = 'w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 tap-effect';
                         leaseBtnEl.onclick = openLeaseModal;
                         
                         if(signatureAreaContainer) signatureAreaContainer.classList.remove('hidden');
-                        if(sigLockedState) sigLockedState.classList.remove('hidden');
+                        if(sigLockedState) {
+                            sigLockedState.classList.remove('hidden');
+                            sigLockedState.innerHTML = `
+                                <i class="fa-solid fa-file-shield text-orange-400 text-3xl mb-3"></i>
+                                <p class="text-sm font-bold text-orange-700 tracking-tight">Signature Locked</p>
+                                <p class="text-xs text-orange-600 mt-1 font-medium leading-relaxed">You can digitally sign this lease once administration approves your vetting status.</p>
+                            `;
+                        }
                         if(sigActiveState) sigActiveState.classList.add('hidden');
 
                     } else {
-                        // Room Allocated - Ready to Sign
+                        // Vetting Approved - Ready to Sign
                         leaseStatusEl.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Signature Required';
                         leaseStatusEl.className = 'text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5';
                         leaseBtnEl.innerHTML = 'Review & Sign <i class="fa-solid fa-arrow-right"></i>';
@@ -767,7 +948,7 @@
                     }
 
                 } else {
-                    // STATE 2: 100% Reached but admin NOT alerted -> Show Magic Button
+                    // STATE 2: 100% Reached but admin NOT alerted -> Show Progress Bars + Magic Button
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 pt-3 border-t border-slate-100">
                             <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
@@ -783,7 +964,7 @@
                 document.querySelectorAll('.nav-locked').forEach(el => el.classList.remove('nav-locked', 'pointer-events-none'));
             
             } else {
-                // STATE 1: Not 100%
+                // STATE 1: Not 100% -> Show Standard Dual Progress Bars
                 gatewayCardContent.innerHTML = progressBarsHtml;
                 leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
                 lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
@@ -953,10 +1134,9 @@
 
         async function submitLeaseSignature(btnElement) {
             const session = getSessionData();
-            const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
             
-            if (roomAllocatedStr.toLowerCase() === 'unassigned') {
-                showToast("Signature locked. Awaiting room allocation.", "error");
+            if (session.Vetting_Status !== "Approved") {
+                showToast("Signature locked. Awaiting vetting approval.", "error");
                 return;
             }
 
@@ -1145,6 +1325,7 @@
         // ==========================================
         // MICROSERVICE TRANSMISSION ROUTES
         // ==========================================
+        
         async function submitProfileData() {
             const btn = document.getElementById('btn-profile-submit');
             const ogHtml = btn.innerHTML;
