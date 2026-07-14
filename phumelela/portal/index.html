@@ -531,7 +531,7 @@
                 <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
                 <p class="mb-4 text-slate-500">Please review the official lease agreement document before providing your signature.</p>
                 
-                <a href="../phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
+                <a href="/phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
                     <i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)
                 </a>
 
@@ -674,7 +674,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.href = '../phumelela/signin';
+                window.location.href = '/phumelela/signin';
                 return;
             }
 
@@ -1048,6 +1048,9 @@
                 // The silent=false ensures errors are thrown if it fails
                 const session = await syncProfileData(false);
                 
+                // Re-hydrate the UI with the fresh data to unlock the lease pad
+                hydrateGatewayEngine(false, session);
+                
                 const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
 
                 if (isVettingApproved) {
@@ -1277,7 +1280,7 @@
         // EXPLICIT LOGOUT ROUTE FIX
         function handleLogout() {
             localStorage.removeItem('reziflow_session');
-            window.location.href = '../phumelela/signin'; 
+            window.location.href = '/phumelela/signin'; 
         }
 
         async function manualSync() {
