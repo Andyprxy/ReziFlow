@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <div id="authGuard" class="absolute inset-0 bg-white z-[1900] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-opacity duration-500">
+        <div id="authGuard" class="absolute inset-0 bg-white z-[1900] flex flex-col items-center justify-center p-6 text-center text-slate-800 font-medium transition-all duration-500">
             <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mb-4 text-2xl shadow-sm animate-pulse">
                 <i class="fa-solid fa-layer-group"></i>
             </div>
@@ -531,7 +531,7 @@
                 <h4 class="font-bold text-slate-800 mb-2">ReziFlow Residency Terms</h4>
                 <p class="mb-4 text-slate-500">Please review the official lease agreement document before providing your signature.</p>
                 
-                <a href="../lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
+                <a href="../phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner">
                     <i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)
                 </a>
 
@@ -615,13 +615,14 @@
             if (!email) return session;
 
             try {
-                // Organic Cache Buster using timestamp parameter instead of headers
-                const fetchUrl = 'https://n8n.automania.cloud/webhook/reziflow-get-profile?_t=' + new Date().getTime();
-                
-                const res = await fetch(fetchUrl, {
+                // Organic payload cache-buster bypasses rigid Safari proxy caches
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Email_Address: email })
+                    body: JSON.stringify({ 
+                        Email_Address: email,
+                        _t: new Date().getTime() 
+                    })
                 });
 
                 if (res.ok) {
@@ -668,32 +669,42 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const session = getSessionData();
             const email = session.Email_Address || session.Email;
-
-            if (email) {
-                checkHardGate(session);
-                const mergedSession = await syncProfileData(true);
-                checkHardGate(mergedSession);
-                startLiveSniffer();
-            } else {
-                document.getElementById('welcomeModal').classList.remove('hidden');
-            }
-        });
-
-        function checkHardGate(sessionData) {
-            const needsInitialization = !(isValidData(sessionData.First_Name) && isValidData(sessionData.Surname) && isValidData(sessionData.Student_Number));
+            
             const authGuard = document.getElementById('authGuard');
             const welcomeModal = document.getElementById('welcomeModal');
 
-            if (needsInitialization) {
-                if(authGuard) authGuard.remove();
-                if(welcomeModal) welcomeModal.classList.remove('hidden');
-                hydrateGatewayEngine(false, sessionData); 
-            } else {
-                if (welcomeModal) welcomeModal.remove();
-                if(authGuard) { authGuard.style.opacity = '0'; setTimeout(() => authGuard.remove(), 500); }
-                hydrateGatewayEngine(false, sessionData);
+            if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
+                window.location.href = '../phumelela/signin';
+                return;
             }
-        }
+
+            // Always show Auth Guard initially
+            if(authGuard) authGuard.style.display = 'flex';
+            if(welcomeModal) welcomeModal.classList.add('hidden');
+
+            // 1. Wait for live sync to finish
+            const mergedSession = await syncProfileData(true);
+
+            // 2. Check if we have Name/Surname/StudentNumber
+            const needsInit = !(isValidData(mergedSession.First_Name) && isValidData(mergedSession.Surname) && isValidData(mergedSession.Student_Number));
+
+            if (needsInit) {
+                // Show Welcome Modal
+                if(authGuard) authGuard.style.display = 'none';
+                if(welcomeModal) welcomeModal.classList.remove('hidden');
+                hydrateGatewayEngine(false, mergedSession);
+            } else {
+                // Hide Guard, we are good
+                if(welcomeModal) welcomeModal.classList.add('hidden');
+                if(authGuard) { 
+                    authGuard.style.opacity = '0'; 
+                    setTimeout(() => authGuard.style.display = 'none', 500); 
+                }
+                hydrateGatewayEngine(false, mergedSession);
+            }
+            
+            startLiveSniffer();
+        });
 
         async function submitWelcomeSetup(e) {
             e.preventDefault();
@@ -726,7 +737,10 @@
                 const welcomeModal = document.getElementById('welcomeModal');
                 if (welcomeModal) {
                     welcomeModal.style.opacity = '0';
-                    setTimeout(() => { welcomeModal.remove(); hydrateGatewayEngine(false, session); }, 500);
+                    setTimeout(() => { 
+                        welcomeModal.classList.add('hidden'); 
+                        hydrateGatewayEngine(false, session); 
+                    }, 500);
                 }
 
             } catch (error) {
@@ -756,6 +770,8 @@
 
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
+            
+            // True verification check
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
 
             document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
@@ -769,6 +785,7 @@
             document.getElementById('dyn-course-name').textContent = isValidData(session.Course) ? session.Course : '--';
             document.getElementById('dyn-funding-type').textContent = isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending';
 
+            // Document View Rendering
             const renderDocButton = (containerId, url) => {
                 const container = document.getElementById(containerId);
                 if (container) {
@@ -862,6 +879,7 @@
             if (profilePercentage >= 100 && vaultPercentage >= 100) {
                 
                 if (isAdminAlerted) {
+                    
                     // STATE 3: Admin Alerted -> Show Status + Reveal Lease
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
@@ -877,13 +895,16 @@
                     statusText.textContent = "All systems active. Gateway fully unlocked.";
                     vettingBadge.textContent = isVettingApproved ? 'Verified Resident' : 'Vetting in Progress';
                     
+                    // Reveal the Lease Slot
                     if(leaseSlot) {
                         leaseSlot.classList.remove('hidden');
                         setTimeout(() => leaseSlot.classList.remove('opacity-0', 'translate-y-4'), 50);
                     }
 
+                    // Dynamic Lease Slot UI State
                     const leaseStatusEl = document.getElementById('home-lease-status');
                     const leaseBtnEl = document.getElementById('btn-home-lease');
+                    
                     const sigLockedState = document.getElementById('sig-locked-state');
                     const sigActiveState = document.getElementById('sig-active-state');
                     const signatureAreaContainer = document.getElementById('signature-area-container');
@@ -942,7 +963,7 @@
                     }
 
                 } else {
-                    // STATE 2: 100% Reached but admin NOT alerted -> Show Magic Button
+                    // STATE 2: 100% Reached but admin NOT alerted -> Show Progress Bars + Magic Button
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 pt-3 border-t border-slate-100">
                             <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
@@ -967,6 +988,7 @@
                 vettingBadge.textContent = 'Vetting Pending';
             }
 
+            // Upload Zone visual update in Modal
             document.querySelectorAll('.upload-zone').forEach(zone => {
                 const docKey = zone.getAttribute('data-doc-key');
                 const iconContainer = zone.querySelector('.icon-container');
@@ -1022,72 +1044,27 @@
 
             showToast("Fetching live data from secure vault...", "success");
 
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
-
-            if(!email) {
-                showToast("Session error. Please log in again.", "error");
-                icon.classList.remove('fa-spin');
-                btnElement.disabled = false;
-                return;
-            }
-
             try {
-                // Organic Cache Buster using timestamp parameter
-                const fetchUrl = 'https://n8n.automania.cloud/webhook/reziflow-get-profile?_t=' + new Date().getTime();
+                // The silent=false ensures errors are thrown if it fails
+                const session = await syncProfileData(false);
                 
-                const res = await fetch(fetchUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Email_Address: email })
-                });
+                const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
 
-                if(res.ok) {
-                    const data = await res.json();
-                    function extract(obj) {
-                        if (!obj) return null;
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
-                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } }
-                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
-                        return null;
-                    }
-
-                    let freshProfile = extract(data);
-
-                    if(freshProfile) {
-                        freshProfile.Email_Address = email;
-
-                        let mergedSession = { ...session };
-                        for (let key in freshProfile) {
-                            if (isValidData(freshProfile[key])) {
-                                mergedSession[key] = freshProfile[key];
-                            }
-                        }
-
-                        localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
-                        hydrateGatewayEngine(false, mergedSession); 
-
-                        const isVettingApproved = isValidData(mergedSession.Vetting_Status) && String(mergedSession.Vetting_Status).trim().toLowerCase() === 'approved';
-
-                        if (isVettingApproved) {
-                            if (isValidData(mergedSession.Doc_Lease_URL) && mergedSession.Doc_Lease_URL !== "vaulted_locally") {
-                                showToast("Your lease is already signed and locked.", "success");
-                            } else {
-                                showToast("Vetting Approved! Signature Pad Unlocked.", "success");
-                            }
-                        } else {
-                            showToast("Vetting still pending. Please try again later.", "error");
-                        }
+                if (isVettingApproved) {
+                    if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
+                        showToast("Your lease is already signed and locked.", "success");
+                    } else {
+                        showToast("Vetting Approved! Signature Pad Unlocked.", "success");
                     }
                 } else {
-                    throw new Error("Server rejected request");
+                    showToast("Vetting still pending. Please wait for admin approval.", "error");
                 }
-            } catch(e) {
+            } catch (e) {
                 showToast("Network error while checking status.", "error");
+            } finally {
+                icon.classList.remove('fa-spin');
+                btnElement.disabled = false;
             }
-
-            icon.classList.remove('fa-spin');
-            btnElement.disabled = false;
         }
 
         async function triggerAdminAlert(btnElement) {
@@ -1110,6 +1087,7 @@
 
                 if (!res.ok) throw new Error("Webhook failed");
 
+                // Immediately lock in AD_ALERT local state so it forces Lease Magic Slot on refresh
                 session.AD_ALERT = "Alerted";
                 session.Admin_Alerted = true; 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
@@ -1193,6 +1171,7 @@
             document.getElementById('sig-placeholder').style.display = 'flex';
         }
 
+        // On-Demand check specific for the lease button
         async function handleLeaseReview(btnElement) {
             const ogHtml = btnElement.innerHTML;
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Loading...';
@@ -1295,19 +1274,31 @@
         }
         function closeShuttleMap() { document.getElementById('shuttleMapModal').classList.remove('active'); }
 
-        // Secure Logout Protocol
+        // EXPLICIT LOGOUT ROUTE FIX
         function handleLogout() {
             localStorage.removeItem('reziflow_session');
             window.location.href = '../phumelela/signin'; 
         }
 
         async function manualSync() {
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btn.disabled = true;
+
             showToast("Syncing secure connection...", "success");
             const session = await syncProfileData(false);
+            
             if (isValidData(session.First_Name) && isValidData(session.Student_Number)) {
                 const welcomeModal = document.getElementById('welcomeModal');
-                if (welcomeModal) welcomeModal.remove();
+                if (welcomeModal) welcomeModal.classList.add('hidden');
+                hydrateGatewayEngine(false, session);
+            } else {
+                showToast("Data not synced yet. Trying again...", "error");
             }
+
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
         }
 
         function openWizardFlow(flowType) {
