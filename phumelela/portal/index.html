@@ -610,60 +610,55 @@
         // EXPLICIT ON-DEMAND SYNC ENGINE
         // ==========================================
         async function syncProfileData(silent = false) {
-    const session = getSessionData();
-    const email = session.Email_Address || session.Email;
-    if (!email) return session;
+            const session = getSessionData();
+            const email = session.Email_Address || session.Email;
+            if (!email) return session;
 
-    try {
-        // Build the URL with query parameters for the GET request
-        const queryParams = new URLSearchParams({
-            Email_Address: email,
-            _t: new Date().getTime() // Organic cache-buster for aggressive Safari mobile caching
-        });
-        
-        const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-profile?${queryParams.toString()}`;
+            try {
+                // Organic payload cache-buster bypasses rigid Safari proxy caches
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        Email_Address: email,
+                        _t: new Date().getTime() 
+                    })
+                });
 
-        // Fire the GET request to your n8n microservice
-        const res = await fetch(targetUrl, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            function extract(obj) {
-                if (!obj) return null;
-                if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
-                if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
-                else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
-                return null;
-            }
-            
-            let freshProfile = extract(data);
-
-            if (freshProfile) {
-                freshProfile.Email_Address = email; 
-                
-                // Smart Deep Merge
-                let mergedSession = { ...session };
-                for (let key in freshProfile) {
-                    if (isValidData(freshProfile[key])) {
-                        mergedSession[key] = freshProfile[key];
+                if (res.ok) {
+                    const data = await res.json();
+                    function extract(obj) {
+                        if (!obj) return null;
+                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
+                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
+                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                        return null;
                     }
+                    
+                    let freshProfile = extract(data);
+
+                    if (freshProfile) {
+                        freshProfile.Email_Address = email; 
+                        
+                        let mergedSession = { ...session };
+                        for (let key in freshProfile) {
+                            if (isValidData(freshProfile[key])) {
+                                mergedSession[key] = freshProfile[key];
+                            }
+                        }
+                        
+                        localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
+                        hydrateGatewayEngine(true, mergedSession);
+                        return mergedSession;
+                    }
+                } else {
+                    throw new Error("Server rejected fetch request.");
                 }
-                
-                localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
-                hydrateGatewayEngine(true, mergedSession);
-                return mergedSession;
+            } catch (error) {
+                if(!silent) console.warn("Live sync delayed, using local cache.");
             }
-        } else {
-            throw new Error("Server rejected fetch request.");
+            return session;
         }
-    } catch (error) {
-        if(!silent) console.warn("Live sync delayed, using local cache.");
-    }
-    return session;
-}
 
         function startLiveSniffer() {
             setInterval(async () => {
@@ -679,6 +674,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
+                // Fixed Absolute Path for Authentication Guard
                 window.location.href = '/phumelela/signin';
                 return;
             }
@@ -951,10 +947,10 @@
                         if(sigActiveState) sigActiveState.classList.add('hidden');
 
                     } else {
-                        // Vetting Approved - Ready to Sign
+                        // Vetting Approved - Ready to Sign (Text Updated here)
                         if(leaseStatusEl) {
-                            leaseStatusEl.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Signature Required';
-                            leaseStatusEl.className = 'text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5';
+                            leaseStatusEl.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Vetting Approved';
+                            leaseStatusEl.className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
                         }
                         if(leaseBtnEl) {
                             leaseBtnEl.innerHTML = 'Review & Sign <i class="fa-solid fa-arrow-right"></i>';
@@ -1040,35 +1036,77 @@
         }
 
         // ==========================================
-        // EXPLICIT UI REFRESH BUTTON (CACHE BUSTER)
+        // EXPLICIT UI REFRESH BUTTON (TEST WEBHOOK)
         // ==========================================
         async function checkVettingStatus(btnElement) {
             const icon = btnElement.querySelector('i');
             icon.classList.add('fa-spin');
             btnElement.disabled = true;
 
-            showToast("Fetching live data from secure vault...", "success");
+            showToast("Checking live vetting status...", "success");
+
+            const session = getSessionData();
+            const email = session.Email_Address || session.Email;
+
+            if (!email) {
+                showToast("Session error. Please log in again.", "error");
+                icon.classList.remove('fa-spin');
+                btnElement.disabled = false;
+                return;
+            }
 
             try {
-                // The silent=false ensures errors are thrown if it fails
-                const session = await syncProfileData(false);
-                
-                // Re-hydrate the UI with the fresh data to unlock the lease pad
-                hydrateGatewayEngine(false, session);
-                
-                const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
+                // Target your specific test webhook via GET with URL parameters
+                const queryParams = new URLSearchParams({
+                    Email_Address: email,
+                    _t: new Date().getTime() // Cache buster
+                });
+                const targetUrl = `https://n8n.automania.cloud/webhook-test/reziflow-get-vetting?${queryParams.toString()}`;
 
-                if (isVettingApproved) {
-                    if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
-                        showToast("Your lease is already signed and locked.", "success");
+                const res = await fetch(targetUrl, {
+                    method: 'GET', 
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) throw new Error("Webhook failed or not listening.");
+
+                const data = await res.json();
+                
+                // Smart extractor to find Vetting_Status whether n8n returns an array or an object
+                function extract(obj) {
+                    if (!obj) return null;
+                    if (obj.Vetting_Status !== undefined) return obj;
+                    if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
+                    else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                    return null;
+                }
+                
+                let rowData = extract(data) || data;
+                const liveStatus = isValidData(rowData.Vetting_Status) ? String(rowData.Vetting_Status).trim() : null;
+
+                if (liveStatus) {
+                    // Update local storage with the new status
+                    session.Vetting_Status = liveStatus;
+                    localStorage.setItem('reziflow_session', JSON.stringify(session));
+                    
+                    // Re-hydrate the UI. This natively unlocks the signature pad if Approved.
+                    hydrateGatewayEngine(false, session);
+
+                    if (liveStatus.toLowerCase() === 'approved') {
+                        if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
+                            showToast("Your lease is already signed and locked.", "success");
+                        } else {
+                            showToast("Vetting Approved! Signature Pad Unlocked.", "success");
+                        }
                     } else {
-                        showToast("Vetting Approved! Signature Pad Unlocked.", "success");
+                        showToast(`Vetting Status: ${liveStatus}. Please wait for approval.`, "error");
                     }
                 } else {
-                    showToast("Vetting still pending. Please wait for admin approval.", "error");
+                    showToast("No vetting status found in response.", "error");
                 }
+
             } catch (e) {
-                showToast("Network error while checking status.", "error");
+                showToast("Network error or Test Webhook is not active in n8n.", "error");
             } finally {
                 icon.classList.remove('fa-spin');
                 btnElement.disabled = false;
@@ -1282,7 +1320,7 @@
         }
         function closeShuttleMap() { document.getElementById('shuttleMapModal').classList.remove('active'); }
 
-        // EXPLICIT LOGOUT ROUTE FIX
+        // Fixed Absolute Path for Logout Route
         function handleLogout() {
             localStorage.removeItem('reziflow_session');
             window.location.href = '/phumelela/signin'; 
