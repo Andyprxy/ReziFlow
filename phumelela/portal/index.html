@@ -610,55 +610,60 @@
         // EXPLICIT ON-DEMAND SYNC ENGINE
         // ==========================================
         async function syncProfileData(silent = false) {
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
-            if (!email) return session;
+    const session = getSessionData();
+    const email = session.Email_Address || session.Email;
+    if (!email) return session;
 
-            try {
-                // Organic payload cache-buster bypasses rigid Safari proxy caches
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        Email_Address: email,
-                        _t: new Date().getTime() 
-                    })
-                });
+    try {
+        // Build the URL with query parameters for the GET request
+        const queryParams = new URLSearchParams({
+            Email_Address: email,
+            _t: new Date().getTime() // Organic cache-buster for aggressive Safari mobile caching
+        });
+        
+        const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-profile?${queryParams.toString()}`;
 
-                if (res.ok) {
-                    const data = await res.json();
-                    function extract(obj) {
-                        if (!obj) return null;
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
-                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
-                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
-                        return null;
-                    }
-                    
-                    let freshProfile = extract(data);
+        // Fire the GET request to your n8n microservice
+        const res = await fetch(targetUrl, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
 
-                    if (freshProfile) {
-                        freshProfile.Email_Address = email; 
-                        
-                        let mergedSession = { ...session };
-                        for (let key in freshProfile) {
-                            if (isValidData(freshProfile[key])) {
-                                mergedSession[key] = freshProfile[key];
-                            }
-                        }
-                        
-                        localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
-                        hydrateGatewayEngine(true, mergedSession);
-                        return mergedSession;
-                    }
-                } else {
-                    throw new Error("Server rejected fetch request.");
-                }
-            } catch (error) {
-                if(!silent) console.warn("Live sync delayed, using local cache.");
+        if (res.ok) {
+            const data = await res.json();
+            function extract(obj) {
+                if (!obj) return null;
+                if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
+                if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
+                else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                return null;
             }
-            return session;
+            
+            let freshProfile = extract(data);
+
+            if (freshProfile) {
+                freshProfile.Email_Address = email; 
+                
+                // Smart Deep Merge
+                let mergedSession = { ...session };
+                for (let key in freshProfile) {
+                    if (isValidData(freshProfile[key])) {
+                        mergedSession[key] = freshProfile[key];
+                    }
+                }
+                
+                localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
+                hydrateGatewayEngine(true, mergedSession);
+                return mergedSession;
+            }
+        } else {
+            throw new Error("Server rejected fetch request.");
         }
+    } catch (error) {
+        if(!silent) console.warn("Live sync delayed, using local cache.");
+    }
+    return session;
+}
 
         function startLiveSniffer() {
             setInterval(async () => {
