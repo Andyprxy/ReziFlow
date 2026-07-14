@@ -614,7 +614,7 @@
         }
 
         // ==========================================
-        // EXPLICIT ON-DEMAND SYNC ENGINE
+        // SINGLE CENTRALIZED GET REQUEST (NO MORE SPAMMING)
         // ==========================================
         async function syncProfileData(silent = false) {
             const session = getSessionData();
@@ -622,26 +622,27 @@
             if (!email) return session;
 
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        Email_Address: email,
-                        _t: new Date().getTime() 
-                    })
+                const queryParams = new URLSearchParams({
+                    Email_Address: email,
+                    _t: new Date().getTime() 
                 });
+                
+                // Exclusively pointing to the new get-vetting webhook
+                const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`;
+                
+                const res = await fetch(targetUrl);
 
                 if (res.ok) {
                     const data = await res.json();
                     function extract(obj) {
                         if (!obj) return null;
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
+                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined) return obj;
                         if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
                         else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
                         return null;
                     }
                     
-                    let freshProfile = extract(data);
+                    let freshProfile = extract(data) || data;
 
                     if (freshProfile) {
                         freshProfile.Email_Address = email; 
@@ -664,12 +665,6 @@
                 if(!silent) console.warn("Live sync delayed, using local cache.");
             }
             return session;
-        }
-
-        function startLiveSniffer() {
-            setInterval(async () => {
-                await syncProfileData(true);
-            }, 5000); 
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -702,8 +697,6 @@
                 }
                 hydrateGatewayEngine(false, mergedSession);
             }
-            
-            startLiveSniffer();
         });
 
         async function submitWelcomeSetup(e) {
@@ -1022,60 +1015,24 @@
         }
 
         // ==========================================
-        // EXPLICIT UI REFRESH BUTTON (TEST WEBHOOK)
+        // SINGLE VETTING REFRESHER BUTTON
         // ==========================================
         async function checkVettingStatus(btnElement) {
             const icon = btnElement.querySelector('i');
             
-            // Trigger single 360 spin animation
             icon.classList.remove('fa-spin');
             icon.classList.add('spin-once');
-            setTimeout(() => icon.classList.remove('spin-once'), 600); // Allow re-triggering later
+            setTimeout(() => icon.classList.remove('spin-once'), 600); 
             
             btnElement.disabled = true;
 
             showToast("Checking live vetting status...", "success");
 
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
-
-            if (!email) {
-                showToast("Session error. Please log in again.", "error");
-                btnElement.disabled = false;
-                return;
-            }
-
             try {
-                // Stripped headers so browser fires standard GET request to bypass CORS preflight
-                const queryParams = new URLSearchParams({
-                    Email_Address: email,
-                    _t: new Date().getTime() 
-                });
-                const targetUrl = `https://n8n.automania.cloud/webhook-test/reziflow-get-vetting?${queryParams.toString()}`;
-
-                const res = await fetch(targetUrl);
-
-                if (!res.ok) throw new Error("Webhook failed or not listening.");
-
-                const data = await res.json();
-                
-                function extract(obj) {
-                    if (!obj) return null;
-                    if (obj.Vetting_Status !== undefined) return obj;
-                    if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
-                    else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
-                    return null;
-                }
-                
-                let rowData = extract(data) || data;
-                const liveStatus = isValidData(rowData.Vetting_Status) ? String(rowData.Vetting_Status).trim() : null;
+                const session = await syncProfileData(false);
+                const liveStatus = isValidData(session.Vetting_Status) ? String(session.Vetting_Status).trim() : null;
 
                 if (liveStatus) {
-                    session.Vetting_Status = liveStatus;
-                    localStorage.setItem('reziflow_session', JSON.stringify(session));
-                    
-                    hydrateGatewayEngine(false, session);
-
                     if (liveStatus.toLowerCase() === 'approved') {
                         if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
                             showToast("Your lease is already signed and locked.", "success");
@@ -1088,10 +1045,8 @@
                 } else {
                     showToast("No vetting status found in response.", "error");
                 }
-
             } catch (e) {
-                console.error(e);
-                showToast("Network error or Test Webhook is not active in n8n.", "error");
+                showToast("Network error or Webhook is not active.", "error");
             } finally {
                 btnElement.disabled = false;
             }
