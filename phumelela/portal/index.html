@@ -155,7 +155,7 @@
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
                     <div class="relative z-10 flex justify-between items-start mb-8">
                         <div>
-                            <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Vetting Pending</p>
+                            <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Pending Vetting</p>
                             <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight tracking-tight">Loading...</h1>
                         </div>
                         <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
@@ -614,7 +614,7 @@
         }
 
         // ==========================================
-        // SINGLE CENTRALIZED GET REQUEST (NO MORE SPAMMING)
+        // SINGLE CENTRALIZED GET REQUEST
         // ==========================================
         async function syncProfileData(silent = false) {
             const session = getSessionData();
@@ -627,8 +627,7 @@
                     _t: new Date().getTime() 
                 });
                 
-                // Exclusively pointing to the new get-vetting webhook
-                const targetUrl = `https://n8n.automania.cloud/webhook-test/reziflow-get-vetting?${queryParams.toString()}`;
+                const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`;
                 
                 const res = await fetch(targetUrl);
 
@@ -651,6 +650,9 @@
                         for (let key in freshProfile) {
                             if (isValidData(freshProfile[key])) {
                                 mergedSession[key] = freshProfile[key];
+                            } else if (key === 'Vetting_Status' && (freshProfile[key] === '' || freshProfile[key] === null || freshProfile[key] === undefined)) {
+                                // Explicitly force blank Vetting_Status to register as Pending
+                                mergedSession[key] = 'Pending Vetting';
                             }
                         }
                         
@@ -882,7 +884,9 @@
                     gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
                     lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
                     statusText.textContent = "All systems active. Gateway fully unlocked.";
-                    vettingBadge.textContent = isVettingApproved ? 'Verified Resident' : 'Vetting in Progress';
+                    
+                    // FIXED: Text updates exactly based on true status
+                    vettingBadge.textContent = isVettingApproved ? 'Vetting Approved' : 'Pending Vetting';
                     
                     if(leaseSlot) {
                         leaseSlot.classList.remove('hidden');
@@ -908,8 +912,9 @@
                         if(signatureAreaContainer) signatureAreaContainer.classList.add('hidden');
 
                     } else if (!isVettingApproved) {
+                        // FIXED: Text matches Pending Vetting
                         if(leaseStatusEl) {
-                            leaseStatusEl.innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Awaiting Vetting Approval';
+                            leaseStatusEl.innerHTML = '<i class="fa-solid fa-clock mr-1"></i> Pending Vetting';
                             leaseStatusEl.className = 'text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5';
                         }
                         if(leaseBtnEl) {
@@ -966,7 +971,7 @@
                 lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
                 statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
                 gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
-                vettingBadge.textContent = 'Vetting Pending';
+                vettingBadge.textContent = 'Pending Vetting';
             }
 
             document.querySelectorAll('.upload-zone').forEach(zone => {
@@ -1029,23 +1034,63 @@
             showToast("Checking live vetting status...", "success");
 
             try {
-                const session = await syncProfileData(false);
-                const liveStatus = isValidData(session.Vetting_Status) ? String(session.Vetting_Status).trim() : null;
+                const session = getSessionData();
+                const email = session.Email_Address || session.Email;
 
-                if (liveStatus) {
-                    if (liveStatus.toLowerCase() === 'approved') {
-                        if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
-                            showToast("Your lease is already signed and locked.", "success");
-                        } else {
-                            showToast("Vetting Approved! Signature Pad Unlocked.", "success");
-                        }
+                if (!email) {
+                    showToast("Session error. Please log in again.", "error");
+                    btnElement.disabled = false;
+                    return;
+                }
+
+                const queryParams = new URLSearchParams({
+                    Email_Address: email,
+                    _t: new Date().getTime() 
+                });
+                const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`;
+
+                const res = await fetch(targetUrl);
+
+                if (!res.ok) throw new Error("Webhook failed or not listening.");
+
+                const data = await res.json();
+                
+                function extract(obj) {
+                    if (!obj) return null;
+                    if (obj.Vetting_Status !== undefined) return obj;
+                    if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
+                    else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                    return null;
+                }
+                
+                let rowData = extract(data) || data;
+                
+                // FIXED: Extracts the raw value. If blank, forces Pending Vetting
+                let rawStatus = rowData.Vetting_Status;
+                let liveStatus = (rawStatus === null || rawStatus === undefined || String(rawStatus).trim() === '') ? 'Pending Vetting' : String(rawStatus).trim();
+
+                session.Vetting_Status = liveStatus;
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                
+                hydrateGatewayEngine(false, session);
+
+                if (liveStatus.toLowerCase() === 'approved') {
+                    if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
+                        showToast("Your lease is already signed and locked.", "success");
                     } else {
-                        showToast(`Vetting Status: ${liveStatus}. Please wait for approval.`, "error");
+                        showToast("Vetting Approved! Signature Pad Unlocked.", "success");
                     }
                 } else {
-                    showToast("No vetting status found in response.", "error");
+                    // Don't show toast for pending if they just hit refresh on a blank sheet
+                    if (liveStatus === 'Pending Vetting') {
+                        showToast("Your status is currently pending approval.", "success");
+                    } else {
+                        showToast(`Vetting Status: ${liveStatus}.`, "error");
+                    }
                 }
+
             } catch (e) {
+                console.error(e);
                 showToast("Network error or Webhook is not active.", "error");
             } finally {
                 btnElement.disabled = false;
