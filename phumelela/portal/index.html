@@ -135,7 +135,7 @@
                     <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect"><i class="fa-solid fa-power-off"></i></button>
+                    <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Secure Logout"><i class="fa-solid fa-power-off"></i></button>
                     <button onclick="switchTab('profile', this)" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
                 </div>
             </div>
@@ -615,12 +615,13 @@
             if (!email) return session;
 
             try {
-                // cache: 'no-store' explicitly bypasses mobile browser caching
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
+                // Organic Cache Buster using timestamp parameter instead of headers
+                const fetchUrl = 'https://n8n.automania.cloud/webhook/reziflow-get-profile?_t=' + new Date().getTime();
+                
+                const res = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Email_Address: email }),
-                    cache: 'no-store'
+                    body: JSON.stringify({ Email_Address: email })
                 });
 
                 if (res.ok) {
@@ -658,15 +659,21 @@
             return session;
         }
 
+        function startLiveSniffer() {
+            setInterval(async () => {
+                await syncProfileData(true);
+            }, 5000); 
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             const session = getSessionData();
             const email = session.Email_Address || session.Email;
 
             if (email) {
                 checkHardGate(session);
-                // Initial load sync
                 const mergedSession = await syncProfileData(true);
                 checkHardGate(mergedSession);
+                startLiveSniffer();
             } else {
                 document.getElementById('welcomeModal').classList.remove('hidden');
             }
@@ -747,11 +754,8 @@
             document.getElementById('dyn-id-home').textContent = studentId;
             document.getElementById('dyn-id-number').textContent = studentId;
 
-            // Room logic check
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
-            
-            // True verification check
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
 
             document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
@@ -762,11 +766,9 @@
             document.getElementById('dyn-guardian-rel').textContent = isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--';
             document.getElementById('dyn-guardian-num').textContent = isValidData(session.Guardian_Number) ? session.Guardian_Number : '--';
             
-            // Vault Tab details
             document.getElementById('dyn-course-name').textContent = isValidData(session.Course) ? session.Course : '--';
             document.getElementById('dyn-funding-type').textContent = isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending';
 
-            // Document View Rendering
             const renderDocButton = (containerId, url) => {
                 const container = document.getElementById(containerId);
                 if (container) {
@@ -795,14 +797,12 @@
                 if(payslipRow) payslipRow.classList.add('hidden');
             }
 
-            // Profile Progress
             let profileFilledCount = 0;
             profileDataFields.forEach(field => {
                 if (isValidData(session[field])) profileFilledCount++;
             });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
-            // Vault Progress
             vaultPercentage = 0;
             let requiredDocs = 0;
             let filledDocs = 0;
@@ -832,7 +832,6 @@
             const statusText = document.getElementById('gateway-status-text');
             const vettingBadge = document.getElementById('dyn-vetting-badge');
 
-            // Default Progress Bars HTML
             const progressBarsHtml = `
                 <div onclick="openWizardFlow('profile')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group">
                     <div class="flex-1">
@@ -856,14 +855,13 @@
                 </div>
             `;
 
-            // ALERTS & STATE CONTROL - Explicit Sniffer Checks
+            // ALERTS & STATE CONTROL
             const isAdAlerted = isValidData(session.AD_ALERT) && String(session.AD_ALERT).trim().toLowerCase() === 'alerted';
             const isAdminAlerted = isAdAlerted || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isValidData(session.Doc_Lease_URL);
 
             if (profilePercentage >= 100 && vaultPercentage >= 100) {
                 
                 if (isAdminAlerted) {
-                    
                     // STATE 3: Admin Alerted -> Show Status + Reveal Lease
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
@@ -879,16 +877,13 @@
                     statusText.textContent = "All systems active. Gateway fully unlocked.";
                     vettingBadge.textContent = isVettingApproved ? 'Verified Resident' : 'Vetting in Progress';
                     
-                    // Reveal the Lease Slot
                     if(leaseSlot) {
                         leaseSlot.classList.remove('hidden');
                         setTimeout(() => leaseSlot.classList.remove('opacity-0', 'translate-y-4'), 50);
                     }
 
-                    // Dynamic Lease Slot UI State
                     const leaseStatusEl = document.getElementById('home-lease-status');
                     const leaseBtnEl = document.getElementById('btn-home-lease');
-                    
                     const sigLockedState = document.getElementById('sig-locked-state');
                     const sigActiveState = document.getElementById('sig-active-state');
                     const signatureAreaContainer = document.getElementById('signature-area-container');
@@ -947,7 +942,7 @@
                     }
 
                 } else {
-                    // STATE 2: 100% Reached but admin NOT alerted -> Show Progress Bars + Magic Button
+                    // STATE 2: 100% Reached but admin NOT alerted -> Show Magic Button
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 pt-3 border-t border-slate-100">
                             <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
@@ -972,7 +967,6 @@
                 vettingBadge.textContent = 'Vetting Pending';
             }
 
-            // Upload Zone visual update in Modal
             document.querySelectorAll('.upload-zone').forEach(zone => {
                 const docKey = zone.getAttribute('data-doc-key');
                 const iconContainer = zone.querySelector('.icon-container');
@@ -1019,8 +1013,83 @@
         }
 
         // ==========================================
-        // MAGIC ALERT WEBHOOK (reziflow-finalize)
+        // EXPLICIT UI REFRESH BUTTON (CACHE BUSTER)
         // ==========================================
+        async function checkVettingStatus(btnElement) {
+            const icon = btnElement.querySelector('i');
+            icon.classList.add('fa-spin');
+            btnElement.disabled = true;
+
+            showToast("Fetching live data from secure vault...", "success");
+
+            const session = getSessionData();
+            const email = session.Email_Address || session.Email;
+
+            if(!email) {
+                showToast("Session error. Please log in again.", "error");
+                icon.classList.remove('fa-spin');
+                btnElement.disabled = false;
+                return;
+            }
+
+            try {
+                // Organic Cache Buster using timestamp parameter
+                const fetchUrl = 'https://n8n.automania.cloud/webhook/reziflow-get-profile?_t=' + new Date().getTime();
+                
+                const res = await fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Email_Address: email })
+                });
+
+                if(res.ok) {
+                    const data = await res.json();
+                    function extract(obj) {
+                        if (!obj) return null;
+                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
+                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } }
+                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                        return null;
+                    }
+
+                    let freshProfile = extract(data);
+
+                    if(freshProfile) {
+                        freshProfile.Email_Address = email;
+
+                        let mergedSession = { ...session };
+                        for (let key in freshProfile) {
+                            if (isValidData(freshProfile[key])) {
+                                mergedSession[key] = freshProfile[key];
+                            }
+                        }
+
+                        localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
+                        hydrateGatewayEngine(false, mergedSession); 
+
+                        const isVettingApproved = isValidData(mergedSession.Vetting_Status) && String(mergedSession.Vetting_Status).trim().toLowerCase() === 'approved';
+
+                        if (isVettingApproved) {
+                            if (isValidData(mergedSession.Doc_Lease_URL) && mergedSession.Doc_Lease_URL !== "vaulted_locally") {
+                                showToast("Your lease is already signed and locked.", "success");
+                            } else {
+                                showToast("Vetting Approved! Signature Pad Unlocked.", "success");
+                            }
+                        } else {
+                            showToast("Vetting still pending. Please try again later.", "error");
+                        }
+                    }
+                } else {
+                    throw new Error("Server rejected request");
+                }
+            } catch(e) {
+                showToast("Network error while checking status.", "error");
+            }
+
+            icon.classList.remove('fa-spin');
+            btnElement.disabled = false;
+        }
+
         async function triggerAdminAlert(btnElement) {
             const session = getSessionData();
             const ogHtml = btnElement.innerHTML;
@@ -1041,7 +1110,6 @@
 
                 if (!res.ok) throw new Error("Webhook failed");
 
-                // Immediately lock in AD_ALERT local state so it forces Lease Magic Slot on refresh
                 session.AD_ALERT = "Alerted";
                 session.Admin_Alerted = true; 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
@@ -1125,7 +1193,6 @@
             document.getElementById('sig-placeholder').style.display = 'flex';
         }
 
-        // On-Demand check specific for the lease button
         async function handleLeaseReview(btnElement) {
             const ogHtml = btnElement.innerHTML;
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Loading...';
@@ -1138,80 +1205,6 @@
             
             openModal('leaseModal');
             setTimeout(initSignaturePad, 300); 
-        }
-
-        // ==========================================
-        // EXPLICIT UI REFRESH BUTTON (CACHE BUSTER)
-        // ==========================================
-        async function checkVettingStatus(btnElement) {
-            const icon = btnElement.querySelector('i');
-            icon.classList.add('fa-spin');
-            btnElement.disabled = true;
-
-            showToast("Fetching live data from secure vault...", "success");
-
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
-
-            if(!email) {
-                showToast("Session error. Please log in again.", "error");
-                icon.classList.remove('fa-spin');
-                btnElement.disabled = false;
-                return;
-            }
-
-            try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Email_Address: email }),
-                    cache: 'no-store' // STRICT Cache Buster
-                });
-
-                if(res.ok) {
-                    const data = await res.json();
-                    function extract(obj) {
-                        if (!obj) return null;
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
-                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } }
-                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
-                        return null;
-                    }
-
-                    let freshProfile = extract(data);
-
-                    if(freshProfile) {
-                        freshProfile.Email_Address = email;
-
-                        let mergedSession = { ...session };
-                        for (let key in freshProfile) {
-                            if (isValidData(freshProfile[key])) {
-                                mergedSession[key] = freshProfile[key];
-                            }
-                        }
-
-                        localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
-                        
-                        // Force UI refresh instantly
-                        hydrateGatewayEngine(false, mergedSession); 
-
-                        const isVettingApproved = isValidData(mergedSession.Vetting_Status) && String(mergedSession.Vetting_Status).trim().toLowerCase() === 'approved';
-
-                        if (isVettingApproved) {
-                            showToast("Vetting Approved! Signature Pad Unlocked.", "success");
-                        } else {
-                            showToast("Vetting still pending. Please wait for admin approval.", "error");
-                        }
-                    }
-                } else {
-                    throw new Error("Server rejected request");
-                }
-            } catch(e) {
-                showToast("Network error while checking status.", "error");
-            }
-
-            icon.classList.remove('fa-spin');
-            btnElement.disabled = false;
         }
 
         async function submitLeaseSignature(btnElement) {
@@ -1302,9 +1295,10 @@
         }
         function closeShuttleMap() { document.getElementById('shuttleMapModal').classList.remove('active'); }
 
+        // Secure Logout Protocol
         function handleLogout() {
             localStorage.removeItem('reziflow_session');
-            window.location.href = '../phumelela/signin'; // Secure logout routing
+            window.location.href = '../phumelela/signin'; 
         }
 
         async function manualSync() {
