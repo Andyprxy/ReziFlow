@@ -1302,3 +1302,144 @@
                 zone.classList.add('success-state');
                 
                 const icon = zone.querySelector('.icon-container');
+                icon.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm border border-emerald-100';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                
+                const titleText = zone.querySelector('.title-text');
+                if(titleText) {
+                    titleText.textContent = "Document Attached";
+                    titleText.className = "title-text text-xs font-black text-emerald-700 truncate";
+                }
+                
+                const actionBtn = zone.querySelector('.action-btn');
+                if(actionBtn) {
+                    actionBtn.textContent = "Ready to Push";
+                    actionBtn.className = "action-btn text-[10px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-200";
+                }
+            }
+        }
+
+        // ==========================================
+        // MICROSERVICE TRANSMISSION ROUTES
+        // ==========================================
+        
+        async function submitProfileData() {
+            const btn = document.getElementById('btn-profile-submit');
+            const ogHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            const session = getSessionData();
+            
+            formData.append('Email_Address', session.Email_Address || '');
+
+            const appendInputs = (sectionId) => {
+                const inputs = document.getElementById(sectionId).querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.name) {
+                        formData.append(input.name, input.value);
+                        session[input.name] = input.value;
+                    }
+                });
+            };
+            
+            appendInputs('wizard-step-1');
+            appendInputs('wizard-step-2');
+
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-update-profile', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Webhook rejected");
+
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+                btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+
+                setTimeout(() => {
+                    closeWizardModal();
+                    hydrateGatewayEngine(false, session); 
+                    showToast("Profile Info updated securely.", "success");
+                    btn.innerHTML = ogHtml; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-emerald-500', 'bg-slate-900');
+                }, 800);
+
+            } catch (error) {
+                btn.innerHTML = ogHtml; 
+                btn.disabled = false;
+                showToast("Transmission failed.", "error");
+            }
+        }
+
+        async function submitApplication() {
+            if (activeFundingType === 'none') { showToast("Select a funding pipeline.", "error"); return; }
+            
+            const btn = document.getElementById('btn-vault-submit');
+            const ogHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Vaulting...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            const session = getSessionData();
+            
+            formData.append('Email_Address', session.Email_Address || '');
+            formData.append('Student_Number', session.Student_Number || '');
+            formData.append('Funding_Type', activeFundingType);
+            session.Funding_Type = activeFundingType;
+
+            const activeSection = document.getElementById('req-' + activeFundingType);
+            const fileInputs = activeSection.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach((input) => {
+                if (input.files.length > 0) {
+                    const zone = input.closest('.upload-zone');
+                    const docKey = zone.getAttribute('data-doc-key');
+                    
+                    let docNum = 1;
+                    if (docKey === 'Doc_1_URL_ID') docNum = 1;
+                    if (docKey === 'Doc_2_URL_Reg') docNum = 2;
+                    if (docKey === 'Doc_3_URL_Funding') docNum = 3;
+                    if (docKey === 'Doc_4_URL_Payslip') docNum = 4;
+
+                    formData.append(`Document_${docNum}`, input.files[0]);
+                    session[docKey] = "vaulted_locally";
+                }
+            });
+
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-vault-docs', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Webhook rejected");
+
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Vaulted';
+                btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+
+                setTimeout(() => {
+                    closeWizardModal();
+                    hydrateGatewayEngine(false, session); 
+                    showToast("Documents securely vaulted.", "success");
+                    btn.innerHTML = ogHtml; 
+                    btn.disabled = false; 
+                    btn.classList.replace('bg-emerald-500', 'bg-slate-900');
+                }, 800);
+
+            } catch (error) {
+                btn.innerHTML = ogHtml; 
+                btn.disabled = false;
+                showToast("Transmission failed. Please check network.", "error");
+            }
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const text = document.getElementById('toast-text');
+            const icon = document.getElementById('toast-icon');
+            text.textContent = message;
+            icon.className = type === 'error' ? 'fa-solid fa-triangle-exclamation text-rose-500' : 'fa-solid fa-circle-check text-emerald-400';
+            container.classList.add('show');
+            setTimeout(() => { container.classList.remove('show'); }, 3500);
+        }
+    </script>
+</body>
+</html>
