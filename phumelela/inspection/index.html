@@ -11,7 +11,7 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; /* Darker base for better glass contrast */
+            background-color: #0f172a; 
             -webkit-font-smoothing: antialiased; 
             color: #0f172a;
             min-height: 100vh; 
@@ -48,31 +48,17 @@
             z-index: 10;
         }
 
-        /* Modal Transition Animations (The "Popup" effect) */
-        .step-container { 
-            display: none; 
-            opacity: 0; 
-        }
-        .step-container.active { 
-            display: block; 
-            animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-        }
-        @keyframes modalPop { 
-            0% { opacity: 0; transform: scale(0.92) translateY(15px); } 
-            100% { opacity: 1; transform: scale(1) translateY(0); } 
-        }
+        /* Modal Transition Animations */
+        .step-container { display: none; opacity: 0; }
+        .step-container.active { display: block; animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes modalPop { 0% { opacity: 0; transform: scale(0.92) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* Frost Inputs */
         .input-field {
-            width: 100%; 
-            background-color: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            border-radius: 1.25rem;
-            padding: 1rem 1rem 1rem 3rem; 
-            font-size: 0.9rem;
-            font-weight: 600; 
-            color: #1e293b; 
-            transition: all 0.3s ease;
+            width: 100%; background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 1.25rem;
+            padding: 1rem 1rem 1rem 3rem; font-size: 0.9rem;
+            font-weight: 600; color: #1e293b; transition: all 0.3s ease;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
         }
         .input-field:focus { outline: none; border-color: #3b82f6; background-color: rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
@@ -81,31 +67,9 @@
         textarea.input-field { padding: 1rem; min-height: 90px; resize: none; border-radius: 1rem; }
 
         /* iOS-Style Segmented Controls */
-        .segmented-control {
-            display: flex;
-            background: rgba(15, 23, 42, 0.05);
-            padding: 4px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            gap: 4px;
-        }
-        .segment-btn {
-            flex: 1;
-            padding: 8px 4px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #64748b;
-            border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            position: relative;
-        }
+        .segmented-control { display: flex; background: rgba(15, 23, 42, 0.05); padding: 4px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.4); gap: 4px; }
+        .segment-btn { flex: 1; padding: 8px 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
         .segment-btn i { font-size: 0.85rem; }
-        
-        /* Active States for Segmented Control */
         .segment-btn.active-good { background: #ffffff; color: #059669; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(16, 185, 129, 0.2); }
         .segment-btn.active-damaged { background: #ffffff; color: #d97706; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(245, 158, 11, 0.2); }
         .segment-btn.active-missing { background: #ffffff; color: #e11d48; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(244, 63, 94, 0.2); }
@@ -116,17 +80,13 @@
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
         .btn-secondary { background-color: rgba(255, 255, 255, 0.6); color: #0f172a; font-weight: 700; border-radius: 1.25rem; padding: 1.1rem; border: 1px solid rgba(255,255,255,0.8); transition: all 0.2s; }
         .btn-secondary:active { transform: scale(0.96); background-color: rgba(255,255,255,0.9); }
-
-        /* Asset Scroll Area */
         .asset-scroll::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body>
 
     <div class="liquid-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+        <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
     </div>
 
     <div class="glass-panel p-6 sm:p-8 overflow-hidden">
@@ -148,7 +108,7 @@
             
             <div class="space-y-4">
                 <div class="relative group">
-                    <i class="fa-solid fa-user-gear absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors z-10"></i>
+                    <i class="fa-solid fa-user-gear absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
                     <select id="staffName" class="input-field relative z-0" required>
                         <option value="" disabled selected>Select Officer Profile</option>
                         <option value="James Nyaloko">James Nyaloko</option>
@@ -161,7 +121,7 @@
                 </div>
                 
                 <div class="relative group">
-                    <i class="fa-solid fa-key absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors z-10"></i>
+                    <i class="fa-solid fa-key absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
                     <input type="password" id="staffPin" class="input-field relative z-0" placeholder="Security PIN" inputmode="numeric" required>
                 </div>
             </div>
@@ -232,19 +192,18 @@
             </div>
             <h2 class="text-3xl font-black text-slate-800 mb-2 tracking-tight">Synced</h2>
             <p class="text-sm font-medium text-slate-500 mb-10 px-4">Maintenance log securely recorded.</p>
-            <button onclick="resetToLocation()" class="btn-secondary w-full py-4">Next Inspection <i class="fa-solid fa-rotate-right ml-1"></i></button>
+            <button type="button" onclick="resetToLocation()" class="btn-secondary w-full py-4 flex justify-center items-center">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
         </div>
     </div>
 
     <script>
-        // --- Webhook URLs ---
-        // Change these to /webhook-test/ if you are clicking "Execute Workflow" in n8n
-        // Leave them as /webhook/ if workflows are toggled to ACTIVE
+        // ==========================================
+        // 1. CONFIGURED TEST WEBHOOK URLS
+        // ==========================================
         const AUTH_WEBHOOK = 'https://n8n.automania.cloud/webhook-test/phumelela-auth';
-        const INVENTORY_WEBHOOK = 'https://n8n.automania.cloud/webhook/reziflow-get-roomz';
-        const SUBMISSION_WEBHOOK = 'https://n8n.automania.cloud/webhook/phumelela-inspections';
+        const INVENTORY_WEBHOOK = 'https://n8n.automania.cloud/webhook-test/reziflow-get-roomz';
+        const SUBMISSION_WEBHOOK = 'https://n8n.automania.cloud/webhook-test/phumelela-inspections';
 
-        // --- Core Variables ---
         let currentOfficer = "";
         let liveRoomInventory = {};
 
@@ -253,7 +212,6 @@
             document.querySelectorAll('.step-container').forEach(s => s.classList.remove('active'));
             document.getElementById('step' + step).classList.add('active');
             
-            // Update Room Label if moving to Inspection
             if(step === 2) {
                 document.getElementById('roomLabel').innerText = document.getElementById('roomSelect').value;
             }
@@ -271,9 +229,10 @@
             document.getElementById('roomSelect').value = "";
             document.getElementById('btn-begin').disabled = true;
             nextStep(1);
+            loadRooms(); // Refresh the dropdown to hide the completed room (Minus One logic)
         }
 
-        // --- 1. Authentication ---
+        // --- 2. Authentication ---
         async function authenticateUser() {
             const btn = document.getElementById('btn-login');
             const originalText = btn.innerHTML;
@@ -302,8 +261,8 @@
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     
-                    nextStep(1); // Trigger Modal Popup for Location
-                    loadRooms(); // Background fetch
+                    nextStep(1);
+                    loadRooms();
                 } else {
                     throw new Error("InvalidPIN");
                 }
@@ -315,7 +274,7 @@
             }
         }
 
-        // --- 2. Live Inventory Sniffer ---
+        // --- 3. Live Inventory Sniffer ---
         async function loadRooms() {
             const blockSelect = document.getElementById('blockSelect');
             try {
@@ -359,7 +318,7 @@
 
         document.getElementById('roomSelect').addEventListener('change', () => document.getElementById('btn-begin').disabled = false);
 
-        // --- 3. Asset Injection (High-End Segmented Controls) ---
+        // --- 4. Asset Injection ---
         const assets = [
             { id: 'bed', name: 'Bed & Base', icon: 'fa-bed' },
             { id: 'desk', name: 'Study Desk', icon: 'fa-table' },
@@ -398,7 +357,7 @@
             el.classList.add(cls);
         }
 
-        // --- 4. Final Data Sync ---
+        // --- 5. Final Data Sync (With MINUS ONE filter payload) ---
         document.getElementById('step2').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -419,6 +378,7 @@
                 room: document.getElementById('roomSelect').value,
                 ...inspectionData,
                 general_comments: document.getElementById('general_comments').value || "None",
+                inspection_status: "Completed", // THE "MINUS ONE" TRIGGER DATA
                 timestamp: new Date().toISOString()
             };
 
@@ -433,7 +393,7 @@
                 
                 submitBtn.innerHTML = 'Sync to Database <i class="fa-solid fa-cloud-arrow-up ml-1"></i>';
                 submitBtn.disabled = false;
-                nextStep(3); // Success Modal
+                nextStep(3);
             } catch (error) {
                 alert("Network error. Verify webhook availability.");
                 submitBtn.innerHTML = 'Retry Sync <i class="fa-solid fa-rotate-right ml-1"></i>';
