@@ -102,6 +102,7 @@
         
         select.input-field:disabled {
             cursor: not-allowed;
+            opacity: 0.5;
         }
 
         textarea.input-field {
@@ -374,37 +375,26 @@
             const btn = document.getElementById('btn-fetch-inventory');
             const originalText = btn.innerHTML;
             
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Locating Units...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Live Inventory...';
             btn.disabled = true;
 
             try {
+                // Ensure this points to /webhook/ in production. Use /webhook-test/ for n8n canvas testing.
                 const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-get-rooms', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                if (response.ok) {
-                    const rawData = await response.json();
-                    
-                    // Unwraps the array payload created by n8n to ensure clean JS Object access
-                    liveRoomInventory = Array.isArray(rawData) ? rawData[0] : rawData;
-                    
-                } else {
-                    throw new Error("Webhook refusal.");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            } catch (error) {
-                console.warn("Failed to reach n8n webhook. Using local fallback.");
-                liveRoomInventory = {
-                    "East Block": {
-                        "1st Floor": ["E101A", "E101B", "E102A"],
-                        "2nd Floor": ["E201A", "E201B"]
-                    },
-                    "West Block": {
-                        "1st Floor": ["W101A"],
-                        "2nd Floor": ["W201A", "W201B"]
-                    }
-                };
-            } finally {
+                
+                const rawData = await response.json();
+                
+                // Safely unwrap the JSON array from n8n 
+                liveRoomInventory = Array.isArray(rawData) ? rawData[0] : rawData;
+                
+                // Populate the Block Dropdown dynamically
                 const blockSelect = document.getElementById('blockSelect');
                 blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>';
                 
@@ -412,9 +402,17 @@
                     blockSelect.innerHTML += `<option value="${block}">${block}</option>`;
                 });
 
+                // Smoothly progress to Step 2
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 nextStep(2);
+
+            } catch (error) {
+                console.error("Live Fetch Failed:", error);
+                alert("Could not connect to the ReziFlow database. Please ensure the n8n webhook is active and CORS is enabled.");
+                btn.innerHTML = 'Retry Connection <i class="fa-solid fa-rotate-right ml-1"></i>';
+                btn.classList.replace('bg-slate-900', 'bg-rose-500');
+                btn.disabled = false;
             }
         }
 
@@ -435,8 +433,8 @@
             if (block && liveRoomInventory[block]) {
                 floorSelect.disabled = false;
                 Object.keys(liveRoomInventory[block]).forEach(floor => {
-                    // Ignore empty floor arrays returned by the API
-                    if(liveRoomInventory[block][floor].length > 0) {
+                    // Only add the floor if it has rooms
+                    if(liveRoomInventory[block][floor] && liveRoomInventory[block][floor].length > 0) {
                         floorSelect.innerHTML += `<option value="${floor}">${floor}</option>`;
                     }
                 });
@@ -506,7 +504,7 @@
 
         function setAssetStatus(assetId, status, btnElement, activeClass) {
             inspectionData[assetId] = status;
-            document.getElementById(`${assetId}_hidden`).value = status;
+            document.getElementById(`${assetId}_hidden`).value = status; // Triggers validation pass
 
             const siblings = btnElement.parentElement.querySelectorAll('.bubble-btn');
             siblings.forEach(btn => {
@@ -520,6 +518,7 @@
         document.getElementById('inspectionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Guard check for missed bubbles
             const missing = assets.find(a => inspectionData[a.id] === "");
             if (missing) {
                 alert(`Please log the condition for: ${missing.name}`);
@@ -544,6 +543,7 @@
             };
 
             try {
+                // Ensure this points to /webhook/ in production. Use /webhook-test/ for n8n canvas testing.
                 const response = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-inspections', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
