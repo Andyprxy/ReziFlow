@@ -125,7 +125,7 @@
             const btn = document.getElementById('btn-login');
             btn.disabled = true;
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/phumelela-auth', {
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-auth', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ name: document.getElementById('staffName').value, pin: document.getElementById('staffPin').value })
