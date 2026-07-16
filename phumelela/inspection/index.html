@@ -97,6 +97,11 @@
             background-position: right 1rem center;
             background-size: 1.2em;
             padding-right: 2.5rem;
+            cursor: pointer;
+        }
+        
+        select.input-field:disabled {
+            cursor: not-allowed;
         }
 
         textarea.input-field {
@@ -289,7 +294,7 @@
                     <button type="button" onclick="prevStep(1)" class="btn-secondary w-14 flex justify-center items-center tap-effect">
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <button type="button" onclick="nextStep(3)" class="btn-primary flex-1 tap-effect">
+                    <button type="button" id="btn-begin-inspection" onclick="nextStep(3)" class="btn-primary flex-1 tap-effect" disabled>
                         Begin Inspection <i class="fa-solid fa-clipboard-check ml-1"></i>
                     </button>
                 </div>
@@ -369,46 +374,44 @@
             const btn = document.getElementById('btn-fetch-inventory');
             const originalText = btn.innerHTML;
             
-            // Switch button to loading state
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Locating Units...';
             btn.disabled = true;
 
             try {
-                // Point this to your n8n GET/POST webhook handling inventory requests
                 const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-get-rooms', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (response.ok) {
-                    liveRoomInventory = await response.json();
+                    const rawData = await response.json();
+                    
+                    // Unwraps the array payload created by n8n to ensure clean JS Object access
+                    liveRoomInventory = Array.isArray(rawData) ? rawData[0] : rawData;
+                    
                 } else {
                     throw new Error("Webhook refusal.");
                 }
             } catch (error) {
-                console.warn("Failed to reach n8n webhook. Using local fallback data for development.");
-                // Local Fallback so the form doesn't break if n8n is offline
+                console.warn("Failed to reach n8n webhook. Using local fallback.");
                 liveRoomInventory = {
                     "East Block": {
-                        "1st Floor": ["A01-1", "A01-2", "A01-3", "A02-1"],
-                        "2nd Floor": ["A11-1", "A11-2"],
-                        "3rd Floor": ["A33-3", "A34-5"]
+                        "1st Floor": ["E101A", "E101B", "E102A"],
+                        "2nd Floor": ["E201A", "E201B"]
                     },
                     "West Block": {
-                        "1st Floor": ["B01-1"],
-                        "2nd Floor": ["B12-1", "B12-2"],
-                        "3rd Floor": ["B34-5"]
+                        "1st Floor": ["W101A"],
+                        "2nd Floor": ["W201A", "W201B"]
                     }
                 };
             } finally {
-                // Populate the Block Dropdown
                 const blockSelect = document.getElementById('blockSelect');
                 blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>';
+                
                 Object.keys(liveRoomInventory).forEach(block => {
                     blockSelect.innerHTML += `<option value="${block}">${block}</option>`;
                 });
 
-                // Reset Button & Move to Step 2
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 nextStep(2);
@@ -418,32 +421,49 @@
         const blockSelect = document.getElementById('blockSelect');
         const floorSelect = document.getElementById('floorSelect');
         const roomSelect = document.getElementById('roomSelect');
+        const beginInspectionBtn = document.getElementById('btn-begin-inspection');
 
+        // Frictionless Auto-Focus Cascading 
         blockSelect.addEventListener('change', (e) => {
             const block = e.target.value;
+            
             floorSelect.innerHTML = '<option value="" disabled selected>Select Floor</option>';
             roomSelect.innerHTML = '<option value="" disabled selected>Select Room</option>';
             roomSelect.disabled = true;
+            beginInspectionBtn.disabled = true;
 
             if (block && liveRoomInventory[block]) {
                 floorSelect.disabled = false;
                 Object.keys(liveRoomInventory[block]).forEach(floor => {
-                    floorSelect.innerHTML += `<option value="${floor}">${floor}</option>`;
+                    // Ignore empty floor arrays returned by the API
+                    if(liveRoomInventory[block][floor].length > 0) {
+                        floorSelect.innerHTML += `<option value="${floor}">${floor}</option>`;
+                    }
                 });
+                floorSelect.focus(); // Auto-advances the user's attention
             }
         });
 
         floorSelect.addEventListener('change', (e) => {
             const block = blockSelect.value;
             const floor = e.target.value;
+            
             roomSelect.innerHTML = '<option value="" disabled selected>Select Room</option>';
+            beginInspectionBtn.disabled = true;
 
             if (block && floor && liveRoomInventory[block][floor]) {
                 roomSelect.disabled = false;
                 liveRoomInventory[block][floor].forEach(room => {
                     roomSelect.innerHTML += `<option value="${room}">${room}</option>`;
                 });
+                roomSelect.focus(); // Drop immediately into room select
             }
+        });
+
+        roomSelect.addEventListener('change', () => {
+            // Unlock progression as soon as a room is selected
+            beginInspectionBtn.disabled = false;
+            beginInspectionBtn.focus();
         });
 
         // --- Asset Component UI Bubbles ---
@@ -524,7 +544,7 @@
             };
 
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-inspections', {
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-inspections', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
