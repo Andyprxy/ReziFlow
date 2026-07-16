@@ -379,7 +379,7 @@
 
             try {
                 // Ensure this points to /webhook/ in production. Use /webhook-test/ for n8n canvas testing.
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-auth', {
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: nameField.value, pin: pinField.value })
