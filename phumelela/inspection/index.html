@@ -16,6 +16,7 @@
             align-items: center; padding: 1rem; margin: 0; overflow-x: hidden;
         }
 
+        /* Animated Liquid Background */
         .liquid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; z-index: 0; background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%); }
         .blob { position: absolute; filter: blur(80px); opacity: 0.6; animation: breathe 12s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
         .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #60a5fa; animation-delay: 0s; }
@@ -23,6 +24,7 @@
         .blob-3 { top: 40%; left: 60%; width: 40vw; height: 40vw; background: #818cf8; animation-delay: -8s; }
         @keyframes breathe { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.1) translate(20px, -20px); } }
 
+        /* Premium Glass Panel */
         .glass-panel {
             background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(40px) saturate(150%);
             border: 1px solid rgba(255, 255, 255, 0.8);
@@ -30,6 +32,7 @@
             border-radius: 32px; width: 100%; max-width: 480px; position: relative; z-index: 10;
         }
 
+        /* Inputs */
         .input-field {
             width: 100%; background-color: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 1rem;
@@ -38,7 +41,9 @@
         }
         .input-field:focus { outline: none; border-color: #3b82f6; background-color: #ffffff; }
         select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em; cursor: pointer; }
+        select.input-field:disabled { cursor: not-allowed; opacity: 0.5; }
         
+        /* Interactive Bubbles */
         .bubble-container { display: flex; background-color: rgba(255, 255, 255, 0.6); padding: 4px; border-radius: 16px; gap: 4px; border: 1px solid rgba(255, 255, 255, 0.8); }
         .bubble-btn { flex: 1; padding: 8px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 12px; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .bubble-btn:hover { background-color: rgba(255, 255, 255, 0.8); }
@@ -46,10 +51,16 @@
         .bubble-btn.active-damaged { background-color: #fffbeb; color: #d97706; border: 1px solid #f59e0b; }
         .bubble-btn.active-missing { background-color: #fff1f2; color: #e11d48; border: 1px solid #f43f5e; }
 
+        /* Steps & Buttons */
         .step-container { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .step-container.active { display: block; opacity: 1; }
-        .btn-primary { background-color: #0f172a; color: white; font-weight: 700; border-radius: 1rem; padding: 1rem; width: 100%; transition: all 0.2s; }
-        .btn-secondary { background-color: rgba(255, 255, 255, 0.8); color: #0f172a; font-weight: 700; border-radius: 1rem; padding: 1rem; }
+        .btn-primary { background-color: #0f172a; color: white; font-weight: 700; border-radius: 1rem; padding: 1rem; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .btn-primary:active:not(:disabled) { transform: scale(0.97); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.8); color: #0f172a; font-weight: 700; border-radius: 1rem; padding: 1rem; display: flex; justify-content: center; align-items: center; }
+        
+        .progress-dot { width: 6px; height: 6px; border-radius: 50%; background-color: rgba(15, 23, 42, 0.15); transition: all 0.4s; }
+        .progress-dot.active { background-color: #3b82f6; width: 20px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -61,105 +72,216 @@
     <div class="glass-panel p-6 sm:p-8">
         
         <div class="text-center mb-6">
-            <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='../phumelela/signup/phumelela.jpg';" alt="Logo" class="w-16 h-16 rounded-2xl mx-auto object-cover shadow-lg mb-4">
+            <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='../phumelela/signup/phumelela.jpg';" alt="Logo" class="w-16 h-16 rounded-2xl mx-auto object-cover shadow-lg mb-3">
             <h1 class="text-xl font-black text-slate-800">Facilities Gateway</h1>
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Internal Access Only</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Internal Access Only</p>
+            
+            <div class="flex justify-center gap-2 mt-4 hidden" id="progressIndicator">
+                <div class="progress-dot active" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+            </div>
         </div>
 
         <div id="step0" class="step-container active space-y-4">
             <div class="bg-blue-50/70 p-4 rounded-2xl text-center border border-blue-100">
-                <p class="text-xs text-slate-700">Select your profile and enter your secure PIN to begin.</p>
+                <p class="text-xs text-slate-700 font-medium">Select your profile and enter your PIN to securely access the portal.</p>
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1 pl-2">Officer</label>
-                <select id="staffName" class="input-field" required>
-                    <option value="" disabled selected>Select Profile</option>
-                    <option value="James Nyaloko">James Nyaloko</option>
-                    <option value="Godwin Malatji">Godwin Malatji</option>
-                    <option value="Christoph Maoto">Christoph Maoto</option>
-                    <option value="Tumelo Moalusi">Tumelo Moalusi</option>
-                    <option value="Sylvester">Sylvester</option>
-                    <option value="Andile">Andile</option>
-                </select>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1 pl-2">Maintenance Officer</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user-gear absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <select id="staffName" class="input-field" required>
+                        <option value="" disabled selected>Select Profile</option>
+                        <option value="James Nyaloko">James Nyaloko</option>
+                        <option value="Godwin Malatji">Godwin Malatji</option>
+                        <option value="Christoph Maoto">Christoph Maoto</option>
+                        <option value="Tumelo Moalusi">Tumelo Moalusi</option>
+                        <option value="Sylvester">Sylvester</option>
+                        <option value="Andile">Andile</option>
+                    </select>
+                </div>
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1 pl-2">PIN</label>
-                <input type="password" id="staffPin" class="input-field" placeholder="••••••" inputmode="numeric" required>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1 pl-2">Security PIN</label>
+                <div class="relative">
+                    <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="password" id="staffPin" class="input-field" placeholder="••••" inputmode="numeric" required>
+                </div>
             </div>
-            <button type="button" id="btn-login" onclick="authenticateUser()" class="btn-primary">Sign in</button>
+            <button type="button" id="btn-login" onclick="authenticateUser()" class="btn-primary mt-2">
+                Sign in <i class="fa-solid fa-shield-halved ml-1"></i>
+            </button>
         </div>
 
         <div id="step1" class="step-container space-y-4">
-            <div class="p-3 bg-emerald-50 rounded-xl text-center">
-                <p class="text-xs font-bold text-emerald-800">Welcome, <span id="welcomeName"></span></p>
+            <div class="p-3 bg-emerald-50 rounded-xl flex items-center gap-3 border border-emerald-100">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600"><i class="fa-solid fa-user-check"></i></div>
+                <div>
+                    <p class="text-[10px] font-bold text-emerald-600 uppercase">Session Active</p>
+                    <p class="text-sm font-bold text-slate-800" id="welcomeName">Officer</p>
+                </div>
             </div>
-            <select id="blockSelect" class="input-field" disabled><option>Loading Blocks...</option></select>
+            
+            <select id="blockSelect" class="input-field" disabled><option>Loading Database...</option></select>
             <select id="floorSelect" class="input-field" disabled><option>Select Floor</option></select>
             <select id="roomSelect" class="input-field" disabled><option>Select Room</option></select>
-            <button type="button" id="btn-begin" onclick="nextStep(2)" class="btn-primary" disabled>Begin Inspection</button>
+            
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="logout()" class="btn-secondary w-14"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <button type="button" id="btn-begin" onclick="nextStep(2)" class="btn-primary flex-1" disabled>Begin Assessment <i class="fa-solid fa-clipboard-list ml-1"></i></button>
+            </div>
         </div>
 
         <form id="step2" class="step-container space-y-4">
             <div id="assetsContainer" class="space-y-3 h-64 overflow-y-auto pr-2"></div>
-            <textarea id="general_comments" class="input-field" placeholder="Maintenance notes..."></textarea>
-            <button type="submit" id="submitBtn" class="btn-primary">Log Maintenance</button>
+            
+            <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1 pl-2">Maintenance Notes</label>
+                <textarea id="general_comments" class="input-field" placeholder="List repairs made or ongoing issues..." style="min-height: 80px;"></textarea>
+            </div>
+            
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="nextStep(1)" class="btn-secondary w-14"><i class="fa-solid fa-arrow-left"></i></button>
+                <button type="submit" id="submitBtn" class="btn-primary flex-1">Log Maintenance <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
+            </div>
         </form>
 
-        <div id="step3" class="step-container text-center space-y-4">
-            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto"><i class="fa-solid fa-check text-2xl text-emerald-600"></i></div>
-            <h2 class="font-bold text-lg">Data Synced</h2>
-            <button onclick="location.reload()" class="btn-secondary w-full">Assess Next</button>
+        <div id="step3" class="step-container text-center py-6">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-check text-4xl text-emerald-500"></i></div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Data Synced!</h2>
+            <p class="text-sm font-medium text-slate-600 mb-8">The assessment has been securely logged to the database.</p>
+            <button onclick="resetToLocation()" class="btn-secondary w-full">Assess Next Room <i class="fa-solid fa-rotate-right ml-1"></i></button>
         </div>
     </div>
 
     <script>
         let currentStep = 0, currentOfficer = "", liveRoomInventory = {};
 
+        function updateProgressDots() {
+            const indicator = document.getElementById('progressIndicator');
+            if (currentStep === 0 || currentStep === 3) {
+                indicator.style.display = 'none'; 
+            } else {
+                indicator.style.display = 'flex';
+                document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                    if (index + 1 === currentStep) dot.classList.add('active');
+                    else dot.classList.remove('active');
+                });
+            }
+        }
+
         function nextStep(step) {
             document.querySelectorAll('.step-container').forEach(s => s.classList.remove('active'));
             document.getElementById('step' + step).classList.add('active');
             currentStep = step;
+            updateProgressDots();
         }
 
+        function logout() {
+            currentOfficer = "";
+            document.getElementById('staffPin').value = "";
+            nextStep(0);
+        }
+
+        function resetToLocation() {
+            document.getElementById('step2').reset();
+            document.querySelectorAll('.bubble-btn').forEach(btn => btn.classList.remove('active-good', 'active-damaged', 'active-missing'));
+            document.getElementById('roomSelect').value = "";
+            document.getElementById('btn-begin').disabled = true;
+            nextStep(1);
+        }
+
+        // --- Auth Function (Using /webhook-test/) ---
         async function authenticateUser() {
             const btn = document.getElementById('btn-login');
+            const originalText = btn.innerHTML;
+            const nameField = document.getElementById('staffName').value;
+            const pinField = document.getElementById('staffPin').value;
+            
+            if (!nameField || !pinField) {
+                alert("Please select a profile and enter your PIN.");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
             btn.disabled = true;
+
             try {
+                // EXPLICITLY USING /webhook-test/ FOR n8n CANVAS TESTING
                 const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-auth', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ name: document.getElementById('staffName').value, pin: document.getElementById('staffPin').value })
+                    body: JSON.stringify({ name: nameField, pin: pinField })
                 });
+                
+                if (!res.ok) throw new Error("NetworkError");
+                
                 const data = await res.json();
+                
                 if (data.authenticated) {
-                    currentOfficer = document.getElementById('staffName').value;
+                    currentOfficer = nameField;
                     document.getElementById('welcomeName').innerText = currentOfficer;
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     nextStep(1);
                     loadRooms();
-                } else alert("Invalid PIN");
-            } catch { alert("Connection Error"); }
-            btn.disabled = false;
+                } else {
+                    throw new Error("InvalidPIN");
+                }
+            } catch (error) {
+                if (error.message === "InvalidPIN") {
+                    alert("Authentication failed. Wrong PIN or user not found.");
+                } else {
+                    alert("Connection Error. Ensure the n8n workflow is 'Listening' in test mode.");
+                }
+                document.getElementById('staffPin').value = "";
+                btn.innerHTML = 'Sign in <i class="fa-solid fa-shield-halved ml-1"></i>';
+                btn.classList.replace('bg-slate-900', 'bg-rose-500');
+                btn.disabled = false;
+            }
         }
 
+        // --- Inventory Load (Using /webhook-test/) ---
         async function loadRooms() {
-            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
-            liveRoomInventory = await res.json();
             const blockSelect = document.getElementById('blockSelect');
-            blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>';
-            Object.keys(liveRoomInventory).forEach(b => blockSelect.innerHTML += `<option value="${b}">${b}</option>`);
-            blockSelect.disabled = false;
+            try {
+                // EXPLICITLY USING /webhook-test/ FOR n8n CANVAS TESTING
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-get-rooms');
+                if (!res.ok) throw new Error("API Issue");
+                
+                const rawData = await res.json();
+                liveRoomInventory = Array.isArray(rawData) ? rawData[0] : rawData;
+                
+                blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>';
+                Object.keys(liveRoomInventory).forEach(b => blockSelect.innerHTML += `<option value="${b}">${b}</option>`);
+                blockSelect.disabled = false;
+            } catch (error) {
+                blockSelect.innerHTML = '<option value="" disabled>Database Offline</option>';
+            }
         }
 
+        // Dropdown Logic
         document.getElementById('blockSelect').addEventListener('change', (e) => {
             const f = document.getElementById('floorSelect');
+            const r = document.getElementById('roomSelect');
             f.innerHTML = '<option value="" disabled selected>Select Floor</option>';
-            Object.keys(liveRoomInventory[e.target.value]).forEach(fl => f.innerHTML += `<option value="${fl}">${fl}</option>`);
+            r.innerHTML = '<option value="" disabled selected>Select Room</option>';
+            r.disabled = true;
+            document.getElementById('btn-begin').disabled = true;
+            
+            Object.keys(liveRoomInventory[e.target.value]).forEach(fl => {
+                if(liveRoomInventory[e.target.value][fl].length > 0) {
+                    f.innerHTML += `<option value="${fl}">${fl}</option>`;
+                }
+            });
             f.disabled = false;
         });
 
         document.getElementById('floorSelect').addEventListener('change', (e) => {
             const r = document.getElementById('roomSelect');
             r.innerHTML = '<option value="" disabled selected>Select Room</option>';
+            document.getElementById('btn-begin').disabled = true;
+            
             liveRoomInventory[document.getElementById('blockSelect').value][e.target.value].forEach(rm => r.innerHTML += `<option value="${rm}">${rm}</option>`);
             r.disabled = false;
         });
@@ -167,29 +289,87 @@
         document.getElementById('roomSelect').addEventListener('change', () => document.getElementById('btn-begin').disabled = false);
 
         // Assets Injection
-        const assets = ['bed', 'desk', 'wardrobe', 'chair', 'microwave', 'fridge', 'stove', 'shower'];
+        const assets = [
+            { id: 'bed', name: 'Bed & Base', icon: 'fa-bed', color: 'text-indigo-500' },
+            { id: 'desk', name: 'Study Desk', icon: 'fa-table', color: 'text-blue-500' },
+            { id: 'wardrobe', name: 'Wardrobe', icon: 'fa-person-booth', color: 'text-amber-500' },
+            { id: 'chair', name: 'Study Chair', icon: 'fa-chair', color: 'text-rose-500' },
+            { id: 'microwave', name: 'Microwave', icon: 'fa-wave-square', color: 'text-slate-600' },
+            { id: 'fridge', name: 'Fridge', icon: 'fa-snowflake', color: 'text-cyan-500' },
+            { id: 'stove', name: 'Stove', icon: 'fa-fire-burner', color: 'text-orange-500' },
+            { id: 'shower', name: 'Shower / Plumbing', icon: 'fa-shower', color: 'text-teal-500' }
+        ];
+        
         const container = document.getElementById('assetsContainer');
+        const inspectionData = {};
+
         assets.forEach(a => {
-            container.innerHTML += `<div class="bg-white/70 p-3 rounded-xl border"><span class="text-xs font-bold block mb-2">${a.toUpperCase()}</span><div class="bubble-container"><button type="button" class="bubble-btn" onclick="setAssetStatus('${a}', 'Good', this, 'active-good')">Good</button><button type="button" class="bubble-btn" onclick="setAssetStatus('${a}', 'Damaged', this, 'active-damaged')">Fix</button><button type="button" class="bubble-btn" onclick="setAssetStatus('${a}', 'Missing', this, 'active-missing')">Miss</button></div><input type="hidden" id="${a}_hidden" required></div>`;
+            inspectionData[a.id] = "";
+            container.innerHTML += `
+                <div class="bg-white/70 p-3 rounded-xl border border-white/90 shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center text-xs ${a.color}"><i class="fa-solid ${a.icon}"></i></div>
+                        <span class="text-sm font-bold text-slate-800">${a.name}</span>
+                    </div>
+                    <div class="bubble-container">
+                        <button type="button" class="bubble-btn" onclick="setAssetStatus('${a.id}', 'Good', this, 'active-good')"><i class="fa-solid fa-check"></i> Good</button>
+                        <button type="button" class="bubble-btn" onclick="setAssetStatus('${a.id}', 'Damaged', this, 'active-damaged')"><i class="fa-solid fa-wrench"></i> Needs Repair</button>
+                        <button type="button" class="bubble-btn" onclick="setAssetStatus('${a.id}', 'Missing', this, 'active-missing')"><i class="fa-solid fa-xmark"></i> Missing</button>
+                    </div>
+                    <input type="hidden" id="${a.id}_hidden" required>
+                </div>`;
         });
 
         function setAssetStatus(id, stat, el, cls) {
+            inspectionData[id] = stat;
             document.getElementById(id + '_hidden').value = stat;
-            el.parentElement.querySelectorAll('button').forEach(b => b.className = 'bubble-btn');
+            el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active-good', 'active-damaged', 'active-missing'));
             el.classList.add(cls);
         }
 
-        document.getElementById('inspectionFormElement').addEventListener('submit', async (e) => {
+        // --- Submit Log (Using /webhook-test/) ---
+        document.getElementById('step2').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const missing = assets.find(a => inspectionData[a.id] === "");
+            if (missing) {
+                alert(`Please log the status for: ${missing.name}`);
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Syncing...';
+            submitBtn.disabled = true;
+
             const payload = {
                 maintenance_officer: currentOfficer,
                 block: document.getElementById('blockSelect').value,
                 floor: document.getElementById('floorSelect').value,
                 room: document.getElementById('roomSelect').value,
-                general_comments: document.getElementById('general_comments').value
+                ...inspectionData,
+                general_comments: document.getElementById('general_comments').value || "None",
+                timestamp: new Date().toISOString()
             };
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-inspections', { method: 'POST', body: JSON.stringify(payload) });
-            nextStep(3);
+
+            try {
+                // EXPLICITLY USING /webhook-test/ FOR n8n CANVAS TESTING
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-inspections', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload) 
+                });
+                
+                if (!res.ok) throw new Error("NetworkError");
+                
+                submitBtn.innerHTML = 'Log Maintenance <i class="fa-solid fa-cloud-arrow-up ml-1"></i>';
+                submitBtn.disabled = false;
+                nextStep(3);
+            } catch (error) {
+                alert("Network error. Ensure the submission workflow is 'Listening' in test mode.");
+                submitBtn.innerHTML = 'Retry Sync <i class="fa-solid fa-rotate-right ml-1"></i>';
+                submitBtn.classList.replace('bg-slate-900', 'bg-rose-500');
+                submitBtn.disabled = false;
+            }
         });
     </script>
 </body>
