@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ReziFlow OS | Pre-Occupancy Inspections</title>
+    <title>ReziFlow OS | Advanced Inspection Analytics</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,14 +43,15 @@
         .glass-seg-btn.active.accent-blue { color: #0071e3; } 
         .glass-seg-btn.active.accent-emerald { color: #10b981; } 
         .glass-seg-btn.active.accent-rose { color: #e11d48; }
+        .glass-seg-btn.active.accent-indigo { color: #4f46e5; }
 
         .nav-block { 
             background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); 
             box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 16px; padding: 10px; transition: all 0.3s ease; 
         }
         .block-btn { 
-            width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; 
-            font-size: 0.7rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; 
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 12px; border-radius: 12px; 
+            font-size: 0.75rem; font-weight: 800; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; 
         }
 
         .compact-table th { padding: 10px 12px; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
@@ -64,20 +65,31 @@
         #toast-container.show { transform: translateY(0); }
 
         /* Dynamic CSS Pie Chart */
+        .retractable-wrapper {
+            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
+            max-height: 300px; opacity: 1; overflow: hidden;
+        }
+        .retractable-wrapper.collapsed { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; }
+
         .pie-chart-container {
-            position: relative; width: 100px; height: 100px; border-radius: 50%;
+            position: relative; width: 110px; height: 110px; border-radius: 50%;
             background: conic-gradient(#10b981 0% 0%, #f43f5e 0% 100%); 
             box-shadow: 0 4px 15px rgba(0,0,0,0.05), inset 0 2px 5px rgba(255,255,255,0.5);
-            transition: background 0.5s ease-out;
+            transition: background 0.5s ease-out; margin: 0 auto;
         }
         .pie-chart-inner {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 65px; height: 65px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
+            width: 70px; height: 70px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
             border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        /* Inspection Specific Styles */
+        /* Modals & Visuals */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 800px; }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
         .status-badge { padding: 4px 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 6px; }
         .status-complete { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .status-incomplete { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
@@ -92,7 +104,7 @@
 <body class="flex flex-col lg:flex-row h-screen w-full relative overflow-hidden bg-[#f5f5f7]">
 
     <div class="fixed top-[-15%] left-[-10%] w-[60%] h-[60%] bg-blue-300 rounded-full mix-blend-multiply filter blur-[140px] opacity-[0.25] z-0 pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.25] z-0 pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.25] z-0 pointer-events-none"></div>
 
     <div id="toast-container" class="fixed top-6 left-0 right-0 z-[5000] flex justify-center px-4 pointer-events-none">
         <div id="toast-message" class="bg-[#1d1d1f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium text-sm">
@@ -101,55 +113,8 @@
         </div>
     </div>
 
-    <div class="lg:hidden flex items-center justify-between p-3 sm:p-4 bg-white/80 backdrop-blur-2xl border-b border-slate-200 z-50 sticky top-0">
-        <div class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-600 text-lg"></i><span class="font-black text-lg tracking-tight text-slate-800">Rezi<span class="text-blue-500">Flow</span></span></div>
-        <button onclick="window.toggleSidebar()" class="w-9 h-9 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-bars"></i></button>
-    </div>
-
-    <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-400 ease-in-out z-[100] lg:z-20 w-[220px] lg:w-[195px] xl:w-[220px] bg-white/40 lg:bg-gradient-to-b lg:from-slate-200/70 lg:to-slate-300/40 backdrop-blur-3xl border-r border-white/60 flex flex-col justify-between shadow-[20px_0_40px_rgba(0,0,0,0.02)] lg:shadow-inner h-full flex-shrink-0">
-        <button onclick="window.toggleSidebar()" class="lg:hidden absolute top-3 right-3 w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-500"><i class="fa-solid fa-xmark text-xs"></i></button>
-
-        <div class="overflow-y-auto custom-scroll flex-1 px-3 py-4 lg:py-5">
-            <div class="hidden lg:flex items-center gap-2.5 bg-white/70 backdrop-blur-md p-3 rounded-[20px] border border-white shadow-sm mb-6">
-                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-teal-400 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 text-white flex-shrink-0"><i class="fa-solid fa-layer-group text-base"></i></div>
-                <div class="flex flex-col overflow-hidden">
-                    <span class="font-black text-[17px] tracking-tight text-slate-800 leading-none truncate">Rezi<span class="text-blue-500">Flow</span></span>
-                    <span class="text-[7px] font-bold tracking-widest text-slate-500 uppercase mt-0.5 truncate">Command Center</span>
-                </div>
-            </div>
-
-            <nav class="space-y-4">
-                <div class="bg-white/50 backdrop-blur-md border border-white/80 shadow-sm p-1.5 rounded-[20px]">
-                    <p class="px-3 text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 mt-1">Facility Operations</p>
-                    <div class="space-y-0.5">
-                        <button class="w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-bold transition-all bg-white shadow-sm border border-white text-blue-600 transform scale-[1.02]">
-                            <i class="fa-solid fa-clipboard-check text-base w-4 text-center"></i> Inspections
-                        </button>
-                        <button class="w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70 transition-all">
-                            <i class="fa-solid fa-screwdriver-wrench text-base w-4 text-center"></i> Maintenance
-                        </button>
-                        <button class="w-full flex items-center gap-2.5 px-3 py-2 sm:py-2.5 rounded-[14px] text-xs font-medium text-slate-600 border border-transparent hover:bg-white/70 transition-all">
-                            <i class="fa-solid fa-chart-pie text-base w-4 text-center"></i> Occupancy
-                        </button>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        
-        <div class="p-3">
-            <div class="relative overflow-hidden bg-white/80 backdrop-blur-xl p-3 rounded-[20px] border border-white shadow-md flex items-center gap-3">
-                <div class="w-8 h-8 rounded-[10px] bg-slate-50 flex items-center justify-center text-blue-600 border border-slate-100 shadow-sm flex-shrink-0"><i class="fa-solid fa-bolt text-xs"></i></div>
-                <div class="flex flex-col relative z-10 overflow-hidden">
-                    <span class="text-[7px] font-bold text-slate-500 uppercase tracking-widest truncate">Engineered By</span>
-                    <span class="text-[11px] font-black text-slate-800 tracking-tight truncate">AUTOMANIA</span>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <div id="mobile-overlay" onclick="window.toggleSidebar()" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 hidden transition-opacity"></div>
-
-    <div class="flex-1 flex flex-col min-w-0 min-h-0 h-[calc(100vh-60px)] lg:h-screen relative z-10 overflow-hidden">
+    <!-- MAIN DASHBOARD AREA -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 h-screen relative z-10 overflow-hidden">
         
         <header class="h-16 lg:h-20 bg-transparent flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 border-b border-slate-200/50">
             <div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 lg:gap-3 overflow-hidden">
@@ -157,11 +122,8 @@
                 <div class="h-5 w-px bg-slate-300 hidden sm:block"></div>
                 <p class="text-[9px] sm:text-[10px] lg:text-xs text-slate-500 font-medium sm:pt-0.5 truncate">Pre-Occupancy Binding Ledger</p>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-                <button class="w-8 h-8 rounded-full bg-white/70 backdrop-blur border border-white flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors shadow-sm"><i class="fa-solid fa-bell text-sm"></i></button>
-                <div class="h-8 px-3 rounded-full bg-white/70 backdrop-blur border border-white flex items-center gap-1.5 shadow-sm text-xs font-bold text-slate-700 hidden sm:flex">
-                    <div class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px]"><i class="fa-solid fa-user-shield"></i></div> Brian (Master Admin)
-                </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.fetchInspections(true)" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2 text-[10px] transition-colors"><i class="fa-solid fa-rotate text-blue-500"></i> Sync n8n</button>
             </div>
         </header>
 
@@ -169,30 +131,15 @@
             
             <div class="flex-1 flex flex-col lg:flex-row w-full h-full min-h-0 gap-4 overflow-hidden relative">
                 
+                <!-- Left Canvas: Inspection List -->
                 <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
-                    
                     <div class="flex justify-between w-full shrink-0 mb-4 z-10 relative items-center flex-wrap gap-3">
                         <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
-                            <button onclick="window.filterInspections('All')" id="ins-tab-all" class="glass-seg-btn active accent-blue text-[10px] sm:text-xs">
-                                <i class="fa-solid fa-list-check"></i> All Logs
-                            </button>
+                            <button onclick="window.filterInspections('All')" id="ins-tab-all" class="glass-seg-btn active accent-blue text-[10px] sm:text-xs"><i class="fa-solid fa-list-check"></i> All Logs</button>
                             <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                            <button onclick="window.filterInspections('Complete')" id="ins-tab-complete" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
-                                <i class="fa-solid fa-check-double"></i> Complete
-                            </button>
+                            <button onclick="window.filterInspections('Complete')" id="ins-tab-complete" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs"><i class="fa-solid fa-check-double"></i> Complete</button>
                             <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                            <button onclick="window.filterInspections('Incomplete')" id="ins-tab-incomplete" class="glass-seg-btn accent-rose text-[10px] sm:text-xs">
-                                <i class="fa-solid fa-triangle-exclamation"></i> Action Required
-                            </button>
-                        </div>
-                        
-                        <div class="flex items-center gap-2">
-                            <div class="relative w-full sm:w-48">
-                                <i class="fa-solid fa-user-shield absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <select id="inspector-filter" onchange="window.renderInspectionsTable()" class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm appearance-none cursor-pointer">
-                                    <option value="All">All Inspectors</option>
-                                    </select>
-                            </div>
+                            <button onclick="window.filterInspections('Incomplete')" id="ins-tab-incomplete" class="glass-seg-btn accent-rose text-[10px] sm:text-xs"><i class="fa-solid fa-triangle-exclamation"></i> Action Required</button>
                         </div>
                     </div>
 
@@ -202,75 +149,75 @@
                                 <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clipboard-list text-sm"></i></div>
                                 <h3 class="font-bold text-slate-800 text-sm sm:text-base">Pre-Occupancy Log</h3>
                             </div>
-                            <button onclick="window.simulateNewInspection()" class="bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2 text-[10px] transition-colors"><i class="fa-solid fa-plus"></i> New Log</button>
                         </div>
                         <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
                             <table class="w-full text-left border-collapse compact-table min-w-[900px]">
                                 <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm">
                                     <tr>
                                         <th class="w-1/6">Location</th>
-                                        <th class="w-1/6">Time & Profile</th>
-                                        <th class="w-1/3">Inventory Matrix (Hover)</th>
+                                        <th class="w-1/6">Inspector & Time</th>
+                                        <th class="w-1/3">Inventory Matrix</th>
                                         <th class="w-1/6 text-center">Status</th>
-                                        <th class="text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="inspections-tbody" class="divide-y divide-slate-100/50">
-                                    </tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="w-full lg:w-72 shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
+                <!-- Right Sidebar: Analytics & Actions -->
+                <div class="w-full lg:w-80 shrink-0 flex flex-col gap-4 overflow-y-auto custom-scroll pb-10 relative">
                     
+                    <!-- Live Analytics Block (Retractable) -->
                     <div class="nav-block bg-white/80">
-                        <div class="flex items-center gap-2 w-full mb-3 pb-2 border-b border-slate-100">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-chart-pie"></i></div>
-                            <div class="flex flex-col flex-1 overflow-hidden">
-                                <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none">Inspection <span class="text-blue-500">Analytics</span></span>
-                                <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Live Flow Stats</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-center py-4">
-                            <div id="completion-pie" class="pie-chart-container">
-                                <div class="pie-chart-inner">
-                                    <span id="pie-percentage" class="text-lg font-black text-slate-800 leading-none">0%</span>
-                                    <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete</span>
+                        <div class="flex items-center justify-between w-full mb-1 border-b border-slate-100 pb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-chart-pie"></i></div>
+                                <div class="flex flex-col">
+                                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none">Live <span class="text-indigo-500">Analytics</span></span>
+                                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Performance Overview</span>
                                 </div>
                             </div>
+                            <button onclick="window.togglePieChart()" class="w-6 h-6 rounded-full hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors"><i id="pie-toggle-icon" class="fa-solid fa-chevron-up text-[10px]"></i></button>
+                        </div>
+
+                        <!-- Block Filter (East/West) -->
+                        <div class="flex justify-center mt-3 mb-2">
+                            <div class="glass-segmented scale-90 origin-center bg-slate-50">
+                                <button onclick="window.filterRegion('All')" id="reg-tab-all" class="glass-seg-btn active accent-indigo text-[9px] !px-3 py-1">All</button>
+                                <button onclick="window.filterRegion('East')" id="reg-tab-east" class="glass-seg-btn text-[9px] !px-3 py-1">East Block</button>
+                                <button onclick="window.filterRegion('West')" id="reg-tab-west" class="glass-seg-btn text-[9px] !px-3 py-1">West Block</button>
+                            </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <div class="bg-emerald-50/50 border border-emerald-100 p-2 rounded-xl text-center">
-                                <p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mb-0.5">Complete</p>
-                                <p id="stat-complete" class="text-base font-black text-slate-800">0</p>
+                        <div id="pie-wrapper" class="retractable-wrapper">
+                            <div class="flex justify-center py-4">
+                                <div id="completion-pie" class="pie-chart-container">
+                                    <div class="pie-chart-inner">
+                                        <span id="pie-percentage" class="text-xl font-black text-slate-800 leading-none">0%</span>
+                                        <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-rose-50/50 border border-rose-100 p-2 rounded-xl text-center">
-                                <p class="text-[8px] font-bold text-rose-600 uppercase tracking-widest mb-0.5">Incomplete</p>
-                                <p id="stat-incomplete" class="text-base font-black text-slate-800">0</p>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="bg-emerald-50 border border-emerald-100 p-2 rounded-xl text-center shadow-sm"><p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mb-0.5">Passed</p><p id="stat-complete" class="text-lg font-black text-slate-800 leading-tight">0</p></div>
+                                <div class="bg-rose-50 border border-rose-100 p-2 rounded-xl text-center shadow-sm"><p class="text-[8px] font-bold text-rose-600 uppercase tracking-widest mb-0.5">Flagged</p><p id="stat-incomplete" class="text-lg font-black text-slate-800 leading-tight">0</p></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="nav-block bg-white/80">
-                        <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 truncate">Pipeline Routing</p>
-                        <div class="space-y-2">
-                            <button onclick="window.showToast('Damaged items routed to n8n Maintenance Queue.')" class="block-btn bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 justify-between !py-2.5 shadow-sm transition-colors">
-                                <div class="flex items-center gap-2"><i class="fa-solid fa-wrench text-amber-500 text-[10px]"></i> <span class="text-[10px]">Log Broken Items</span></div>
-                                <span id="stat-damaged-items" class="bg-amber-200 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-black">0</span>
-                            </button>
-                            <button onclick="window.showToast('Ledger pushed to Google Sheets.')" class="block-btn bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50 justify-center gap-1.5 !py-2.5 shadow-sm transition-colors">
-                                <i class="fa-solid fa-file-csv text-emerald-500 text-[10px]"></i> <span class="text-[10px]">Sync to Sheets</span>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Deep Analytics Trigger -->
+                    <button onclick="window.openStatsModal()" class="block-btn bg-[#1d1d1f] hover:bg-indigo-600 text-white shadow-lg transition-all !py-3 !rounded-[16px] border border-slate-800 hover:border-indigo-500 group">
+                        <i class="fa-solid fa-chart-simple group-hover:scale-110 transition-transform"></i> Deep Dive Stats & Reports
+                    </button>
                     
+                    <!-- Recent Notes -->
                     <div class="nav-block bg-white/80 flex-1 min-h-[150px]">
-                        <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 truncate">Latest Notes</p>
-                        <div id="recent-comments" class="space-y-2 max-h-[200px] overflow-y-auto custom-scroll pr-1">
-                            </div>
+                        <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 truncate">General Comments Log</p>
+                        <div id="recent-comments" class="space-y-2 max-h-[250px] overflow-y-auto custom-scroll pr-1"></div>
                     </div>
                 </div>
             </div>
@@ -278,50 +225,117 @@
         </main>
     </div>
 
-    <script>
-        // --- UI Utilities ---
-        window.toggleSidebar = function() { 
-            const sb = document.getElementById('sidebar'); 
-            const ov = document.getElementById('mobile-overlay'); 
-            sb.classList.toggle('-translate-x-full'); 
-            if (sb.classList.contains('-translate-x-full')) { ov.classList.add('hidden'); } else { ov.classList.remove('hidden'); } 
-        };
-        
-        window.showToast = function(m, t = 'success') { 
-            const tc = document.getElementById('toast-container'); 
-            document.getElementById('toast-text').textContent = m; 
-            document.getElementById('toast-icon').className = t === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-rose-400'; 
-            tc.classList.add('show'); 
-            setTimeout(() => { tc.classList.remove('show'); }, 3000); 
-        };
+    <!-- ========================================== -->
+    <!-- DEEP ANALYTICS MODAL -->
+    <!-- ========================================== -->
+    <div id="statsModal" class="modal-overlay">
+        <div class="modal-content relative flex flex-col bg-slate-50">
+            <button onclick="document.getElementById('statsModal').classList.remove('active')" class="absolute top-5 right-5 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="flex items-center gap-3 mb-6 px-2">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg shadow-sm border border-indigo-200"><i class="fa-solid fa-chart-pie"></i></div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight leading-none">Deep Analytics Report</h2>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Aggregated Asset Data</p>
+                </div>
+            </div>
 
-        // --- State & Variables ---
+            <div class="grid md:grid-cols-2 gap-4">
+                
+                <!-- Inspector Leaderboard -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-amber-500"></i> Inspector Leaderboard</h3>
+                    <div id="modal-inspector-list" class="space-y-3 max-h-48 overflow-y-auto custom-scroll pr-2">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Vulnerable Assets -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-house-crack text-rose-500"></i> Asset Vulnerability Breakdown</h3>
+                    <div id="modal-asset-list" class="space-y-3 max-h-48 overflow-y-auto custom-scroll pr-2">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Damaged Units Register -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm md:col-span-2">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-slate-400"></i> Affected Units Registry</h3>
+                    <div class="overflow-x-auto custom-scroll">
+                        <table class="w-full text-left border-collapse compact-table">
+                            <thead><tr><th class="w-1/4">Unit / Room</th><th class="w-3/4">Identified Issues (Damaged / Missing)</th></tr></thead>
+                            <tbody id="modal-damaged-units" class="divide-y divide-slate-100">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT ENGINE -->
+    <script>
+        // --- State ---
         window.inspectionFilterStatus = 'All';
-        window.inspectionFilterUser = 'All';
+        window.inspectionRegion = 'All'; // All, East, West
         const inventoryKeys = ['Desk', 'Wardrobe', 'Chair', 'Microwave', 'Fridge', 'Stove', 'Shower'];
         
-        // Mock Data mimicking DB schema
-        let globalInspectionsData = [
-            { id: 'INS-001', RoomProfileBlock: 'A', SelectedFloor: '1', SelectedRoom: '101', SelectedBed: 'A', Desk: 'OK', Wardrobe: 'OK', Chair: 'Damaged', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Room smells like paint.', InspectorProfile: 'Brian', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 08:30:00' },
-            { id: 'INS-002', RoomProfileBlock: 'B', SelectedFloor: '2', SelectedRoom: '205', SelectedBed: 'B', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Ready for occupancy.', InspectorProfile: 'Ayanda', Inspection_Status: 'Complete', Timestamp: '2026-07-16 09:15:00' },
-            { id: 'INS-003', RoomProfileBlock: 'A', SelectedFloor: '1', SelectedRoom: '102', SelectedBed: 'A', Desk: 'Missing', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'Damaged', Stove: 'OK', Shower: 'OK', General_Comments: 'Fridge leaking, no desk.', InspectorProfile: 'Brian', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 10:05:00' }
+        let globalInspectionsData = [];
+
+        // Mock Fallback Data matching requested schema mapping
+        const mockData = [
+            { RoomProfileBlock: 'A', SelectedFloor: '1', SelectedRoom: '101', SelectedBed: 'A', Desk: 'OK', Wardrobe: 'OK', Chair: 'Damaged', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Room smells like paint.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 08:30:00', InspectorProfile: 'Brian' },
+            { RoomProfileBlock: 'B', SelectedFloor: '2', SelectedRoom: '205', SelectedBed: 'B', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Ready for occupancy.', Inspection_Status: 'Complete', Timestamp: '2026-07-16 09:15:00', InspectorProfile: 'Ayanda' },
+            { RoomProfileBlock: 'C', SelectedFloor: '1', SelectedRoom: '102', SelectedBed: 'A', Desk: 'Missing', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'Damaged', Stove: 'OK', Shower: 'OK', General_Comments: 'Fridge leaking, no desk.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 10:05:00', InspectorProfile: 'Ayanda' },
+            { RoomProfileBlock: 'D', SelectedFloor: '3', SelectedRoom: '312', SelectedBed: 'B', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'Damaged', General_Comments: 'Shower head broken.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-17 11:20:00', InspectorProfile: 'Brian' },
+            { RoomProfileBlock: 'A', SelectedFloor: '2', SelectedRoom: '210', SelectedBed: 'A', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Cleaned and ready.', Inspection_Status: 'Complete', Timestamp: '2026-07-17 12:00:00', InspectorProfile: 'Brian' }
         ];
 
-        // --- Core Functions ---
-        window.renderInspectionsData = function() {
-            window.populateInspectors();
+        // --- Fetch & Sync Workflow ---
+        window.fetchInspections = async function(isManual = false) {
+            if(isManual) window.showToast('Syncing with n8n Webhook...', 'success');
+            try {
+                // Pointing to your automated stack
+                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-inspectionz', { method: 'GET' });
+                if (res.ok) {
+                    const data = await res.json();
+                    globalInspectionsData = data.data || data; // handle n8n wrapping
+                } else { throw new Error('Backend unavailable'); }
+            } catch (error) {
+                // Fallback to mock data for layout demonstration
+                if(globalInspectionsData.length === 0) globalInspectionsData = [...mockData];
+                if(isManual) window.showToast('N8n connection failed. Loading cache.', 'error');
+            }
+            window.renderInspectionsTable();
+        };
+
+        // --- UI Interactions ---
+        window.togglePieChart = function() {
+            const wrapper = document.getElementById('pie-wrapper');
+            const icon = document.getElementById('pie-toggle-icon');
+            wrapper.classList.toggle('collapsed');
+            if(wrapper.classList.contains('collapsed')) { icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
+            else { icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
+        };
+
+        window.filterRegion = function(region) {
+            window.inspectionRegion = region;
+            ['All', 'East', 'West'].forEach(r => {
+                const el = document.getElementById(`reg-tab-${r.toLowerCase()}`);
+                if(el) el.classList.remove('active', 'accent-indigo');
+            });
+            const activeEl = document.getElementById(`reg-tab-${region.toLowerCase()}`);
+            if(activeEl) activeEl.classList.add('active', 'accent-indigo');
             window.renderInspectionsTable();
         };
 
         window.filterInspections = function(status) {
             window.inspectionFilterStatus = status;
-            
-            // Update UI Tabs
             ['All', 'Complete', 'Incomplete'].forEach(tab => {
                 const el = document.getElementById(`ins-tab-${tab.toLowerCase()}`);
                 if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-rose');
             });
-            
             const activeEl = document.getElementById(`ins-tab-${status.toLowerCase()}`);
             if(activeEl) {
                 activeEl.classList.add('active');
@@ -332,47 +346,63 @@
             window.renderInspectionsTable();
         };
 
-        window.populateInspectors = function() {
-            const select = document.getElementById('inspector-filter');
-            const profiles = [...new Set(globalInspectionsData.map(i => i.InspectorProfile))];
-            
-            select.innerHTML = '<option value="All">All Inspectors</option>';
-            profiles.forEach(p => {
-                select.innerHTML += `<option value="${p}">${p}</option>`;
-            });
-        };
-
+        // --- Core Rendering Logic ---
         window.renderInspectionsTable = function() {
-            window.inspectionFilterUser = document.getElementById('inspector-filter').value;
             const tbody = document.getElementById('inspections-tbody');
             let htmlStr = '';
-            let totalComplete = 0;
-            let totalIncomplete = 0;
-            let damagedItemsCount = 0;
-            let commentsHtml = '';
+            let totalComplete = 0; let totalIncomplete = 0; let commentsHtml = '';
 
-            // Filter Data
-            const filteredData = globalInspectionsData.filter(item => {
-                const matchStatus = window.inspectionFilterStatus === 'All' || item.Inspection_Status === window.inspectionFilterStatus;
-                const matchUser = window.inspectionFilterUser === 'All' || item.InspectorProfile === window.inspectionFilterUser;
-                return matchStatus && matchUser;
+            // Apply Region Filter (East: A, B | West: C, D)
+            let regionFiltered = globalInspectionsData.filter(item => {
+                if (window.inspectionRegion === 'All') return true;
+                if (window.inspectionRegion === 'East') return ['A', 'B'].includes(item.RoomProfileBlock);
+                if (window.inspectionRegion === 'West') return ['C', 'D'].includes(item.RoomProfileBlock);
+                return true;
             });
 
-            if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 text-xs">No inspections match current filters.</td></tr>`;
+            // Calculate Analytics Based on Region Filtered Data (Dynamic Pie)
+            regionFiltered.forEach(item => {
+                if (item.Inspection_Status === 'Complete') totalComplete++; else totalIncomplete++;
+                if (item.General_Comments && item.General_Comments.trim() !== '') {
+                    commentsHtml += `
+                        <div class="p-2 bg-slate-50 border border-slate-100 rounded-lg">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold text-indigo-600">${item.InspectorProfile || 'System'}</span> 
+                                <span class="text-[8px] text-slate-400 font-mono">Blk ${item.RoomProfileBlock}-${item.SelectedRoom}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-600 italic">"${item.General_Comments}"</p>
+                        </div>
+                    `;
+                }
+            });
+
+            // Update Dynamic Pie Chart & Stats
+            const total = totalComplete + totalIncomplete;
+            const completePct = total === 0 ? 0 : Math.round((totalComplete / total) * 100);
+            document.getElementById('stat-complete').textContent = totalComplete;
+            document.getElementById('stat-incomplete').textContent = totalIncomplete;
+            document.getElementById('recent-comments').innerHTML = commentsHtml || '<p class="text-[9px] text-slate-400 text-center py-2">No logs found.</p>';
+            
+            document.getElementById('pie-percentage').textContent = `${completePct}%`;
+            document.getElementById('completion-pie').style.background = `conic-gradient(#10b981 0% ${completePct}%, #f43f5e ${completePct}% 100%)`;
+
+            // Apply Status Filter for the Table specifically
+            const tableFiltered = regionFiltered.filter(item => {
+                return window.inspectionFilterStatus === 'All' || item.Inspection_Status === window.inspectionFilterStatus;
+            });
+
+            if (tableFiltered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 text-xs">No records found for this view.</td></tr>`;
             } else {
-                filteredData.forEach(item => {
-                    const locationStr = `Blk ${item.RoomProfileBlock} • Fl ${item.SelectedFloor} • Rm ${item.SelectedRoom} (Bed ${item.SelectedBed})`;
+                tableFiltered.forEach(item => {
+                    const locationStr = `Block ${item.RoomProfileBlock} • Floor ${item.SelectedFloor} • Room ${item.SelectedRoom} (Bed ${item.SelectedBed})`;
                     
                     let inventoryHtml = '<div class="item-grid">';
                     inventoryKeys.forEach(key => {
                         const stat = item[key];
-                        let icon = ''; let cssClass = '';
-                        
-                        if(stat === 'OK') { icon = '<i class="fa-solid fa-check"></i>'; cssClass = 'item-ok'; }
-                        else if (stat === 'Damaged') { icon = '<i class="fa-solid fa-wrench"></i>'; cssClass = 'item-damaged'; damagedItemsCount++; }
-                        else { icon = '<i class="fa-solid fa-xmark"></i>'; cssClass = 'item-missing'; damagedItemsCount++; }
-                        
+                        let icon = '<i class="fa-solid fa-check"></i>'; let cssClass = 'item-ok';
+                        if (stat === 'Damaged') { icon = '<i class="fa-solid fa-wrench"></i>'; cssClass = 'item-damaged'; }
+                        else if (stat === 'Missing') { icon = '<i class="fa-solid fa-xmark"></i>'; cssClass = 'item-missing'; }
                         inventoryHtml += `<div class="item-dot ${cssClass}" title="${key}: ${stat}">${icon}</div>`;
                     });
                     inventoryHtml += '</div>';
@@ -382,64 +412,118 @@
 
                     htmlStr += `
                         <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td><div class="font-black text-slate-800 text-[11px]">${locationStr}</div><div class="text-[9px] text-slate-400 font-mono mt-0.5">${item.id}</div></td>
-                            <td><div class="text-[9px] font-bold text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${item.Timestamp.split(' ')[1]}</div><div class="text-[10px] font-bold text-blue-600 mt-0.5"><i class="fa-solid fa-user-pen mr-1"></i>${item.InspectorProfile}</div></td>
+                            <td><div class="font-black text-slate-800 text-[11px]">${locationStr}</div></td>
+                            <td><div class="text-[10px] font-bold text-blue-600"><i class="fa-solid fa-user-pen mr-1"></i>${item.InspectorProfile || 'N/A'}</div><div class="text-[9px] text-slate-500 mt-0.5">${item.Timestamp}</div></td>
                             <td>${inventoryHtml}</td>
                             <td class="text-center">${statusBadge}</td>
-                            <td class="text-right">
-                                ${!isComplete ? `<button onclick="window.showToast('Attending to broken items via n8n...')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">Attend</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[9px] font-bold px-3 py-1.5 rounded-lg border border-slate-200" disabled>Logged</button>`}
-                            </td>
                         </tr>
                     `;
                 });
                 tbody.innerHTML = htmlStr;
             }
+        };
 
-            // Analytics mapping (Always total data)
+        // --- Deep Analytics Modal Logic ---
+        window.openStatsModal = function() {
+            document.getElementById('statsModal').classList.add('active');
+            
+            let inspectorMap = {};
+            let itemDamageMap = {};
+            let damageReports = [];
+
+            // Initialize item map
+            inventoryKeys.forEach(k => itemDamageMap[k] = { damaged: 0, missing: 0 });
+
+            // Process Data for Deep Stats (using all data regardless of region for global analytics)
             globalInspectionsData.forEach(item => {
-                if (item.Inspection_Status === 'Complete') totalComplete++;
-                else totalIncomplete++;
-                
-                if (item.General_Comments && item.General_Comments.trim() !== '') {
-                    commentsHtml += `
-                        <div class="p-2 bg-slate-50 border border-slate-100 rounded-lg">
-                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] font-bold text-blue-600">${item.InspectorProfile}</span> <span class="text-[8px] text-slate-400 font-mono">${item.id}</span></div>
-                            <p class="text-[10px] text-slate-600 italic">"${item.General_Comments}"</p>
+                // 1. Inspector Counts
+                const inspector = item.InspectorProfile || 'Unknown';
+                inspectorMap[inspector] = (inspectorMap[inspector] || 0) + 1;
+
+                // 2. Asset & Unit Damage Tracking
+                let unitIssues = [];
+                inventoryKeys.forEach(key => {
+                    if (item[key] === 'Damaged') { itemDamageMap[key].damaged++; unitIssues.push(`${key} (Damaged)`); }
+                    if (item[key] === 'Missing') { itemDamageMap[key].missing++; unitIssues.push(`${key} (Missing)`); }
+                });
+
+                if (unitIssues.length > 0) {
+                    damageReports.push({ unit: `Block ${item.RoomProfileBlock}, Room ${item.SelectedRoom}`, issues: unitIssues, inspector: inspector });
+                }
+            });
+
+            // Render Inspector Leaderboard
+            const inspectorList = document.getElementById('modal-inspector-list');
+            inspectorList.innerHTML = '';
+            // Sort by highest inspections
+            const sortedInspectors = Object.entries(inspectorMap).sort((a,b) => b[1] - a[1]);
+            const maxCount = sortedInspectors[0] ? sortedInspectors[0][1] : 1;
+
+            sortedInspectors.forEach(([name, count]) => {
+                const widthPct = Math.max((count / maxCount) * 100, 10);
+                inspectorList.innerHTML += `
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 text-[10px] font-bold text-slate-600 truncate text-right">${name}</div>
+                        <div class="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden relative">
+                            <div class="bg-indigo-400 h-full rounded-full flex items-center justify-end pr-2" style="width: ${widthPct}%;">
+                                <span class="text-[8px] font-black text-white">${count}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Asset Vulnerability
+            const assetList = document.getElementById('modal-asset-list');
+            assetList.innerHTML = '';
+            // Sort keys by total issues
+            const sortedAssets = inventoryKeys.sort((a,b) => {
+                const totalA = itemDamageMap[a].damaged + itemDamageMap[a].missing;
+                const totalB = itemDamageMap[b].damaged + itemDamageMap[b].missing;
+                return totalB - totalA;
+            });
+
+            sortedAssets.forEach(key => {
+                const issues = itemDamageMap[key].damaged + itemDamageMap[key].missing;
+                if (issues > 0) {
+                    assetList.innerHTML += `
+                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-700">${key}</span>
+                            <div class="flex gap-2">
+                                ${itemDamageMap[key].damaged > 0 ? `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].damaged} Damaged</span>` : ''}
+                                ${itemDamageMap[key].missing > 0 ? `<span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].missing} Missing</span>` : ''}
+                            </div>
                         </div>
                     `;
                 }
             });
+            if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center"><i class="fa-solid fa-check-circle"></i> Zero vulnerable assets identified.</p>';
 
-            const total = totalComplete + totalIncomplete;
-            const completePct = total === 0 ? 0 : Math.round((totalComplete / total) * 100);
-            
-            document.getElementById('stat-complete').textContent = totalComplete;
-            document.getElementById('stat-incomplete').textContent = totalIncomplete;
-            document.getElementById('stat-damaged-items').textContent = damagedItemsCount;
-            document.getElementById('recent-comments').innerHTML = commentsHtml || '<p class="text-[9px] text-slate-400 text-center py-2">No recent notes.</p>';
-            
-            // Pie Chart Engine
-            document.getElementById('pie-percentage').textContent = `${completePct}%`;
-            const pieContainer = document.getElementById('completion-pie');
-            pieContainer.style.background = `conic-gradient(#10b981 0% ${completePct}%, #f43f5e ${completePct}% 100%)`;
+            // Render Damaged Units Registry
+            const registry = document.getElementById('modal-damaged-units');
+            registry.innerHTML = '';
+            if (damageReports.length === 0) {
+                registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All units are fully compliant.</td></tr>`;
+            } else {
+                damageReports.forEach(report => {
+                    const issueBadges = report.issues.map(iss => {
+                        const isMissing = iss.includes('Missing');
+                        return `<span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider mb-1 mr-1 ${isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}">${iss}</span>`;
+                    }).join('');
+
+                    registry.innerHTML += `
+                        <tr>
+                            <td><div class="font-bold text-[10px] text-slate-800">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
+                            <td>${issueBadges}</td>
+                        </tr>
+                    `;
+                });
+            }
         };
 
-        window.simulateNewInspection = function() {
-            const newId = 'INS-00' + (globalInspectionsData.length + 1);
-            const newItem = {
-                id: newId, RoomProfileBlock: 'C', SelectedFloor: '3', SelectedRoom: '312', SelectedBed: 'A',
-                Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK',
-                General_Comments: 'Perfect condition.', InspectorProfile: 'Brian', Inspection_Status: 'Complete', 
-                Timestamp: `2026-07-16 11:${Math.floor(Math.random() * 59).toString().padStart(2, '0')}:00`
-            };
-            globalInspectionsData.unshift(newItem);
-            window.renderInspectionsData(); // Reset filters and redraw
-            window.showToast("New pre-occupancy log added to queue.");
-        };
-
-        // Boot Application
+        // Boot
         document.addEventListener('DOMContentLoaded', () => {
-            window.renderInspectionsData();
+            window.fetchInspections(false);
         });
     </script>
 </body>
