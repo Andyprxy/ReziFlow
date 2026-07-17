@@ -67,9 +67,9 @@
         
         /* Compressed Textareas for split comment boxes */
         textarea.input-field { padding: 0.75rem 1rem; min-height: 48px; resize: none; border-radius: 1rem; }
-        textarea.input-field:focus { min-height: 60px; } /* Expand slightly only on focus */
+        textarea.input-field:focus { min-height: 60px; }
 
-        /* iOS-Style Segmented Controls (Resized for compactness) */
+        /* iOS-Style Segmented Controls */
         .segmented-control { display: flex; background: rgba(15, 23, 42, 0.05); padding: 2px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.4); gap: 2px; }
         .segment-btn { flex: 1; padding: 6px 2px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
         .segment-btn i { font-size: 0.75rem; }
@@ -127,7 +127,6 @@
                 
                 <div class="relative group">
                     <i class="fa-solid fa-key absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                    <!-- Removed inputmode="numeric" to allow full password strings -->
                     <input type="password" id="staffPin" class="input-field relative z-0" placeholder="Security PIN / Password" required>
                 </div>
             </div>
@@ -167,15 +166,15 @@
                 <div class="space-y-3 relative z-10">
                     <div class="relative group">
                         <i class="fa-solid fa-building absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
-                        <select id="blockSelect" class="input-field !pl-10 !py-3" disabled><option>Accessing Database...</option></select>
+                        <select id="blockSelect" class="input-field !pl-10 !py-3" disabled><option value="" disabled selected>Accessing Database...</option></select>
                     </div>
                     <div class="relative group">
                         <i class="fa-solid fa-layer-group absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
-                        <select id="floorSelect" class="input-field !pl-10 !py-3" disabled><option>Select Floor Target</option></select>
+                        <select id="floorSelect" class="input-field !pl-10 !py-3" disabled><option value="" disabled selected>Select Floor Target</option></select>
                     </div>
                     <div class="relative group">
                         <i class="fa-solid fa-door-closed absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
-                        <select id="roomSelect" class="input-field !pl-10 !py-3" disabled><option>Select Room Target</option></select>
+                        <select id="roomSelect" class="input-field !pl-10 !py-3" disabled><option value="" disabled selected>Select Room Target</option></select>
                     </div>
                 </div>
                 
@@ -186,7 +185,7 @@
             </div>
         </div>
 
-        <!-- Step 2: The Assessment Protocol (Flex layout strictly sizes to the screen) -->
+        <!-- Step 2: The Assessment Protocol -->
         <form id="step2" class="step-container">
             <div class="flex flex-col h-[75vh] max-h-[600px] w-full">
                 <!-- Anchored Header -->
@@ -200,7 +199,7 @@
                     <!-- Dynamic Assets Rendered Here -->
                 </div>
                 
-                <!-- Anchored Footer with Split Text Areas -->
+                <!-- Anchored Footer -->
                 <div class="pt-2 border-t border-white/50 flex-shrink-0 space-y-2 bg-white/10 backdrop-blur-sm mt-1">
                     <div class="flex gap-2">
                         <textarea id="general_comments" class="input-field text-xs !pl-3" placeholder="General condition notes..."></textarea>
@@ -209,7 +208,7 @@
                     
                     <div class="flex gap-2 pt-1">
                         <button type="button" onclick="nextStep(1)" class="btn-secondary w-12 flex justify-center items-center !p-0"><i class="fa-solid fa-xmark text-slate-400"></i></button>
-                        <button type="submit" id="submitBtn" class="btn-primary flex-1 !py-3">Sync to Database <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
+                        <button type="submit" id="submitBtn" class="btn-primary flex-1 !py-3">Submit <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
                     </div>
                 </div>
             </div>
@@ -224,7 +223,7 @@
                 </div>
             </div>
             <h2 class="text-2xl font-black text-slate-800 mb-2 tracking-tight">Synced</h2>
-            <p class="text-xs font-medium text-slate-500 mb-8 px-4">Maintenance log securely recorded.</p>
+            <p class="text-xs font-medium text-slate-500 mb-8 px-4">Maintenance log securely recorded for Room <span id="successRoomDisplay" class="font-bold text-slate-800 text-sm"></span>.</p>
             <button type="button" onclick="resetToLocation()" class="btn-secondary w-full py-3 flex justify-center items-center">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
         </div>
     </div>
@@ -325,6 +324,20 @@
             }
         }
 
+        // --- Strict Validation for "Open Inspection" ---
+        function checkInspectionReady() {
+            const block = document.getElementById('blockSelect').value;
+            const floor = document.getElementById('floorSelect').value;
+            const room = document.getElementById('roomSelect').value;
+            const beginBtn = document.getElementById('btn-begin');
+            
+            if (block && floor && room) {
+                beginBtn.disabled = false;
+            } else {
+                beginBtn.disabled = true;
+            }
+        }
+
         // Cascading Drops
         document.getElementById('blockSelect').addEventListener('change', (e) => {
             const f = document.getElementById('floorSelect');
@@ -332,35 +345,35 @@
             f.innerHTML = '<option value="" disabled selected>Select Floor Target</option>';
             r.innerHTML = '<option value="" disabled selected>Select Room Target</option>';
             r.disabled = true;
-            document.getElementById('btn-begin').disabled = true;
             
             Object.keys(liveRoomInventory[e.target.value]).forEach(fl => {
                 if(liveRoomInventory[e.target.value][fl].length > 0) f.innerHTML += `<option value="${fl}">${fl}</option>`;
             });
             f.disabled = false;
+            checkInspectionReady();
         });
 
         document.getElementById('floorSelect').addEventListener('change', (e) => {
             const r = document.getElementById('roomSelect');
             r.innerHTML = '<option value="" disabled selected>Select Room Target</option>';
-            document.getElementById('btn-begin').disabled = true;
             
             liveRoomInventory[document.getElementById('blockSelect').value][e.target.value].forEach(rm => r.innerHTML += `<option value="${rm}">${rm}</option>`);
             r.disabled = false;
+            checkInspectionReady();
         });
 
-        document.getElementById('roomSelect').addEventListener('change', () => document.getElementById('btn-begin').disabled = false);
+        document.getElementById('roomSelect').addEventListener('change', checkInspectionReady);
 
-        // --- 4. Asset Injection (Compressed Layout) ---
+        // --- 4. Asset Injection (Colorful Phumelela Gradient Pattern) ---
         const assets = [
-            { id: 'bed', name: 'Bed & Base', icon: 'fa-bed' },
-            { id: 'desk', name: 'Study Desk', icon: 'fa-table' },
-            { id: 'wardrobe', name: 'Wardrobe', icon: 'fa-person-booth' },
-            { id: 'chair', name: 'Study Chair', icon: 'fa-chair' },
-            { id: 'microwave', name: 'Microwave', icon: 'fa-wave-square' },
-            { id: 'fridge', name: 'Fridge', icon: 'fa-snowflake' },
-            { id: 'stove', name: 'Stove', icon: 'fa-fire-burner' },
-            { id: 'shower', name: 'Plumbing', icon: 'fa-shower' }
+            { id: 'bed', name: 'Bed & Base', icon: 'fa-bed', color: 'bg-teal-600' },
+            { id: 'desk', name: 'Study Desk', icon: 'fa-table', color: 'bg-emerald-500' },
+            { id: 'wardrobe', name: 'Wardrobe', icon: 'fa-person-booth', color: 'bg-lime-500' },
+            { id: 'chair', name: 'Study Chair', icon: 'fa-chair', color: 'bg-yellow-500' },
+            { id: 'microwave', name: 'Microwave', icon: 'fa-wave-square', color: 'bg-amber-500' },
+            { id: 'fridge', name: 'Fridge', icon: 'fa-snowflake', color: 'bg-orange-500' },
+            { id: 'stove', name: 'Stove', icon: 'fa-fire-burner', color: 'bg-rose-500' },
+            { id: 'shower', name: 'Plumbing', icon: 'fa-shower', color: 'bg-cyan-600' }
         ];
         
         const container = document.getElementById('assetsContainer');
@@ -371,7 +384,7 @@
             container.innerHTML += `
                 <div class="bg-white/40 p-2 rounded-xl border border-white/60 shadow-sm backdrop-blur-sm">
                     <div class="flex items-center gap-2 mb-1.5 px-1">
-                        <div class="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px] shadow-md"><i class="fa-solid ${a.icon}"></i></div>
+                        <div class="w-6 h-6 rounded-full ${a.color} text-white flex items-center justify-center text-[10px] shadow-md"><i class="fa-solid ${a.icon}"></i></div>
                         <span class="text-xs font-black text-slate-800">${a.name}</span>
                     </div>
                     <div class="segmented-control">
@@ -401,6 +414,7 @@
             }
 
             const submitBtn = document.getElementById('submitBtn');
+            const targetRoom = document.getElementById('roomSelect').value;
             submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Uploading...';
             submitBtn.disabled = true;
 
@@ -408,7 +422,7 @@
                 maintenance_officer: currentOfficer,
                 block: document.getElementById('blockSelect').value,
                 floor: document.getElementById('floorSelect').value,
-                room: document.getElementById('roomSelect').value,
+                room: targetRoom,
                 ...inspectionData,
                 general_comments: document.getElementById('general_comments').value || "None",
                 action_required: document.getElementById('action_required').value || "None", 
@@ -425,12 +439,15 @@
                 
                 if (!res.ok) throw new Error("NetworkError");
                 
-                submitBtn.innerHTML = 'Sync to Database <i class="fa-solid fa-cloud-arrow-up ml-1"></i>';
+                // Set the success screen room display
+                document.getElementById('successRoomDisplay').innerText = targetRoom;
+                
+                submitBtn.innerHTML = 'Submit <i class="fa-solid fa-cloud-arrow-up ml-1"></i>';
                 submitBtn.disabled = false;
                 nextStep(3);
             } catch (error) {
                 alert("Network error. Verify webhook availability.");
-                submitBtn.innerHTML = 'Retry Sync <i class="fa-solid fa-rotate-right ml-1"></i>';
+                submitBtn.innerHTML = 'Submit <i class="fa-solid fa-rotate-right ml-1"></i>';
                 submitBtn.classList.replace('bg-slate-900', 'bg-rose-500');
                 submitBtn.disabled = false;
             }
