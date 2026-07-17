@@ -33,17 +33,17 @@
 
         /* Ultra-Premium Glass Panel */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.55); 
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.45); 
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 
                 0 40px 80px -20px rgba(0,0,0,0.15), 
-                inset 0 1px 0 rgba(255,255,255,0.9),
-                inset 0 0 30px rgba(255,255,255,0.4);
-            border-radius: 36px; 
+                inset 0 1px 0 rgba(255,255,255,0.8),
+                inset 0 0 30px rgba(255,255,255,0.3);
+            border-radius: 30px; 
             width: 100%; 
-            max-width: 480px; 
+            max-width: 460px; 
             position: relative; 
             z-index: 10;
         }
@@ -53,44 +53,33 @@
         .step-container.active { display: block; animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes modalPop { 0% { opacity: 0; transform: scale(0.92) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
-        /* Frost Inputs */
+        /* Sleeker Frost Inputs for Mobile */
         .input-field {
-            width: 100%; background-color: rgba(255, 255, 255, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 1.25rem;
-            padding: 1.1rem 1rem 1.1rem 3rem; font-size: 0.95rem;
+            width: 100%; background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 1rem;
+            padding: 0.85rem 1rem 0.85rem 2.75rem; font-size: 0.95rem;
             font-weight: 600; color: #1e293b; transition: all 0.3s ease;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
         }
-        .input-field:focus { outline: none; border-color: #3b82f6; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
-        select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.2rem center; background-size: 1.2em; cursor: pointer; appearance: none; }
-        select.input-field:disabled { cursor: not-allowed; opacity: 0.5; background-color: rgba(230, 235, 240, 0.5); }
-        textarea.input-field { padding: 1rem; min-height: 90px; resize: none; border-radius: 1rem; }
+        .input-field:focus { outline: none; border-color: #3b82f6; background-color: rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.1em; cursor: pointer; appearance: none; }
+        select.input-field:disabled { cursor: not-allowed; opacity: 0.4; }
+        textarea.input-field { padding: 1rem; min-height: 80px; resize: none; border-radius: 1rem; }
 
         /* iOS-Style Segmented Controls */
-        .segmented-control { display: flex; background: rgba(15, 23, 42, 0.04); padding: 5px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.6); gap: 5px; }
-        .segment-btn { flex: 1; padding: 10px 4px; font-size: 0.75rem; font-weight: 700; color: #64748b; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
-        .segment-btn i { font-size: 1rem; }
-        .segment-btn.active-good { background: linear-gradient(to bottom, #ffffff, #f0fdf4); color: #059669; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); transform: translateY(-1px); }
-        .segment-btn.active-damaged { background: linear-gradient(to bottom, #ffffff, #fffbeb); color: #d97706; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); transform: translateY(-1px); }
-        .segment-btn.active-missing { background: linear-gradient(to bottom, #ffffff, #fff1f2); color: #e11d48; box-shadow: 0 4px 10px rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); transform: translateY(-1px); }
+        .segmented-control { display: flex; background: rgba(15, 23, 42, 0.05); padding: 4px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.4); gap: 4px; }
+        .segment-btn { flex: 1; padding: 8px 4px; font-size: 0.75rem; font-weight: 700; color: #64748b; border-radius: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+        .segment-btn i { font-size: 0.9rem; }
+        .segment-btn.active-good { background: #ffffff; color: #059669; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .segment-btn.active-damaged { background: #ffffff; color: #d97706; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .segment-btn.active-missing { background: #ffffff; color: #e11d48; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(244, 63, 94, 0.2); }
 
-        /* Room Grid Buttons */
-        .room-btn { padding: 0.8rem 0.2rem; font-size: 0.9rem; font-weight: 700; border-radius: 1rem; transition: all 0.2s ease; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .room-btn:active { transform: scale(0.95); }
-        .room-btn-idle { background-color: rgba(255, 255, 255, 0.65); border: 1px solid rgba(255, 255, 255, 0.9); color: #475569; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .room-btn-active { background: linear-gradient(135deg, #3b82f6, #2563eb); border: 1px solid #1d4ed8; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transform: translateY(-2px); }
-
-        /* Buttons */
-        .btn-primary { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; font-weight: 700; border-radius: 1.25rem; padding: 1.15rem; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); border: 1px solid #334155; }
-        .btn-primary:active:not(:disabled) { transform: scale(0.97); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
-        .btn-secondary { background-color: rgba(255, 255, 255, 0.7); color: #0f172a; font-weight: 700; border-radius: 1.25rem; padding: 1.15rem; border: 1px solid rgba(255,255,255,0.9); transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .btn-secondary:active { transform: scale(0.97); background-color: rgba(255,255,255,1); }
-        
-        /* Custom Scrollbars */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
+        /* Resized Buttons */
+        .btn-primary { background-color: #0f172a; color: white; font-weight: 700; border-radius: 1rem; padding: 0.95rem; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); }
+        .btn-primary:active:not(:disabled) { transform: scale(0.96); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.6); color: #0f172a; font-weight: 700; border-radius: 1rem; padding: 0.95rem; border: 1px solid rgba(255,255,255,0.8); transition: all 0.2s; }
+        .btn-secondary:active { transform: scale(0.96); background-color: rgba(255,255,255,0.9); }
         .asset-scroll::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
@@ -100,27 +89,27 @@
         <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
     </div>
 
-    <div class="glass-panel p-6 sm:p-8 overflow-hidden">
+    <!-- Adjusted padding for sleeker mobile fit -->
+    <div class="glass-panel p-5 sm:p-7 overflow-hidden">
         
-        <div class="text-center mb-6 relative z-20">
+        <div class="text-center mb-5 relative z-20">
             <div class="inline-block relative">
-                <div class="absolute inset-0 bg-white rounded-3xl blur-md opacity-70"></div>
-                <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='../phumelela/signup/phumelela.jpg';" alt="Logo" class="relative w-16 h-16 rounded-2xl mx-auto object-cover shadow-xl ring-2 ring-white/60 mb-3">
+                <div class="absolute inset-0 bg-white rounded-3xl blur-md opacity-60"></div>
+                <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='../phumelela/signup/phumelela.jpg';" alt="Logo" class="relative w-14 h-14 rounded-2xl mx-auto object-cover shadow-xl ring-2 ring-white/50 mb-3">
             </div>
             <h1 class="text-2xl font-black text-slate-800 tracking-tight">Facilities Gateway</h1>
             <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Authorized Maintenance</p>
         </div>
 
-        <!-- STEP 0: Auth -->
-        <div id="step0" class="step-container active space-y-5">
-            <div class="bg-blue-50/60 p-4 rounded-2xl text-center border border-white/70 shadow-sm backdrop-blur-sm">
-                <i class="fa-solid fa-lock text-blue-500 mb-2 text-lg"></i>
+        <div id="step0" class="step-container active space-y-4">
+            <div class="bg-blue-50/50 p-3 rounded-2xl text-center border border-white/60 shadow-sm backdrop-blur-sm">
+                <i class="fa-solid fa-lock text-blue-500 mb-1 text-lg"></i>
                 <p class="text-xs text-slate-700 font-medium">Verify credentials to access the inspection portal.</p>
             </div>
             
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <div class="relative group">
-                    <i class="fa-solid fa-user-gear absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
+                    <i class="fa-solid fa-user-gear absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
                     <select id="staffName" class="input-field relative z-0" required>
                         <option value="" disabled selected>Select Officer Profile</option>
                         <option value="James Nyaloko">James Nyaloko</option>
@@ -132,100 +121,91 @@
                     </select>
                 </div>
                 
-                <div class="relative group">
-                    <i class="fa-solid fa-key absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                    <!-- Removed inputmode="numeric" to allow letters for a password -->
-                    <input type="password" id="staffPin" class="input-field relative z-0" placeholder="Security Password" required>
+                <div class="relative group flex items-center">
+                    <i class="fa-solid fa-key absolute left-4 text-slate-400 z-10"></i>
+                    <!-- Removed inputmode="numeric" to allow letters -->
+                    <input type="password" id="staffPin" class="input-field relative z-0 w-full pr-12" placeholder="Security Password" required>
+                    <!-- Added View Password Toggle -->
+                    <button type="button" onclick="togglePassword()" class="absolute right-4 text-slate-400 hover:text-slate-600 focus:outline-none z-10">
+                        <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
             </div>
             
-            <button type="button" id="btn-login" onclick="authenticateUser()" class="btn-primary mt-3">
+            <button type="button" id="btn-login" onclick="authenticateUser()" class="btn-primary mt-2">
                 Authenticate <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
         </div>
 
-        <!-- STEP 1: Location Select -->
-        <div id="step1" class="step-container space-y-5">
-            <div class="p-3 bg-emerald-50/80 rounded-2xl flex items-center gap-4 border border-emerald-100 shadow-sm backdrop-blur-sm">
-                <div class="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center text-emerald-500">
-                    <i class="fa-solid fa-shield-check text-xl"></i>
+        <div id="step1" class="step-container space-y-4">
+            <div class="p-3 bg-emerald-50/70 rounded-xl flex items-center gap-4 border border-white/80 shadow-sm backdrop-blur-sm">
+                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-500">
+                    <i class="fa-solid fa-shield-check text-lg"></i>
                 </div>
                 <div>
                     <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Clearance Granted</p>
-                    <p class="text-base font-black text-slate-800" id="welcomeName">Officer Name</p>
+                    <p class="text-sm font-black text-slate-800" id="welcomeName">Officer Name</p>
                 </div>
             </div>
             
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <div class="relative group">
-                    <i class="fa-solid fa-building absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
+                    <i class="fa-solid fa-building absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
                     <select id="blockSelect" class="input-field" disabled required><option>Accessing Database...</option></select>
                 </div>
                 <div class="relative group">
-                    <i class="fa-solid fa-layer-group absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
+                    <i class="fa-solid fa-layer-group absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
                     <select id="floorSelect" class="input-field" disabled required><option>Select Floor Target</option></select>
                 </div>
-                
-                <!-- Hidden traditional select to maintain exact backend payload mapping -->
-                <select id="roomSelect" class="hidden" required><option value="">Select Room Target</option></select>
-                
-                <!-- New High-End Room Grid -->
-                <div id="roomContainer" class="hidden flex-col gap-2 mt-2">
-                    <div class="flex justify-between items-center px-2">
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Room</span>
-                    </div>
-                    <div id="roomGrid" class="grid grid-cols-4 gap-2 max-h-[22vh] overflow-y-auto custom-scroll pr-1 pb-1">
-                        <!-- Room buttons injected here -->
-                    </div>
+                <div class="relative group">
+                    <i class="fa-solid fa-door-closed absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
+                    <select id="roomSelect" class="input-field" disabled required><option>Select Room Target</option></select>
                 </div>
             </div>
             
-            <div class="flex gap-3 pt-3">
-                <button type="button" onclick="logout()" class="btn-secondary w-16 flex justify-center items-center"><i class="fa-solid fa-power-off text-rose-500 text-lg"></i></button>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="logout()" class="btn-secondary w-12 flex justify-center items-center"><i class="fa-solid fa-power-off text-rose-500"></i></button>
                 <button type="button" id="btn-begin" onclick="nextStep(2)" class="btn-primary flex-1" disabled>Open Inspection <i class="fa-solid fa-clipboard-check ml-1"></i></button>
             </div>
         </div>
 
-        <!-- STEP 2: Inspection Form -->
-        <form id="step2" class="step-container space-y-4">
+        <form id="step2" class="step-container space-y-3">
             
-            <div class="flex justify-between items-center px-2 mb-2">
+            <div class="flex justify-between items-center px-2 mb-1">
                 <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Asset Checklist</h3>
-                <span id="roomLabel" class="text-sm font-black text-blue-700 bg-blue-100/80 px-3 py-1 rounded-lg border border-blue-200 shadow-sm">Room</span>
+                <span id="roomLabel" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Room</span>
             </div>
 
-            <div id="assetsContainer" class="space-y-3 h-[45vh] overflow-y-auto pb-4 asset-scroll">
-                <!-- Assets injected here -->
-            </div>
+            <div id="assetsContainer" class="space-y-2.5 h-[45vh] overflow-y-auto pb-4 asset-scroll">
+                </div>
             
-            <div class="pt-2 border-t border-white/60">
+            <div class="pt-2 border-t border-white/50">
                 <textarea id="general_comments" class="input-field" placeholder="Additional notes, damages, or replaced items..."></textarea>
             </div>
             
-            <div class="flex gap-3 pt-3">
-                <button type="button" onclick="nextStep(1)" class="btn-secondary w-16 flex justify-center items-center"><i class="fa-solid fa-arrow-left text-slate-500 text-lg"></i></button>
-                <!-- Renamed from 'Sync to Database' to 'Submit' -->
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="nextStep(1)" class="btn-secondary w-12 flex justify-center items-center"><i class="fa-solid fa-xmark text-slate-400"></i></button>
+                <!-- Renamed button text to Submit -->
                 <button type="submit" id="submitBtn" class="btn-primary flex-1">Submit <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
             </div>
         </form>
 
-        <!-- STEP 3: Success -->
-        <div id="step3" class="step-container text-center py-10">
-            <div class="relative inline-block mb-6">
+        <div id="step3" class="step-container text-center py-6">
+            <div class="relative inline-block mb-4">
                 <div class="absolute inset-0 bg-emerald-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
-                <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center relative shadow-2xl ring-4 ring-emerald-50 mx-auto">
-                    <i class="fa-solid fa-check text-6xl text-emerald-500"></i>
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center relative shadow-xl ring-4 ring-emerald-50 mx-auto">
+                    <i class="fa-solid fa-check text-4xl text-emerald-500"></i>
                 </div>
             </div>
-            <h2 class="text-3xl font-black text-slate-800 mb-2 tracking-tight">Submitted</h2>
-            <p class="text-sm font-medium text-slate-500 mb-10 px-4">Maintenance log securely recorded.</p>
-            <button type="button" onclick="resetToLocation()" class="btn-secondary w-full py-4 flex justify-center items-center text-lg">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
+            <h2 class="text-2xl font-black text-slate-800 mb-2 tracking-tight">Synced</h2>
+            <p class="text-sm font-medium text-slate-500 mb-8 px-4">Maintenance log securely recorded.</p>
+            <button type="button" onclick="resetToLocation()" class="btn-secondary w-full flex justify-center items-center">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // 1. CONFIGURED TEST WEBHOOK URLS (Untouched)
+        // 1. CONFIGURED TEST WEBHOOK URLS
         // ==========================================
         const AUTH_WEBHOOK = 'https://n8n.automania.cloud/webhook/phumelela-auth';
         const INVENTORY_WEBHOOK = 'https://n8n.automania.cloud/webhook/reziflow-get-roomz';
@@ -250,6 +230,8 @@
         function logout() {
             currentOfficer = "";
             document.getElementById('staffPin').value = "";
+            document.getElementById('staffPin').type = "password"; // Reset view toggle
+            document.getElementById('eyeIcon').className = "fa-solid fa-eye";
             nextStep(0);
         }
 
@@ -258,15 +240,23 @@
             document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active-good', 'active-damaged', 'active-missing'));
             document.getElementById('roomSelect').value = "";
             document.getElementById('btn-begin').disabled = true;
-            
-            // Reset grid UI
-            document.querySelectorAll('.room-btn').forEach(b => {
-                b.classList.remove('room-btn-active');
-                b.classList.add('room-btn-idle');
-            });
-            
             nextStep(1);
             loadRooms(); 
+        }
+
+        // Toggle Password Visibility
+        function togglePassword() {
+            const pinInput = document.getElementById('staffPin');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (pinInput.type === 'password') {
+                pinInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                pinInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
         }
 
         // --- 2. Authentication ---
@@ -278,7 +268,7 @@
             
             if (!nameField || !pinField) return;
 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking Clearance...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
             btn.disabled = true;
 
             try {
@@ -330,18 +320,16 @@
             }
         }
 
-        // Cascading Drops & Grids
+        // Cascading Drops
         document.getElementById('blockSelect').addEventListener('change', (e) => {
             const f = document.getElementById('floorSelect');
-            const rSelect = document.getElementById('roomSelect');
-            const rContainer = document.getElementById('roomContainer');
-            
+            const r = document.getElementById('roomSelect');
             f.innerHTML = '<option value="" disabled selected>Select Floor Target</option>';
-            rSelect.value = "";
-            rContainer.classList.add('hidden');
+            r.innerHTML = '<option value="" disabled selected>Select Room Target</option>';
+            r.disabled = true;
             document.getElementById('btn-begin').disabled = true;
             
-            // Sorting Floors naturally (1st Floor, 2nd Floor follows correctly)
+            // Sorting Floors naturally
             Object.keys(liveRoomInventory[e.target.value]).sort(naturalSort).forEach(fl => {
                 if(liveRoomInventory[e.target.value][fl].length > 0) f.innerHTML += `<option value="${fl}">${fl}</option>`;
             });
@@ -349,42 +337,16 @@
         });
 
         document.getElementById('floorSelect').addEventListener('change', (e) => {
-            const rSelect = document.getElementById('roomSelect');
-            const rGrid = document.getElementById('roomGrid');
-            const rContainer = document.getElementById('roomContainer');
-            
-            rSelect.value = "";
-            rGrid.innerHTML = '';
+            const r = document.getElementById('roomSelect');
+            r.innerHTML = '<option value="" disabled selected>Select Room Target</option>';
             document.getElementById('btn-begin').disabled = true;
             
             // Sorting Rooms naturally
-            const rooms = liveRoomInventory[document.getElementById('blockSelect').value][e.target.value].sort(naturalSort);
-            
-            rooms.forEach(rm => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'room-btn room-btn-idle';
-                btn.innerText = rm;
-                btn.onclick = () => handleRoomSelect(rm, btn);
-                rGrid.appendChild(btn);
-            });
-            
-            rContainer.classList.remove('hidden');
+            liveRoomInventory[document.getElementById('blockSelect').value][e.target.value].sort(naturalSort).forEach(rm => r.innerHTML += `<option value="${rm}">${rm}</option>`);
+            r.disabled = false;
         });
 
-        function handleRoomSelect(roomStr, btnElement) {
-            // Update UI for grid
-            document.querySelectorAll('.room-btn').forEach(b => {
-                b.classList.remove('room-btn-active');
-                b.classList.add('room-btn-idle');
-            });
-            btnElement.classList.remove('room-btn-idle');
-            btnElement.classList.add('room-btn-active');
-            
-            // Bind to the hidden select to maintain existing webhook payload architecture
-            document.getElementById('roomSelect').value = roomStr;
-            document.getElementById('btn-begin').disabled = false;
-        }
+        document.getElementById('roomSelect').addEventListener('change', () => document.getElementById('btn-begin').disabled = false);
 
         // --- 4. Asset Injection ---
         const assets = [
@@ -404,9 +366,9 @@
         assets.forEach(a => {
             inspectionData[a.id] = "";
             container.innerHTML += `
-                <div class="bg-white/50 p-3.5 rounded-2xl border border-white/80 shadow-sm backdrop-blur-md transition-all hover:bg-white/70">
-                    <div class="flex items-center gap-3 mb-3 px-1">
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center text-sm shadow-md"><i class="fa-solid ${a.icon}"></i></div>
+                <div class="bg-white/40 p-2.5 rounded-xl border border-white/60 shadow-sm backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-2 px-1">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs shadow-md"><i class="fa-solid ${a.icon}"></i></div>
                         <span class="text-sm font-black text-slate-800">${a.name}</span>
                     </div>
                     <div class="segmented-control">
@@ -425,20 +387,20 @@
             el.classList.add(cls);
         }
 
-        // --- 5. Final Data Sync (Untouched payload) ---
+        // --- 5. Final Data Sync (With MINUS ONE filter payload) ---
         document.getElementById('step2').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Added strict validation to ensure Block & Floor are captured
+
+            // Validation ensuring Block and Floor are properly selected
             const selectedBlock = document.getElementById('blockSelect').value;
             const selectedFloor = document.getElementById('floorSelect').value;
             const selectedRoom = document.getElementById('roomSelect').value;
 
             if (!selectedBlock || !selectedFloor || !selectedRoom || selectedBlock === "Accessing Database...") {
-                alert("Critical Error: Missing Location Data. Ensure Block, Floor, and Room are selected.");
+                alert("Please ensure Block, Floor, and Room are properly selected.");
                 return;
             }
-
+            
             const missing = assets.find(a => inspectionData[a.id] === "");
             if (missing) {
                 alert(`Missing evaluation for: ${missing.name}`);
@@ -456,7 +418,7 @@
                 room: selectedRoom,
                 ...inspectionData,
                 general_comments: document.getElementById('general_comments').value || "None",
-                inspection_status: "Completed",
+                inspection_status: "Completed", 
                 timestamp: new Date().toISOString()
             };
 
@@ -475,8 +437,7 @@
             } catch (error) {
                 alert("Network error. Verify webhook availability.");
                 submitBtn.innerHTML = 'Retry Submit <i class="fa-solid fa-rotate-right ml-1"></i>';
-                submitBtn.classList.replace('from-slate-700', 'from-rose-500');
-                submitBtn.classList.replace('to-slate-900', 'to-rose-700');
+                submitBtn.classList.replace('bg-slate-900', 'bg-rose-500');
                 submitBtn.disabled = false;
             }
         });
