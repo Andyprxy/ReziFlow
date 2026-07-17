@@ -64,13 +64,14 @@
         #toast-container { transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #toast-container.show { transform: translateY(0); }
 
-        /* Dynamic CSS Pie Chart */
+        /* Retractable Wrapper */
         .retractable-wrapper {
             transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
             max-height: 300px; opacity: 1; overflow: hidden;
         }
         .retractable-wrapper.collapsed { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; }
 
+        /* Modal Pie Chart UI */
         .pie-chart-container {
             position: relative; width: 110px; height: 110px; border-radius: 50%;
             background: conic-gradient(#10b981 0% 0%, #f43f5e 0% 100%); 
@@ -87,7 +88,7 @@
         /* Modals & Visuals */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 800px; }
+        .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; width: 100%; max-width: 900px; }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
         .status-badge { padding: 4px 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 6px; }
@@ -137,9 +138,9 @@
                         <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
                             <button onclick="window.filterInspections('All')" id="ins-tab-all" class="glass-seg-btn active accent-blue text-[10px] sm:text-xs"><i class="fa-solid fa-list-check"></i> All Logs</button>
                             <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                            <button onclick="window.filterInspections('Complete')" id="ins-tab-complete" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs"><i class="fa-solid fa-check-double"></i> Complete</button>
+                            <button onclick="window.filterInspections('Complete')" id="ins-tab-complete" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs"><i class="fa-solid fa-check-double"></i> Passed</button>
                             <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
-                            <button onclick="window.filterInspections('Incomplete')" id="ins-tab-incomplete" class="glass-seg-btn accent-rose text-[10px] sm:text-xs"><i class="fa-solid fa-triangle-exclamation"></i> Action Required</button>
+                            <button onclick="window.filterInspections('Incomplete')" id="ins-tab-incomplete" class="glass-seg-btn accent-rose text-[10px] sm:text-xs"><i class="fa-solid fa-triangle-exclamation"></i> Flagged</button>
                         </div>
                     </div>
 
@@ -171,38 +172,41 @@
                 <!-- Right Sidebar: Analytics & Actions -->
                 <div class="w-full lg:w-80 shrink-0 flex flex-col gap-4 overflow-y-auto custom-scroll pb-10 relative">
                     
-                    <!-- Live Analytics Block (Retractable) -->
+                    <!-- Live Analytics Block -->
                     <div class="nav-block bg-white/80">
                         <div class="flex items-center justify-between w-full mb-1 border-b border-slate-100 pb-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-chart-pie"></i></div>
+                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-bolt"></i></div>
                                 <div class="flex flex-col">
-                                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none">Live <span class="text-indigo-500">Analytics</span></span>
-                                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Performance Overview</span>
+                                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none">Live <span class="text-indigo-500">Pacing</span></span>
+                                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Facility Audit Progress</span>
                                 </div>
                             </div>
-                            <button onclick="window.togglePieChart()" class="w-6 h-6 rounded-full hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors"><i id="pie-toggle-icon" class="fa-solid fa-chevron-up text-[10px]"></i></button>
+                            <button onclick="window.toggleProgress()" class="w-6 h-6 rounded-full hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors"><i id="progress-toggle-icon" class="fa-solid fa-chevron-up text-[10px]"></i></button>
                         </div>
 
                         <!-- Block Filter (East/West) -->
                         <div class="flex justify-center mt-3 mb-2">
                             <div class="glass-segmented scale-90 origin-center bg-slate-50">
-                                <button onclick="window.filterRegion('All')" id="reg-tab-all" class="glass-seg-btn active accent-indigo text-[9px] !px-3 py-1">All</button>
-                                <button onclick="window.filterRegion('East')" id="reg-tab-east" class="glass-seg-btn text-[9px] !px-3 py-1">East Block</button>
-                                <button onclick="window.filterRegion('West')" id="reg-tab-west" class="glass-seg-btn text-[9px] !px-3 py-1">West Block</button>
+                                <button onclick="window.filterRegion('All')" id="reg-tab-all" class="glass-seg-btn active accent-indigo text-[9px] !px-3 py-1">All (445)</button>
+                                <button onclick="window.filterRegion('East')" id="reg-tab-east" class="glass-seg-btn text-[9px] !px-3 py-1">East (280)</button>
+                                <button onclick="window.filterRegion('West')" id="reg-tab-west" class="glass-seg-btn text-[9px] !px-3 py-1">West (165)</button>
                             </div>
                         </div>
                         
-                        <div id="pie-wrapper" class="retractable-wrapper">
-                            <div class="flex justify-center py-4">
-                                <div id="completion-pie" class="pie-chart-container">
-                                    <div class="pie-chart-inner">
-                                        <span id="pie-percentage" class="text-xl font-black text-slate-800 leading-none">0%</span>
-                                        <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Complete</span>
-                                    </div>
+                        <!-- Progress Bar Container -->
+                        <div id="progress-wrapper" class="retractable-wrapper">
+                            <div class="py-3 px-1">
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <span id="progress-text" class="text-[10px] font-bold text-slate-600">0 / 445 Inspected</span>
+                                    <span id="progress-pct" class="text-xs font-black text-indigo-600">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200/80 rounded-full h-3 shadow-inner overflow-hidden border border-slate-300">
+                                    <div id="progress-fill" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
+
+                            <div class="grid grid-cols-2 gap-2 mt-2">
                                 <div class="bg-emerald-50 border border-emerald-100 p-2 rounded-xl text-center shadow-sm"><p class="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mb-0.5">Passed</p><p id="stat-complete" class="text-lg font-black text-slate-800 leading-tight">0</p></div>
                                 <div class="bg-rose-50 border border-rose-100 p-2 rounded-xl text-center shadow-sm"><p class="text-[8px] font-bold text-rose-600 uppercase tracking-widest mb-0.5">Flagged</p><p id="stat-incomplete" class="text-lg font-black text-slate-800 leading-tight">0</p></div>
                             </div>
@@ -240,30 +244,45 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
+            <div class="grid md:grid-cols-3 gap-4">
                 
-                <!-- Inspector Leaderboard -->
+                <!-- 1. Room Health Pie Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center relative">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center w-full gap-2"><i class="fa-solid fa-heart-pulse text-emerald-500"></i> Room Health State</h3>
+                    <div id="modal-health-pie" class="pie-chart-container scale-90 mt-2">
+                        <div class="pie-chart-inner">
+                            <span id="modal-health-pct" class="text-xl font-black text-slate-800 leading-none">0%</span>
+                            <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Good</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between w-full mt-4 text-[9px] font-bold">
+                        <span id="modal-good-count" class="text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">0 Good</span>
+                        <span id="modal-damaged-count" class="text-rose-600 bg-rose-50 px-2 py-1 rounded border border-rose-100">0 Damaged</span>
+                    </div>
+                </div>
+
+                <!-- 2. Inspector Leaderboard -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-amber-500"></i> Inspector Leaderboard</h3>
-                    <div id="modal-inspector-list" class="space-y-3 max-h-48 overflow-y-auto custom-scroll pr-2">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-amber-500"></i> Auditor Leaderboard</h3>
+                    <div id="modal-inspector-list" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-2">
                         <!-- Populated via JS -->
                     </div>
                 </div>
 
-                <!-- Vulnerable Assets -->
+                <!-- 3. Vulnerable Assets -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-house-crack text-rose-500"></i> Asset Vulnerability Breakdown</h3>
-                    <div id="modal-asset-list" class="space-y-3 max-h-48 overflow-y-auto custom-scroll pr-2">
+                    <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-house-crack text-rose-500"></i> Asset Vulnerability</h3>
+                    <div id="modal-asset-list" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-2">
                         <!-- Populated via JS -->
                     </div>
                 </div>
 
                 <!-- Damaged Units Register -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm md:col-span-2">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm md:col-span-3">
                     <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-slate-400"></i> Affected Units Registry</h3>
-                    <div class="overflow-x-auto custom-scroll">
+                    <div class="overflow-x-auto custom-scroll max-h-64">
                         <table class="w-full text-left border-collapse compact-table">
-                            <thead><tr><th class="w-1/4">Unit / Room</th><th class="w-3/4">Identified Issues (Damaged / Missing)</th></tr></thead>
+                            <thead><tr class="bg-slate-50"><th class="w-1/4 rounded-tl-lg">Unit / Room</th><th class="w-3/4 rounded-tr-lg">Identified Issues (Damaged / Missing)</th></tr></thead>
                             <tbody id="modal-damaged-units" class="divide-y divide-slate-100">
                                 <!-- Populated via JS -->
                             </tbody>
@@ -280,8 +299,10 @@
         window.inspectionFilterStatus = 'All';
         window.inspectionRegion = 'All'; // All, East, West
         
-        // Added 'Bed' to the inventory matrix based on backend JSON schema
+        // Configuration Constraints
+        const ROOM_TOTALS = { All: 445, East: 280, West: 165 };
         const inventoryKeys = ['Bed', 'Desk', 'Wardrobe', 'Chair', 'Microwave', 'Fridge', 'Stove', 'Shower'];
+        
         let globalInspectionsData = [];
 
         window.showToast = function(m, t = 'success') { 
@@ -302,18 +323,21 @@
                 });
                 
                 if (res.ok) {
-                    const rawData = await res.json();
+                    let rawData = await res.json();
                     
-                    // Bulletproof n8n parser
+                    // ULTIMATE N8N PARSER
+                    if (typeof rawData === 'string') rawData = JSON.parse(rawData);
+                    if (rawData.data && Array.isArray(rawData.data)) rawData = rawData.data;
+                    
                     let arr = [];
-                    if (Array.isArray(rawData)) arr = rawData; 
-                    else if (rawData.data && Array.isArray(rawData.data)) arr = rawData.data; 
-                    else if (typeof rawData === 'object') arr = [rawData]; 
+                    if (Array.isArray(rawData)) { arr = rawData.flat(Infinity); } 
+                    else if (typeof rawData === 'object') { arr = [rawData]; }
+                    
                     arr = arr.map(i => i.json ? i.json : i);
                     
-                    console.log("Parsed n8n Data:", arr);
+                    console.log("Bulletproof Parsed Data:", arr);
 
-                    // THE ADAPTER: Map n8n schema to frontend schema
+                    // THE ADAPTER
                     globalInspectionsData = arr.map(item => ({
                         RoomProfileBlock: item.Block_Selected || 'Unknown',
                         SelectedFloor: item.Floor_Selected || 'Unknown',
@@ -346,9 +370,9 @@
         };
 
         // --- UI Interactions ---
-        window.togglePieChart = function() {
-            const wrapper = document.getElementById('pie-wrapper');
-            const icon = document.getElementById('pie-toggle-icon');
+        window.toggleProgress = function() {
+            const wrapper = document.getElementById('progress-wrapper');
+            const icon = document.getElementById('progress-toggle-icon');
             wrapper.classList.toggle('collapsed');
             if(wrapper.classList.contains('collapsed')) { icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
             else { icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
@@ -387,7 +411,7 @@
             let htmlStr = '';
             let totalComplete = 0; let totalIncomplete = 0; let commentsHtml = '';
 
-            // Apply Region Filter matching exact string outputs
+            // Apply Region Filter
             let regionFiltered = globalInspectionsData.filter(item => {
                 if (window.inspectionRegion === 'All') return true;
                 if (window.inspectionRegion === 'East') return String(item.RoomProfileBlock).includes('East');
@@ -395,7 +419,7 @@
                 return true;
             });
 
-            // Calculate Analytics Based on Region Filtered Data (Dynamic Pie)
+            // Calculate Analytics Based on Region Filtered Data
             regionFiltered.forEach(item => {
                 if (item.Inspection_Status === 'Complete') totalComplete++; else totalIncomplete++;
                 if (item.General_Comments && item.General_Comments.trim() !== '' && item.General_Comments !== 'None') {
@@ -411,15 +435,19 @@
                 }
             });
 
-            // Update Dynamic Pie Chart & Stats
-            const total = totalComplete + totalIncomplete;
-            const completePct = total === 0 ? 0 : Math.round((totalComplete / total) * 100);
+            // Update Progress Bar
+            const totalCapacity = ROOM_TOTALS[window.inspectionRegion];
+            const inspectedCount = regionFiltered.length;
+            const progressPct = totalCapacity === 0 ? 0 : Math.min(100, Math.round((inspectedCount / totalCapacity) * 100));
+            
+            document.getElementById('progress-text').textContent = `${inspectedCount} / ${totalCapacity} Inspected`;
+            document.getElementById('progress-pct').textContent = `${progressPct}%`;
+            document.getElementById('progress-fill').style.width = `${progressPct}%`;
+
+            // Update Sub-stats & Logs
             document.getElementById('stat-complete').textContent = totalComplete;
             document.getElementById('stat-incomplete').textContent = totalIncomplete;
             document.getElementById('recent-comments').innerHTML = commentsHtml || '<p class="text-[9px] text-slate-400 text-center py-2">No actionable logs.</p>';
-            
-            document.getElementById('pie-percentage').textContent = `${completePct}%`;
-            document.getElementById('completion-pie').style.background = `conic-gradient(#10b981 0% ${completePct}%, #f43f5e ${completePct}% 100%)`;
 
             // Apply Status Filter for the Table specifically
             const tableFiltered = regionFiltered.filter(item => {
@@ -435,7 +463,6 @@
                     let inventoryHtml = '<div class="item-grid">';
                     inventoryKeys.forEach(key => {
                         const stat = item[key];
-                        // Maps 'Good' to OK styling, identifies Damaged/Missing specifically
                         let icon = '<i class="fa-solid fa-check"></i>'; let cssClass = 'item-ok';
                         if (stat === 'Damaged') { icon = '<i class="fa-solid fa-wrench"></i>'; cssClass = 'item-damaged'; }
                         else if (stat === 'Missing') { icon = '<i class="fa-solid fa-xmark"></i>'; cssClass = 'item-missing'; }
@@ -470,6 +497,7 @@
 
             inventoryKeys.forEach(k => itemDamageMap[k] = { damaged: 0, missing: 0 });
 
+            // Using full global dataset for overall system deep dive
             globalInspectionsData.forEach(item => {
                 const inspector = item.InspectorProfile;
                 inspectorMap[inspector] = (inspectorMap[inspector] || 0) + 1;
@@ -485,7 +513,18 @@
                 }
             });
 
-            // Render Inspector Leaderboard
+            // 1. Render Room Health Pie Chart
+            const totalLoggedRooms = globalInspectionsData.length;
+            const totalDamagedRooms = damageReports.length;
+            const totalGoodRooms = totalLoggedRooms - totalDamagedRooms;
+            const goodPct = totalLoggedRooms === 0 ? 0 : Math.round((totalGoodRooms / totalLoggedRooms) * 100);
+
+            document.getElementById('modal-health-pct').textContent = `${goodPct}%`;
+            document.getElementById('modal-good-count').textContent = `${totalGoodRooms} Good`;
+            document.getElementById('modal-damaged-count').textContent = `${totalDamagedRooms} Damaged`;
+            document.getElementById('modal-health-pie').style.background = `conic-gradient(#10b981 0% ${goodPct}%, #f43f5e ${goodPct}% 100%)`;
+
+            // 2. Render Inspector Leaderboard
             const inspectorList = document.getElementById('modal-inspector-list');
             inspectorList.innerHTML = '';
             const sortedInspectors = Object.entries(inspectorMap).sort((a,b) => b[1] - a[1]);
@@ -505,7 +544,7 @@
                 `;
             });
 
-            // Render Asset Vulnerability
+            // 3. Render Asset Vulnerability
             const assetList = document.getElementById('modal-asset-list');
             assetList.innerHTML = '';
             const sortedAssets = inventoryKeys.sort((a,b) => {
@@ -528,13 +567,13 @@
                     `;
                 }
             });
-            if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center"><i class="fa-solid fa-check-circle"></i> Zero vulnerable assets identified.</p>';
+            if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center mt-4"><i class="fa-solid fa-check-circle"></i> Zero vulnerable assets identified.</p>';
 
-            // Render Damaged Units Registry
+            // 4. Render Damaged Units Registry
             const registry = document.getElementById('modal-damaged-units');
             registry.innerHTML = '';
             if (damageReports.length === 0) {
-                registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All units are fully compliant.</td></tr>`;
+                registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All surveyed units are fully compliant.</td></tr>`;
             } else {
                 damageReports.forEach(report => {
                     const issueBadges = report.issues.map(iss => {
@@ -543,9 +582,9 @@
                     }).join('');
 
                     registry.innerHTML += `
-                        <tr>
-                            <td><div class="font-bold text-[10px] text-slate-800">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
-                            <td>${issueBadges}</td>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="align-top"><div class="font-bold text-[10px] text-slate-800 mt-1">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
+                            <td class="pt-2">${issueBadges}</td>
                         </tr>
                     `;
                 });
