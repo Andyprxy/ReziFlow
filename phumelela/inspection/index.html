@@ -64,23 +64,27 @@
         .input-field:focus { outline: none; border-color: #3b82f6; background-color: rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
         select.input-field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.2rem center; background-size: 1.2em; cursor: pointer; appearance: none; }
         select.input-field:disabled { cursor: not-allowed; opacity: 0.4; }
-        textarea.input-field { padding: 1rem; min-height: 90px; resize: none; border-radius: 1rem; }
+        
+        /* Compressed Textareas for split comment boxes */
+        textarea.input-field { padding: 0.75rem 1rem; min-height: 48px; resize: none; border-radius: 1rem; }
+        textarea.input-field:focus { min-height: 60px; } /* Expand slightly only on focus */
 
-        /* iOS-Style Segmented Controls */
-        .segmented-control { display: flex; background: rgba(15, 23, 42, 0.05); padding: 4px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.4); gap: 4px; }
-        .segment-btn { flex: 1; padding: 8px 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
-        .segment-btn i { font-size: 0.85rem; }
+        /* iOS-Style Segmented Controls (Resized for compactness) */
+        .segmented-control { display: flex; background: rgba(15, 23, 42, 0.05); padding: 2px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.4); gap: 2px; }
+        .segment-btn { flex: 1; padding: 6px 2px; font-size: 0.65rem; font-weight: 700; color: #64748b; border-radius: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+        .segment-btn i { font-size: 0.75rem; }
         .segment-btn.active-good { background: #ffffff; color: #059669; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(16, 185, 129, 0.2); }
         .segment-btn.active-damaged { background: #ffffff; color: #d97706; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(245, 158, 11, 0.2); }
         .segment-btn.active-missing { background: #ffffff; color: #e11d48; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid rgba(244, 63, 94, 0.2); }
 
         /* Buttons */
-        .btn-primary { background-color: #0f172a; color: white; font-weight: 700; border-radius: 1.25rem; padding: 1.1rem; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); }
+        .btn-primary { background-color: #0f172a; color: white; font-weight: 700; border-radius: 1.25rem; padding: 1rem; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); }
         .btn-primary:active:not(:disabled) { transform: scale(0.96); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-        .btn-secondary { background-color: rgba(255, 255, 255, 0.6); color: #0f172a; font-weight: 700; border-radius: 1.25rem; padding: 1.1rem; border: 1px solid rgba(255,255,255,0.8); transition: all 0.2s; }
+        .btn-secondary { background-color: rgba(255, 255, 255, 0.6); color: #0f172a; font-weight: 700; border-radius: 1.25rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.8); transition: all 0.2s; }
         .btn-secondary:active { transform: scale(0.96); background-color: rgba(255,255,255,0.9); }
-        .asset-scroll::-webkit-scrollbar { width: 0px; }
+        .asset-scroll::-webkit-scrollbar { width: 4px; }
+        .asset-scroll::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -89,19 +93,19 @@
         <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
     </div>
 
-    <div class="glass-panel p-6 sm:p-8 overflow-hidden">
+    <div class="glass-panel p-5 sm:p-8 overflow-hidden">
         
-        <div class="text-center mb-6 relative z-20">
+        <div class="text-center mb-5 relative z-20">
             <div class="inline-block relative">
                 <div class="absolute inset-0 bg-white rounded-3xl blur-md opacity-60"></div>
-                <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='../phumelela/signup/phumelela.jpg';" alt="Logo" class="relative w-16 h-16 rounded-2xl mx-auto object-cover shadow-xl ring-2 ring-white/50 mb-3">
+                <img src="/phumelela/signup/phumelela.jpg" onerror="this.onerror=null; this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR';" alt="Logo" class="relative w-14 h-14 rounded-2xl mx-auto object-cover shadow-xl ring-2 ring-white/50 mb-2">
             </div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Facilities Gateway</h1>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight">Facilities Gateway</h1>
             <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Authorized Maintenance</p>
         </div>
 
         <!-- Step 0: Auth Flow -->
-        <div id="step0" class="step-container active space-y-5">
+        <div id="step0" class="step-container active space-y-4">
             <div class="bg-blue-50/50 p-4 rounded-2xl text-center border border-white/60 shadow-sm backdrop-blur-sm">
                 <i class="fa-solid fa-lock text-blue-500 mb-2 text-lg"></i>
                 <p class="text-xs text-slate-700 font-medium">Verify credentials to access the inspection portal.</p>
@@ -123,7 +127,8 @@
                 
                 <div class="relative group">
                     <i class="fa-solid fa-key absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                    <input type="password" id="staffPin" class="input-field relative z-0" placeholder="Security PIN" inputmode="numeric" required>
+                    <!-- Removed inputmode="numeric" to allow full password strings -->
+                    <input type="password" id="staffPin" class="input-field relative z-0" placeholder="Security PIN / Password" required>
                 </div>
             </div>
             
@@ -133,15 +138,15 @@
         </div>
 
         <!-- Step 1: Profile & Inspection Setup -->
-        <div id="step1" class="step-container space-y-5">
-            <!-- New Blue Officer Card -->
-            <div class="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden">
+        <div id="step1" class="step-container space-y-4">
+            <!-- Blue Officer Card -->
+            <div class="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-[28px] p-5 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
                 <div class="relative z-10 flex justify-between items-start">
                     <div>
                         <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5">Clearance Active</p>
-                        <h2 id="welcomeName" class="text-2xl font-bold leading-tight tracking-tight">Officer Name</h2>
-                        <p class="text-sm font-medium text-blue-100 mt-0.5">Inspection Officer</p>
+                        <h2 id="welcomeName" class="text-xl font-bold leading-tight tracking-tight">Officer Name</h2>
+                        <p class="text-xs font-medium text-blue-100 mt-0.5">Inspection Officer</p>
                     </div>
                     <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
                         <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse"></span> Online
@@ -151,68 +156,76 @@
 
             <!-- Inspection Prompt Card -->
             <div class="bg-white/60 backdrop-blur-md border border-white/80 shadow-sm rounded-[28px] p-5 relative overflow-hidden">
-                <div class="flex items-center gap-4 relative z-10 mb-5">
-                    <img src="/phumelela/signup/phumelela.jpg" onerror="this.src='../phumelela/signup/phumelela.jpg'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
+                <div class="flex items-center gap-4 relative z-10 mb-4">
+                    <img src="/phumelela/signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-12 h-12 rounded-2xl object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
                     <div>
                         <h3 class="text-sm font-black text-slate-900 tracking-tight">Initiate Inspection</h3>
-                        <p class="text-[10px] text-slate-500 font-medium leading-snug">Select the target location below to begin the assessment protocol.</p>
+                        <p class="text-[9px] text-slate-500 font-medium leading-snug">Select the target location below.</p>
                     </div>
                 </div>
 
-                <div class="space-y-4 relative z-10">
+                <div class="space-y-3 relative z-10">
                     <div class="relative group">
-                        <i class="fa-solid fa-building absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                        <select id="blockSelect" class="input-field" disabled><option>Accessing Database...</option></select>
+                        <i class="fa-solid fa-building absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
+                        <select id="blockSelect" class="input-field !pl-10 !py-3" disabled><option>Accessing Database...</option></select>
                     </div>
                     <div class="relative group">
-                        <i class="fa-solid fa-layer-group absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                        <select id="floorSelect" class="input-field" disabled><option>Select Floor Target</option></select>
+                        <i class="fa-solid fa-layer-group absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
+                        <select id="floorSelect" class="input-field !pl-10 !py-3" disabled><option>Select Floor Target</option></select>
                     </div>
                     <div class="relative group">
-                        <i class="fa-solid fa-door-closed absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"></i>
-                        <select id="roomSelect" class="input-field" disabled><option>Select Room Target</option></select>
+                        <i class="fa-solid fa-door-closed absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10 text-sm"></i>
+                        <select id="roomSelect" class="input-field !pl-10 !py-3" disabled><option>Select Room Target</option></select>
                     </div>
                 </div>
                 
-                <div class="flex gap-3 pt-5 relative z-10">
-                    <button type="button" onclick="logout()" class="btn-secondary w-14 flex justify-center items-center"><i class="fa-solid fa-power-off text-rose-500"></i></button>
-                    <button type="button" id="btn-begin" onclick="nextStep(2)" class="btn-primary flex-1" disabled>Open Inspection <i class="fa-solid fa-clipboard-check ml-1"></i></button>
+                <div class="flex gap-2 pt-4 relative z-10">
+                    <button type="button" onclick="logout()" class="btn-secondary w-12 flex justify-center items-center !p-0"><i class="fa-solid fa-power-off text-rose-500"></i></button>
+                    <button type="button" id="btn-begin" onclick="nextStep(2)" class="btn-primary flex-1 !py-3" disabled>Open Inspection <i class="fa-solid fa-clipboard-check ml-1"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- Step 2: The Assessment Protocol -->
-        <form id="step2" class="step-container space-y-4">
-            
-            <div class="flex justify-between items-center px-2 mb-2">
-                <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Asset Checklist</h3>
-                <span id="roomLabel" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Room</span>
-            </div>
-
-            <div id="assetsContainer" class="space-y-3 h-[45vh] overflow-y-auto pb-4 asset-scroll">
+        <!-- Step 2: The Assessment Protocol (Flex layout strictly sizes to the screen) -->
+        <form id="step2" class="step-container">
+            <div class="flex flex-col h-[75vh] max-h-[600px] w-full">
+                <!-- Anchored Header -->
+                <div class="flex justify-between items-center px-1 mb-2 flex-shrink-0">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Asset Checklist</h3>
+                    <span id="roomLabel" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Room</span>
                 </div>
-            
-            <div class="pt-2 border-t border-white/50">
-                <textarea id="general_comments" class="input-field" placeholder="Additional notes, damages, or replaced items..."></textarea>
-            </div>
-            
-            <div class="flex gap-3 pt-2">
-                <button type="button" onclick="nextStep(1)" class="btn-secondary w-14 flex justify-center items-center"><i class="fa-solid fa-xmark text-slate-400"></i></button>
-                <button type="submit" id="submitBtn" class="btn-primary flex-1">Sync to Database <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
+
+                <!-- Scrolling List -->
+                <div id="assetsContainer" class="space-y-2 flex-1 overflow-y-auto pb-2 pr-1 asset-scroll">
+                    <!-- Dynamic Assets Rendered Here -->
+                </div>
+                
+                <!-- Anchored Footer with Split Text Areas -->
+                <div class="pt-2 border-t border-white/50 flex-shrink-0 space-y-2 bg-white/10 backdrop-blur-sm mt-1">
+                    <div class="flex gap-2">
+                        <textarea id="general_comments" class="input-field text-xs !pl-3" placeholder="General condition notes..."></textarea>
+                        <textarea id="action_required" class="input-field text-xs !pl-3" placeholder="Repairs / Action needed..."></textarea>
+                    </div>
+                    
+                    <div class="flex gap-2 pt-1">
+                        <button type="button" onclick="nextStep(1)" class="btn-secondary w-12 flex justify-center items-center !p-0"><i class="fa-solid fa-xmark text-slate-400"></i></button>
+                        <button type="submit" id="submitBtn" class="btn-primary flex-1 !py-3">Sync to Database <i class="fa-solid fa-cloud-arrow-up ml-1"></i></button>
+                    </div>
+                </div>
             </div>
         </form>
 
         <!-- Step 3: Success Synced -->
-        <div id="step3" class="step-container text-center py-8">
-            <div class="relative inline-block mb-6">
+        <div id="step3" class="step-container text-center py-6">
+            <div class="relative inline-block mb-4">
                 <div class="absolute inset-0 bg-emerald-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
-                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center relative shadow-xl ring-4 ring-emerald-50 mx-auto">
-                    <i class="fa-solid fa-check text-5xl text-emerald-500"></i>
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center relative shadow-xl ring-4 ring-emerald-50 mx-auto">
+                    <i class="fa-solid fa-check text-4xl text-emerald-500"></i>
                 </div>
             </div>
-            <h2 class="text-3xl font-black text-slate-800 mb-2 tracking-tight">Synced</h2>
-            <p class="text-sm font-medium text-slate-500 mb-10 px-4">Maintenance log securely recorded.</p>
-            <button type="button" onclick="resetToLocation()" class="btn-secondary w-full py-4 flex justify-center items-center">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
+            <h2 class="text-2xl font-black text-slate-800 mb-2 tracking-tight">Synced</h2>
+            <p class="text-xs font-medium text-slate-500 mb-8 px-4">Maintenance log securely recorded.</p>
+            <button type="button" onclick="resetToLocation()" class="btn-secondary w-full py-3 flex justify-center items-center">Next Inspection <i class="fa-solid fa-rotate-right ml-2"></i></button>
         </div>
     </div>
 
@@ -249,7 +262,7 @@
             document.getElementById('roomSelect').value = "";
             document.getElementById('btn-begin').disabled = true;
             nextStep(1);
-            loadRooms(); // Refresh the dropdown to hide the completed room (Minus One logic)
+            loadRooms(); 
         }
 
         // --- 2. Authentication ---
@@ -287,7 +300,7 @@
                     throw new Error("InvalidPIN");
                 }
             } catch (error) {
-                alert(error.message === "InvalidPIN" ? "Access Denied: Invalid PIN." : "Server Connection Error.");
+                alert(error.message === "InvalidPIN" ? "Access Denied: Invalid Password/PIN." : "Server Connection Error.");
                 document.getElementById('staffPin').value = "";
                 btn.innerHTML = 'Authenticate <i class="fa-solid fa-arrow-right ml-1"></i>';
                 btn.disabled = false;
@@ -338,7 +351,7 @@
 
         document.getElementById('roomSelect').addEventListener('change', () => document.getElementById('btn-begin').disabled = false);
 
-        // --- 4. Asset Injection ---
+        // --- 4. Asset Injection (Compressed Layout) ---
         const assets = [
             { id: 'bed', name: 'Bed & Base', icon: 'fa-bed' },
             { id: 'desk', name: 'Study Desk', icon: 'fa-table' },
@@ -356,10 +369,10 @@
         assets.forEach(a => {
             inspectionData[a.id] = "";
             container.innerHTML += `
-                <div class="bg-white/40 p-3 rounded-2xl border border-white/60 shadow-sm backdrop-blur-sm">
-                    <div class="flex items-center gap-3 mb-2 px-1">
-                        <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs shadow-md"><i class="fa-solid ${a.icon}"></i></div>
-                        <span class="text-sm font-black text-slate-800">${a.name}</span>
+                <div class="bg-white/40 p-2 rounded-xl border border-white/60 shadow-sm backdrop-blur-sm">
+                    <div class="flex items-center gap-2 mb-1.5 px-1">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px] shadow-md"><i class="fa-solid ${a.icon}"></i></div>
+                        <span class="text-xs font-black text-slate-800">${a.name}</span>
                     </div>
                     <div class="segmented-control">
                         <button type="button" class="segment-btn" onclick="setAssetStatus('${a.id}', 'Good', this, 'active-good')"><i class="fa-solid fa-check"></i> Good</button>
@@ -377,7 +390,7 @@
             el.classList.add(cls);
         }
 
-        // --- 5. Final Data Sync (With MINUS ONE filter payload) ---
+        // --- 5. Final Data Sync ---
         document.getElementById('step2').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -398,7 +411,8 @@
                 room: document.getElementById('roomSelect').value,
                 ...inspectionData,
                 general_comments: document.getElementById('general_comments').value || "None",
-                inspection_status: "Completed", // THE "MINUS ONE" TRIGGER DATA
+                action_required: document.getElementById('action_required').value || "None", 
+                inspection_status: "Completed", 
                 timestamp: new Date().toISOString()
             };
 
