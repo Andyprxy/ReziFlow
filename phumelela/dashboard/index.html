@@ -275,256 +275,267 @@
     </div>
 
     <!-- MAIN JAVASCRIPT ENGINE -->
-    <script>
-        // --- State ---
-        window.inspectionFilterStatus = 'All';
-        window.inspectionRegion = 'All'; // All, East, West
-        const inventoryKeys = ['Desk', 'Wardrobe', 'Chair', 'Microwave', 'Fridge', 'Stove', 'Shower'];
-        
-        let globalInspectionsData = [];
+   <script>
+    // --- State ---
+    window.inspectionFilterStatus = 'All';
+    window.inspectionRegion = 'All'; // All, East, West
+    
+    // Added 'Bed' to the inventory matrix (8 items total, fits perfectly in the 4x2 grid)
+    const inventoryKeys = ['Bed', 'Desk', 'Wardrobe', 'Chair', 'Microwave', 'Fridge', 'Stove', 'Shower'];
+    
+    let globalInspectionsData = [];
 
-        // Mock Fallback Data matching requested schema mapping
-        const mockData = [
-            { RoomProfileBlock: 'A', SelectedFloor: '1', SelectedRoom: '101', SelectedBed: 'A', Desk: 'OK', Wardrobe: 'OK', Chair: 'Damaged', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Room smells like paint.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 08:30:00', InspectorProfile: 'Brian' },
-            { RoomProfileBlock: 'B', SelectedFloor: '2', SelectedRoom: '205', SelectedBed: 'B', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Ready for occupancy.', Inspection_Status: 'Complete', Timestamp: '2026-07-16 09:15:00', InspectorProfile: 'Ayanda' },
-            { RoomProfileBlock: 'C', SelectedFloor: '1', SelectedRoom: '102', SelectedBed: 'A', Desk: 'Missing', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'Damaged', Stove: 'OK', Shower: 'OK', General_Comments: 'Fridge leaking, no desk.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-16 10:05:00', InspectorProfile: 'Ayanda' },
-            { RoomProfileBlock: 'D', SelectedFloor: '3', SelectedRoom: '312', SelectedBed: 'B', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'Damaged', General_Comments: 'Shower head broken.', Inspection_Status: 'Incomplete', Timestamp: '2026-07-17 11:20:00', InspectorProfile: 'Brian' },
-            { RoomProfileBlock: 'A', SelectedFloor: '2', SelectedRoom: '210', SelectedBed: 'A', Desk: 'OK', Wardrobe: 'OK', Chair: 'OK', Microwave: 'OK', Fridge: 'OK', Stove: 'OK', Shower: 'OK', General_Comments: 'Cleaned and ready.', Inspection_Status: 'Complete', Timestamp: '2026-07-17 12:00:00', InspectorProfile: 'Brian' }
-        ];
+    // --- Fetch & Sync Workflow ---
+    window.fetchInspections = async function(isManual = false) {
+        if(isManual) window.showToast('Syncing with n8n Webhook...', 'success');
+        try {
+            // Using your updated webhook endpoint
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-inspectionz', { method: 'GET' });
+            if (res.ok) {
+                const data = await res.json();
+                const rawData = data.data || data;
+                
+                // THE ADAPTER: Map your n8n schema to the frontend schema
+                globalInspectionsData = rawData.map(item => ({
+                    RoomProfileBlock: item.Block_Selected || 'Unknown',
+                    SelectedFloor: item.Floor_Selected || 'Unknown',
+                    SelectedRoom: item.Room || item.Room_Selected || 'Unknown',
+                    // Map items (Checking for both 'Good' and 'OK' just in case)
+                    Bed: item.Bed,
+                    Desk: item.Desk,
+                    Wardrobe: item.Wardrobe,
+                    Chair: item.Chair,
+                    Microwave: item.Microwave,
+                    Fridge: item.Fridge,
+                    Stove: item.Stove,
+                    Shower: item.Shower,
+                    General_Comments: item.General_Comments || item.Comments || '',
+                    Inspection_Status: item.Inspection_Status || 'Pending',
+                    // Convert ISO timestamp to readable local format
+                    Timestamp: item.Timestamp ? new Date(item.Timestamp).toLocaleString('en-ZA', { 
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    }) : 'Unknown Time',
+                    InspectorProfile: item.Profile || 'System'
+                }));
+            } else { throw new Error('Backend unavailable'); }
+        } catch (error) {
+            window.showToast('Failed to pull from n8n. Check console.', 'error');
+            console.error("Fetch Error:", error);
+        }
+        window.renderInspectionsTable();
+    };
 
-        // --- Fetch & Sync Workflow ---
-        window.fetchInspections = async function(isManual = false) {
-            if(isManual) window.showToast('Syncing with n8n Webhook...', 'success');
-            try {
-                // Pointing to your automated stack
-                const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-inspectionz', { method: 'GET' });
-                if (res.ok) {
-                    const data = await res.json();
-                    globalInspectionsData = data.data || data; // handle n8n wrapping
-                } else { throw new Error('Backend unavailable'); }
-            } catch (error) {
-                // Fallback to mock data for layout demonstration
-                if(globalInspectionsData.length === 0) globalInspectionsData = [...mockData];
-                if(isManual) window.showToast('N8n connection failed. Loading cache.', 'error');
-            }
-            window.renderInspectionsTable();
-        };
+    // --- UI Interactions ---
+    window.togglePieChart = function() {
+        const wrapper = document.getElementById('pie-wrapper');
+        const icon = document.getElementById('pie-toggle-icon');
+        wrapper.classList.toggle('collapsed');
+        if(wrapper.classList.contains('collapsed')) { icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
+        else { icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
+    };
 
-        // --- UI Interactions ---
-        window.togglePieChart = function() {
-            const wrapper = document.getElementById('pie-wrapper');
-            const icon = document.getElementById('pie-toggle-icon');
-            wrapper.classList.toggle('collapsed');
-            if(wrapper.classList.contains('collapsed')) { icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
-            else { icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
-        };
+    window.filterRegion = function(region) {
+        window.inspectionRegion = region;
+        ['All', 'East', 'West'].forEach(r => {
+            const el = document.getElementById(`reg-tab-${r.toLowerCase()}`);
+            if(el) el.classList.remove('active', 'accent-indigo');
+        });
+        const activeEl = document.getElementById(`reg-tab-${region.toLowerCase()}`);
+        if(activeEl) activeEl.classList.add('active', 'accent-indigo');
+        window.renderInspectionsTable();
+    };
 
-        window.filterRegion = function(region) {
-            window.inspectionRegion = region;
-            ['All', 'East', 'West'].forEach(r => {
-                const el = document.getElementById(`reg-tab-${r.toLowerCase()}`);
-                if(el) el.classList.remove('active', 'accent-indigo');
-            });
-            const activeEl = document.getElementById(`reg-tab-${region.toLowerCase()}`);
-            if(activeEl) activeEl.classList.add('active', 'accent-indigo');
-            window.renderInspectionsTable();
-        };
+    window.filterInspections = function(status) {
+        window.inspectionFilterStatus = status;
+        ['All', 'Complete', 'Incomplete'].forEach(tab => {
+            const el = document.getElementById(`ins-tab-${tab.toLowerCase()}`);
+            if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-rose');
+        });
+        const activeEl = document.getElementById(`ins-tab-${status.toLowerCase()}`);
+        if(activeEl) {
+            activeEl.classList.add('active');
+            if(status === 'All') activeEl.classList.add('accent-blue');
+            if(status === 'Complete') activeEl.classList.add('accent-emerald');
+            if(status === 'Incomplete') activeEl.classList.add('accent-rose');
+        }
+        window.renderInspectionsTable();
+    };
 
-        window.filterInspections = function(status) {
-            window.inspectionFilterStatus = status;
-            ['All', 'Complete', 'Incomplete'].forEach(tab => {
-                const el = document.getElementById(`ins-tab-${tab.toLowerCase()}`);
-                if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-rose');
-            });
-            const activeEl = document.getElementById(`ins-tab-${status.toLowerCase()}`);
-            if(activeEl) {
-                activeEl.classList.add('active');
-                if(status === 'All') activeEl.classList.add('accent-blue');
-                if(status === 'Complete') activeEl.classList.add('accent-emerald');
-                if(status === 'Incomplete') activeEl.classList.add('accent-rose');
-            }
-            window.renderInspectionsTable();
-        };
+    // --- Core Rendering Logic ---
+    window.renderInspectionsTable = function() {
+        const tbody = document.getElementById('inspections-tbody');
+        let htmlStr = '';
+        let totalComplete = 0; let totalIncomplete = 0; let commentsHtml = '';
 
-        // --- Core Rendering Logic ---
-        window.renderInspectionsTable = function() {
-            const tbody = document.getElementById('inspections-tbody');
-            let htmlStr = '';
-            let totalComplete = 0; let totalIncomplete = 0; let commentsHtml = '';
+        // Apply Region Filter matching your exact string outputs
+        let regionFiltered = globalInspectionsData.filter(item => {
+            if (window.inspectionRegion === 'All') return true;
+            if (window.inspectionRegion === 'East') return item.RoomProfileBlock.includes('East');
+            if (window.inspectionRegion === 'West') return item.RoomProfileBlock.includes('West');
+            return true;
+        });
 
-            // Apply Region Filter (East: A, B | West: C, D)
-            let regionFiltered = globalInspectionsData.filter(item => {
-                if (window.inspectionRegion === 'All') return true;
-                if (window.inspectionRegion === 'East') return ['A', 'B'].includes(item.RoomProfileBlock);
-                if (window.inspectionRegion === 'West') return ['C', 'D'].includes(item.RoomProfileBlock);
-                return true;
-            });
-
-            // Calculate Analytics Based on Region Filtered Data (Dynamic Pie)
-            regionFiltered.forEach(item => {
-                if (item.Inspection_Status === 'Complete') totalComplete++; else totalIncomplete++;
-                if (item.General_Comments && item.General_Comments.trim() !== '') {
-                    commentsHtml += `
-                        <div class="p-2 bg-slate-50 border border-slate-100 rounded-lg">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold text-indigo-600">${item.InspectorProfile || 'System'}</span> 
-                                <span class="text-[8px] text-slate-400 font-mono">Blk ${item.RoomProfileBlock}-${item.SelectedRoom}</span>
-                            </div>
-                            <p class="text-[10px] text-slate-600 italic">"${item.General_Comments}"</p>
+        // Calculate Analytics Based on Region Filtered Data (Dynamic Pie)
+        regionFiltered.forEach(item => {
+            if (item.Inspection_Status === 'Complete') totalComplete++; else totalIncomplete++;
+            if (item.General_Comments && item.General_Comments.trim() !== '' && item.General_Comments !== 'None') {
+                commentsHtml += `
+                    <div class="p-2 bg-slate-50 border border-slate-100 rounded-lg">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-bold text-indigo-600">${item.InspectorProfile}</span> 
+                            <span class="text-[8px] text-slate-400 font-mono">${item.SelectedRoom}</span>
                         </div>
-                    `;
-                }
-            });
-
-            // Update Dynamic Pie Chart & Stats
-            const total = totalComplete + totalIncomplete;
-            const completePct = total === 0 ? 0 : Math.round((totalComplete / total) * 100);
-            document.getElementById('stat-complete').textContent = totalComplete;
-            document.getElementById('stat-incomplete').textContent = totalIncomplete;
-            document.getElementById('recent-comments').innerHTML = commentsHtml || '<p class="text-[9px] text-slate-400 text-center py-2">No logs found.</p>';
-            
-            document.getElementById('pie-percentage').textContent = `${completePct}%`;
-            document.getElementById('completion-pie').style.background = `conic-gradient(#10b981 0% ${completePct}%, #f43f5e ${completePct}% 100%)`;
-
-            // Apply Status Filter for the Table specifically
-            const tableFiltered = regionFiltered.filter(item => {
-                return window.inspectionFilterStatus === 'All' || item.Inspection_Status === window.inspectionFilterStatus;
-            });
-
-            if (tableFiltered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 text-xs">No records found for this view.</td></tr>`;
-            } else {
-                tableFiltered.forEach(item => {
-                    const locationStr = `Block ${item.RoomProfileBlock} • Floor ${item.SelectedFloor} • Room ${item.SelectedRoom} (Bed ${item.SelectedBed})`;
-                    
-                    let inventoryHtml = '<div class="item-grid">';
-                    inventoryKeys.forEach(key => {
-                        const stat = item[key];
-                        let icon = '<i class="fa-solid fa-check"></i>'; let cssClass = 'item-ok';
-                        if (stat === 'Damaged') { icon = '<i class="fa-solid fa-wrench"></i>'; cssClass = 'item-damaged'; }
-                        else if (stat === 'Missing') { icon = '<i class="fa-solid fa-xmark"></i>'; cssClass = 'item-missing'; }
-                        inventoryHtml += `<div class="item-dot ${cssClass}" title="${key}: ${stat}">${icon}</div>`;
-                    });
-                    inventoryHtml += '</div>';
-
-                    const isComplete = item.Inspection_Status === 'Complete';
-                    const statusBadge = `<span class="status-badge ${isComplete ? 'status-complete' : 'status-incomplete'}">${item.Inspection_Status}</span>`;
-
-                    htmlStr += `
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td><div class="font-black text-slate-800 text-[11px]">${locationStr}</div></td>
-                            <td><div class="text-[10px] font-bold text-blue-600"><i class="fa-solid fa-user-pen mr-1"></i>${item.InspectorProfile || 'N/A'}</div><div class="text-[9px] text-slate-500 mt-0.5">${item.Timestamp}</div></td>
-                            <td>${inventoryHtml}</td>
-                            <td class="text-center">${statusBadge}</td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = htmlStr;
+                        <p class="text-[10px] text-slate-600 italic">"${item.General_Comments}"</p>
+                    </div>
+                `;
             }
-        };
+        });
 
-        // --- Deep Analytics Modal Logic ---
-        window.openStatsModal = function() {
-            document.getElementById('statsModal').classList.add('active');
-            
-            let inspectorMap = {};
-            let itemDamageMap = {};
-            let damageReports = [];
+        // Update Dynamic Pie Chart & Stats
+        const total = totalComplete + totalIncomplete;
+        const completePct = total === 0 ? 0 : Math.round((totalComplete / total) * 100);
+        document.getElementById('stat-complete').textContent = totalComplete;
+        document.getElementById('stat-incomplete').textContent = totalIncomplete;
+        document.getElementById('recent-comments').innerHTML = commentsHtml || '<p class="text-[9px] text-slate-400 text-center py-2">No actionable logs.</p>';
+        
+        document.getElementById('pie-percentage').textContent = `${completePct}%`;
+        document.getElementById('completion-pie').style.background = `conic-gradient(#10b981 0% ${completePct}%, #f43f5e ${completePct}% 100%)`;
 
-            // Initialize item map
-            inventoryKeys.forEach(k => itemDamageMap[k] = { damaged: 0, missing: 0 });
+        // Apply Status Filter for the Table specifically
+        const tableFiltered = regionFiltered.filter(item => {
+            return window.inspectionFilterStatus === 'All' || item.Inspection_Status === window.inspectionFilterStatus;
+        });
 
-            // Process Data for Deep Stats (using all data regardless of region for global analytics)
-            globalInspectionsData.forEach(item => {
-                // 1. Inspector Counts
-                const inspector = item.InspectorProfile || 'Unknown';
-                inspectorMap[inspector] = (inspectorMap[inspector] || 0) + 1;
-
-                // 2. Asset & Unit Damage Tracking
-                let unitIssues = [];
+        if (tableFiltered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 text-xs">No records found for this view.</td></tr>`;
+        } else {
+            tableFiltered.forEach(item => {
+                const locationStr = `${item.RoomProfileBlock} • ${item.SelectedFloor} • Rm ${item.SelectedRoom}`;
+                
+                let inventoryHtml = '<div class="item-grid">';
                 inventoryKeys.forEach(key => {
-                    if (item[key] === 'Damaged') { itemDamageMap[key].damaged++; unitIssues.push(`${key} (Damaged)`); }
-                    if (item[key] === 'Missing') { itemDamageMap[key].missing++; unitIssues.push(`${key} (Missing)`); }
+                    const stat = item[key];
+                    // Accounts for 'Good' from n8n instead of 'OK'
+                    let icon = '<i class="fa-solid fa-check"></i>'; let cssClass = 'item-ok';
+                    if (stat === 'Damaged') { icon = '<i class="fa-solid fa-wrench"></i>'; cssClass = 'item-damaged'; }
+                    else if (stat === 'Missing') { icon = '<i class="fa-solid fa-xmark"></i>'; cssClass = 'item-missing'; }
+                    
+                    inventoryHtml += `<div class="item-dot ${cssClass}" title="${key}: ${stat}">${icon}</div>`;
                 });
+                inventoryHtml += '</div>';
 
-                if (unitIssues.length > 0) {
-                    damageReports.push({ unit: `Block ${item.RoomProfileBlock}, Room ${item.SelectedRoom}`, issues: unitIssues, inspector: inspector });
-                }
+                const isComplete = item.Inspection_Status === 'Complete';
+                const statusBadge = `<span class="status-badge ${isComplete ? 'status-complete' : 'status-incomplete'}">${item.Inspection_Status}</span>`;
+
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td><div class="font-black text-slate-800 text-[11px]">${locationStr}</div></td>
+                        <td><div class="text-[10px] font-bold text-blue-600"><i class="fa-solid fa-user-pen mr-1"></i>${item.InspectorProfile}</div><div class="text-[9px] text-slate-500 mt-0.5">${item.Timestamp}</div></td>
+                        <td>${inventoryHtml}</td>
+                        <td class="text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+        }
+    };
+
+    // --- Deep Analytics Modal Logic ---
+    window.openStatsModal = function() {
+        document.getElementById('statsModal').classList.add('active');
+        
+        let inspectorMap = {};
+        let itemDamageMap = {};
+        let damageReports = [];
+
+        inventoryKeys.forEach(k => itemDamageMap[k] = { damaged: 0, missing: 0 });
+
+        globalInspectionsData.forEach(item => {
+            const inspector = item.InspectorProfile;
+            inspectorMap[inspector] = (inspectorMap[inspector] || 0) + 1;
+
+            let unitIssues = [];
+            inventoryKeys.forEach(key => {
+                if (item[key] === 'Damaged') { itemDamageMap[key].damaged++; unitIssues.push(`${key} (Damaged)`); }
+                if (item[key] === 'Missing') { itemDamageMap[key].missing++; unitIssues.push(`${key} (Missing)`); }
             });
 
-            // Render Inspector Leaderboard
-            const inspectorList = document.getElementById('modal-inspector-list');
-            inspectorList.innerHTML = '';
-            // Sort by highest inspections
-            const sortedInspectors = Object.entries(inspectorMap).sort((a,b) => b[1] - a[1]);
-            const maxCount = sortedInspectors[0] ? sortedInspectors[0][1] : 1;
+            if (unitIssues.length > 0) {
+                damageReports.push({ unit: `${item.RoomProfileBlock}, Room ${item.SelectedRoom}`, issues: unitIssues, inspector: inspector });
+            }
+        });
 
-            sortedInspectors.forEach(([name, count]) => {
-                const widthPct = Math.max((count / maxCount) * 100, 10);
-                inspectorList.innerHTML += `
-                    <div class="flex items-center gap-3">
-                        <div class="w-16 text-[10px] font-bold text-slate-600 truncate text-right">${name}</div>
-                        <div class="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden relative">
-                            <div class="bg-indigo-400 h-full rounded-full flex items-center justify-end pr-2" style="width: ${widthPct}%;">
-                                <span class="text-[8px] font-black text-white">${count}</span>
-                            </div>
+        // Render Inspector Leaderboard
+        const inspectorList = document.getElementById('modal-inspector-list');
+        inspectorList.innerHTML = '';
+        const sortedInspectors = Object.entries(inspectorMap).sort((a,b) => b[1] - a[1]);
+        const maxCount = sortedInspectors[0] ? sortedInspectors[0][1] : 1;
+
+        sortedInspectors.forEach(([name, count]) => {
+            const widthPct = Math.max((count / maxCount) * 100, 10);
+            inspectorList.innerHTML += `
+                <div class="flex items-center gap-3">
+                    <div class="w-16 text-[10px] font-bold text-slate-600 truncate text-right">${name}</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden relative">
+                        <div class="bg-indigo-400 h-full rounded-full flex items-center justify-end pr-2" style="width: ${widthPct}%;">
+                            <span class="text-[8px] font-black text-white">${count}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Render Asset Vulnerability
+        const assetList = document.getElementById('modal-asset-list');
+        assetList.innerHTML = '';
+        const sortedAssets = inventoryKeys.sort((a,b) => {
+            const totalA = itemDamageMap[a].damaged + itemDamageMap[a].missing;
+            const totalB = itemDamageMap[b].damaged + itemDamageMap[b].missing;
+            return totalB - totalA;
+        });
+
+        sortedAssets.forEach(key => {
+            const issues = itemDamageMap[key].damaged + itemDamageMap[key].missing;
+            if (issues > 0) {
+                assetList.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-700">${key}</span>
+                        <div class="flex gap-2">
+                            ${itemDamageMap[key].damaged > 0 ? `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].damaged} Damaged</span>` : ''}
+                            ${itemDamageMap[key].missing > 0 ? `<span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].missing} Missing</span>` : ''}
                         </div>
                     </div>
                 `;
-            });
-
-            // Render Asset Vulnerability
-            const assetList = document.getElementById('modal-asset-list');
-            assetList.innerHTML = '';
-            // Sort keys by total issues
-            const sortedAssets = inventoryKeys.sort((a,b) => {
-                const totalA = itemDamageMap[a].damaged + itemDamageMap[a].missing;
-                const totalB = itemDamageMap[b].damaged + itemDamageMap[b].missing;
-                return totalB - totalA;
-            });
-
-            sortedAssets.forEach(key => {
-                const issues = itemDamageMap[key].damaged + itemDamageMap[key].missing;
-                if (issues > 0) {
-                    assetList.innerHTML += `
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
-                            <span class="text-[10px] font-bold text-slate-700">${key}</span>
-                            <div class="flex gap-2">
-                                ${itemDamageMap[key].damaged > 0 ? `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].damaged} Damaged</span>` : ''}
-                                ${itemDamageMap[key].missing > 0 ? `<span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].missing} Missing</span>` : ''}
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center"><i class="fa-solid fa-check-circle"></i> Zero vulnerable assets identified.</p>';
-
-            // Render Damaged Units Registry
-            const registry = document.getElementById('modal-damaged-units');
-            registry.innerHTML = '';
-            if (damageReports.length === 0) {
-                registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All units are fully compliant.</td></tr>`;
-            } else {
-                damageReports.forEach(report => {
-                    const issueBadges = report.issues.map(iss => {
-                        const isMissing = iss.includes('Missing');
-                        return `<span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider mb-1 mr-1 ${isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}">${iss}</span>`;
-                    }).join('');
-
-                    registry.innerHTML += `
-                        <tr>
-                            <td><div class="font-bold text-[10px] text-slate-800">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
-                            <td>${issueBadges}</td>
-                        </tr>
-                    `;
-                });
             }
-        };
-
-        // Boot
-        document.addEventListener('DOMContentLoaded', () => {
-            window.fetchInspections(false);
         });
-    </script>
+        if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center"><i class="fa-solid fa-check-circle"></i> Zero vulnerable assets identified.</p>';
+
+        // Render Damaged Units Registry
+        const registry = document.getElementById('modal-damaged-units');
+        registry.innerHTML = '';
+        if (damageReports.length === 0) {
+            registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All units are fully compliant.</td></tr>`;
+        } else {
+            damageReports.forEach(report => {
+                const issueBadges = report.issues.map(iss => {
+                    const isMissing = iss.includes('Missing');
+                    return `<span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider mb-1 mr-1 ${isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}">${iss}</span>`;
+                }).join('');
+
+                registry.innerHTML += `
+                    <tr>
+                        <td><div class="font-bold text-[10px] text-slate-800">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
+                        <td>${issueBadges}</td>
+                    </tr>
+                `;
+            });
+        }
+    };
+
+    // Boot
+    document.addEventListener('DOMContentLoaded', () => {
+        window.fetchInspections(false);
+    });
+</script>
 </body>
 </html>
