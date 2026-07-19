@@ -1982,7 +1982,7 @@
             appendInputs('wizard-step-1'); appendInputs('wizard-step-2');
 
             try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-update-profile', { method: 'POST', body: formData });
+                const response = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-update-profile', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
