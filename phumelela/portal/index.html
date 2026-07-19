@@ -1016,7 +1016,7 @@
 
             try {
                 const queryParams = new URLSearchParams({ Email_Address: email, _t: new Date().getTime() });
-                const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`;
+                const targetUrl = `https://n8n.automania.cloud/webhook-test/reziflow-get-vetting?${queryParams.toString()}`;
                 const res = await fetch(targetUrl);
 
                 if (res.ok) {
