@@ -146,7 +146,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Secure Logout"><i class="fa-solid fa-power-off"></i></button>
-                    <button onclick="navigateTo('/ReziFlow/phumelela/portal/profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
+                    <button onclick="navigateTo('/phumelela/portal/profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
                 </div>
             </div>
         </header>
@@ -159,10 +159,10 @@
         <!-- NAVIGATION -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
-                <button onclick="navigateTo('/ReziFlow/phumelela/portal/home')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
-                <button onclick="navigateTo('/ReziFlow/phumelela/portal/wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
-                <button onclick="navigateTo('/ReziFlow/phumelela/portal/snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
-                <button onclick="navigateTo('/ReziFlow/phumelela/portal/security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="navigateTo('/phumelela/portal/home')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
+                <button onclick="navigateTo('/phumelela/portal/wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
+                <button onclick="navigateTo('/phumelela/portal/snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="navigateTo('/phumelela/portal/security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
                 <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked pointer-events-none"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
@@ -328,7 +328,7 @@
                 <button onclick="closeModal('leaseModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium relative z-10">
-                <a href="/ReziFlow/phumelela/portal/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner"><i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)</a>
+                <a href="/phumelela/portal/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner"><i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)</a>
                 <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols.</p>
                 <p>2. This digital signature is legally binding.</p>
             </div>
@@ -381,9 +381,9 @@
         const safeSetDisplay = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
         // ==========================================
-        // VANILLA JS SPA ROUTER (GITHUB PAGES OPTIMIZED)
+        // VANILLA JS SPA ROUTER (CUSTOM DOMAIN OPTIMIZED)
         // ==========================================
-        const basePath = '/ReziFlow/phumelela/portal';
+        const basePath = '/phumelela/portal';
 
         // Maps the browser URL to the physical GitHub Pages directory files
         const routes = {
@@ -542,7 +542,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.href = '/ReziFlow/phumelela/signin';
+                window.location.href = '/phumelela/signin';
                 return;
             }
 
@@ -912,7 +912,7 @@
             const rect = sigCanvas.getBoundingClientRect(); sigCanvas.width = rect.width; sigCanvas.height = rect.height;
             sigCtx.lineWidth = 3; sigCtx.lineCap = 'round'; sigCtx.strokeStyle = '#0f172a'; 
 
-            const getPos = (e) => { const r = sigCanvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - r.left, y: clientY - r.top }; };
+            const getPos = (e) => { const r = sigCanvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - r.left, y: clientY - r.top }; };
             const startDraw = (e) => { e.preventDefault(); isSigning = true; signatureHasDrawn = true; const pos = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y); document.getElementById('sig-placeholder').style.display = 'none'; };
             const draw = (e) => { if (!isSigning) return; e.preventDefault(); const pos = getPos(e); sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); };
             const stopDraw = (e) => { if (!isSigning) return; e.preventDefault(); isSigning = false; };
@@ -969,7 +969,7 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/ReziFlow/phumelela/signin'; }
+        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
             text.textContent = message; if(type === 'error') icon.className = 'fa-solid fa-triangle-exclamation text-rose-500'; else icon.className = 'fa-solid fa-circle-check text-emerald-400';
