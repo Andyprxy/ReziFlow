@@ -107,11 +107,12 @@
                 <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="relative z-10 flex flex-col items-center">
                     <div class="w-24 h-24 rounded-[24px] bg-white p-1 shadow-xl shadow-emerald-900/10 ring-1 ring-slate-100 mb-6 relative">
+                        <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
                         <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
                     </div>
                     <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
                     <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
-                    <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
+                    <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> Refresh Portal
                     </button>
                 </div>
@@ -121,6 +122,7 @@
         <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
             <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
+                    <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
                     <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
                 </div>
                 <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
@@ -151,7 +153,7 @@
             </div>
         </header>
 
-        <!-- ROUTER INJECTION ROOT -->
+        <!-- ROUTER INJECTION ROOT (Mother Portal Container) -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-6" id="portal-root">
             <!-- Subfiles (Home, WiFi, Snags, Security, Profile) inject here -->
         </main>
@@ -169,22 +171,7 @@
         </nav>
     </div>
 
-    <!-- REMAINING GLOBAL MODALS (Visitor, Snags, Maps, Wizard, Lease) -->
-    <div id="visitorModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
-        <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Request Visitor PIN</h2>
-                <button onclick="closeModal('visitorModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="visitorForm" onsubmit="submitVisitorPin(event)">
-                <div class="mb-4"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">First Name</label><input id="vis-fname" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 transition-colors" required></div>
-                <div class="mb-4"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Surname</label><input id="vis-sname" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 transition-colors" required></div>
-                <div class="mb-6"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label><input id="vis-email" type="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 transition-colors" required></div>
-                <button type="submit" id="btn-submit-visitor" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/20 transition-all flex justify-center items-center gap-2">Request Visit <i class="fa-solid fa-arrow-right"></i></button>
-            </form>
-        </div>
-    </div>
-
+    <!-- REMAINING GLOBAL MODALS -->
     <div id="snagModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -278,13 +265,19 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div id="wizard-step-2" class="space-y-4 doc-section">
                         <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Guardian Name</label><input type="text" name="Guardian_Name" class="input-field" required></div>
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Contact Number</label><input type="tel" name="Guardian_Number" class="input-field font-mono" required></div>
                             <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 pl-1">Relationship</label><select name="Guardian_Relationship" class="input-field" required><option value="" disabled selected>Select</option><option>Parent</option><option>Sibling</option><option>Relative</option><option>Other</option></select></div>
                         </div>
+                        <div class="pt-4 border-t border-slate-200/60">
+                            <label class="block text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1 pl-1"><i class="fa-solid fa-staff-snake mr-1"></i> Medical Condition (Optional)</label>
+                            <textarea name="Medical_Condition" rows="3" class="input-field resize-none" placeholder="Please list any allergies, chronic conditions, or required medications for emergencies..."></textarea>
+                        </div>
                     </div>
+
                     <div id="wizard-step-3" class="doc-section">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Select Funding Source</label>
                         <div class="grid grid-cols-3 gap-2 mb-6">
@@ -316,7 +309,7 @@
                 <button type="button" id="btn-wizard-back" onclick="wizardStep(-1)" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-colors hidden tap-effect">Go Back</button>
                 <button type="button" id="btn-wizard-next" onclick="wizardStep(1)" class="col-span-2 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect">Submit & Proceed <i class="fa-solid fa-arrow-right"></i></button>
                 <button type="button" id="btn-profile-submit" onclick="submitProfileData()" class="col-span-1 w-full py-4 bg-slate-900 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-check-double"></i> Save</button>
-                <button type="button" id="btn-vault-submit" onclick="submitApplication()" class="col-span-2 w-full py-4 bg-slate-900 hover:bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-cloud-arrow-up"></i> Push to Vault</button>
+                <button type="button" id="btn-vault-submit" onclick="submitApplication()" class="col-span-2 w-full py-4 bg-slate-900 hover:bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg shadow-slate-900/20 transition-all hidden flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-cloud-arrow-up"></i> Submit</button>
             </div>
         </div>
     </div>
@@ -342,7 +335,7 @@
                         <span>Draw your signature</span><button type="button" onclick="clearSignature()" class="text-[10px] text-blue-500 hover:text-blue-700 uppercase tracking-widest">Clear</button>
                     </p>
                     <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden relative">
-                        <canvas id="signature-pad" class="w-full h-32 touch-none cursor-crosshair"></canvas>
+                        <canvas id="signature-pad" class="w-full h-32 touch-none cursor-crosshair" style="touch-action: none;"></canvas>
                         <div id="sig-placeholder" class="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-300 font-medium text-sm">Sign here</div>
                     </div>
                     <button onclick="submitLeaseSignature(this)" class="w-full mt-4 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-xl py-4 shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-2 tap-effect"><i class="fa-solid fa-file-signature"></i> Confirm Signature</button>
@@ -375,17 +368,16 @@
             'Guardian_Number', 'Guardian_Relationship'
         ];
 
-        // Safe DOM manipulation helpers for Component Architecture
+        // Safe DOM manipulation helpers
         const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
         const safeSetHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
         const safeSetDisplay = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
         // ==========================================
-        // VANILLA JS SPA ROUTER (CUSTOM DOMAIN OPTIMIZED)
+        // VANILLA JS SPA ROUTER (RESTORED)
         // ==========================================
         const basePath = '/phumelela/portal';
 
-        // Maps the browser URL to the physical GitHub Pages directory files
         const routes = {
             [`${basePath}`]: `${basePath}/home/index.html`,
             [`${basePath}/`]: `${basePath}/home/index.html`,
@@ -410,7 +402,9 @@
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
-            // If locked, restrict access to just the home and profile views
+            let targetPath = path;
+
+            // REFRESH BUG FIX: Force redirect to home/profile if locked so it doesn't stay blank
             if (!isAppUnlocked && path !== basePath && path !== `${basePath}/home` && path !== `${basePath}/profile`) {
                 showToast("Access Denied: Pending Vetting or Room Allocation.", "error");
                 const card = document.getElementById('gateway-unlock-card');
@@ -418,28 +412,19 @@
                     card.classList.add('border-rose-400', 'bg-rose-50');
                     setTimeout(() => card.classList.remove('border-rose-400', 'bg-rose-50'), 600);
                 }
-                return;
+                targetPath = `${basePath}/home`; 
             }
 
-            // Update the browser URL without reloading the page
-            window.history.pushState({}, "", path);
-            
-            // Fallback to home if path isn't mapped
-            const viewUrl = routes[path] || routes[`${basePath}/home`];
+            window.history.pushState({}, "", targetPath);
+            const viewUrl = routes[targetPath] || routes[`${basePath}/home`];
             
             try {
-                // Fetch the HTML component from the GitHub folder
                 const response = await fetch(viewUrl);
                 if (!response.ok) throw new Error("View not found");
                 const html = await response.text();
                 
-                // Inject the component into the Mother Portal
                 document.getElementById('portal-root').innerHTML = html;
-                
-                // Update Nav Highlighting
-                updateNavUI(path);
-                
-                // Re-hydrate dynamic data for the newly loaded view elements
+                updateNavUI(targetPath);
                 hydrateGatewayEngine(true, session);
             } catch (error) {
                 console.error("Router Error:", error);
@@ -456,10 +441,15 @@
                 btn.classList.remove('text-blue-600');
                 btn.classList.add('text-slate-400');
             });
-            if(currentPath.includes('wifi')) document.getElementById('nav-wifi').classList.replace('text-slate-400', 'text-blue-600');
-            else if(currentPath.includes('snags')) document.getElementById('nav-snags').classList.replace('text-slate-400', 'text-blue-600');
-            else if(currentPath.includes('security')) document.getElementById('nav-security').classList.replace('text-slate-400', 'text-blue-600');
-            else document.getElementById('nav-home').classList.replace('text-slate-400', 'text-blue-600');
+            if(currentPath.includes('wifi')) {
+                const btn = document.getElementById('nav-wifi'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
+            } else if(currentPath.includes('snags')) {
+                const btn = document.getElementById('nav-snags'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
+            } else if(currentPath.includes('security')) {
+                const btn = document.getElementById('nav-security'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
+            } else {
+                const btn = document.getElementById('nav-home'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
+            }
         }
 
         // ==========================================
@@ -560,7 +550,7 @@
                 if(welcomeModal) welcomeModal.classList.add('hidden');
                 if(authGuard) { authGuard.style.opacity = '0'; setTimeout(() => authGuard.style.display = 'none', 500); }
                 
-                // Initialize Router -> Determine which component to load based on GitHub URL
+                // Initialize Router with blank prevention
                 navigateTo(window.location.pathname);
             }
         });
@@ -608,10 +598,13 @@
         function hydrateGatewayEngine(isSilentBackgroundUpdate = false, overrideSession = null) {
             const session = overrideSession || getSessionData();
             
-            // Safe String Wrapping Prevents TypeErrors
             const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
             safeSetText('header-initials', initials);
             safeSetText('profile-initials', initials);
+            
+            // Gateway custom avatar element injected securely
+            const gatewayAvatar = document.getElementById('gateway-profile-pic');
+            if(gatewayAvatar) gatewayAvatar.textContent = initials;
             
             const fullName = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
             safeSetText('dyn-fullname-home', fullName);
@@ -655,7 +648,7 @@
 
             if (session.Profile_Pic) applyProfilePic(session.Profile_Pic);
 
-            // Populating Profile fields (Will only apply if Profile view is currently injected)
+            // Populating Profile fields
             safeSetText('dyn-details-profile', `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`);
             safeSetText('dyn-gender', isValidData(session.Gender) ? session.Gender : '--');
             safeSetText('dyn-mobile', isValidData(session.Mobile_Number) ? session.Mobile_Number : '--');
@@ -663,6 +656,10 @@
             safeSetText('dyn-guardian-name', isValidData(session.Guardian_Name) ? session.Guardian_Name : '--');
             safeSetText('dyn-guardian-rel', isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--');
             safeSetText('dyn-guardian-num', isValidData(session.Guardian_Number) ? session.Guardian_Number : '--');
+            
+            const medCondition = session.Medical_Condition;
+            safeSetText('dyn-medical', isValidData(medCondition) ? medCondition : 'None specified');
+            
             safeSetText('dyn-course-name', isValidData(session.Course) ? session.Course : '--');
             safeSetText('dyn-funding-type', isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending');
 
@@ -903,6 +900,7 @@
             if(!base64Img) return;
             safeSetHtml('header-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
             safeSetHtml('profile-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
+            safeSetHtml('gateway-profile-pic', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
         }
 
         let sigCanvas, sigCtx, isSigning = false, signatureHasDrawn = false;
@@ -930,7 +928,7 @@
 
         async function submitLeaseSignature(btnElement) {
             const session = getSessionData();
-            if (session.Vetting_Status !== "Approved") { showToast("Signature locked. Awaiting vetting approval.", "error"); return; }
+            if (String(session.Vetting_Status).trim().toLowerCase() !== "approved") { showToast("Signature locked. Awaiting vetting approval.", "error"); return; }
             if (!signatureHasDrawn) { showToast("Please provide a signature before submitting.", "error"); return; }
 
             const ogText = btnElement.innerHTML; btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Confirming...'; btnElement.disabled = true;
@@ -946,21 +944,9 @@
             } catch(e) { showToast("Transmission Error. Please try again.", "error"); btnElement.innerHTML = ogText; btnElement.disabled = false; }
         }
 
-        function togglePasswordVisibility() {
-            const passEl = document.getElementById('wifi-pass'); const iconEl = document.getElementById('eye-icon');
-            if(passEl && iconEl) {
-                if (passEl.classList.contains('blur-sm')) { passEl.classList.remove('blur-sm'); iconEl.className = 'fa-solid fa-eye-slash text-blue-500'; } 
-                else { passEl.classList.add('blur-sm'); iconEl.className = 'fa-solid fa-eye text-slate-600'; }
-            }
-        }
-
-        async function submitVisitorPin(e) { e.preventDefault(); const btn = document.getElementById('btn-submit-visitor'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true; try { setTimeout(()=>{ closeModal('visitorModal'); showToast("Visitor functionality routed to server.", "success"); document.getElementById('visitorForm').reset(); btn.innerHTML = 'Request Visit <i class="fa-solid fa-arrow-right"></i>'; btn.disabled = false; }, 800); } catch(err){} }
         function openModalWithCategory(categoryStr) { const el = document.getElementById('snag-category'); if(el) el.value = categoryStr; openModal('snagModal'); }
         async function submitSnag(e) { e.preventDefault(); const btn = document.getElementById('btn-submit-snag'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true; try { setTimeout(()=>{ closeModal('snagModal'); showToast("Ticket submitted. Maintenance notified.", "success"); document.getElementById('snagForm').reset(); btn.innerHTML = 'Submit Ticket <i class="fa-solid fa-arrow-right"></i>'; btn.disabled = false; }, 800); } catch(err){} }
 
-        async function triggerSOS() { showToast("SOS Dispatched.", "success"); }
-        async function sendSecurityPing() { showToast("Alert Sent.", "success"); }
-        function selectSecurityOption(element, optionName) { document.getElementById('selected-security-type').value = optionName; }
         function openShuttleMap() { openModal('shuttleMapModal'); }
         function closeShuttleMap() { closeModal('shuttleMapModal'); }
         function openCustomMessagePrompt() { openModal('customMsgModal'); }
