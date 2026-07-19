@@ -29,37 +29,47 @@
             <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Name</span><span id="dyn-guardian-name" class="text-xs font-bold text-slate-800">--</span></div>
             <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Relationship</span><span id="dyn-guardian-rel" class="text-xs font-bold text-slate-800">--</span></div>
             <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span></div>
+            <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Medical Condition</span><span id="dyn-medical" class="text-xs font-bold text-rose-500 text-right max-w-[150px] truncate">--</span></div>
         </div>
     </div>
 
     <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
         <div class="flex justify-between items-start mb-5">
             <div>
-                <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Digital Vault</h3>
+                <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Documents</h3>
                 <p class="text-[11px] text-slate-500 font-medium">Access your securely uploaded files.</p>
             </div>
-            <button onclick="manualSync()" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm hover:bg-blue-100 transition-colors" title="Sync Vault"><i class="fa-solid fa-rotate-right"></i></button>
+            <button onclick="manualSync()" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm hover:bg-blue-100 transition-colors" title="Sync Documents"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
         
         <div class="space-y-3 mb-6">
             <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-id-card"></i></div>
-                    <div><p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p><p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p></div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p>
+                    </div>
                 </div>
                 <div id="doc-btn-id"></div>
             </div>
             <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
-                    <div><p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p><p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p></div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p>
+                    </div>
                 </div>
                 <div id="doc-btn-reg"></div>
             </div>
             <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-landmark"></i></div>
-                    <div><p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p><p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p></div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p>
+                    </div>
                 </div>
                 <div id="doc-btn-fund"></div>
             </div>
@@ -67,7 +77,10 @@
             <div id="profile-vault-payslip" class="hidden flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                    <div><p class="text-sm font-semibold text-slate-800 tracking-tight">Latest Payslip</p><p class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash Payer Docs</p></div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 tracking-tight">Latest Payslip</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash Payer Docs</p>
+                    </div>
                 </div>
                 <div id="doc-btn-payslip"></div>
             </div>
@@ -75,11 +88,15 @@
             <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-signature"></i></div>
-                    <div><p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p><p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p></div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p>
+                    </div>
                 </div>
                 <div id="doc-btn-lease"></div>
             </div>
         </div>
+
         <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
             <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
             <div>
@@ -87,6 +104,19 @@
                 <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">Files are stored securely in encrypted cloud nodes.</p>
             </div>
         </div>
+
+        <!-- NEW LEASE ACTIONS SECTION -->
+        <div class="mt-6 border-t border-slate-100 pt-5">
+            <h4 class="text-xs font-bold text-slate-800 mb-3">Lease Actions</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openModal('roomChangeModal')" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold py-3.5 rounded-xl transition-colors tap-effect flex flex-col items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-person-walking-luggage text-blue-500 text-lg"></i> Change Room
+                </button>
+                <button onclick="openModal('terminateLeaseModal')" class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[10px] font-bold py-3.5 rounded-xl transition-colors tap-effect flex flex-col items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-circle-xmark text-rose-500 text-lg"></i> Terminate Lease
+                </button>
+            </div>
+        </div>
+
     </div>
 </div>
-<script>if(window.location.pathname.endsWith('/profile/') || window.location.pathname.endsWith('/profile/index.html')) window.location.href = '../';</script>
