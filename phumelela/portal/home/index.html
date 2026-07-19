@@ -1,4 +1,5 @@
 <div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
+    
     <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
         <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
         <div class="relative z-10 flex justify-between items-start mb-8">
@@ -19,13 +20,15 @@
     <section id="gateway-unlock-card" class="bg-white card-shadow soft-border rounded-[28px] p-5 relative overflow-hidden transition-all duration-300 border-2 border-transparent">
         <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
         <div class="flex items-center gap-4 relative z-10 mb-4">
-            <img src="../../signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
+            <div id="gateway-profile-pic" class="w-14 h-14 rounded-[18px] bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-sm border border-slate-100 flex-shrink-0 overflow-hidden">--</div>
             <div>
                 <div class="flex items-center gap-2 mb-0.5"><h3 class="text-sm font-black text-slate-900 tracking-tight">Gateway Protocol</h3><i id="gateway-lock-icon" class="fa-solid fa-lock text-rose-500 text-xs"></i></div>
                 <p id="gateway-status-text" class="text-[10px] text-slate-500 font-medium leading-snug pr-2">Finish setting up your profile to unlock Wi-Fi & Transit.</p>
             </div>
         </div>
-        <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300"></div>
+        
+        <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300">
+        </div>
     </section>
 
     <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500 mt-2">
@@ -63,18 +66,17 @@
         </div>
     </div>
 
+    <!-- DYNAMIC VISITOR PIN -->
+    <div id="visitor-pin-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center shadow-sm transition-all duration-500 mt-2">
+        <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
+        <p id="generated-pin" class="text-3xl font-mono font-bold text-slate-800 tracking-widest">482910</p>
+        <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
+    </div>
+
     <section>
         <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
         <div class="flex gap-3">
-            <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
-            <button onclick="openModal('visitorModal')" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
+            <button class="w-full bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
         </div>
     </section>
-    
-    <div id="pin-display-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center mt-2 shadow-sm">
-        <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
-        <p id="generated-pin" class="text-3xl font-mono font-bold text-slate-800 tracking-widest">------</p>
-        <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
-    </div>
 </div>
-<script>if(window.location.pathname.endsWith('/home/') || window.location.pathname.endsWith('/home/index.html')) window.location.href = '../';</script>
