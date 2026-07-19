@@ -172,6 +172,38 @@
     </div>
 
     <!-- REMAINING GLOBAL MODALS -->
+    
+    <!-- ROOM CHANGE MODAL -->
+    <div id="roomChangeModal" class="absolute inset-0 z-[2200] modal-overlay flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
+            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2"><i class="fa-solid fa-person-walking-luggage text-blue-500"></i> Request Room Change</h3>
+            <p class="text-xs text-slate-500 font-medium mb-4">Please provide a valid reason for requesting a room transfer. Management will review your request.</p>
+            <div class="space-y-3">
+                <textarea id="room-change-reason" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-blue-500 resize-none transition-all" placeholder="Explain your reason here..."></textarea>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="closeModal('roomChangeModal')" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all tap-effect">Cancel</button>
+                    <button onclick="submitPortalRequest('Room Change', 'room-change-reason', this)" class="py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 tap-effect">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TERMINATE LEASE MODAL -->
+    <div id="terminateLeaseModal" class="absolute inset-0 z-[2200] modal-overlay flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
+            <h3 class="text-lg font-black text-rose-600 tracking-tight mb-2 flex items-center gap-2"><i class="fa-solid fa-file-circle-xmark"></i> Terminate Lease</h3>
+            <p class="text-xs text-slate-500 font-medium mb-4">Are you sure you want to request a lease cancellation? Please provide a detailed reason below.</p>
+            <div class="space-y-3">
+                <textarea id="terminate-reason" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-rose-500 resize-none transition-all" placeholder="Reason for termination..."></textarea>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="closeModal('terminateLeaseModal')" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all tap-effect">Cancel</button>
+                    <button onclick="submitPortalRequest('Lease Termination', 'terminate-reason', this)" class="py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-rose-500/20 tap-effect">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SNAGS MODAL -->
     <div id="snagModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -194,6 +226,7 @@
         </div>
     </div>
 
+    <!-- SHUTTLE MAP MODAL -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[92dvh] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
@@ -232,6 +265,7 @@
         </div>
     </div>
 
+    <!-- PROFILE SETUP WIZARD MODAL -->
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[90dvh] max-h-[900px] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
@@ -314,6 +348,7 @@
         </div>
     </div>
 
+    <!-- LEASE SIGNATURE MODAL -->
     <div id="leaseModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[90dvh] max-h-[900px] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col relative overflow-hidden">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0 relative z-10 bg-white">
@@ -374,7 +409,7 @@
         const safeSetDisplay = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
         // ==========================================
-        // VANILLA JS SPA ROUTER (RESTORED)
+        // VANILLA JS SPA ROUTER 
         // ==========================================
         const basePath = '/phumelela/portal';
 
@@ -404,9 +439,9 @@
 
             let targetPath = path;
 
-            // REFRESH BUG FIX: Force redirect to home/profile if locked so it doesn't stay blank
+            // SMOOTH REFRESH BUG FIX
             if (!isAppUnlocked && path !== basePath && path !== `${basePath}/home` && path !== `${basePath}/profile`) {
-                showToast("Access Denied: Pending Vetting or Room Allocation.", "error");
+                showToast("⚠️ Please finish up updating to unlock full portal.", "error");
                 const card = document.getElementById('gateway-unlock-card');
                 if (card) {
                     card.classList.add('border-rose-400', 'bg-rose-50');
@@ -550,7 +585,6 @@
                 if(welcomeModal) welcomeModal.classList.add('hidden');
                 if(authGuard) { authGuard.style.opacity = '0'; setTimeout(() => authGuard.style.display = 'none', 500); }
                 
-                // Initialize Router with blank prevention
                 navigateTo(window.location.pathname);
             }
         });
@@ -602,7 +636,6 @@
             safeSetText('header-initials', initials);
             safeSetText('profile-initials', initials);
             
-            // Gateway custom avatar element injected securely
             const gatewayAvatar = document.getElementById('gateway-profile-pic');
             if(gatewayAvatar) gatewayAvatar.textContent = initials;
             
@@ -620,7 +653,7 @@
                     safeSetText('dyn-wifi-dev1', `${session.First_Name || 'Resident'}'s Phone`);
                     safeSetText('dyn-wifi-dev2', `${session.First_Name || 'Resident'}'s Laptop`);
                 }
-            } catch(e) { console.warn("Wi-Fi string sync issue skipped safely."); }
+            } catch(e) {}
 
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? String(session.Room_Allocation) : 'Unassigned';
             safeSetText('dyn-room-home', roomAllocatedStr);
@@ -646,9 +679,15 @@
                 else profileUploadBtn.classList.add('hidden');
             }
 
+            // VISITOR PIN UNLOCK LOGIC
+            const visitorPinContainer = document.getElementById('visitor-pin-container');
+            if (visitorPinContainer) {
+                if (shouldUnlockTabs) visitorPinContainer.classList.remove('hidden');
+                else visitorPinContainer.classList.add('hidden');
+            }
+
             if (session.Profile_Pic) applyProfilePic(session.Profile_Pic);
 
-            // Populating Profile fields
             safeSetText('dyn-details-profile', `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`);
             safeSetText('dyn-gender', isValidData(session.Gender) ? session.Gender : '--');
             safeSetText('dyn-mobile', isValidData(session.Mobile_Number) ? session.Mobile_Number : '--');
@@ -881,6 +920,40 @@
                 btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Alert Sent';
                 setTimeout(() => { hydrateGatewayEngine(false, session); showToast("Admin alerted. They will review your profile shortly.", "success"); }, 800);
             } catch (error) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; showToast("Failed to alert admin. Check connection.", "error"); }
+        }
+
+        // PORTAL REQUESTS ENGINE (Room Change / Terminate Lease)
+        async function submitPortalRequest(type, textareaId, btnElement) {
+            const session = getSessionData();
+            const reason = document.getElementById(textareaId).value.trim();
+            if (!reason) { showToast("Please provide a reason.", "error"); return; }
+            
+            const ogHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+            btnElement.disabled = true;
+
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-portal-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: session.Student_Number || 'Unknown',
+                        Request_Type: type,
+                        Reason: reason,
+                        Email_Address: session.Email_Address
+                    })
+                });
+                if (!res.ok) throw new Error();
+                
+                showToast("Request submitted successfully.", "success");
+                document.getElementById(textareaId).value = '';
+                closeModal(type === 'Room Change' ? 'roomChangeModal' : 'terminateLeaseModal');
+            } catch (e) {
+                showToast("Submission failed. Try again.", "error");
+            } finally {
+                btnElement.innerHTML = ogHtml;
+                btnElement.disabled = false;
+            }
         }
 
         function handleProfilePicUpload(event) {
