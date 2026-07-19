@@ -895,9 +895,15 @@
                 let parsed = JSON.parse(rawSession);
                 function extract(obj) {
                     if (!obj) return null;
-                    if (obj.First_Name !== undefined || obj.Student_Number !== undefined) return obj;
-                    if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
-                    else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                    if (typeof obj === 'object' && !Array.isArray(obj)) {
+                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj;
+                    }
+                    if (Array.isArray(obj)) { 
+                        for (let item of obj) { let f = extract(item); if (f) return f; } 
+                    } 
+                    else if (typeof obj === 'object') { 
+                        for (let k in obj) { let f = extract(obj[k]); if (f) return f; } 
+                    }
                     return null;
                 }
                 let profile = extract(parsed);
@@ -917,22 +923,24 @@
             if (!email) return session;
 
             try {
-                const queryParams = new URLSearchParams({
-                    Email_Address: email,
-                    _t: new Date().getTime() 
-                });
-                
+                const queryParams = new URLSearchParams({ Email_Address: email, _t: new Date().getTime() });
                 const targetUrl = `https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`;
-                
                 const res = await fetch(targetUrl);
 
                 if (res.ok) {
                     const data = await res.json();
+                    
                     function extract(obj) {
                         if (!obj) return null;
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined) return obj;
-                        if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
-                        else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
+                        if (typeof obj === 'object' && !Array.isArray(obj)) {
+                            if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj;
+                        }
+                        if (Array.isArray(obj)) { 
+                            for (let item of obj) { let f = extract(item); if (f) return f; } 
+                        } 
+                        else if (typeof obj === 'object') { 
+                            for (let k in obj) { let f = extract(obj[k]); if (f) return f; } 
+                        }
                         return null;
                     }
                     
@@ -951,15 +959,17 @@
                         }
 
                         // PROTECT LOCAL CACHE TO PREVENT UI FLICKER 
-                        if (session.Signed_Lease === "Signed") mergedSession.Signed_Lease = "Signed";
-                        if (session.Doc_Lease_URL === "vaulted_locally") mergedSession.Doc_Lease_URL = "vaulted_locally";
+                        if (session.Signed_Lease === "Signed" && (freshProfile.Signed_Lease !== "Signed" && freshProfile.Signed_Lease !== true)) {
+                            mergedSession.Signed_Lease = "Signed"; 
+                        }
+                        if (session.Doc_Lease_URL === "vaulted_locally" && (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10)) {
+                            mergedSession.Doc_Lease_URL = "vaulted_locally";
+                        }
                         
                         localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
                         hydrateGatewayEngine(true, mergedSession);
                         return mergedSession;
                     }
-                } else {
-                    throw new Error("Server rejected fetch request.");
                 }
             } catch (error) {
                 if(!silent) console.warn("Live sync delayed, using local cache.");
@@ -1049,7 +1059,8 @@
         function hydrateGatewayEngine(isSilentBackgroundUpdate = false, overrideSession = null) {
             const session = overrideSession || getSessionData();
             
-            const initials = ((session.First_Name || 'R').charAt(0) + (session.Surname || 'F').charAt(0)).toUpperCase();
+            // Safe String Wrapping Prevents TypeErrors on JSON Numbers
+            const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
             document.getElementById('header-initials').textContent = initials;
             document.getElementById('profile-initials').textContent = initials;
             
@@ -1057,18 +1068,20 @@
             document.getElementById('dyn-fullname-home').textContent = fullName;
             document.getElementById('dyn-fullname-profile').textContent = fullName;
             
-            const studentId = isValidData(session.Student_Number) ? session.Student_Number : '--';
+            const studentId = isValidData(session.Student_Number) ? String(session.Student_Number) : '--';
             document.getElementById('dyn-id-home').textContent = studentId;
             document.getElementById('dyn-id-number').textContent = studentId;
             
-            // Dynamic Wi-Fi password sync
-            if (studentId !== '--') {
-                document.getElementById('wifi-pass').textContent = `${initials}-${studentId.substring(0,6)}`;
-                document.getElementById('dyn-wifi-dev1').textContent = `${session.First_Name || 'Resident'}'s iPhone`;
-                document.getElementById('dyn-wifi-dev2').textContent = `${session.First_Name || 'Resident'}'s MacBook`;
-            }
+            // Isolated execution so failures don't halt the main gateway logic
+            try {
+                if (studentId !== '--') {
+                    document.getElementById('wifi-pass').textContent = `${initials}-${studentId.substring(0,6)}`;
+                    document.getElementById('dyn-wifi-dev1').textContent = `${session.First_Name || 'Resident'}'s Phone`;
+                    document.getElementById('dyn-wifi-dev2').textContent = `${session.First_Name || 'Resident'}'s Laptop`;
+                }
+            } catch(e) { console.warn("Wi-Fi sync bypass"); }
 
-            const roomAllocatedStr = isValidData(session.Room_Allocation) ? session.Room_Allocation : 'Unassigned';
+            const roomAllocatedStr = isValidData(session.Room_Allocation) ? String(session.Room_Allocation) : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
             
             // CORE GATEWAY PROTOCOL OVERRIDE
@@ -1127,7 +1140,7 @@
             renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
             renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
 
-            const fundingType = session.Funding_Type ? session.Funding_Type.toLowerCase() : 'none';
+            const fundingType = session.Funding_Type ? String(session.Funding_Type).toLowerCase() : 'none';
             if (fundingType === 'cash' || fundingType === 'cash paying') {
                 const payslipRow = document.getElementById('profile-vault-payslip');
                 if(payslipRow) payslipRow.classList.remove('hidden');
@@ -1200,7 +1213,7 @@
 
             if(gatewayCard) gatewayCard.style.display = 'block';
 
-            // STATE 4 (MAGIC TRANSFORMATION): Fully Signed -> Hide Gateway and Lease
+            // STATE 4 (MAGIC TRANSFORMATION): Fully Signed -> Hide Gateway and Lease completely
             if (isFullySigned) {
                 if(gatewayCard) gatewayCard.style.display = 'none';
                 if(leaseSlot) leaseSlot.style.display = 'none';
@@ -1358,7 +1371,6 @@
             showToast("Checking live portal status...", "success");
 
             try {
-                // By calling syncProfileData, we pull both Vetting_Status AND Room_Allocation
                 const session = await syncProfileData(false);
 
                 const liveStatus = session.Vetting_Status || 'Pending Vetting';
