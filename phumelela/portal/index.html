@@ -244,7 +244,7 @@
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
                     <div class="flex gap-3">
                         <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
-                        <button onclick="openModal('visitorModal')" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
+                        <button id="btn-visitor-pin" onclick="handleVisitorPinClick()" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-all border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
                     </div>
                 </section>
                 
@@ -576,11 +576,11 @@
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mb-4">
                     <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-sliders text-slate-500 mr-2"></i> Administrative Actions</h3>
                     <div class="space-y-3">
-                        <button onclick="openAdminRequestModal('Room Change')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
+                        <button id="btn-room-change" onclick="openAdminRequestModal('Room Change')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
                             <span class="flex items-center gap-2"><i class="fa-solid fa-person-shelter text-blue-500 text-sm"></i> Request Room Change</span>
                             <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                         </button>
-                        <button onclick="openAdminRequestModal('Terminate Lease')" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
+                        <button id="btn-terminate-lease" onclick="openAdminRequestModal('Terminate Lease')" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
                             <span class="flex items-center gap-2"><i class="fa-solid fa-file-circle-xmark text-rose-500 text-sm"></i> Terminate Lease</span>
                             <i class="fa-solid fa-chevron-right text-rose-400 text-[10px]"></i>
                         </button>
@@ -1210,6 +1210,18 @@
                 }
             });
 
+            // Action elements safeguard
+            const actionElements = [document.getElementById('btn-visitor-pin'), document.getElementById('btn-room-change'), document.getElementById('btn-terminate-lease')];
+            actionElements.forEach(el => {
+                if (el) {
+                    if (shouldUnlockTabs) {
+                        el.classList.remove('opacity-50', 'grayscale');
+                    } else {
+                        el.classList.add('opacity-50', 'grayscale');
+                    }
+                }
+            });
+
             const profileUploadBtn = document.getElementById('btn-profile-upload');
             if(profileUploadBtn) {
                 if (shouldUnlockTabs) profileUploadBtn.classList.remove('hidden');
@@ -1632,6 +1644,19 @@
         }
 
         // FUNCTIONAL VISITOR PIN ENGINE
+        function handleVisitorPinClick() {
+            const session = getSessionData();
+            const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
+            const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
+            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            
+            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
+                showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); 
+                return; 
+            }
+            openModal('visitorModal');
+        }
+
         async function submitVisitorPin(e) {
             e.preventDefault();
             const session = getSessionData();
@@ -1863,6 +1888,17 @@
 
         // ADMINISTRATIVE REQUESTS WITH MODAL LOGIC
         function openAdminRequestModal(type) {
+            const session = getSessionData();
+            const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
+            const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
+            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            
+            // Check if the portal is locked
+            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
+                showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); 
+                return; 
+            }
+
             const titleEl = document.getElementById('admin-request-title');
             const submitBtn = document.getElementById('btn-submit-admin-req');
             const reasonInput = document.getElementById('admin-request-reason');
