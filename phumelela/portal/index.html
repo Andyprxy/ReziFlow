@@ -146,8 +146,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Secure Logout"><i class="fa-solid fa-power-off"></i></button>
-                    <!-- Routes to Profile Tab -->
-                    <button onclick="navigateTo('/phumelela/portal/profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
+                    <button onclick="navigateTo('/ReziFlow/phumelela/portal/profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
                 </div>
             </div>
         </header>
@@ -160,10 +159,10 @@
         <!-- NAVIGATION -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
-                <button onclick="navigateTo('/phumelela/portal')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
-                <button onclick="navigateTo('/phumelela/portal/wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
-                <button onclick="navigateTo('/phumelela/portal/snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
-                <button onclick="navigateTo('/phumelela/portal/security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="navigateTo('/ReziFlow/phumelela/portal/home')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
+                <button onclick="navigateTo('/ReziFlow/phumelela/portal/wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
+                <button onclick="navigateTo('/ReziFlow/phumelela/portal/snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="navigateTo('/ReziFlow/phumelela/portal/security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
                 <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked pointer-events-none"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
@@ -171,7 +170,6 @@
     </div>
 
     <!-- REMAINING GLOBAL MODALS (Visitor, Snags, Maps, Wizard, Lease) -->
-    <!-- These sit outside the router root because they are called from multiple places -->
     <div id="visitorModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
             <div class="flex justify-between items-center mb-6">
@@ -248,7 +246,6 @@
     </div>
 
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
-        <!-- Wizard contents exactly as they were before, safe to leave in Mother Portal since it's global -->
         <div class="modal-content bg-white w-full h-[90dvh] max-h-[900px] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
                 <div><h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2><p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 2</p></div>
@@ -386,12 +383,18 @@
         // ==========================================
         // VANILLA JS SPA ROUTER
         // ==========================================
+        // Define your base project path here
+        const basePath = '/ReziFlow/phumelela/portal';
+
+        // Keys = The clean URL the user sees in the browser
+        // Values = The physical subfile the router actually fetches
         const routes = {
-            '/phumelela/portal': '/phumelela/views/home.html',
-            '/phumelela/portal/wifi': '/phumelela/views/wifi.html',
-            '/phumelela/portal/snags': '/phumelela/views/snags.html',
-            '/phumelela/portal/security': '/phumelela/views/security.html',
-            '/phumelela/portal/profile': '/phumelela/views/profile.html'
+            [`${basePath}`]: `${basePath}/views/home.html`,
+            [`${basePath}/home`]: `${basePath}/views/home.html`,
+            [`${basePath}/wifi`]: `${basePath}/views/wifi.html`,
+            [`${basePath}/snags`]: `${basePath}/views/snags.html`,
+            [`${basePath}/security`]: `${basePath}/views/security.html`,
+            [`${basePath}/profile`]: `${basePath}/views/profile.html`
         };
 
         async function navigateTo(path) {
@@ -403,8 +406,8 @@
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
-            // If locked, restrict to home and profile
-            if (!isAppUnlocked && path !== '/phumelela/portal' && path !== '/phumelela/portal/profile') {
+            // If locked, restrict access to just the home and profile views
+            if (!isAppUnlocked && path !== basePath && path !== `${basePath}/home` && path !== `${basePath}/profile`) {
                 showToast("Access Denied: Pending Vetting or Room Allocation.", "error");
                 const card = document.getElementById('gateway-unlock-card');
                 if (card) {
@@ -414,8 +417,11 @@
                 return;
             }
 
+            // Update the browser URL without reloading the page
             window.history.pushState({}, "", path);
-            const viewUrl = routes[path] || routes['/phumelela/portal'];
+            
+            // Fallback to home if path isn't mapped
+            const viewUrl = routes[path] || routes[`${basePath}/home`];
             
             try {
                 // Fetch the HTML component
@@ -582,7 +588,7 @@
                 const welcomeModal = document.getElementById('welcomeModal');
                 if (welcomeModal) {
                     welcomeModal.style.opacity = '0';
-                    setTimeout(() => { welcomeModal.classList.add('hidden'); navigateTo('/phumelela/portal'); }, 500);
+                    setTimeout(() => { welcomeModal.classList.add('hidden'); navigateTo(basePath); }, 500);
                 }
 
             } catch (error) {
@@ -836,7 +842,7 @@
         }
 
         // ==========================================
-        // REMAINING UTILITIES (Identical execution, globally available)
+        // REMAINING UTILITIES 
         // ==========================================
         async function checkVettingStatus(btnElement) {
             const icon = btnElement.querySelector('i');
@@ -876,7 +882,6 @@
             } catch (error) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; showToast("Failed to alert admin. Check connection.", "error"); }
         }
 
-        // Profile, Signature, Toast, Navigation Modals below
         function handleProfilePicUpload(event) {
             const file = event.target.files[0]; if(!file) return;
             if(file.size > 2 * 1024 * 1024) { showToast("Image too large. Max size is 2MB.", "error"); return; }
@@ -949,7 +954,6 @@
         function openModalWithCategory(categoryStr) { const el = document.getElementById('snag-category'); if(el) el.value = categoryStr; openModal('snagModal'); }
         async function submitSnag(e) { e.preventDefault(); const btn = document.getElementById('btn-submit-snag'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true; try { setTimeout(()=>{ closeModal('snagModal'); showToast("Ticket submitted. Maintenance notified.", "success"); document.getElementById('snagForm').reset(); btn.innerHTML = 'Submit Ticket <i class="fa-solid fa-arrow-right"></i>'; btn.disabled = false; }, 800); } catch(err){} }
 
-        // Security, Map and Transit handlers
         async function triggerSOS() { showToast("SOS Dispatched.", "success"); }
         async function sendSecurityPing() { showToast("Alert Sent.", "success"); }
         function selectSecurityOption(element, optionName) { document.getElementById('selected-security-type').value = optionName; }
@@ -971,11 +975,94 @@
         async function manualSync() { showToast("Syncing secure connection...", "success"); const session = await syncProfileData(false); hydrateGatewayEngine(false, session); }
         function openWizardFlow(flowType) { currentFlowType = flowType; document.getElementById('setupWizardModal').classList.add('active'); wizardStep(0, true); }
         function closeWizardModal() { document.getElementById('setupWizardModal').classList.remove('active'); }
-        function wizardStep(dir, forceReset = false) { /* Keep standard wizard traversal logic */ }
-        function selectFunding(type) { activeFundingType = type; /* Update wizard UI */ }
-        function handleFileUpload(input) { /* Upload file logic */ }
-        async function submitProfileData() { /* Logic */ }
-        async function submitApplication() { /* Logic */ }
+        function wizardStep(dir, forceReset = false) { 
+            if (forceReset && currentFlowType === 'profile') { currentWizardStep = 1; } 
+            else if (forceReset && currentFlowType === 'documents') { currentWizardStep = 3; } 
+            else {
+                if (dir === 1) {
+                    const activeFormPart = document.getElementById(`wizard-step-${currentWizardStep}`);
+                    const inputs = activeFormPart.querySelectorAll('input[required], select[required]');
+                    for(let input of inputs) { if (!input.checkValidity()) { input.reportValidity(); return; } }
+                }
+                currentWizardStep += dir;
+            }
+            
+            document.querySelectorAll('#wizardForm .doc-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`wizard-step-${currentWizardStep}`).classList.add('active');
+            
+            const titles = ["", "Personal Details", "Emergency & Care", "Secure Document Vault"];
+            document.getElementById('wizard-title').textContent = titles[currentWizardStep];
+            
+            const stepIndicators = { 1: "Step 1 of 2", 2: "Step 2 of 2", 3: "Encrypted Upload" };
+            document.getElementById('wizard-step-indicator').textContent = stepIndicators[currentWizardStep];
+            
+            const btnBack = document.getElementById('btn-wizard-back'); const btnNext = document.getElementById('btn-wizard-next');
+            const btnProfileSubmit = document.getElementById('btn-profile-submit'); const btnVaultSubmit = document.getElementById('btn-vault-submit');
+            
+            btnBack.classList.add('hidden'); btnNext.classList.add('hidden'); btnProfileSubmit.classList.add('hidden'); btnVaultSubmit.classList.add('hidden');
+            
+            if (currentFlowType === 'profile') {
+                if (currentWizardStep === 1) { btnNext.classList.remove('hidden'); btnNext.classList.replace('col-span-1', 'col-span-2'); } 
+                else if (currentWizardStep === 2) { btnBack.classList.remove('hidden'); btnProfileSubmit.classList.remove('hidden'); }
+            } else if (currentFlowType === 'documents') { btnVaultSubmit.classList.remove('hidden'); }
+        }
+
+        function selectFunding(type) {
+            activeFundingType = type;
+            document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('btn-' + type).classList.add('active');
+            document.querySelectorAll('#wizard-step-3 .doc-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('req-' + type).classList.add('active');
+        }
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const zone = input.closest('.upload-zone'); zone.classList.add('success-state');
+                const icon = zone.querySelector('.icon-container'); icon.className = 'icon-container w-10 h-10 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm border border-emerald-100'; icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                const titleText = zone.querySelector('.title-text'); if(titleText) { titleText.textContent = "Document Attached"; titleText.className = "title-text text-xs font-black text-emerald-700 truncate"; }
+                const actionBtn = zone.querySelector('.action-btn'); if(actionBtn) { actionBtn.textContent = "Ready to Push"; actionBtn.className = "action-btn text-[10px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-200"; }
+            }
+        }
+
+        async function submitProfileData() {
+            const btn = document.getElementById('btn-profile-submit');
+            const ogHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...'; btn.disabled = true;
+            const formData = new FormData(); const session = getSessionData(); formData.append('Email_Address', session.Email_Address || '');
+            const appendInputs = (sectionId) => { const inputs = document.getElementById(sectionId).querySelectorAll('input, select, textarea'); inputs.forEach(input => { if (input.name) { formData.append(input.name, input.value); session[input.name] = input.value; } }); };
+            appendInputs('wizard-step-1'); appendInputs('wizard-step-2');
+
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-update-profile', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Webhook rejected");
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+                setTimeout(() => { closeWizardModal(); hydrateGatewayEngine(false, session); showToast("Profile Info updated securely.", "success"); btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900'); }, 800);
+            } catch (error) { btn.innerHTML = ogHtml; btn.disabled = false; showToast("Transmission failed.", "error"); }
+        }
+
+        async function submitApplication() {
+            if (activeFundingType === 'none') { showToast("Select a funding pipeline.", "error"); return; }
+            const btn = document.getElementById('btn-vault-submit'); const ogHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Vaulting...'; btn.disabled = true;
+            const formData = new FormData(); const session = getSessionData();
+            formData.append('Email_Address', session.Email_Address || ''); formData.append('Student_Number', session.Student_Number || ''); formData.append('Funding_Type', activeFundingType); session.Funding_Type = activeFundingType;
+
+            const activeSection = document.getElementById('req-' + activeFundingType); const fileInputs = activeSection.querySelectorAll('input[type="file"]');
+            fileInputs.forEach((input) => {
+                if (input.files.length > 0) {
+                    const zone = input.closest('.upload-zone'); const docKey = zone.getAttribute('data-doc-key'); let docNum = 1;
+                    if (docKey === 'Doc_1_URL_ID') docNum = 1; if (docKey === 'Doc_2_URL_Reg') docNum = 2; if (docKey === 'Doc_3_URL_Funding') docNum = 3; if (docKey === 'Doc_4_URL_Payslip') docNum = 4;
+                    formData.append(`Document_${docNum}`, input.files[0]); session[docKey] = "vaulted_locally";
+                }
+            });
+
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-vault-docs', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Webhook rejected");
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Vaulted'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+                setTimeout(() => { closeWizardModal(); hydrateGatewayEngine(false, session); showToast("Documents securely vaulted.", "success"); btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900'); }, 800);
+            } catch (error) { btn.innerHTML = ogHtml; btn.disabled = false; showToast("Transmission failed. Please check network.", "error"); }
+        }
     </script>
 </body>
 </html>
