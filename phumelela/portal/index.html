@@ -38,7 +38,6 @@
 
         .tab-content { animation: fadeIn 0.3s ease-in-out; padding-bottom: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         @keyframes spinOnce { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .spin-once { animation: spinOnce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
@@ -64,7 +63,6 @@
         select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; }
 
         .nav-locked { opacity: 0.5; filter: grayscale(100%); transition: all 0.3s ease; cursor: not-allowed; }
-        
         .upload-zone { border: 2px dashed rgba(203, 213, 225, 0.8); background: rgba(255, 255, 255, 0.5); transition: all 0.2s ease; }
         .upload-zone:hover { border-color: #3b82f6; background-color: rgba(239, 246, 255, 0.8); }
         .upload-zone.success-state { border: 2px solid #10b981; background-color: rgba(236, 253, 245, 0.9); }
@@ -111,7 +109,7 @@
                         <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
                     </div>
                     <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
-                    <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
+                    <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is fully verified. Welcome home.</p>
                     <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> Refresh Portal
                     </button>
@@ -123,7 +121,7 @@
             <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
                     <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
-                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
+                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
                 </div>
                 <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
                 <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
@@ -148,31 +146,29 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-rose-500 hover:text-white transition-colors tap-effect" title="Secure Logout"><i class="fa-solid fa-power-off"></i></button>
-                    <button onclick="navigateTo('/phumelela/portal/profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
+                    <button onclick="navigateTo('#profile')" class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 tap-effect overflow-hidden" id="header-initials">--</button>
                 </div>
             </div>
         </header>
 
-        <!-- ROUTER INJECTION ROOT (Mother Portal Container) -->
+        <!-- ROUTER INJECTION ROOT -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-6" id="portal-root">
-            <!-- Subfiles (Home, WiFi, Snags, Security, Profile) inject here -->
+            <!-- Subfiles inject here -->
         </main>
 
         <!-- NAVIGATION -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
-                <button onclick="navigateTo('/phumelela/portal/home')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
-                <button onclick="navigateTo('/phumelela/portal/wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
-                <button onclick="navigateTo('/phumelela/portal/snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
-                <button onclick="navigateTo('/phumelela/portal/security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="navigateTo('#home')" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
+                <button onclick="navigateTo('#wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
+                <button onclick="navigateTo('#snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="navigateTo('#security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
                 <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked pointer-events-none"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
         </nav>
     </div>
 
-    <!-- REMAINING GLOBAL MODALS -->
-    
     <!-- ROOM CHANGE MODAL -->
     <div id="roomChangeModal" class="absolute inset-0 z-[2200] modal-overlay flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
@@ -248,6 +244,7 @@
         </div>
     </div>
 
+    <!-- DISPATCH MSG MODAL -->
     <div id="customMsgModal" class="absolute inset-0 z-[2200] modal-overlay flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
             <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2"><i class="fa-solid fa-message text-blue-500"></i> Dispatch options</h3>
@@ -379,79 +376,52 @@
         </div>
     </div>
 
-    <!-- CORE ENGINE & ROUTER -->
+    <!-- CORE ENGINE & HASH ROUTER -->
     <script>
-        // Global State Variables
-        let gatewayPercentage = 0;
-        let profilePercentage = 0;
-        let vaultPercentage = 0;
-        let currentWizardStep = 1;
-        let activeFundingType = 'none'; 
-        let currentFlowType = 'profile'; 
+        let gatewayPercentage = 0; let profilePercentage = 0; let vaultPercentage = 0;
+        let currentWizardStep = 1; let activeFundingType = 'none'; let currentFlowType = 'profile'; 
 
-        // Telemetry Globals
-        let mapObj = null;
-        let shuttleMarker = null;
-        let studentMarker = null;
-        let studentCoords = null;
-        let telemetryInterval = null;
+        let mapObj = null; let shuttleMarker = null; let studentMarker = null;
+        let studentCoords = null; let telemetryInterval = null;
 
-        const profileDataFields = [
-            'First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 
-            'Gender', 'Email_Address', 'Campus_Hub', 'Course', 'Year_Level', 
-            'Street_Address', 'City', 'Postal_Code', 'Guardian_Name', 
-            'Guardian_Number', 'Guardian_Relationship'
-        ];
-
-        // Safe DOM manipulation helpers
+        const profileDataFields = ['First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 'Gender', 'Email_Address', 'Campus_Hub', 'Course', 'Year_Level', 'Street_Address', 'City', 'Postal_Code', 'Guardian_Name', 'Guardian_Number', 'Guardian_Relationship'];
         const safeSetText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
         const safeSetHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
         const safeSetDisplay = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
         // ==========================================
-        // VANILLA JS SPA ROUTER 
+        // HASH-BASED SPA ROUTER (Fixes Refresh Bug)
         // ==========================================
-        const basePath = '/phumelela/portal';
-
         const routes = {
-            [`${basePath}`]: `${basePath}/home/index.html`,
-            [`${basePath}/`]: `${basePath}/home/index.html`,
-            [`${basePath}/home`]: `${basePath}/home/index.html`,
-            [`${basePath}/home/`]: `${basePath}/home/index.html`,
-            [`${basePath}/wifi`]: `${basePath}/wifi/index.html`,
-            [`${basePath}/wifi/`]: `${basePath}/wifi/index.html`,
-            [`${basePath}/snags`]: `${basePath}/snags/index.html`,
-            [`${basePath}/snags/`]: `${basePath}/snags/index.html`,
-            [`${basePath}/security`]: `${basePath}/security/index.html`,
-            [`${basePath}/security/`]: `${basePath}/security/index.html`,
-            [`${basePath}/profile`]: `${basePath}/profile/index.html`,
-            [`${basePath}/profile/`]: `${basePath}/profile/index.html`
+            '': 'home/index.html',
+            '#home': 'home/index.html',
+            '#wifi': 'wifi/index.html',
+            '#snags': 'snags/index.html',
+            '#security': 'security/index.html',
+            '#profile': 'profile/index.html'
         };
 
-        async function navigateTo(path) {
+        async function navigateTo(hash) {
             const session = getSessionData();
             
-            // Gateway Security Check
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
-            let targetPath = path;
-
-            // SMOOTH REFRESH BUG FIX
-            if (!isAppUnlocked && path !== basePath && path !== `${basePath}/home` && path !== `${basePath}/profile`) {
+            // Security check + Smooth error message
+            if (!isAppUnlocked && hash !== '#home' && hash !== '' && hash !== '#profile') {
                 showToast("⚠️ Please finish up updating to unlock full portal.", "error");
                 const card = document.getElementById('gateway-unlock-card');
                 if (card) {
                     card.classList.add('border-rose-400', 'bg-rose-50');
                     setTimeout(() => card.classList.remove('border-rose-400', 'bg-rose-50'), 600);
                 }
-                targetPath = `${basePath}/home`; 
+                hash = '#home'; 
             }
 
-            window.history.pushState({}, "", targetPath);
-            const viewUrl = routes[targetPath] || routes[`${basePath}/home`];
+            window.location.hash = hash || '#home';
+            const viewUrl = routes[hash] || 'home/index.html';
             
             try {
                 const response = await fetch(viewUrl);
@@ -459,32 +429,21 @@
                 const html = await response.text();
                 
                 document.getElementById('portal-root').innerHTML = html;
-                updateNavUI(targetPath);
+                updateNavUI(hash);
                 hydrateGatewayEngine(true, session);
-            } catch (error) {
-                console.error("Router Error:", error);
-                showToast("Failed to load module.", "error");
-            }
+            } catch (error) { showToast("Failed to load module.", "error"); }
         }
 
-        window.addEventListener("popstate", () => {
-            navigateTo(window.location.pathname);
+        window.addEventListener("hashchange", () => {
+            navigateTo(window.location.hash);
         });
 
-        function updateNavUI(currentPath) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-blue-600');
-                btn.classList.add('text-slate-400');
-            });
-            if(currentPath.includes('wifi')) {
-                const btn = document.getElementById('nav-wifi'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
-            } else if(currentPath.includes('snags')) {
-                const btn = document.getElementById('nav-snags'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
-            } else if(currentPath.includes('security')) {
-                const btn = document.getElementById('nav-security'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
-            } else {
-                const btn = document.getElementById('nav-home'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600');
-            }
+        function updateNavUI(hash) {
+            document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('text-blue-600'); btn.classList.add('text-slate-400'); });
+            if(hash === '#wifi') { const btn = document.getElementById('nav-wifi'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600'); } 
+            else if(hash === '#snags') { const btn = document.getElementById('nav-snags'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600'); } 
+            else if(hash === '#security') { const btn = document.getElementById('nav-security'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600'); } 
+            else { const btn = document.getElementById('nav-home'); if(btn) btn.classList.replace('text-slate-400', 'text-blue-600'); }
         }
 
         // ==========================================
@@ -497,133 +456,89 @@
                 let parsed = JSON.parse(rawSession);
                 function extract(obj) {
                     if (!obj) return null;
-                    if (typeof obj === 'object' && !Array.isArray(obj)) {
-                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj;
-                    }
+                    if (typeof obj === 'object' && !Array.isArray(obj)) { if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj; }
                     if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
                     else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
                     return null;
                 }
-                let profile = extract(parsed);
-                return profile || (typeof parsed === 'object' ? parsed : {});
+                let profile = extract(parsed); return profile || (typeof parsed === 'object' ? parsed : {});
             } catch (e) { return {}; }
         }
 
         function isValidData(value) {
             if (value === null || value === undefined) return false;
-            const strVal = String(value).trim();
-            return strVal !== '' && strVal !== '--' && strVal !== 'undefined' && strVal.toLowerCase() !== 'new';
+            const strVal = String(value).trim(); return strVal !== '' && strVal !== '--' && strVal !== 'undefined' && strVal.toLowerCase() !== 'new';
         }
 
         async function syncProfileData(silent = false) {
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
+            const session = getSessionData(); const email = session.Email_Address || session.Email;
             if (!email) return session;
 
             try {
                 const queryParams = new URLSearchParams({ Email_Address: email, _t: new Date().getTime() });
                 const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-vetting?${queryParams.toString()}`);
-
                 if (res.ok) {
                     const data = await res.json();
-                    
                     function extract(obj) {
                         if (!obj) return null;
-                        if (typeof obj === 'object' && !Array.isArray(obj)) {
-                            if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj;
-                        }
+                        if (typeof obj === 'object' && !Array.isArray(obj)) { if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj; }
                         if (Array.isArray(obj)) { for (let item of obj) { let f = extract(item); if (f) return f; } } 
                         else if (typeof obj === 'object') { for (let k in obj) { let f = extract(obj[k]); if (f) return f; } }
                         return null;
                     }
-                    
                     let freshProfile = extract(data) || data;
-
                     if (freshProfile) {
-                        freshProfile.Email_Address = email; 
-                        let mergedSession = { ...session };
+                        freshProfile.Email_Address = email; let mergedSession = { ...session };
                         for (let key in freshProfile) {
                             if (isValidData(freshProfile[key])) { mergedSession[key] = freshProfile[key]; } 
                             else if (key === 'Vetting_Status' && !isValidData(freshProfile[key])) { mergedSession[key] = 'Pending Vetting'; }
                         }
-                        
                         if (session.Signed_Lease === "Signed" && (freshProfile.Signed_Lease !== "Signed" && freshProfile.Signed_Lease !== true)) mergedSession.Signed_Lease = "Signed"; 
                         if (session.Doc_Lease_URL === "vaulted_locally" && (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10)) mergedSession.Doc_Lease_URL = "vaulted_locally";
-                        
                         localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
                         hydrateGatewayEngine(true, mergedSession);
                         return mergedSession;
                     }
                 }
-            } catch (error) { if(!silent) console.warn("Live sync delayed, using cache."); }
+            } catch (error) {}
             return session;
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const session = getSessionData();
-            const email = session.Email_Address || session.Email;
-            
-            const authGuard = document.getElementById('authGuard');
-            const welcomeModal = document.getElementById('welcomeModal');
+            const session = getSessionData(); const email = session.Email_Address || session.Email;
+            const authGuard = document.getElementById('authGuard'); const welcomeModal = document.getElementById('welcomeModal');
 
-            if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.href = '/phumelela/signin';
-                return;
-            }
+            if (!email || email === 'pending@student.com' || email === 'unknown@student.com') { window.location.href = '/phumelela/signin'; return; }
 
-            if(authGuard) authGuard.style.display = 'flex';
-            if(welcomeModal) welcomeModal.classList.add('hidden');
+            if(authGuard) authGuard.style.display = 'flex'; if(welcomeModal) welcomeModal.classList.add('hidden');
 
             const mergedSession = await syncProfileData(true);
             const needsInit = !(isValidData(mergedSession.First_Name) && isValidData(mergedSession.Surname) && isValidData(mergedSession.Student_Number));
 
             if (needsInit) {
-                if(authGuard) authGuard.style.display = 'none';
-                if(welcomeModal) welcomeModal.classList.remove('hidden');
+                if(authGuard) authGuard.style.display = 'none'; if(welcomeModal) welcomeModal.classList.remove('hidden');
                 hydrateGatewayEngine(false, mergedSession);
             } else {
                 if(welcomeModal) welcomeModal.classList.add('hidden');
                 if(authGuard) { authGuard.style.opacity = '0'; setTimeout(() => authGuard.style.display = 'none', 500); }
-                
-                navigateTo(window.location.pathname);
+                navigateTo(window.location.hash || '#home');
             }
         });
 
         async function submitWelcomeSetup(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-init-portal');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...';
-            btn.disabled = true;
-
-            const session = getSessionData();
-            const fName = document.getElementById('setup-fname').value.trim();
-            const sName = document.getElementById('setup-sname').value.trim();
-            const studentNum = document.getElementById('setup-student-num').value.trim();
-            const email = session.Email_Address || session.Email || 'unknown@student.com'; 
+            e.preventDefault(); const btn = document.getElementById('btn-init-portal'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Data...'; btn.disabled = true;
+            const session = getSessionData(); const fName = document.getElementById('setup-fname').value.trim(); const sName = document.getElementById('setup-sname').value.trim(); const studentNum = document.getElementById('setup-student-num').value.trim(); const email = session.Email_Address || session.Email || 'unknown@student.com'; 
 
             try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-init-profile', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Email_Address: email, First_Name: fName, Surname: sName, Student_Number: studentNum })
-                });
-
+                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-init-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Email_Address: email, First_Name: fName, Surname: sName, Student_Number: studentNum }) });
                 if (!res.ok) throw new Error("Backend synchronization failed.");
 
                 session.First_Name = fName; session.Surname = sName; session.Student_Number = studentNum; session.Email_Address = email; 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
 
                 const welcomeModal = document.getElementById('welcomeModal');
-                if (welcomeModal) {
-                    welcomeModal.style.opacity = '0';
-                    setTimeout(() => { welcomeModal.classList.add('hidden'); navigateTo(basePath); }, 500);
-                }
-
-            } catch (error) {
-                showToast("Connection error. Ensure network is stable.", "error");
-                btn.innerHTML = 'Initialize Portal <i class="fa-solid fa-arrow-right"></i>'; 
-                btn.disabled = false;
-            }
+                if (welcomeModal) { welcomeModal.style.opacity = '0'; setTimeout(() => { welcomeModal.classList.add('hidden'); navigateTo('#home'); }, 500); }
+            } catch (error) { showToast("Connection error. Ensure network is stable.", "error"); btn.innerHTML = 'Initialize Portal <i class="fa-solid fa-arrow-right"></i>'; btn.disabled = false; }
         }
 
         // ==========================================
@@ -633,19 +548,14 @@
             const session = overrideSession || getSessionData();
             
             const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
-            safeSetText('header-initials', initials);
-            safeSetText('profile-initials', initials);
-            
-            const gatewayAvatar = document.getElementById('gateway-profile-pic');
-            if(gatewayAvatar) gatewayAvatar.textContent = initials;
+            safeSetText('header-initials', initials); safeSetText('profile-initials', initials);
+            const gatewayAvatar = document.getElementById('gateway-profile-pic'); if(gatewayAvatar) gatewayAvatar.textContent = initials;
             
             const fullName = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
-            safeSetText('dyn-fullname-home', fullName);
-            safeSetText('dyn-fullname-profile', fullName);
+            safeSetText('dyn-fullname-home', fullName); safeSetText('dyn-fullname-profile', fullName);
             
             const studentId = isValidData(session.Student_Number) ? String(session.Student_Number) : '--';
-            safeSetText('dyn-id-home', studentId);
-            safeSetText('dyn-id-number', studentId);
+            safeSetText('dyn-id-home', studentId); safeSetText('dyn-id-number', studentId);
             
             try {
                 if (studentId !== '--') {
@@ -674,10 +584,7 @@
             });
 
             const profileUploadBtn = document.getElementById('btn-profile-upload');
-            if(profileUploadBtn) {
-                if (shouldUnlockTabs) profileUploadBtn.classList.remove('hidden');
-                else profileUploadBtn.classList.add('hidden');
-            }
+            if(profileUploadBtn) { if (shouldUnlockTabs) profileUploadBtn.classList.remove('hidden'); else profileUploadBtn.classList.add('hidden'); }
 
             // VISITOR PIN UNLOCK LOGIC
             const visitorPinContainer = document.getElementById('visitor-pin-container');
@@ -715,25 +622,16 @@
                 }
             };
 
-            renderDocButton('doc-btn-id', session.Doc_1_URL_ID);
-            renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg);
-            renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding);
-            renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
+            renderDocButton('doc-btn-id', session.Doc_1_URL_ID); renderDocButton('doc-btn-reg', session.Doc_2_URL_Reg); renderDocButton('doc-btn-fund', session.Doc_3_URL_Funding); renderDocButton('doc-btn-lease', session.Doc_Lease_URL);
 
             const fundingType = session.Funding_Type ? String(session.Funding_Type).toLowerCase() : 'none';
             const payslipRow = document.getElementById('profile-vault-payslip');
             if(payslipRow) {
-                if (fundingType === 'cash' || fundingType === 'cash paying') {
-                    payslipRow.classList.remove('hidden');
-                    renderDocButton('doc-btn-payslip', session.Doc_4_URL_Payslip);
-                } else {
-                    payslipRow.classList.add('hidden');
-                }
+                if (fundingType === 'cash' || fundingType === 'cash paying') { payslipRow.classList.remove('hidden'); renderDocButton('doc-btn-payslip', session.Doc_4_URL_Payslip); } 
+                else { payslipRow.classList.add('hidden'); }
             }
 
-            // Calculation engines
-            let profileFilledCount = 0;
-            profileDataFields.forEach(field => { if (isValidData(session[field])) profileFilledCount++; });
+            let profileFilledCount = 0; profileDataFields.forEach(field => { if (isValidData(session[field])) profileFilledCount++; });
             profilePercentage = Math.round((profileFilledCount / profileDataFields.length) * 100);
 
             vaultPercentage = 0; let requiredDocs = 0; let filledDocs = 0;
@@ -754,38 +652,26 @@
             const progressBarsHtml = `
                 <div onclick="openWizardFlow('profile')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group">
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-blue-500"><i class="fa-regular fa-user"></i> Profile Info</span>
-                            <span class="text-[10px] font-black ${profilePercentage >= 100 ? 'text-emerald-500' : 'text-blue-600'}">${profilePercentage}%</span>
-                        </div>
+                        <div class="flex justify-between items-center mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-blue-500"><i class="fa-regular fa-user"></i> Profile Info</span><span class="text-[10px] font-black ${profilePercentage >= 100 ? 'text-emerald-500' : 'text-blue-600'}">${profilePercentage}%</span></div>
                         <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="${profilePercentage >= 100 ? 'bg-emerald-500' : 'bg-blue-600'} h-1.5 rounded-full transition-all duration-700 ease-out" style="width: ${profilePercentage}%"></div></div>
                     </div>
                     <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-blue-500 flex items-center justify-center text-[10px] shadow-sm"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
                 <div onclick="openWizardFlow('documents')" class="flex items-center justify-between gap-3 p-2 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors tap-effect group border-t border-slate-100">
                     <div class="flex-1">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-indigo-500"><i class="fa-regular fa-folder-open"></i> Documents</span>
-                            <span class="text-[10px] font-black ${vaultPercentage >= 100 ? 'text-emerald-500' : 'text-indigo-500'}">${vaultPercentage}%</span>
-                        </div>
+                        <div class="flex justify-between items-center mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 group-hover:text-indigo-500"><i class="fa-regular fa-folder-open"></i> Documents</span><span class="text-[10px] font-black ${vaultPercentage >= 100 ? 'text-emerald-500' : 'text-indigo-500'}">${vaultPercentage}%</span></div>
                         <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden"><div class="${vaultPercentage >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'} h-1.5 rounded-full transition-all duration-700 ease-out" style="width: ${vaultPercentage}%"></div></div>
                     </div>
                     <button class="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 group-hover:text-indigo-500 flex items-center justify-center text-[10px] shadow-sm"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             `;
 
-            // State Logic Execution on View components 
-            const gatewayCardContent = document.getElementById('gateway-dynamic-content');
-            const gatewayCard = document.getElementById('gateway-unlock-card');
-            const lockIcon = document.getElementById('gateway-lock-icon');
-            
+            const gatewayCardContent = document.getElementById('gateway-dynamic-content'); const gatewayCard = document.getElementById('gateway-unlock-card'); const lockIcon = document.getElementById('gateway-lock-icon');
             const isAdAlerted = isValidData(session.AD_ALERT) && String(session.AD_ALERT).trim().toLowerCase() === 'alerted';
             const isAdminAlerted = isAdAlerted || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isFullySigned;
 
             if (isFullySigned) {
-                safeSetDisplay('gateway-unlock-card', 'none');
-                safeSetDisplay('lease-magic-slot', 'none');
-                safeSetText('dyn-vetting-badge', 'Verified Resident');
+                safeSetDisplay('gateway-unlock-card', 'none'); safeSetDisplay('lease-magic-slot', 'none'); safeSetText('dyn-vetting-badge', 'Verified Resident');
             } 
             else if (isAdminAlerted || (profilePercentage >= 100 && vaultPercentage >= 100)) {
                 if (isAdminAlerted) {
@@ -801,45 +687,25 @@
                     safeSetText('dyn-vetting-badge', isVettingApproved ? 'Vetting Approved' : 'Pending Vetting');
                     
                     const leaseSlot = document.getElementById('lease-magic-slot');
-                    if(leaseSlot) {
-                        leaseSlot.classList.remove('hidden');
-                        leaseSlot.style.display = 'block'; 
-                        setTimeout(() => leaseSlot.classList.remove('opacity-0', 'translate-y-4'), 50);
-                    }
+                    if(leaseSlot) { leaseSlot.classList.remove('hidden'); leaseSlot.style.display = 'block'; setTimeout(() => leaseSlot.classList.remove('opacity-0', 'translate-y-4'), 50); }
 
                     if (!isVettingApproved) {
                         safeSetHtml('home-lease-status', '<i class="fa-solid fa-clock mr-1"></i> Pending Vetting');
-                        const leaseStatusEl = document.getElementById('home-lease-status');
-                        if (leaseStatusEl) leaseStatusEl.className = 'text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5';
-                        
+                        const leaseStatusEl = document.getElementById('home-lease-status'); if (leaseStatusEl) leaseStatusEl.className = 'text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5';
                         const leaseBtnEl = document.getElementById('btn-home-lease');
-                        if(leaseBtnEl) {
-                            leaseBtnEl.innerHTML = 'Review Terms <i class="fa-solid fa-file-contract"></i>';
-                            leaseBtnEl.className = 'w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 tap-effect';
-                            leaseBtnEl.onclick = () => handleLeaseReview(leaseBtnEl);
-                        }
+                        if(leaseBtnEl) { leaseBtnEl.innerHTML = 'Review Terms <i class="fa-solid fa-file-contract"></i>'; leaseBtnEl.className = 'w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl py-3 text-xs shadow-sm transition-all flex items-center justify-center gap-2 tap-effect'; leaseBtnEl.onclick = () => handleLeaseReview(leaseBtnEl); }
                         
-                        const sigContainer = document.getElementById('signature-area-container');
-                        if(sigContainer) sigContainer.classList.remove('hidden');
+                        const sigContainer = document.getElementById('signature-area-container'); if(sigContainer) sigContainer.classList.remove('hidden');
                         const sigLockedState = document.getElementById('sig-locked-state');
-                        if(sigLockedState) {
-                            sigLockedState.classList.remove('hidden');
-                            sigLockedState.innerHTML = `<i class="fa-solid fa-file-shield text-orange-400 text-3xl mb-3"></i><p class="text-sm font-bold text-orange-700 tracking-tight">Signature Locked</p><p class="text-xs text-orange-600 mt-1 font-medium leading-relaxed">You can digitally sign this lease once administration approves your vetting status.</p>`;
-                        }
+                        if(sigLockedState) { sigLockedState.classList.remove('hidden'); sigLockedState.innerHTML = `<i class="fa-solid fa-file-shield text-orange-400 text-3xl mb-3"></i><p class="text-sm font-bold text-orange-700 tracking-tight">Signature Locked</p><p class="text-xs text-orange-600 mt-1 font-medium leading-relaxed">You can digitally sign this lease once administration approves your vetting status.</p>`; }
                         safeSetDisplay('sig-active-state', 'none');
                     } else {
                         safeSetHtml('home-lease-status', '<i class="fa-solid fa-check mr-1"></i> Vetting Approved');
-                        const leaseStatusEl = document.getElementById('home-lease-status');
-                        if(leaseStatusEl) leaseStatusEl.className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
-                        
+                        const leaseStatusEl = document.getElementById('home-lease-status'); if(leaseStatusEl) leaseStatusEl.className = 'text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5';
                         const leaseBtnEl = document.getElementById('btn-home-lease');
-                        if(leaseBtnEl) {
-                            leaseBtnEl.innerHTML = 'Review & Sign <i class="fa-solid fa-arrow-right"></i>';
-                            leaseBtnEl.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect';
-                            leaseBtnEl.onclick = () => handleLeaseReview(leaseBtnEl);
-                        }
-                        const sigContainer = document.getElementById('signature-area-container');
-                        if(sigContainer) sigContainer.classList.remove('hidden');
+                        if(leaseBtnEl) { leaseBtnEl.innerHTML = 'Review & Sign <i class="fa-solid fa-arrow-right"></i>'; leaseBtnEl.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect'; leaseBtnEl.onclick = () => handleLeaseReview(leaseBtnEl); }
+                        
+                        const sigContainer = document.getElementById('signature-area-container'); if(sigContainer) sigContainer.classList.remove('hidden');
                         if(document.getElementById('sig-locked-state')) document.getElementById('sig-locked-state').classList.add('hidden');
                         if(document.getElementById('sig-active-state')) document.getElementById('sig-active-state').classList.remove('hidden');
                     }
@@ -852,38 +718,38 @@
                             </button>
                         </div>
                     `;
-                    safeSetDisplay('lease-magic-slot', 'none');
-                    if(lockIcon) lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
-                    safeSetText('gateway-status-text', "Profile complete. Please alert the admin to finalize your application.");
-                    safeSetText('dyn-vetting-badge', 'Action Required');
+                    safeSetDisplay('lease-magic-slot', 'none'); if(lockIcon) lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
+                    safeSetText('gateway-status-text', "Profile complete. Please alert the admin to finalize your application."); safeSetText('dyn-vetting-badge', 'Action Required');
                 }
             } else {
                 if(gatewayCardContent) gatewayCardContent.innerHTML = progressBarsHtml;
-                safeSetDisplay('lease-magic-slot', 'none');
-                if(lockIcon) lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
+                safeSetDisplay('lease-magic-slot', 'none'); if(lockIcon) lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
                 safeSetText('gateway-status-text', "Complete your Profile Info and Documents to unlock access.");
                 if(gatewayCard) gatewayCard.className = 'bg-white card-shadow soft-border rounded-[28px] p-5 relative overflow-hidden transition-all duration-300 border-2 border-transparent';
                 safeSetText('dyn-vetting-badge', 'Pending Vetting');
             }
 
-            // Syncing inputs inside forms
             const wizardModal = document.getElementById('setupWizardModal');
-            const wizardModalActive = wizardModal && wizardModal.classList.contains('active');
-            
-            if (!isSilentBackgroundUpdate || !wizardModalActive) {
+            if (!isSilentBackgroundUpdate || (wizardModal && !wizardModal.classList.contains('active'))) {
                 const form = document.getElementById('wizardForm');
-                if(form) {
-                    const inputs = form.elements;
-                    for (let i = 0; i < inputs.length; i++) {
-                        if (inputs[i].name) { inputs[i].value = isValidData(session[inputs[i].name]) ? session[inputs[i].name] : ''; }
-                    }
-                }
+                if(form) { const inputs = form.elements; for (let i = 0; i < inputs.length; i++) { if (inputs[i].name) { inputs[i].value = isValidData(session[inputs[i].name]) ? session[inputs[i].name] : ''; } } }
             }
         }
 
         // ==========================================
         // REMAINING UTILITIES 
         // ==========================================
+        function generateVisitorPin(btn) {
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            setTimeout(() => {
+                const pin = Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('pin-request-state').classList.add('hidden');
+                document.getElementById('pin-active-state').classList.remove('hidden');
+                document.getElementById('generated-pin').innerText = pin;
+            }, 800);
+        }
+
         async function checkVettingStatus(btnElement) {
             const icon = btnElement.querySelector('i');
             icon.classList.remove('fa-spin'); icon.classList.add('spin-once');
@@ -922,38 +788,19 @@
             } catch (error) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; showToast("Failed to alert admin. Check connection.", "error"); }
         }
 
-        // PORTAL REQUESTS ENGINE (Room Change / Terminate Lease)
         async function submitPortalRequest(type, textareaId, btnElement) {
-            const session = getSessionData();
-            const reason = document.getElementById(textareaId).value.trim();
+            const session = getSessionData(); const reason = document.getElementById(textareaId).value.trim();
             if (!reason) { showToast("Please provide a reason.", "error"); return; }
             
-            const ogHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
-            btnElement.disabled = true;
-
+            const ogHtml = btnElement.innerHTML; btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; btnElement.disabled = true;
             try {
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-portal-requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Student_Number: session.Student_Number || 'Unknown',
-                        Request_Type: type,
-                        Reason: reason,
-                        Email_Address: session.Email_Address
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Student_Number: session.Student_Number || 'Unknown', Request_Type: type, Reason: reason, Email_Address: session.Email_Address })
                 });
                 if (!res.ok) throw new Error();
-                
-                showToast("Request submitted successfully.", "success");
-                document.getElementById(textareaId).value = '';
-                closeModal(type === 'Room Change' ? 'roomChangeModal' : 'terminateLeaseModal');
-            } catch (e) {
-                showToast("Submission failed. Try again.", "error");
-            } finally {
-                btnElement.innerHTML = ogHtml;
-                btnElement.disabled = false;
-            }
+                showToast("Request submitted successfully.", "success"); document.getElementById(textareaId).value = ''; closeModal(type === 'Room Change' ? 'roomChangeModal' : 'terminateLeaseModal');
+            } catch (e) { showToast("Submission failed. Try again.", "error"); } finally { btnElement.innerHTML = ogHtml; btnElement.disabled = false; }
         }
 
         function handleProfilePicUpload(event) {
@@ -971,9 +818,7 @@
 
         function applyProfilePic(base64Img) {
             if(!base64Img) return;
-            safeSetHtml('header-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
-            safeSetHtml('profile-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
-            safeSetHtml('gateway-profile-pic', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
+            safeSetHtml('header-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`); safeSetHtml('profile-initials', `<img src="${base64Img}" class="w-full h-full object-cover" />`); safeSetHtml('gateway-profile-pic', `<img src="${base64Img}" class="w-full h-full object-cover" />`);
         }
 
         let sigCanvas, sigCtx, isSigning = false, signatureHasDrawn = false;
@@ -1020,14 +865,10 @@
         function openModalWithCategory(categoryStr) { const el = document.getElementById('snag-category'); if(el) el.value = categoryStr; openModal('snagModal'); }
         async function submitSnag(e) { e.preventDefault(); const btn = document.getElementById('btn-submit-snag'); btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true; try { setTimeout(()=>{ closeModal('snagModal'); showToast("Ticket submitted. Maintenance notified.", "success"); document.getElementById('snagForm').reset(); btn.innerHTML = 'Submit Ticket <i class="fa-solid fa-arrow-right"></i>'; btn.disabled = false; }, 800); } catch(err){} }
 
-        function openShuttleMap() { openModal('shuttleMapModal'); }
-        function closeShuttleMap() { closeModal('shuttleMapModal'); }
-        function openCustomMessagePrompt() { openModal('customMsgModal'); }
-        async function submitCustomDriverMsg(btnElement) { closeModal('customMsgModal'); showToast("Sent to dispatch", "success"); }
-        async function sendShuttleRequest(type, msgText, btnElement) { showToast("Request sent", "success"); }
+        function openShuttleMap() { openModal('shuttleMapModal'); } function closeShuttleMap() { closeModal('shuttleMapModal'); }
+        function openCustomMessagePrompt() { openModal('customMsgModal'); } async function submitCustomDriverMsg(btnElement) { closeModal('customMsgModal'); showToast("Sent to dispatch", "success"); } async function sendShuttleRequest(type, msgText, btnElement) { showToast("Request sent", "success"); }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openModal(id) { document.getElementById(id).classList.add('active'); } function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
@@ -1053,11 +894,8 @@
             document.querySelectorAll('#wizardForm .doc-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`wizard-step-${currentWizardStep}`).classList.add('active');
             
-            const titles = ["", "Personal Details", "Emergency & Care", "Secure Document Vault"];
-            document.getElementById('wizard-title').textContent = titles[currentWizardStep];
-            
-            const stepIndicators = { 1: "Step 1 of 2", 2: "Step 2 of 2", 3: "Encrypted Upload" };
-            document.getElementById('wizard-step-indicator').textContent = stepIndicators[currentWizardStep];
+            const titles = ["", "Personal Details", "Emergency & Care", "Secure Document Vault"]; document.getElementById('wizard-title').textContent = titles[currentWizardStep];
+            const stepIndicators = { 1: "Step 1 of 2", 2: "Step 2 of 2", 3: "Encrypted Upload" }; document.getElementById('wizard-step-indicator').textContent = stepIndicators[currentWizardStep];
             
             const btnBack = document.getElementById('btn-wizard-back'); const btnNext = document.getElementById('btn-wizard-next');
             const btnProfileSubmit = document.getElementById('btn-profile-submit'); const btnVaultSubmit = document.getElementById('btn-vault-submit');
@@ -1071,10 +909,8 @@
         }
 
         function selectFunding(type) {
-            activeFundingType = type;
-            document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
-            document.getElementById('btn-' + type).classList.add('active');
-            document.querySelectorAll('#wizard-step-3 .doc-section').forEach(section => section.classList.remove('active'));
+            activeFundingType = type; document.querySelectorAll('.funding-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('btn-' + type).classList.add('active'); document.querySelectorAll('#wizard-step-3 .doc-section').forEach(section => section.classList.remove('active'));
             document.getElementById('req-' + type).classList.add('active');
         }
 
@@ -1088,8 +924,7 @@
         }
 
         async function submitProfileData() {
-            const btn = document.getElementById('btn-profile-submit');
-            const ogHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...'; btn.disabled = true;
+            const btn = document.getElementById('btn-profile-submit'); const ogHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...'; btn.disabled = true;
             const formData = new FormData(); const session = getSessionData(); formData.append('Email_Address', session.Email_Address || '');
             const appendInputs = (sectionId) => { const inputs = document.getElementById(sectionId).querySelectorAll('input, select, textarea'); inputs.forEach(input => { if (input.name) { formData.append(input.name, input.value); session[input.name] = input.value; } }); };
             appendInputs('wizard-step-1'); appendInputs('wizard-step-2');
@@ -1097,8 +932,7 @@
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-update-profile', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
-                localStorage.setItem('reziflow_session', JSON.stringify(session));
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+                localStorage.setItem('reziflow_session', JSON.stringify(session)); btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
                 setTimeout(() => { closeWizardModal(); hydrateGatewayEngine(false, session); showToast("Profile Info updated securely.", "success"); btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900'); }, 800);
             } catch (error) { btn.innerHTML = ogHtml; btn.disabled = false; showToast("Transmission failed.", "error"); }
         }
@@ -1121,8 +955,7 @@
             try {
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-vault-docs', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Webhook rejected");
-                localStorage.setItem('reziflow_session', JSON.stringify(session));
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Vaulted'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+                localStorage.setItem('reziflow_session', JSON.stringify(session)); btn.innerHTML = '<i class="fa-solid fa-check"></i> Vaulted'; btn.classList.replace('bg-slate-900', 'bg-emerald-500');
                 setTimeout(() => { closeWizardModal(); hydrateGatewayEngine(false, session); showToast("Documents securely vaulted.", "success"); btn.innerHTML = ogHtml; btn.disabled = false; btn.classList.replace('bg-emerald-500', 'bg-slate-900'); }, 800);
             } catch (error) { btn.innerHTML = ogHtml; btn.disabled = false; showToast("Transmission failed. Please check network.", "error"); }
         }
