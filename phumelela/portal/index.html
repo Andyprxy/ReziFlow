@@ -328,7 +328,7 @@
                 <button onclick="closeModal('leaseModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto custom-scroll my-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed font-medium relative z-10">
-                <a href="/phumelela/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner"><i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)</a>
+                <a href="/ReziFlow/phumelela/portal/lease.pdf" target="_blank" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl py-3 mb-4 flex items-center justify-center gap-2 transition-colors tap-effect shadow-inner"><i class="fa-solid fa-file-pdf text-rose-500"></i> Read Full Lease (PDF)</a>
                 <p class="mb-2">1. The resident agrees to abide by all house rules, noise curfews, and maintenance protocols.</p>
                 <p>2. This digital signature is legally binding.</p>
             </div>
@@ -381,20 +381,24 @@
         const safeSetDisplay = (id, display) => { const el = document.getElementById(id); if (el) el.style.display = display; };
         
         // ==========================================
-        // VANILLA JS SPA ROUTER
+        // VANILLA JS SPA ROUTER (GITHUB PAGES OPTIMIZED)
         // ==========================================
-        // Define your base project path here
         const basePath = '/ReziFlow/phumelela/portal';
 
-        // Keys = The clean URL the user sees in the browser
-        // Values = The physical subfile the router actually fetches
+        // Maps the browser URL to the physical GitHub Pages directory files
         const routes = {
-            [`${basePath}`]: `${basePath}/views/home.html`,
-            [`${basePath}/home`]: `${basePath}/views/home.html`,
-            [`${basePath}/wifi`]: `${basePath}/views/wifi.html`,
-            [`${basePath}/snags`]: `${basePath}/views/snags.html`,
-            [`${basePath}/security`]: `${basePath}/views/security.html`,
-            [`${basePath}/profile`]: `${basePath}/views/profile.html`
+            [`${basePath}`]: `${basePath}/home/index.html`,
+            [`${basePath}/`]: `${basePath}/home/index.html`,
+            [`${basePath}/home`]: `${basePath}/home/index.html`,
+            [`${basePath}/home/`]: `${basePath}/home/index.html`,
+            [`${basePath}/wifi`]: `${basePath}/wifi/index.html`,
+            [`${basePath}/wifi/`]: `${basePath}/wifi/index.html`,
+            [`${basePath}/snags`]: `${basePath}/snags/index.html`,
+            [`${basePath}/snags/`]: `${basePath}/snags/index.html`,
+            [`${basePath}/security`]: `${basePath}/security/index.html`,
+            [`${basePath}/security/`]: `${basePath}/security/index.html`,
+            [`${basePath}/profile`]: `${basePath}/profile/index.html`,
+            [`${basePath}/profile/`]: `${basePath}/profile/index.html`
         };
 
         async function navigateTo(path) {
@@ -424,7 +428,7 @@
             const viewUrl = routes[path] || routes[`${basePath}/home`];
             
             try {
-                // Fetch the HTML component
+                // Fetch the HTML component from the GitHub folder
                 const response = await fetch(viewUrl);
                 if (!response.ok) throw new Error("View not found");
                 const html = await response.text();
@@ -538,7 +542,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.href = '/phumelela/signin';
+                window.location.href = '/ReziFlow/phumelela/signin';
                 return;
             }
 
@@ -556,7 +560,7 @@
                 if(welcomeModal) welcomeModal.classList.add('hidden');
                 if(authGuard) { authGuard.style.opacity = '0'; setTimeout(() => authGuard.style.display = 'none', 500); }
                 
-                // Initialize Router -> Determine which component to load based on URL
+                // Initialize Router -> Determine which component to load based on GitHub URL
                 navigateTo(window.location.pathname);
             }
         });
@@ -965,7 +969,7 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
+        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/ReziFlow/phumelela/signin'; }
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
             text.textContent = message; if(type === 'error') icon.className = 'fa-solid fa-triangle-exclamation text-rose-500'; else icon.className = 'fa-solid fa-circle-check text-emerald-400';
