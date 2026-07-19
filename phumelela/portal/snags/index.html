@@ -1,37 +1,122 @@
 <div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
-    <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
-        <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">Maintenance</h2>
-        <p class="text-sm text-slate-500 mb-6 font-medium">Report issues for your room</p>
-        
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-slate-50 p-4 rounded-[20px] border border-slate-100/50 flex flex-col items-center gap-2 tap-effect cursor-pointer hover:bg-blue-50 transition-colors" onclick="openModalWithCategory('Plumbing')">
-                <i class="fa-solid fa-faucet-drip text-blue-500 text-2xl mb-1"></i>
-                <span class="text-xs font-bold text-slate-700">Plumbing</span>
+    
+    <!-- HEADER & QUICK ACTIONS -->
+    <div class="bg-white card-shadow soft-border rounded-[28px] p-5">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Maintenance</h2>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Report & track room issues</p>
             </div>
-            <div class="bg-slate-50 p-4 rounded-[20px] border border-slate-100/50 flex flex-col items-center gap-2 tap-effect cursor-pointer hover:bg-yellow-50 transition-colors" onclick="openModalWithCategory('Electrical')">
-                <i class="fa-solid fa-plug text-yellow-500 text-2xl mb-1"></i>
-                <span class="text-xs font-bold text-slate-700">Electrical</span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-[20px] border border-slate-100/50 flex flex-col items-center gap-2 tap-effect cursor-pointer hover:bg-orange-50 transition-colors" onclick="openModalWithCategory('Furniture')">
-                <i class="fa-solid fa-chair text-orange-500 text-2xl mb-1"></i>
-                <span class="text-xs font-bold text-slate-700">Furniture</span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-[20px] border border-slate-100/50 flex flex-col items-center gap-2 tap-effect cursor-pointer hover:bg-slate-100 transition-colors" onclick="openModalWithCategory('Locks')">
-                <i class="fa-solid fa-door-closed text-slate-500 text-2xl mb-1"></i>
-                <span class="text-xs font-bold text-slate-700">Doors/Locks</span>
-            </div>
+            <button onclick="openModal('snagModal')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center tap-effect shadow-md shadow-blue-500/30 transition-colors">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
 
-        <button onclick="openModal('snagModal')" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-4 flex items-center justify-center gap-3 tap-effect shadow-md shadow-blue-500/20 transition-colors font-bold mb-6">
-            <i class="fa-solid fa-plus"></i> Log New Snag
-        </button>
-        
-        <div class="text-left border-t border-slate-100 pt-6">
-            <p class="text-sm font-bold text-slate-800 mb-3">Active Tickets</p>
-            <div class="p-4 bg-slate-50 rounded-[20px] border border-slate-100 text-center text-slate-500 text-sm py-8 font-medium">
-                No active maintenance requests.
+        <!-- COMPACT HORIZONTAL QUICK ACTIONS (Apple-style) -->
+        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
+            <div onclick="openModalWithCategory('Plumbing')" class="bg-[#f5f5f7] hover:bg-blue-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-faucet-drip"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Plumbing</span>
+            </div>
+            <div onclick="openModalWithCategory('Electrical')" class="bg-[#f5f5f7] hover:bg-yellow-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-yellow-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-plug"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Electrical</span>
+            </div>
+            <div onclick="openModalWithCategory('Furniture')" class="bg-[#f5f5f7] hover:bg-orange-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-orange-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chair"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Furniture</span>
+            </div>
+            <div onclick="openModalWithCategory('Locks')" class="bg-[#f5f5f7] hover:bg-slate-100 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-600 group-hover:scale-110 transition-transform"><i class="fa-solid fa-door-closed"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Locks</span>
             </div>
         </div>
     </div>
+
+    <!-- ACTIVE TICKETS (Uber Eats Style) -->
+    <div>
+        <h3 class="text-xs font-bold text-slate-800 mb-3 ml-2 uppercase tracking-widest">Active Tracker</h3>
+        
+        <!-- SAMPLE TICKET -->
+        <div class="bg-white border border-slate-100 rounded-[28px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
+            
+            <!-- TICKET HEADER -->
+            <div class="flex justify-between items-start mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                        <i class="fa-solid fa-faucet-drip text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900 tracking-tight">Leaking Shower Head</h4>
+                        <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">Ticket #8042</p>
+                    </div>
+                </div>
+                <span class="bg-blue-600 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm shadow-blue-500/30 flex items-center gap-1.5 animate-pulse">
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> In Progress
+                </span>
+            </div>
+
+            <!-- PROGRESS TIMELINE -->
+            <div class="relative pt-2 pb-5 px-1">
+                <!-- Background Line -->
+                <div class="absolute left-0 top-[13px] w-full h-1 bg-slate-100 rounded-full z-0"></div>
+                <!-- Active Line (Adjust width based on status: 0%, 33%, 66%, 100%) -->
+                <div class="absolute left-0 top-[13px] w-[66%] h-1 bg-blue-500 rounded-full z-0 transition-all duration-1000 ease-in-out"></div>
+                
+                <!-- Dots -->
+                <div class="relative z-10 flex justify-between">
+                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
+                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
+                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm ring-offset-1 ring-offset-blue-100"></div>
+                    <div class="w-3.5 h-3.5 bg-slate-200 rounded-full ring-4 ring-white shadow-sm"></div>
+                </div>
+                
+                <!-- Labels -->
+                <div class="flex justify-between mt-2 -mx-2">
+                    <span class="text-[8px] font-bold text-slate-500 uppercase w-1/4 text-center">Logged</span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase w-1/4 text-center">Reviewed</span>
+                    <span class="text-[8px] font-black text-blue-600 uppercase w-1/4 text-center">Working</span>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase w-1/4 text-center">Resolved</span>
+                </div>
+            </div>
+
+            <!-- COLLAPSIBLE CHAT MODULE -->
+            <div class="mt-2 bg-[#f5f5f7] rounded-[20px] overflow-hidden border border-slate-100 transition-all duration-300">
+                <!-- Toggle Button -->
+                <button onclick="toggleSnagChat('8042')" class="w-full py-3.5 px-4 flex justify-between items-center tap-effect">
+                    <span class="text-[11px] font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-regular fa-comments text-blue-500 text-sm"></i> Live Officer Chat <span class="bg-rose-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">1 New</span>
+                    </span>
+                    <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400" id="chat-icon-8042" style="transition: transform 0.3s ease;">
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </div>
+                </button>
+
+                <!-- Hidden Chat Area -->
+                <div id="chat-body-8042" class="hidden bg-white px-4 pb-4 pt-2 border-t border-slate-100">
+                    <div class="h-40 overflow-y-auto custom-scroll space-y-3 pr-2 mb-3 flex flex-col" id="chat-history-8042">
+                        <!-- Auto System Message -->
+                        <div class="flex justify-center"><span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Ticket assigned to Sipho (Maintenance)</span></div>
+                        
+                        <!-- Message from Officer -->
+                        <div class="flex gap-2 items-end">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-slate-500">S</div>
+                            <div class="bg-[#f5f5f7] rounded-tr-xl rounded-br-xl rounded-bl-xl p-2.5 text-[11px] text-slate-700 font-medium w-fit max-w-[80%] border border-slate-100">
+                                Hi, I'm on my way up to floor 2 with the toolkit. Will be there in 5 mins.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Input Area -->
+                    <div class="flex gap-2 items-center bg-[#f5f5f7] p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:bg-white transition-colors">
+                        <input type="text" id="chat-input-8042" placeholder="Message Sipho..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400">
+                        <button onclick="sendSnagMessage('8042')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
 </div>
-<script>if(window.location.pathname.endsWith('/snags/') || window.location.pathname.endsWith('/snags/index.html')) window.location.href = '../';</script>
