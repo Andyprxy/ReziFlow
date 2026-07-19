@@ -1,0 +1,80 @@
+<div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
+    <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
+        <div class="relative z-10 flex justify-between items-start mb-8">
+            <div>
+                <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Pending Vetting</p>
+                <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight tracking-tight">Loading...</h1>
+            </div>
+            <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
+                <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse"></span> Active
+            </div>
+        </div>
+        <div class="relative z-10 flex gap-8">
+            <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Student ID</p><p id="dyn-id-home" class="font-bold text-sm">--</p></div>
+            <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Room</p><p id="dyn-room-home" class="font-bold text-sm">--</p></div>
+        </div>
+    </section>
+
+    <section id="gateway-unlock-card" class="bg-white card-shadow soft-border rounded-[28px] p-5 relative overflow-hidden transition-all duration-300 border-2 border-transparent">
+        <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
+        <div class="flex items-center gap-4 relative z-10 mb-4">
+            <img src="../../signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
+            <div>
+                <div class="flex items-center gap-2 mb-0.5"><h3 class="text-sm font-black text-slate-900 tracking-tight">Gateway Protocol</h3><i id="gateway-lock-icon" class="fa-solid fa-lock text-rose-500 text-xs"></i></div>
+                <p id="gateway-status-text" class="text-[10px] text-slate-500 font-medium leading-snug pr-2">Finish setting up your profile to unlock Wi-Fi & Transit.</p>
+            </div>
+        </div>
+        <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300"></div>
+    </section>
+
+    <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500 mt-2">
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-cyan-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="flex justify-between items-start mb-4 relative z-10">
+            <div class="pr-2">
+                <h3 class="text-base font-black text-slate-900 mb-1 tracking-tight">Accommodation Lease</h3>
+                <p class="text-[11px] text-slate-600 font-medium leading-relaxed">Review the terms of residency. You will be able to officially sign the contract once administration approves your vetting status.</p>
+            </div>
+            <div class="flex flex-col items-center flex-shrink-0 pt-1">
+                <button onclick="checkVettingStatus(this)" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-blue-600 flex items-center justify-center text-sm shadow-sm hover:bg-blue-50 transition-colors tap-effect group" title="Check Vetting Status">
+                    <i class="fa-solid fa-rotate group-hover:rotate-180 transition-transform duration-500"></i>
+                </button>
+                <span class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1 text-center">Refresh<br>Status</span>
+            </div>
+        </div>
+        
+        <div class="bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] p-4 flex flex-col gap-4 relative z-10 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100/80 text-blue-600 flex items-center justify-center text-lg shadow-sm flex-shrink-0">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-800 tracking-tight">2026 Academic Year Lease</p>
+                    <p id="home-lease-status" class="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Status Pending
+                    </p>
+                </div>
+            </div>
+            <button onclick="handleLeaseReview(this)" id="btn-home-lease" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect">
+                Review Terms <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <section>
+        <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
+        <div class="flex gap-3">
+            <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
+            <button onclick="openModal('visitorModal')" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
+        </div>
+    </section>
+    
+    <div id="pin-display-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center mt-2 shadow-sm">
+        <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
+        <p id="generated-pin" class="text-3xl font-mono font-bold text-slate-800 tracking-widest">------</p>
+        <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
+    </div>
+</div>
+<script>if(window.location.pathname.endsWith('/home/') || window.location.pathname.endsWith('/home/index.html')) window.location.href = '../';</script>
