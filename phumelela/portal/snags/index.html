@@ -1,163 +1,21 @@
-<div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
-    
-    <!-- HEADER & QUICK ACTIONS -->
-    <div class="bg-white card-shadow soft-border rounded-[28px] p-5">
-        <div class="flex justify-between items-center mb-4">
-            <div>
-                <h2 class="text-xl font-black text-slate-900 tracking-tight">Maintenance</h2>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">Report & track room issues</p>
-            </div>
-            <button onclick="openModal('snagModal')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center tap-effect shadow-md shadow-blue-500/30 transition-colors">
-                <i class="fa-solid fa-plus"></i>
-            </button>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World Test</title>
+</head>
+<body style="font-family: sans-serif; padding: 2rem;">
 
-        <!-- COMPACT HORIZONTAL QUICK ACTIONS -->
-        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
-            <div onclick="openModalWithCategory('Plumbing')" class="bg-[#f5f5f7] hover:bg-blue-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-faucet-drip"></i></div>
-                <span class="text-[10px] font-bold text-slate-700">Plumbing</span>
-            </div>
-            <div onclick="openModalWithCategory('Electrical')" class="bg-[#f5f5f7] hover:bg-yellow-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-yellow-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-plug"></i></div>
-                <span class="text-[10px] font-bold text-slate-700">Electrical</span>
-            </div>
-            <div onclick="openModalWithCategory('Furniture')" class="bg-[#f5f5f7] hover:bg-orange-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-orange-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chair"></i></div>
-                <span class="text-[10px] font-bold text-slate-700">Furniture</span>
-            </div>
-            <div onclick="openModalWithCategory('Locks')" class="bg-[#f5f5f7] hover:bg-slate-100 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-600 group-hover:scale-110 transition-transform"><i class="fa-solid fa-door-closed"></i></div>
-                <span class="text-[10px] font-bold text-slate-700">Locks</span>
-            </div>
-        </div>
-    </div>
+    <h1>Hello, World!</h1>
+    <p>This is a plain HTML test file.</p>
 
-    <!-- ACTIVE TICKETS -->
-    <div>
-        <h3 class="text-xs font-bold text-slate-800 mb-3 ml-2 uppercase tracking-widest">Active Tracker</h3>
-        
-        <div class="bg-white border border-slate-100 rounded-[28px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
-            
-            <div class="flex justify-between items-start mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                        <i class="fa-solid fa-faucet-drip text-lg"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-black text-slate-900 tracking-tight">Leaking Shower Head</h4>
-                        <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">Ticket #8042</p>
-                    </div>
-                </div>
-                <span class="bg-blue-600 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm shadow-blue-500/30 flex items-center gap-1.5 animate-pulse">
-                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> In Progress
-                </span>
-            </div>
+    <button 
+        type="button" 
+        onclick="console.log('✅ JS is alive!'); alert('JavaScript successfully fired!');"
+        style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+        Test Button
+    </button>
 
-            <div class="relative pt-2 pb-5 px-1">
-                <div class="absolute left-0 top-[13px] w-full h-1 bg-slate-100 rounded-full z-0"></div>
-                <div class="absolute left-0 top-[13px] w-[66%] h-1 bg-blue-500 rounded-full z-0 transition-all duration-1000 ease-in-out"></div>
-                
-                <div class="relative z-10 flex justify-between">
-                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
-                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
-                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm ring-offset-1 ring-offset-blue-100"></div>
-                    <div class="w-3.5 h-3.5 bg-slate-200 rounded-full ring-4 ring-white shadow-sm"></div>
-                </div>
-                
-                <div class="flex justify-between mt-2 -mx-2">
-                    <span class="text-[8px] font-bold text-slate-500 uppercase w-1/4 text-center">Logged</span>
-                    <span class="text-[8px] font-bold text-slate-500 uppercase w-1/4 text-center">Reviewed</span>
-                    <span class="text-[8px] font-black text-blue-600 uppercase w-1/4 text-center">Working</span>
-                    <span class="text-[8px] font-bold text-slate-400 uppercase w-1/4 text-center">Resolved</span>
-                </div>
-            </div>
-
-            <!-- COLLAPSIBLE CHAT MODULE WITH INLINE BYPASS -->
-            <div class="mt-2 bg-[#f5f5f7] rounded-[20px] overflow-hidden border border-slate-100 transition-all duration-300">
-                
-                <!-- TOGGLE & GET POLLING BUTTON -->
-                <button type="button" onclick="
-                    const chatBody = document.getElementById('chat-body-8042');
-                    const icon = document.getElementById('chat-icon-8042');
-                    
-                    const fetchChat = () => {
-                        fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat?ticket_id=8042')
-                            .then(res => res.json())
-                            .then(messages => {
-                                const history = document.getElementById('chat-history-8042');
-                                if(!history) return;
-                                let html = `<div class='flex justify-center'><span class='text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100'>Live chat initialized</span></div>`;
-                                messages.forEach(msg => {
-                                    if(msg.sender_role === 'student') {
-                                        html += `<div class='flex gap-2 items-end flex-row-reverse mt-2'><div class='bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm'>${msg.message_text}</div></div>`;
-                                    } else {
-                                        const initial = msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : 'O';
-                                        html += `<div class='flex gap-2 items-end mt-2'><div class='w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-slate-500'>${initial}</div><div class='bg-[#f5f5f7] rounded-tr-xl rounded-br-xl rounded-bl-xl p-2.5 text-[11px] text-slate-700 font-medium w-fit max-w-[80%] border border-slate-100'>${msg.message_text}</div></div>`;
-                                    }
-                                });
-                                if(history.innerHTML !== html) {
-                                    history.innerHTML = html;
-                                    history.scrollTop = history.scrollHeight;
-                                }
-                            }).catch(e => console.warn('Sync pending...', e));
-                    };
-
-                    if (chatBody.classList.contains('hidden')) {
-                        chatBody.classList.remove('hidden');
-                        icon.style.transform = 'rotate(180deg)';
-                        fetchChat();
-                        window.chatInterval8042 = setInterval(fetchChat, 4000);
-                    } else {
-                        chatBody.classList.add('hidden');
-                        icon.style.transform = 'rotate(0deg)';
-                        if(window.chatInterval8042) clearInterval(window.chatInterval8042);
-                    }
-                " class="w-full py-3.5 px-4 flex justify-between items-center tap-effect">
-                    <span class="text-[11px] font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-regular fa-comments text-blue-500 text-sm"></i> Live Officer Chat
-                    </span>
-                    <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400" id="chat-icon-8042" style="transition: transform 0.3s ease;">
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </div>
-                </button>
-
-                <div id="chat-body-8042" class="hidden bg-white px-4 pb-4 pt-2 border-t border-slate-100">
-                    <div class="h-40 overflow-y-auto custom-scroll space-y-3 pr-2 mb-3 flex flex-col" id="chat-history-8042">
-                        <div class="flex justify-center"><span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Connecting to node...</span></div>
-                    </div>
-                    
-                    <div class="flex gap-2 items-center bg-[#f5f5f7] p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:bg-white transition-colors">
-                        <input type="text" id="chat-input-8042" placeholder="Type a message..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400">
-                        
-                        <!-- SEND POST BUTTON -->
-                        <button type="button" onclick="
-                            event.preventDefault();
-                            const input = document.getElementById('chat-input-8042');
-                            if(!input || !input.value.trim()) return;
-                            const text = input.value.trim();
-                            console.log('🚀 Inline bypass fired! Text:', text);
-                            
-                            const chatHistory = document.getElementById('chat-history-8042');
-                            if(chatHistory) {
-                                chatHistory.insertAdjacentHTML('beforeend', `<div class='flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2'><div class='bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm opacity-70'>${text}</div></div>`);
-                                chatHistory.scrollTop = chatHistory.scrollHeight;
-                            }
-                            input.value = '';
-                            
-                            fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ ticket_id: '8042', sender_role: 'student', sender_name: 'Resident', message_text: text })
-                            }).then(res => console.log('✅ Fetch complete. Status:', res.status))
-                              .catch(err => console.error('💥 Fetch failed:', err));
-                        " class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all shrink-0">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</div>
+</body>
+</html>
