@@ -1,52 +1,212 @@
-<div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
-    <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
-        <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4">
-            <i class="fa-solid fa-wifi"></i>
-        </div>
-        <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">ReziFlow_5G</h2>
-        <p class="text-sm text-slate-500 mb-6 font-medium">High-Speed Campus Network</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ReziFlow | Wi-Fi Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        <div class="bg-slate-50 rounded-[20px] p-4 text-left border border-slate-100">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Your Unique Password</p>
-            <div class="flex items-center justify-between">
-                <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest blur-sm transition-all duration-300">------</p>
-                <button onclick="togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 tap-effect hover:bg-slate-100 shadow-sm transition-all">
-                    <i id="eye-icon" class="fa-solid fa-eye"></i>
-                </button>
+        body, html { 
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0; width: 100%; height: 100%;
+            position: fixed; overflow: hidden; overscroll-behavior-y: none;
+            background-color: #0f172a; -webkit-font-smoothing: antialiased;
+        }
+
+        .desktop-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #0f172a; display: none; }
+        @media (min-width: 640px) { .desktop-bg { display: block; } }
+        .desktop-bg::before { content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%; background: #3b82f6; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
+        .desktop-bg::after { content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%; background: #06b6d4; border-radius: 50%; filter: blur(150px); opacity: 0.15; }
+
+        .mobile-container { width: 100%; height: 100dvh; background: #f0f4f8; position: relative; display: flex; flex-direction: column; overflow: hidden; margin: 0 auto; }
+        @media (min-width: 640px) {
+            body { display: flex; align-items: center; justify-content: center; position: static; overflow: auto; min-height: 100vh; }
+            .mobile-container { width: 100%; max-width: 420px; height: 90vh; max-height: 880px; border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255,255,255,0.2); border: 8px solid #1e293b; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .tap-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
+        .card-shadow { box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04); }
+        .soft-border { border: 1px solid rgba(226, 232, 240, 0.6); }
+        
+        #toast-container { transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
+        #toast-container.show { transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="desktop-bg"></div>
+
+    <div class="mobile-container">
+        
+        <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-[9999]">
+            <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm border border-slate-700">
+                <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+                <span id="toast-text">Action completed successfully.</span>
             </div>
         </div>
+
+        <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
+            <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-blue-500 text-xl"></i>
+                    <span class="font-bold text-lg tracking-tight text-slate-900">Rezi<span class="text-blue-500">Flow</span></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.location.href='../index.html'" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm shadow-sm hover:bg-blue-500 hover:text-white transition-colors tap-effect" title="Back to Home"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20 overflow-hidden" id="header-initials">--</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-32">
+            
+            <div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">ReziFlow_5G</h2>
+                    <p class="text-sm text-slate-500 mb-6 font-medium">High-Speed Campus Network</p>
+                    
+                    <div class="bg-slate-50 rounded-[20px] p-4 text-left border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Your Unique Password</p>
+                        <div class="flex items-center justify-between">
+                            <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest blur-sm transition-all duration-300">------</p>
+                            <button onclick="togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 tap-effect hover:bg-slate-100 shadow-sm transition-all">
+                                <i id="eye-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="mt-6 text-left">
+                    <div class="flex justify-between items-center mb-3 ml-2 mr-2">
+                        <h3 class="text-sm font-bold text-slate-800">Connected Devices (2/3)</h3>
+                    </div>
+                    <div class="bg-white card-shadow soft-border rounded-[28px] p-3 space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev1">Mobile Device</p>
+                                    <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
+                                </div>
+                            </div>
+                            <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-laptop"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev2">Laptop</p>
+                                    <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
+                                </div>
+                            </div>
+                            <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+        </main>
+
+        <!-- SUB-DIRECTORY ROUTING NAVIGATION BAR -->
+        <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div class="flex justify-between items-center w-full">
+                <button onclick="window.location.href='../index.html'" id="nav-home" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
+                <button class="nav-btn text-blue-600 flex flex-col items-center gap-1 transition-colors"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-bold">Wi-Fi</span></button>
+                <button onclick="window.location.href='../snags/index.html'" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="window.location.href='../security/index.html'" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="window.location.href='../transit/index.html'" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
+            </div>
+            <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
+        </nav>
     </div>
 
-    <section class="mt-6 text-left">
-        <div class="flex justify-between items-center mb-3 ml-2 mr-2">
-            <h3 class="text-sm font-bold text-slate-800">Connected Devices (2/3)</h3>
-        </div>
-        <div class="bg-white card-shadow soft-border rounded-[28px] p-3 space-y-2">
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-mobile-screen"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev1">Mobile Device</p>
-                        <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                    </div>
-                </div>
-                <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-laptop"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev2">Laptop</p>
-                        <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                    </div>
-                </div>
-                <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
-            </div>
-        </div>
-    </section>
-</div>
-<script>if(window.location.pathname.endsWith('/wifi/') || window.location.pathname.endsWith('/wifi/index.html')) window.location.href = '../';</script>
+    <script>
+        function getSessionData() {
+            let rawSession = localStorage.getItem('reziflow_session');
+            if (!rawSession) return {};
+            try {
+                let parsed = JSON.parse(rawSession);
+                function extract(obj) {
+                    if (!obj) return null;
+                    if (typeof obj === 'object' && !Array.isArray(obj)) {
+                        if (obj.First_Name !== undefined || obj.Student_Number !== undefined || obj.Vetting_Status !== undefined || obj.Room_Allocation !== undefined || obj.Signed_Lease !== undefined) return obj;
+                    }
+                    if (Array.isArray(obj)) { 
+                        for (let item of obj) { let f = extract(item); if (f) return f; } 
+                    } 
+                    else if (typeof obj === 'object') { 
+                        for (let k in obj) { let f = extract(obj[k]); if (f) return f; } 
+                    }
+                    return null;
+                }
+                let profile = extract(parsed);
+                return profile || (typeof parsed === 'object' ? parsed : {});
+            } catch (e) { return {}; }
+        }
+
+        function isValidData(value) {
+            if (value === null || value === undefined) return false;
+            const strVal = String(value).trim();
+            return strVal !== '' && strVal !== '--' && strVal !== 'undefined' && strVal.toLowerCase() !== 'new';
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
+            text.textContent = message; if(type === 'error') icon.className = 'fa-solid fa-triangle-exclamation text-rose-500'; else icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            container.classList.add('show'); setTimeout(() => { container.classList.remove('show'); }, 3500);
+        }
+
+        function togglePasswordVisibility() {
+            const passEl = document.getElementById('wifi-pass');
+            const iconEl = document.getElementById('eye-icon');
+            if (passEl.classList.contains('blur-sm')) {
+                passEl.classList.remove('blur-sm'); iconEl.className = 'fa-solid fa-eye-slash text-blue-500';
+            } else {
+                passEl.classList.add('blur-sm'); iconEl.className = 'fa-solid fa-eye text-slate-600';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const session = getSessionData();
+            
+            // STRICT AUTH GUARD FOR SUB-PAGES
+            const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
+            const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
+            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            
+            if (!((isVettingApproved && isRoomAllocated) || isFullySigned)) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // Hydrate Header UI
+            const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
+            if (session.Profile_Pic) {
+                document.getElementById('header-initials').innerHTML = `<img src="${session.Profile_Pic}" class="w-full h-full object-cover" />`;
+            } else {
+                document.getElementById('header-initials').textContent = initials;
+            }
+
+            // Hydrate WiFi UI
+            const studentId = isValidData(session.Student_Number) ? String(session.Student_Number) : '--';
+            if (studentId !== '--') {
+                document.getElementById('wifi-pass').textContent = `${initials}-${studentId.substring(0,6)}`;
+                document.getElementById('dyn-wifi-dev1').textContent = `${session.First_Name || 'Resident'}'s Phone`;
+                document.getElementById('dyn-wifi-dev2').textContent = `${session.First_Name || 'Resident'}'s Laptop`;
+            }
+        });
+    </script>
+</body>
+</html>
