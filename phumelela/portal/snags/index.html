@@ -12,7 +12,7 @@
             </button>
         </div>
 
-        <!-- COMPACT HORIZONTAL QUICK ACTIONS (Apple-style) -->
+        <!-- COMPACT HORIZONTAL QUICK ACTIONS -->
         <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
             <div onclick="openModalWithCategory('Plumbing')" class="bg-[#f5f5f7] hover:bg-blue-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
                 <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-faucet-drip"></i></div>
@@ -33,14 +33,12 @@
         </div>
     </div>
 
-    <!-- ACTIVE TICKETS (Uber Eats Style) -->
+    <!-- ACTIVE TICKETS -->
     <div>
         <h3 class="text-xs font-bold text-slate-800 mb-3 ml-2 uppercase tracking-widest">Active Tracker</h3>
         
-        <!-- SAMPLE TICKET -->
         <div class="bg-white border border-slate-100 rounded-[28px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
             
-            <!-- TICKET HEADER -->
             <div class="flex justify-between items-start mb-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
@@ -56,7 +54,6 @@
                 </span>
             </div>
 
-            <!-- PROGRESS TIMELINE -->
             <div class="relative pt-2 pb-5 px-1">
                 <div class="absolute left-0 top-[13px] w-full h-1 bg-slate-100 rounded-full z-0"></div>
                 <div class="absolute left-0 top-[13px] w-[66%] h-1 bg-blue-500 rounded-full z-0 transition-all duration-1000 ease-in-out"></div>
@@ -78,7 +75,7 @@
 
             <!-- COLLAPSIBLE CHAT MODULE -->
             <div class="mt-2 bg-[#f5f5f7] rounded-[20px] overflow-hidden border border-slate-100 transition-all duration-300">
-                <button onclick="window.toggleSnagChat('8042')" class="w-full py-3.5 px-4 flex justify-between items-center tap-effect">
+                <button type="button" onclick="window.toggleSnagChat('8042')" class="w-full py-3.5 px-4 flex justify-between items-center tap-effect">
                     <span class="text-[11px] font-bold text-slate-700 flex items-center gap-2">
                         <i class="fa-regular fa-comments text-blue-500 text-sm"></i> Live Officer Chat
                     </span>
@@ -93,8 +90,8 @@
                     </div>
                     
                     <div class="flex gap-2 items-center bg-[#f5f5f7] p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:bg-white transition-colors">
-                        <input type="text" id="chat-input-8042" placeholder="Message maintenance..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400">
-                        <button onclick="window.sendSnagMessage('8042')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all">
+                        <input type="text" id="chat-input-8042" placeholder="Type a message..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400">
+                        <button type="button" onclick="window.sendSnagMessage('8042')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all">
                             <i class="fa-solid fa-paper-plane text-xs"></i>
                         </button>
                     </div>
@@ -107,7 +104,6 @@
 
 <!-- COMPONENT LOGIC -->
 <script>
-    // Bind to window to survive dynamic HTML injection/removal and prevent re-declaration errors
     window.activeChatIntervals = window.activeChatIntervals || {};
 
     window.toggleSnagChat = function(ticketId) {
@@ -168,7 +164,6 @@
                 }
             });
 
-            // Only update DOM if there's an actual change to prevent UI flickering
             if (chatHistory.innerHTML !== chatHTML) {
                 chatHistory.innerHTML = chatHTML;
                 chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -187,7 +182,7 @@
 
         if (!inputField) {
             console.error("❌ ERROR: Could not find the input field in the HTML! Check your IDs.");
-            return; // This aborts the function silently
+            return;
         }
 
         const text = inputField.value.trim();
@@ -195,12 +190,11 @@
 
         if (!text) {
             console.warn("⚠️ WARNING: Text is empty. Aborting network request so we don't send blank messages.");
-            return; // This aborts the function silently
+            return;
         }
 
         console.log("✅ STEP 4: All checks passed. Firing Network Request now!");
 
-        // Leverages the global Mother portal session function
         const session = typeof getSessionData === 'function' ? getSessionData() : {}; 
         const studentName = session.First_Name || 'Resident';
 
