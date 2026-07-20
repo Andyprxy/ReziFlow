@@ -137,7 +137,7 @@
 
     window.fetchSnagChat = async function(ticketId) {
         try {
-            const response = await fetch(`https://n8n.automania.cloud/webhook/reziflow-snag-chat?ticket_id=${ticketId}`);
+            const response = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-snag-chat?ticket_id=${ticketId}`);
             if (!response.ok) return;
             
             const messages = await response.json();
@@ -180,27 +180,46 @@
     };
 
     window.sendSnagMessage = async function(ticketId) {
+        console.log("🚀 STEP 1: Send button clicked for Ticket ID:", ticketId);
+
         const inputField = document.getElementById(`chat-input-${ticketId}`);
+        console.log("🔍 STEP 2: Looking for input field 'chat-input-" + ticketId + "'. Found:", !!inputField);
+
+        if (!inputField) {
+            console.error("❌ ERROR: Could not find the input field in the HTML! Check your IDs.");
+            return; // This aborts the function silently
+        }
+
         const text = inputField.value.trim();
-        if (!text) return;
+        console.log("📝 STEP 3: Text grabbed from input:", text === '' ? '[EMPTY]' : text);
+
+        if (!text) {
+            console.warn("⚠️ WARNING: Text is empty. Aborting network request so we don't send blank messages.");
+            return; // This aborts the function silently
+        }
+
+        console.log("✅ STEP 4: All checks passed. Firing Network Request now!");
 
         // Leverages the global Mother portal session function
         const session = typeof getSessionData === 'function' ? getSessionData() : {}; 
         const studentName = session.First_Name || 'Resident';
 
         const chatHistory = document.getElementById(`chat-history-${ticketId}`);
-        chatHistory.insertAdjacentHTML('beforeend', `
-            <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
-                <div class="bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm opacity-70">
-                    ${text}
+        if (chatHistory) {
+            chatHistory.insertAdjacentHTML('beforeend', `
+                <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
+                    <div class="bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm opacity-70">
+                        ${text}
+                    </div>
                 </div>
-            </div>
-        `);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+            `);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
         inputField.value = '';
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-snag-chat', {
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -210,12 +229,9 @@
                     message_text: text
                 })
             });
+            console.log("🌐 STEP 5: Network request completed successfully.");
         } catch (error) {
-            if (typeof showToast === 'function') {
-                showToast("Network error. Message failed to send.", "error");
-            } else {
-                console.error("Message send failed.");
-            }
+            console.error("💥 STEP 5 FAILED: Network error.", error);
         }
     };
 </script>
