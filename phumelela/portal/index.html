@@ -7,9 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -74,12 +71,6 @@
         .funding-card.active { border-color: #3b82f6; background-color: #eff6ff; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2); }
         .doc-section { display: none; animation: fadeIn 0.4s ease forwards; }
         .doc-section.active { display: block; }
-
-        #telemetry-map { width: 100%; height: 380px; border-radius: 24px; }
-        .shuttle-marker { background: #06b6d4; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); }
-        .shuttle-marker::after { content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 2px solid #06b6d4; animation: radarPulse 2s infinite ease-out; }
-        .student-marker { background: #2563eb; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(37, 99, 235, 0.5); }
-        @keyframes radarPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -88,7 +79,6 @@
 
     <div class="mobile-container">
         
-        <!-- SYSTEM OVERLAYS (Toasts, Auth Guard, Modals) -->
         <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-[9999]">
             <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm border border-slate-700">
                 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -104,7 +94,58 @@
             <p id="auth-status-text" class="text-xs text-slate-500">Verifying live server profile...</p>
         </div>
 
-        <!-- GLOBAL HEADER -->
+        <div id="completionModal" class="absolute inset-0 z-[3000] modal-overlay flex items-center justify-center p-6 hidden">
+            <div class="glass-panel w-full max-w-sm rounded-[40px] p-8 text-center relative overflow-hidden transform scale-95 opacity-0 transition-all duration-500" id="completion-content">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="w-24 h-24 rounded-[24px] bg-white p-1 shadow-xl shadow-emerald-900/10 ring-1 ring-slate-100 mb-6 relative">
+                        <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
+                        <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
+                    </div>
+                    
+                    <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
+                    <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
+                    
+                    <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
+            <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
+                <div class="relative mx-auto w-24 h-24 mb-6">
+                    <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
+                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
+                </div>
+                <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
+                <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
+                <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
+                    <div class="space-y-4 mb-6 text-left">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
+                            <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
+                            <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
+                            <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect mb-3">
+                        Initialize Portal <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <button type="button" onclick="manualSync()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">Data already exists? Force Sync</button>
+                </form>
+            </div>
+        </div>
+        
         <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
             <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
                 <div class="flex items-center gap-2">
@@ -118,13 +159,11 @@
             </div>
         </header>
 
-        <!-- ROUTER INJECTION ROOT (Subtabs go here) -->
+        <!-- ROUTER INJECTION ROOT -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-32" id="portal-root">
             
-            <!-- HOME TAB (Integrated) -->
+            <!-- HOME TAB -->
             <div id="tab-home" class="tab-content active space-y-5">
-                
-                <!-- RESIDENT IDENTITY CARD -->
                 <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
                     <div class="relative z-10 flex justify-between items-start mb-8">
@@ -137,37 +176,24 @@
                         </div>
                     </div>
                     <div class="relative z-10 flex gap-8">
-                        <div>
-                            <p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Student ID</p>
-                            <p id="dyn-id-home" class="font-bold text-sm">--</p>
-                        </div>
-                        <div>
-                            <p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Room</p>
-                            <p id="dyn-room-home" class="font-bold text-sm">--</p>
-                        </div>
+                        <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Student ID</p><p id="dyn-id-home" class="font-bold text-sm">--</p></div>
+                        <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Room</p><p id="dyn-room-home" class="font-bold text-sm">--</p></div>
                     </div>
                 </section>
 
-                <!-- GATEWAY PROTOCOL & PROGRESS -->
                 <section id="gateway-unlock-card" class="bg-white card-shadow soft-border rounded-[28px] p-5 relative overflow-hidden transition-all duration-300 border-2 border-transparent">
                     <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
                     <div class="flex items-center gap-4 relative z-10 mb-4">
                         <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
                         <div>
-                            <div class="flex items-center gap-2 mb-0.5">
-                                <h3 class="text-sm font-black text-slate-900 tracking-tight">Gateway Protocol</h3>
-                                <i id="gateway-lock-icon" class="fa-solid fa-lock text-rose-500 text-xs"></i>
-                            </div>
+                            <div class="flex items-center gap-2 mb-0.5"><h3 class="text-sm font-black text-slate-900 tracking-tight">Gateway Protocol</h3><i id="gateway-lock-icon" class="fa-solid fa-lock text-rose-500 text-xs"></i></div>
                             <p id="gateway-status-text" class="text-[10px] text-slate-500 font-medium leading-snug pr-2">Finish setting up your profile to unlock Wi-Fi & Transit.</p>
                         </div>
                     </div>
-                    
                     <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300">
-                        <!-- Progress bars dynamically injected by Mother Portal JS -->
                     </div>
                 </section>
 
-                <!-- LEASE MAGIC SLOT -->
                 <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500 mt-2">
                     <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
                     <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-cyan-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
@@ -203,121 +229,166 @@
                     </div>
                 </div>
 
-                <!-- BUILDING ACCESS -->
                 <section>
                     <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
                     <div class="flex gap-3">
-                        <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm">
-                            <i class="fa-solid fa-key text-blue-500 text-xl"></i>
-                            <span class="text-xs font-semibold text-slate-700">Turnstiles</span>
-                        </button>
-                        <button id="btn-visitor-pin" onclick="handleVisitorPinClick()" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-all border border-blue-50 shadow-sm">
-                            <i class="fa-solid fa-user-plus text-blue-500 text-xl"></i>
-                            <span class="text-xs font-semibold text-slate-700">Visitor PIN</span>
-                        </button>
+                        <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
+                        <button id="btn-visitor-pin" onclick="handleVisitorPinClick()" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-all border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
                     </div>
                 </section>
-
-                <!-- GENERATED PIN DISPLAY -->
+                
                 <div id="pin-display-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center mt-2 shadow-sm animate-[fadeIn_0.3s_ease-in-out]">
                     <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
                     <p id="generated-pin" class="text-3xl font-mono font-bold text-slate-800 tracking-widest">------</p>
                     <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
                 </div>
-
-            </div>
-
-            <!-- WI-FI MODULE -->
-            <div id="tab-wifi" class="tab-content space-y-5">
-                <!-- ✂️ PASTE WI-FI TAB CONTENT HERE ✂️ -->
-            </div>
-
-            <!-- PREMIUM SNAGS MODULE -->
-            <div id="tab-snags" class="tab-content space-y-5">
-                <!-- ✂️ PASTE MAINTENANCE/SNAGS TAB CONTENT HERE ✂️ -->
-            </div>
-
-            <!-- SECURITY MODULE -->
-            <div id="tab-security" class="tab-content space-y-5">
-                <!-- ✂️ PASTE SECURITY TAB CONTENT HERE ✂️ -->
             </div>
             
             <!-- PROFILE TAB -->
             <div id="tab-profile" class="tab-content space-y-5">
-                <!-- ✂️ PASTE PROFILE TAB CONTENT HERE ✂️ -->
-            </div>
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-5 flex items-center gap-4">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-inner overflow-hidden" id="profile-initials">--</div>
+                        <button id="btn-profile-upload" onclick="document.getElementById('profile-upload').click()" class="hidden absolute -bottom-1 -right-1 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm border-2 border-white tap-effect hover:bg-blue-600 transition-colors">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                        <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
+                    </div>
+                    <div>
+                        <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight tracking-tight">--</h2>
+                        <p id="dyn-details-profile" class="text-xs font-medium text-blue-500 mt-0.5">--</p>
+                    </div>
+                </div>
 
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">ID Number</span><span id="dyn-id-number" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Gender</span><span id="dyn-gender" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-mobile" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Home Address</span><span id="dyn-address" class="text-xs font-bold text-slate-800 text-right max-w-[180px] truncate">--</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-shield-heart text-indigo-500 mr-2"></i> Guardian Details</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Name</span><span id="dyn-guardian-name" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Relationship</span><span id="dyn-guardian-rel" class="text-xs font-bold text-slate-800">--</span></div>
+                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span></div>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-slate-100 mt-3">
+                        <span class="text-[10px] text-rose-600 font-bold uppercase tracking-widest block mb-1"><i class="fa-solid fa-notes-medical mr-1"></i> Medical Conditions & Allergies</span>
+                        <span id="dyn-medical" class="text-xs font-bold text-slate-800 leading-relaxed block">None</span>
+                    </div>
+                </div>
+
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mb-4">
+                    <div class="flex justify-between items-start mb-5">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Digital Vault</h3>
+                            <p class="text-[11px] text-slate-500 font-medium">Access your securely uploaded files.</p>
+                        </div>
+                        <button onclick="manualSync()" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm hover:bg-blue-100 transition-colors" title="Sync Vault"><i class="fa-solid fa-rotate-right"></i></button>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-id-card"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-id"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-reg"></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-landmark"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-fund"></div>
+                        </div>
+
+                        <div id="profile-vault-payslip" class="hidden flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Latest Payslip</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash Payer Docs</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-payslip"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-signature"></i></div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p>
+                                </div>
+                            </div>
+                            <div id="doc-btn-lease"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
+                        <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">Automania Architecture</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">Files are stored securely in encrypted cloud nodes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMINISTRATIVE ACTIONS -->
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mb-4">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-sliders text-slate-500 mr-2"></i> Administrative Actions</h3>
+                    <div class="space-y-3">
+                        <button id="btn-room-change" onclick="openAdminRequestModal('Room Change')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-person-shelter text-blue-500 text-sm"></i> Request Room Change</span>
+                            <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
+                        </button>
+                        <button id="btn-terminate-lease" onclick="openAdminRequestModal('Terminate Lease')" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-file-circle-xmark text-rose-500 text-sm"></i> Terminate Lease</span>
+                            <i class="fa-solid fa-chevron-right text-rose-400 text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
         </main>
 
-        <!-- FIXED BOTTOM NAVIGATION BAR -->
+        <!-- ROUTING NAVIGATION BAR -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center w-full">
                 <button onclick="switchTab('home', this)" id="nav-home" class="nav-btn text-blue-600 flex flex-col items-center gap-1 tap-effect transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-bold">Home</span></button>
-                <button onclick="switchTab('wifi', this)" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
-                <button onclick="switchTab('snags', this)" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
-                <button onclick="switchTab('security', this)" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
-                <button onclick="openShuttleMap()" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked pointer-events-none"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
+                <button onclick="navigateExternal('wifi')" id="nav-wifi" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wifi text-lg mb-0.5"></i><span class="text-[10px] font-medium">Wi-Fi</span></button>
+                <button onclick="navigateExternal('snags')" id="nav-snags" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-wrench text-lg mb-0.5"></i><span class="text-[10px] font-medium">Snags</span></button>
+                <button onclick="navigateExternal('security')" id="nav-security" class="nav-btn text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors nav-locked pointer-events-none"><i class="fa-solid fa-shield-halved text-lg mb-0.5"></i><span class="text-[10px] font-medium">Security</span></button>
+                <button onclick="navigateExternal('transit')" id="nav-transit" class="text-slate-400 flex flex-col items-center gap-1 tap-effect transition-colors relative nav-locked pointer-events-none"><i class="fa-solid fa-van-shuttle text-lg mb-0.5"></i><span class="text-[10px] font-medium">Transit</span></button>
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
         </nav>
     </div>
 
-    <!-- ============================================== -->
-    <!-- GLOBAL MODALS (Leave these in the Mother File) -->
-    <!-- ============================================== -->
-
-    <div id="completionModal" class="absolute inset-0 z-[3000] modal-overlay flex items-center justify-center p-6 hidden">
-        <div class="glass-panel w-full max-w-sm rounded-[40px] p-8 text-center relative overflow-hidden transform scale-95 opacity-0 transition-all duration-500" id="completion-content">
-            <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="relative z-10 flex flex-col items-center">
-                <div class="w-24 h-24 rounded-[24px] bg-white p-1 shadow-xl shadow-emerald-900/10 ring-1 ring-slate-100 mb-6 relative">
-                    <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
-                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
-                </div>
-                
-                <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
-                <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
-                
-                <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-rotate-right"></i> Refresh Portal
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
-        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
-            <div class="relative mx-auto w-24 h-24 mb-6">
-                <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
-                <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
-            </div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
-            <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
-            <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
-                <div class="space-y-4 mb-6 text-left">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
-                        <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
-                        <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
-                        <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" required>
-                    </div>
-                </div>
-                <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect mb-3">
-                    Initialize Portal <i class="fa-solid fa-arrow-right"></i>
-                </button>
-                <button type="button" onclick="manualSync()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">Data already exists? Force Sync</button>
-            </form>
-        </div>
-    </div>
-
+    <!-- CORE ADMIN MODALS -->
     <!-- NEW ADMIN REQUEST MODAL -->
     <div id="adminRequestModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
@@ -371,104 +442,9 @@
         </div>
     </div>
 
-    <!-- LOG SNAG MODAL -->
-    <div id="snagModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
-        <div class="modal-content bg-white w-full max-w-md rounded-t-[32px] shadow-2xl p-6 pb-10">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Log Maintenance</h2>
-                <button onclick="closeModal('snagModal')" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <form id="snagForm" onsubmit="submitSnag(event)">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
-                    <select id="snag-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 transition-colors" required>
-                        <option value="" disabled selected>Select issue type...</option>
-                        <option value="Plumbing">Plumbing (Leaks, Toilets)</option>
-                        <option value="Electrical">Electrical (Lights, Plugs)</option>
-                        <option value="Furniture">Furniture & Fittings</option>
-                        <option value="Locks">Doors & Locks</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description</label>
-                    <textarea id="snag-desc" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 resize-none transition-colors" placeholder="Provide details about the issue..." required></textarea>
-                </div>
-                <button type="submit" id="btn-submit-snag" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-4 shadow-lg shadow-slate-900/20 transition-all flex justify-center items-center gap-2">
-                    Submit Ticket <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- SHUTTLE TRANSIT MODAL -->
-    <div id="shuttleMapModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
-        <div class="modal-content bg-white w-full h-[92dvh] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-sm border border-cyan-100"><i class="fa-solid fa-map-location-dot"></i></div>
-                    <div>
-                        <h2 class="text-base font-black text-slate-900 tracking-tight">Live Transit Tracker</h2>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Active Loop
-                        </p>
-                    </div>
-                </div>
-                <button onclick="closeShuttleMap()" class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="my-3 flex justify-between items-center bg-slate-50 border border-slate-100 rounded-2xl p-3 shadow-sm flex-shrink-0">
-                <span class="text-xs text-slate-600 font-semibold"><i class="fa-solid fa-route text-blue-500 mr-1"></i> Destination Status</span>
-                <span id="shuttle-eta" class="text-xs font-black text-white bg-slate-900 px-3 py-1 rounded-lg">Calculating...</span>
-            </div>
-
-            <div class="flex-1 bg-slate-100 border border-slate-200 rounded-[28px] overflow-hidden relative shadow-inner p-1">
-                <div id="telemetry-map" class="h-full w-full"></div>
-            </div>
-
-            <div class="mt-4 grid grid-cols-2 gap-3 flex-shrink-0">
-                <button onclick="sendShuttleRequest('Stop Request', 'Please pass by Quagga Centre on the next route.', this)" class="py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-map-pin text-cyan-500"></i> Quagga Stop
-                </button>
-                <button onclick="openCustomMessagePrompt()" class="py-3.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
-                    <i class="fa-regular fa-comment-dots text-cyan-400"></i> Custom Msg
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- DISPATCH CUSTOM PAYLOAD MODALS -->
-    <div id="customMsgModal" class="absolute inset-0 z-[2200] modal-overlay flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl p-6 border border-slate-100 transition-all transform scale-95 duration-300">
-            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-message text-blue-500"></i> Dispatch options
-            </h3>
-            <p class="text-xs text-slate-500 font-medium mb-4">Would you like to request the driver to wait 5 minutes, or type a custom note?</p>
-            
-            <div class="space-y-2.5">
-                <button onclick="sendShuttleRequest('Delay Request', 'Please hold the shuttle for 5 minutes. I am on my way.', this)" class="w-full py-3.5 bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-hourglass-half"></i> Ask Driver to Wait 5 Mins
-                </button>
-                
-                <div class="border-t border-slate-100 my-3 pt-3">
-                    <textarea id="custom-driver-text" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-blue-500 mb-3 resize-none transition-all" placeholder="Type custom dispatch payload..."></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="closeModal('customMsgModal')" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all">Cancel</button>
-                        <button onclick="submitCustomDriverMsg(this)" class="py-3 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all">Send Note</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- PROFILE STEP WIZARD MODAL -->
     <div id="setupWizardModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
+        <!-- ALL WIZARD CODE REMAINS IDENTICAL TO ORIGINAL -->
         <div class="modal-content bg-white w-full h-[90dvh] max-h-[900px] rounded-t-[40px] shadow-2xl flex flex-col overflow-hidden relative">
             <div class="flex justify-between items-center p-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-white z-10 shadow-sm">
                 <div><h2 class="text-lg font-black text-slate-900 tracking-tight" id="wizard-title">Personal Details</h2><p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5" id="wizard-step-indicator">Step 1 of 2</p></div>
@@ -642,6 +618,7 @@
 
     <!-- LEASE CONTRACT AGREEMENT MODAL -->
     <div id="leaseModal" class="absolute inset-0 z-[1600] modal-overlay flex items-end justify-center">
+        <!-- REMAINS IDENTICAL TO ORIGINAL -->
         <div class="modal-content bg-white w-full h-[90dvh] max-h-[900px] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col relative overflow-hidden">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0 relative z-10 bg-white">
                 <div>
@@ -694,9 +671,7 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
     <!-- CORE WORKFLOW ENGINE SCRIPT -->
-    <!-- ============================================== -->
     <script>
         let gatewayPercentage = 0;
         let profilePercentage = 0;
@@ -705,18 +680,12 @@
         let activeFundingType = 'none'; 
         let currentFlowType = 'profile'; 
 
-        // Telemetry Engine Globals
-        let mapObj = null;
-        let shuttleMarker = null;
-        let studentMarker = null;
-        let studentCoords = null;
-        let telemetryInterval = null;
-
-        // Safe DOM Text Setter to prevent crashes if Subtabs are empty
-        function safeSetText(id, text) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = text;
-        }
+        const profileDataFields = [
+            'First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 
+            'Gender', 'Email_Address', 'Campus_Hub', 'Course', 'Year_Level', 
+            'Street_Address', 'City', 'Postal_Code', 'Guardian_Name', 
+            'Guardian_Number', 'Guardian_Relationship'
+        ];
 
         function getSessionData() {
             let rawSession = localStorage.getItem('reziflow_session');
@@ -759,7 +728,6 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    
                     function extract(obj) {
                         if (!obj) return null;
                         if (typeof obj === 'object' && !Array.isArray(obj)) {
@@ -773,12 +741,10 @@
                         }
                         return null;
                     }
-                    
                     let freshProfile = extract(data) || data;
 
                     if (freshProfile) {
                         freshProfile.Email_Address = email; 
-                        
                         let mergedSession = { ...session };
                         for (let key in freshProfile) {
                             if (isValidData(freshProfile[key])) {
@@ -787,18 +753,15 @@
                                 mergedSession[key] = 'Pending Vetting';
                             }
                         }
-
                         if (freshProfile.Medical !== undefined) {
                             mergedSession.Medical = freshProfile.Medical;
                         }
-
                         if (session.Signed_Lease === "Signed" && (freshProfile.Signed_Lease !== "Signed" && freshProfile.Signed_Lease !== true)) {
                             mergedSession.Signed_Lease = "Signed"; 
                         }
                         if (session.Doc_Lease_URL === "vaulted_locally" && (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10)) {
                             mergedSession.Doc_Lease_URL = "vaulted_locally";
                         }
-                        
                         localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
                         hydrateGatewayEngine(true, mergedSession);
                         return mergedSession;
@@ -817,7 +780,6 @@
             const authGuard = document.getElementById('authGuard');
             const welcomeModal = document.getElementById('welcomeModal');
 
-            // NOTE: Ensure your browser's local storage has valid data, or it will redirect to signin.
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
                 window.location.href = '/phumelela/signin';
                 return;
@@ -891,27 +853,19 @@
             const session = overrideSession || getSessionData();
             
             const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
-            safeSetText('header-initials', initials);
-            safeSetText('profile-initials', initials);
+            document.getElementById('header-initials').textContent = initials;
+            document.getElementById('profile-initials').textContent = initials;
             
             const fullName = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
-            safeSetText('dyn-fullname-home', fullName);
-            safeSetText('dyn-fullname-profile', fullName);
+            document.getElementById('dyn-fullname-home').textContent = fullName;
+            document.getElementById('dyn-fullname-profile').textContent = fullName;
             
             const studentId = isValidData(session.Student_Number) ? String(session.Student_Number) : '--';
-            safeSetText('dyn-id-home', studentId);
-            safeSetText('dyn-id-number', studentId);
+            document.getElementById('dyn-id-home').textContent = studentId;
+            document.getElementById('dyn-id-number').textContent = studentId;
             
-            try {
-                if (studentId !== '--') {
-                    safeSetText('wifi-pass', `${initials}-${studentId.substring(0,6)}`);
-                    safeSetText('dyn-wifi-dev1', `${session.First_Name || 'Resident'}'s Phone`);
-                    safeSetText('dyn-wifi-dev2', `${session.First_Name || 'Resident'}'s Laptop`);
-                }
-            } catch(e) { console.warn("Wi-Fi sync bypass"); }
-
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? String(session.Room_Allocation) : 'Unassigned';
-            safeSetText('dyn-room-home', roomAllocatedStr);
+            document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
             
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
@@ -943,18 +897,19 @@
 
             if (session.Profile_Pic) applyProfilePic(session.Profile_Pic);
 
-            safeSetText('dyn-details-profile', `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`);
-            safeSetText('dyn-gender', isValidData(session.Gender) ? session.Gender : '--');
-            safeSetText('dyn-mobile', isValidData(session.Mobile_Number) ? session.Mobile_Number : '--');
-            safeSetText('dyn-address', `${isValidData(session.Street_Address) ? session.Street_Address : ''}, ${isValidData(session.City) ? session.City : ''}`.replace(/^, /, ''));
-            safeSetText('dyn-guardian-name', isValidData(session.Guardian_Name) ? session.Guardian_Name : '--');
-            safeSetText('dyn-guardian-rel', isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--');
-            safeSetText('dyn-guardian-num', isValidData(session.Guardian_Number) ? session.Guardian_Number : '--');
+            document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
+            document.getElementById('dyn-gender').textContent = isValidData(session.Gender) ? session.Gender : '--';
+            document.getElementById('dyn-mobile').textContent = isValidData(session.Mobile_Number) ? session.Mobile_Number : '--';
+            document.getElementById('dyn-address').textContent = `${isValidData(session.Street_Address) ? session.Street_Address : ''}, ${isValidData(session.City) ? session.City : ''}`.replace(/^, /, '');
+            document.getElementById('dyn-guardian-name').textContent = isValidData(session.Guardian_Name) ? session.Guardian_Name : '--';
+            document.getElementById('dyn-guardian-rel').textContent = isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--';
+            document.getElementById('dyn-guardian-num').textContent = isValidData(session.Guardian_Number) ? session.Guardian_Number : '--';
             
             const medVal = session.Medical || session.Medical_Condition;
-            safeSetText('dyn-medical', isValidData(medVal) ? medVal : 'None');
-            safeSetText('dyn-course-name', isValidData(session.Course) ? session.Course : '--');
-            safeSetText('dyn-funding-type', isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending');
+            document.getElementById('dyn-medical').textContent = isValidData(medVal) ? medVal : 'None';
+            
+            document.getElementById('dyn-course-name').textContent = isValidData(session.Course) ? session.Course : '--';
+            document.getElementById('dyn-funding-type').textContent = isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending';
 
             const renderDocButton = (containerId, url) => {
                 const container = document.getElementById(containerId);
@@ -1054,21 +1009,20 @@
             } 
             else if (isAdminAlerted || (profilePercentage >= 100 && vaultPercentage >= 100)) {
                 if (isAdminAlerted) {
-                    if (gatewayCardContent) {
-                        gatewayCardContent.innerHTML = progressBarsHtml + `
-                            <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
-                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
-                                    <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once vetting is approved.</p>
-                                </div>
+                    gatewayCardContent.innerHTML = progressBarsHtml + `
+                        <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
+                                <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once vetting is approved.</p>
                             </div>
-                        `;
-                    }
-                    if (gatewayCard) gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
-                    if (lockIcon) lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
-                    if (statusText) statusText.textContent = isVettingApproved ? "Vetting Approved. Please sign your lease." : "All systems active. Stand by for Gateway unlock.";
-                    if (vettingBadge) vettingBadge.textContent = isVettingApproved ? 'Vetting Approved' : 'Pending Vetting';
+                        </div>
+                    `;
+                    gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
+                    lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
+                    statusText.textContent = isVettingApproved ? "Vetting Approved. Please sign your lease." : "All systems active. Stand by for Gateway unlock.";
+                    
+                    if(vettingBadge) vettingBadge.textContent = isVettingApproved ? 'Vetting Approved' : 'Pending Vetting';
                     
                     if(leaseSlot) {
                         leaseSlot.classList.remove('hidden');
@@ -1121,26 +1075,24 @@
                     }
                 } 
                 else {
-                    if (gatewayCardContent) {
-                        gatewayCardContent.innerHTML = progressBarsHtml + `
-                            <div class="mt-2 pt-3 border-t border-slate-100">
-                                <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
-                                    <i class="fa-solid fa-paper-plane animate-pulse text-blue-200"></i> Finalize & Alert Admin
-                                </button>
-                            </div>
-                        `;
-                    }
+                    gatewayCardContent.innerHTML = progressBarsHtml + `
+                        <div class="mt-2 pt-3 border-t border-slate-100">
+                            <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
+                                <i class="fa-solid fa-paper-plane animate-pulse text-blue-200"></i> Finalize & Alert Admin
+                            </button>
+                        </div>
+                    `;
                     if(leaseSlot) leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
-                    if (lockIcon) lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
-                    if (statusText) statusText.textContent = "Profile complete. Please alert the admin to finalize your application.";
+                    lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
+                    statusText.textContent = "Profile complete. Please alert the admin to finalize your application.";
                     if(vettingBadge) vettingBadge.textContent = 'Action Required';
                 }
             } else {
-                if (gatewayCardContent) gatewayCardContent.innerHTML = progressBarsHtml;
+                gatewayCardContent.innerHTML = progressBarsHtml;
                 if(leaseSlot) leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
-                if (lockIcon) lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
-                if (statusText) statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
-                if (gatewayCard) gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
+                lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
+                statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
+                gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
                 if(vettingBadge) vettingBadge.textContent = 'Pending Vetting';
             }
 
@@ -1191,11 +1143,9 @@
 
         async function checkVettingStatus(btnElement) {
             const icon = btnElement.querySelector('i');
-            icon.classList.remove('fa-spin');
-            icon.classList.add('spin-once');
+            icon.classList.remove('fa-spin'); icon.classList.add('spin-once');
             setTimeout(() => icon.classList.remove('spin-once'), 600); 
-            btnElement.disabled = true;
-            showToast("Checking live portal status...", "success");
+            btnElement.disabled = true; showToast("Checking live portal status...", "success");
 
             try {
                 const session = await syncProfileData(false);
@@ -1204,81 +1154,48 @@
                 if (liveStatus.toLowerCase() === 'approved') {
                     if (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally") {
                         showToast("Your lease is already signed and locked.", "success");
-                    } else {
-                        showToast("Vetting Approved! Signature Pad Unlocked.", "success");
-                    }
+                    } else { showToast("Vetting Approved! Signature Pad Unlocked.", "success"); }
                 } else {
-                    if (liveStatus === 'Pending Vetting') {
-                        showToast("Your status is currently pending approval.", "success");
-                    } else {
-                        showToast(`Status: ${liveStatus}.`, "error");
-                    }
+                    if (liveStatus === 'Pending Vetting') { showToast("Your status is currently pending approval.", "success"); } 
+                    else { showToast(`Status: ${liveStatus}.`, "error"); }
                 }
-            } catch (e) {
-                showToast("Network error or Webhook is not active.", "error");
-            } finally {
-                btnElement.disabled = false;
-            }
+            } catch (e) { showToast("Network error or Webhook is not active.", "error"); } 
+            finally { btnElement.disabled = false; }
         }
 
         async function triggerAdminAlert(btnElement) {
-            const session = getSessionData();
-            const ogHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Alerting Admin...';
-            btnElement.disabled = true;
+            const session = getSessionData(); const ogHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Alerting Admin...'; btnElement.disabled = true;
 
             try {
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-finalize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Email_Address: session.Email_Address,
-                        Student_Number: session.Student_Number,
-                        First_Name: session.First_Name,
-                        Surname: session.Surname
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Email_Address: session.Email_Address, Student_Number: session.Student_Number, First_Name: session.First_Name, Surname: session.Surname })
                 });
 
                 if (!res.ok) throw new Error("Webhook failed");
 
-                session.AD_ALERT = "Alerted";
-                session.Admin_Alerted = true; 
+                session.AD_ALERT = "Alerted"; session.Admin_Alerted = true; 
                 localStorage.setItem('reziflow_session', JSON.stringify(session));
 
                 btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Alert Sent';
-                setTimeout(() => {
-                    hydrateGatewayEngine(false, session); 
-                    showToast("Admin alerted. They will review your profile shortly.", "success");
-                }, 800);
+                setTimeout(() => { hydrateGatewayEngine(false, session); showToast("Admin alerted. They will review your profile shortly.", "success"); }, 800);
             } catch (error) {
-                btnElement.innerHTML = ogHtml;
-                btnElement.disabled = false;
-                showToast("Failed to alert admin. Check connection.", "error");
+                btnElement.innerHTML = ogHtml; btnElement.disabled = false; showToast("Failed to alert admin. Check connection.", "error");
             }
         }
 
         function handleProfilePicUpload(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            if(file.size > 2 * 1024 * 1024) {
-                showToast("Image too large. Max size is 2MB.", "error");
-                return;
-            }
+            const file = event.target.files[0]; if(!file) return;
+            if(file.size > 2 * 1024 * 1024) { showToast("Image too large. Max size is 2MB.", "error"); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
-                const base64Img = e.target.result;
-                const session = getSessionData();
-                if(session) {
-                    session.Profile_Pic = base64Img;
-                    localStorage.setItem('reziflow_session', JSON.stringify(session));
-                }
-                applyProfilePic(base64Img);
-                showToast("Profile picture updated!", "success");
+                const base64Img = e.target.result; const session = getSessionData();
+                if(session) { session.Profile_Pic = base64Img; localStorage.setItem('reziflow_session', JSON.stringify(session)); }
+                applyProfilePic(base64Img); showToast("Profile picture updated!", "success");
                 
                 fetch('https://n8n.automania.cloud/webhook/reziflow-profile-pic', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session ? session.Student_Number : 'Unknown', Image: base64Img })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Student_Number: session ? session.Student_Number : 'Unknown', Image: base64Img })
                 }).catch(err => console.log('Pic sync pending'));
             };
             reader.readAsDataURL(file);
@@ -1286,19 +1203,11 @@
 
         function applyProfilePic(base64Img) {
             if(!base64Img) return;
-            const headerAvatar = document.getElementById('header-initials');
-            const profileAvatar = document.getElementById('profile-initials');
-            if (headerAvatar) {
-                headerAvatar.textContent = '';
-                headerAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
-            }
-            if (profileAvatar) {
-                profileAvatar.textContent = '';
-                profileAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
-            }
+            const headerAvatar = document.getElementById('header-initials'); const profileAvatar = document.getElementById('profile-initials');
+            headerAvatar.textContent = ''; profileAvatar.textContent = '';
+            headerAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`; profileAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
         }
 
-        // LEASE SIGNATURE SYSTEM
         let sigCanvas, sigCtx, isSigning = false, signatureHasDrawn = false;
         function initSignaturePad() {
             sigCanvas = document.getElementById('signature-pad'); if(!sigCanvas) return;
@@ -1308,14 +1217,12 @@
 
             const getPos = (e) => {
                 const r = sigCanvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: clientX - r.left, y: clientY - r.top };
             };
             const startDraw = (e) => {
                 e.preventDefault(); isSigning = true; signatureHasDrawn = true;
-                const pos = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y);
-                document.getElementById('sig-placeholder').style.display = 'none';
+                const pos = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y); document.getElementById('sig-placeholder').style.display = 'none';
             };
             const draw = (e) => { if (!isSigning) return; e.preventDefault(); const pos = getPos(e); sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); };
             const stopDraw = (e) => { if (!isSigning) return; e.preventDefault(); isSigning = false; };
@@ -1351,41 +1258,27 @@
                 if (!res.ok) throw new Error("Server error");
 
                 session.Doc_Lease_URL = "vaulted_locally"; session.Signed_Lease = "Signed"; localStorage.setItem('reziflow_session', JSON.stringify(session));
-                closeModal('leaseModal');
-                const compModal = document.getElementById('completionModal'); compModal.classList.remove('hidden');
+                closeModal('leaseModal'); const compModal = document.getElementById('completionModal'); compModal.classList.remove('hidden');
                 setTimeout(() => {
-                    compModal.classList.add('active');
-                    const content = document.getElementById('completion-content');
+                    compModal.classList.add('active'); const content = document.getElementById('completion-content');
                     content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100');
                 }, 50);
-            } catch(e) {
-                showToast("Transmission Error. Please try again.", "error"); btnElement.innerHTML = ogText; btnElement.disabled = false;
-            }
+            } catch(e) { showToast("Transmission Error. Please try again.", "error"); btnElement.innerHTML = ogText; btnElement.disabled = false; }
         }
 
-        // FUNCTIONAL VISITOR PIN ENGINE
         function handleVisitorPinClick() {
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
             
-            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
-                showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); 
-                return; 
-            }
+            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); return; }
             openModal('visitorModal');
         }
 
         async function submitVisitorPin(e) {
-            e.preventDefault();
-            const session = getSessionData();
-            const btn = document.getElementById('btn-submit-visitor');
-            const ogText = btn.innerHTML;
-            const fname = document.getElementById('vis-fname').value;
-            const sname = document.getElementById('vis-sname').value;
-            const email = document.getElementById('vis-email').value;
-            
+            e.preventDefault(); const session = getSessionData(); const btn = document.getElementById('btn-submit-visitor'); const ogText = btn.innerHTML;
+            const fname = document.getElementById('vis-fname').value; const sname = document.getElementById('vis-sname').value; const email = document.getElementById('vis-email').value;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
 
             try {
@@ -1397,285 +1290,69 @@
                 let pinVal = Math.floor(100000 + Math.random() * 900000);
                 try { const data = await res.json(); if (data && data.pin) pinVal = data.pin; } catch(err) {} 
                 
-                closeModal('visitorModal');
-                const pinDisplay = document.getElementById('pin-display-container');
-                if (pinDisplay) {
-                    pinDisplay.classList.remove('hidden');
-                    document.getElementById('generated-pin').textContent = pinVal; 
-                }
-                showToast("Visitor PIN Generated", "success");
-                document.getElementById('visitorForm').reset();
-            } catch (error) { showToast("Failed to connect to access system.", "error"); } 
-            finally { btn.innerHTML = ogText; btn.disabled = false; }
+                closeModal('visitorModal'); document.getElementById('pin-display-container').classList.remove('hidden'); document.getElementById('generated-pin').textContent = pinVal; 
+                showToast("Visitor PIN Generated", "success"); document.getElementById('visitorForm').reset();
+            } catch (error) { showToast("Failed to connect to access system.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
         }
 
-        // SNAGS MAINTENANCE SUBMISSIONS
-        function openModalWithCategory(categoryStr) {
-            const catInput = document.getElementById('snag-category');
-            if (catInput) catInput.value = categoryStr;
-            openModal('snagModal');
-        }
-
-        async function submitSnag(e) {
-            e.preventDefault();
-            const session = getSessionData();
-            const btn = document.getElementById('btn-submit-snag');
-            const ogText = btn.innerHTML;
-            const category = document.getElementById('snag-category').value;
-            const desc = document.getElementById('snag-desc').value;
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...'; btn.disabled = true;
-
-            try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number || 'Unknown', Room: session.Room_Allocation || 'Unassigned', Category: category, Description: desc })
-                });
-                if (!res.ok) throw new Error("Server rejected payload");
-                closeModal('snagModal');
-                showToast("Ticket submitted. Maintenance notified.", "success");
-                document.getElementById('snagForm').reset();
-            } catch(error) { showToast("Submission failed. Try again.", "error"); } 
-            finally { btn.innerHTML = ogText; btn.disabled = false; }
-        }
-
-        // WIRELESS PASSWORD VISIBILITY
-        function togglePasswordVisibility() {
-            const passEl = document.getElementById('wifi-pass');
-            const iconEl = document.getElementById('eye-icon');
-            if (!passEl || !iconEl) return;
-            if (passEl.classList.contains('blur-sm')) {
-                passEl.classList.remove('blur-sm'); iconEl.className = 'fa-solid fa-eye-slash text-blue-500';
-            } else {
-                passEl.classList.add('blur-sm'); iconEl.className = 'fa-solid fa-eye text-slate-600';
-            }
-        }
-
-        // SECURITY SOS ALERTS
-        async function triggerSOS() {
-            const session = getSessionData();
-            const btn = document.getElementById('btn-sos'); const icon = document.getElementById('sos-icon'); const text = document.getElementById('sos-text');
-            if (!btn) return;
-            btn.classList.replace('bg-red-600', 'bg-orange-500'); icon.classList.replace('fa-light-emergency-on', 'fa-circle-notch'); icon.classList.add('fa-spin');
-            text.textContent = 'Sending...'; btn.disabled = true;
-
-            try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: "Panic Button", Alert_Level: "CRITICAL SOS", Notes: "Triggered via mobile app" })
-                });
-                if (!res.ok) throw new Error("Network error");
-                btn.classList.replace('bg-orange-500', 'bg-emerald-500'); icon.classList.remove('fa-circle-notch', 'fa-spin'); icon.classList.add('fa-check');
-                text.textContent = 'Dispatched'; showToast("Security Dispatched to your location.", "success");
-                setTimeout(() => {
-                    btn.classList.replace('bg-emerald-500', 'bg-red-600'); icon.classList.replace('fa-check', 'fa-light-emergency-on');
-                    text.textContent = 'SOS'; btn.disabled = false;
-                }, 5000);
-            } catch(error) {
-                showToast("Connection error. Call security directly.", "error");
-                btn.classList.replace('bg-orange-500', 'bg-red-600'); icon.classList.replace('fa-circle-notch', 'fa-light-emergency-on'); icon.classList.remove('fa-spin');
-                text.textContent = 'SOS'; btn.disabled = false;
-            }
-        }
-
-        async function sendSecurityPing() {
-            const session = getSessionData();
-            const btn = document.getElementById('btn-security-ping'); const ogText = btn.innerHTML;
-            const pingType = document.getElementById('selected-security-type').value;
-            const notes = document.getElementById('security-notes').value;
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Transmitting...'; btn.disabled = true;
-
-            try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: pingType, Alert_Level: "Standard Ping", Notes: notes || "No additional details provided." })
-                });
-                if (!res.ok) throw new Error("Server error");
-                showToast(`Alert sent for: ${pingType}`, "success");
-                document.getElementById('security-notes').value = '';
-            } catch(error) { showToast("Transmission failed.", "error"); } 
-            finally { btn.innerHTML = ogText; btn.disabled = false; }
-        }
-
-        function selectSecurityOption(element, optionName) {
-            document.querySelectorAll('.sec-option').forEach(btn => {
-                btn.className = 'sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all';
-                btn.querySelector('i').className = btn.querySelector('i').className.replace('text-blue-600', 'text-blue-500');
-                btn.querySelector('span').className = 'text-xs font-semibold text-slate-700';
-            });
-            element.className = 'sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option';
-            element.querySelector('i').className = element.querySelector('i').className.replace('text-blue-500', 'text-blue-600');
-            element.querySelector('span').className = 'text-xs font-semibold text-slate-900';
-            document.getElementById('selected-security-type').value = optionName;
-            document.getElementById('security-notes').placeholder = `Add details for "${optionName}"...`;
-        }
-
-        // SHUTTLE MAP TELEMETRY
-        function openShuttleMap() {
-            const session = getSessionData();
-            const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
-            const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
-            
-            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
-                showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); return; 
-            }
-            
-            openModal('shuttleMapModal');
-            setTimeout(() => {
-                if (!mapObj) {
-                    mapObj = L.map('telemetry-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapObj);
-                }
-                if ("geolocation" in navigator) {
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                        studentCoords = [pos.coords.latitude, pos.coords.longitude];
-                        const studentIcon = L.divIcon({ className: 'student-marker', iconSize: [14, 14], iconAnchor: [7, 7] });
-                        if (!studentMarker) studentMarker = L.marker(studentCoords, { icon: studentIcon }).addTo(mapObj);
-                        else studentMarker.setLatLng(studentCoords);
-                    });
-                }
-                fetchLiveShuttleData();
-                telemetryInterval = setInterval(fetchLiveShuttleData, 5000); 
-            }, 300);
-        }
-
-        function closeShuttleMap() {
-            closeModal('shuttleMapModal'); if (telemetryInterval) { clearInterval(telemetryInterval); telemetryInterval = null; }
-        }
-
-        async function fetchLiveShuttleData() {
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-shuttle?t=' + Date.now(), { method: 'GET', cache: 'no-store' });
-                const rawData = await response.json(); const data = Array.isArray(rawData) ? rawData[0] : rawData;
-                if (data && data.Latitude && data.Longitude) {
-                    const shuttleCoords = [parseFloat(data.Latitude), parseFloat(data.Longitude)];
-                    const shuttleIcon = L.divIcon({ className: 'shuttle-marker', iconSize: [16, 16], iconAnchor: [8, 8] });
-                    if (!shuttleMarker) shuttleMarker = L.marker(shuttleCoords, { icon: shuttleIcon }).addTo(mapObj);
-                    else shuttleMarker.setLatLng(shuttleCoords);
-                    if (studentCoords) {
-                        mapObj.fitBounds(L.latLngBounds([studentCoords, shuttleCoords]), { padding: [40, 40], maxZoom: 16 });
-                        calculateSpatialETA(studentCoords[0], studentCoords[1], shuttleCoords[0], shuttleCoords[1]);
-                    } else { mapObj.setView(shuttleCoords, 16); }
-                }
-            } catch(e) {}
-        }
-
-        function calculateSpatialETA(lat1, lon1, lat2, lon2) {
-            const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            document.getElementById('shuttle-eta').innerText = Math.ceil(((6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1.4) / 35) * 60) <= 1 ? "Arriving Now" : `~${Math.ceil(((6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1.4) / 35) * 60)} Mins Away`;
-        }
-
-        function openCustomMessagePrompt() { openModal('customMsgModal'); }
-        async function submitCustomDriverMsg(btnElement) {
-            const textEl = document.getElementById('custom-driver-text'); if(!textEl || !textEl.value.trim()) return;
-            await sendShuttleRequest('Custom Message', textEl.value.trim(), btnElement); textEl.value = ''; closeModal('customMsgModal');
-        }
-
-        async function sendShuttleRequest(type, msgText, btnElement) {
-            const session = getSessionData(); const ogHtml = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; btnElement.disabled = true;
-            try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-student-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Student_Number: session.Student_Number || 'Unknown', Student_Name: session.First_Name || 'Resident', Room: session.Room_Allocation || 'Unassigned', Type: type, Message: msgText, Time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) })});
-                showToast("Request dispatched to driver portal.", "success");
-            } catch(e) { showToast("Transmission failed.", "error"); } finally { btnElement.innerHTML = ogHtml; btnElement.disabled = false; }
-        }
-
-        // ADMINISTRATIVE REQUESTS WITH MODAL LOGIC
         function openAdminRequestModal(type) {
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
             
-            // Check if the portal is locked
-            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
-                showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); 
-                return; 
-            }
+            if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); return; }
 
-            const titleEl = document.getElementById('admin-request-title');
-            const submitBtn = document.getElementById('btn-submit-admin-req');
-            const reasonInput = document.getElementById('admin-request-reason');
-            
-            document.getElementById('admin-request-type').value = type;
-            reasonInput.value = '';
+            const titleEl = document.getElementById('admin-request-title'); const submitBtn = document.getElementById('btn-submit-admin-req'); const reasonInput = document.getElementById('admin-request-reason');
+            document.getElementById('admin-request-type').value = type; reasonInput.value = '';
             
             if (type === 'Terminate Lease') {
-                titleEl.innerHTML = '<i class="fa-solid fa-file-circle-xmark text-rose-500 mr-2"></i> Terminate Lease';
-                reasonInput.placeholder = "Please explain your reason for terminating the lease...";
+                titleEl.innerHTML = '<i class="fa-solid fa-file-circle-xmark text-rose-500 mr-2"></i> Terminate Lease'; reasonInput.placeholder = "Please explain your reason for terminating the lease...";
                 submitBtn.className = 'w-full bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-rose-600/20 transition-all flex justify-center items-center gap-2 tap-effect';
             } else {
-                titleEl.innerHTML = '<i class="fa-solid fa-person-shelter text-blue-500 mr-2"></i> Request Room Change';
-                reasonInput.placeholder = "Please detail why you are requesting a room change...";
+                titleEl.innerHTML = '<i class="fa-solid fa-person-shelter text-blue-500 mr-2"></i> Request Room Change'; reasonInput.placeholder = "Please detail why you are requesting a room change...";
                 submitBtn.className = 'w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-4 shadow-lg shadow-slate-900/20 transition-all flex justify-center items-center gap-2 tap-effect';
             }
-            
             openModal('adminRequestModal');
         }
 
         async function submitAdminRequest(e) {
-            e.preventDefault();
-            const session = getSessionData();
-            const type = document.getElementById('admin-request-type').value;
-            const reason = document.getElementById('admin-request-reason').value.trim();
-            const btn = document.getElementById('btn-submit-admin-req');
-            const ogHtml = btn.innerHTML;
-            
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...';
-            btn.disabled = true;
+            e.preventDefault(); const session = getSessionData(); const type = document.getElementById('admin-request-type').value;
+            const reason = document.getElementById('admin-request-reason').value.trim(); const btn = document.getElementById('btn-submit-admin-req'); const ogHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...'; btn.disabled = true;
 
             try {
                 const res = await fetch('https://n8n.automania.cloud/webhook/phumelela-request', {
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Email_Address: session.Email_Address || 'Unknown',
-                        Student_Number: session.Student_Number || 'Unknown',
-                        First_Name: session.First_Name || 'Resident',
-                        Surname: session.Surname || '',
-                        Room: session.Room_Allocation || 'Unassigned',
-                        Request_Type: type,
-                        Reason: reason,
-                        Timestamp: new Date().toISOString()
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Email_Address: session.Email_Address || 'Unknown', Student_Number: session.Student_Number || 'Unknown', First_Name: session.First_Name || 'Resident', Surname: session.Surname || '', Room: session.Room_Allocation || 'Unassigned', Request_Type: type, Reason: reason, Timestamp: new Date().toISOString() })
                 });
 
                 if (!res.ok) throw new Error("Webhook failed");
-                
-                closeModal('adminRequestModal');
-                showToast(`${type} request submitted successfully.`, "success");
-                document.getElementById('adminRequestForm').reset();
-            } catch (error) {
-                showToast("Failed to submit request. Please try again.", "error");
-            } finally {
-                btn.innerHTML = ogHtml;
-                btn.disabled = false;
-            }
+                closeModal('adminRequestModal'); showToast(`${type} request submitted successfully.`, "success"); document.getElementById('adminRequestForm').reset();
+            } catch (error) { showToast("Failed to submit request. Please try again.", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
         }
 
-        // TAB NAVIGATION LOGIC
-        function switchTab(tabId, btnElement) {
+        // NEW EXTERNAL ROUTING GUARD LOGIC
+        function navigateExternal(modulePath) {
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
             const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
-            if (!isAppUnlocked && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security' || tabId === 'transport')) {
+            if (!isAppUnlocked) {
                 showToast("Access Denied: Pending Vetting or Room Allocation.", "error");
                 const card = document.getElementById('gateway-unlock-card');
                 if (card) { card.classList.add('border-rose-400', 'bg-rose-50'); setTimeout(() => card.classList.remove('border-rose-400', 'bg-rose-50'), 600); }
                 return;
             }
+            window.location.href = `./${modulePath}/index.html`;
+        }
 
-            if (tabId === 'transport') { openShuttleMap(); return; }
-
+        function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            const targetTab = document.getElementById('tab-' + tabId);
-            if (targetTab) targetTab.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
             
             if(btnElement) {
                 document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
@@ -1685,14 +1362,8 @@
             }
         }
 
-        function openModal(id) { 
-            const m = document.getElementById(id);
-            if (m) m.classList.add('active'); 
-        }
-        function closeModal(id) { 
-            const m = document.getElementById(id);
-            if (m) m.classList.remove('active'); 
-        }
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
 
         function showToast(message, type) {
@@ -1758,7 +1429,6 @@
             }
         }
 
-        // WEBHOOK ENDPOINT DATA PUSHERS
         async function submitProfileData() {
             const btn = document.getElementById('btn-profile-submit'); const ogHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...'; btn.disabled = true;
