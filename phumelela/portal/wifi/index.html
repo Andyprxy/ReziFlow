@@ -1,50 +1,41 @@
-<style>/* wifi tab */</style>
-
-<div class="tab-content-inner space-y-5">
+<div class="space-y-5">
     <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
         <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-wifi"></i></div>
-        <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">ReziFlow_5G</h2>
+        <h2 class="text-xl font-bold text-slate-900 mb-1">ReziFlow_5G</h2>
         <p class="text-sm text-slate-500 mb-6 font-medium">High-Speed Campus Network</p>
         <div class="bg-slate-50 rounded-[20px] p-4 text-left border border-slate-100">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Your Unique Password</p>
             <div class="flex items-center justify-between">
                 <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest blur-sm transition-all duration-300">------</p>
-                <button onclick="togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 tap-effect hover:bg-slate-100 shadow-sm transition-all">
-                    <i id="eye-icon" class="fa-solid fa-eye"></i>
-                </button>
+                <button onclick="window.togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center tap-effect"><i id="eye-icon" class="fa-solid fa-eye"></i></button>
             </div>
         </div>
     </div>
-
     <section class="mt-6 text-left">
-        <div class="flex justify-between items-center mb-3 ml-2 mr-2">
-            <h3 class="text-sm font-bold text-slate-800">Connected Devices (2/3)</h3>
-        </div>
+        <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Connected Devices</h3>
         <div class="bg-white card-shadow soft-border rounded-[28px] p-3 space-y-2">
             <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-mobile-screen"></i></div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev1">Mobile Device</p>
-                        <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                    </div>
-                </div>
-                <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-laptop"></i></div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev2">Laptop</p>
-                        <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                    </div>
-                </div>
-                <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center"><i class="fa-solid fa-mobile-screen"></i></div><div><p class="text-sm font-bold text-slate-800" id="dyn-wifi-dev1">Mobile Device</p></div></div>
+                <button class="bg-rose-50 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold">Disconnect</button>
             </div>
         </div>
     </section>
 </div>
 
 <script>
-    if (typeof hydrateGatewayEngine === 'function') hydrateGatewayEngine(false);
+    window.renderWifiData = function() {
+        const session = window.getSessionData();
+        const initials = (String(session.First_Name||'R').charAt(0) + String(session.Surname||'F').charAt(0)).toUpperCase();
+        const pass = document.getElementById('wifi-pass');
+        if(pass && session.Student_Number) pass.textContent = `${initials}-${String(session.Student_Number).substring(0,6)}`;
+        
+        const d1 = document.getElementById('dyn-wifi-dev1');
+        if(d1) d1.textContent = `${session.First_Name || 'Resident'}'s Phone`;
+    };
+
+    window.togglePasswordVisibility = function() {
+        const passEl = document.getElementById('wifi-pass'); const iconEl = document.getElementById('eye-icon');
+        if (passEl.classList.contains('blur-sm')) { passEl.classList.remove('blur-sm'); iconEl.className = 'fa-solid fa-eye-slash text-blue-500'; } 
+        else { passEl.classList.add('blur-sm'); iconEl.className = 'fa-solid fa-eye text-slate-600'; }
+    };
 </script>
