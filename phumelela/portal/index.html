@@ -88,6 +88,7 @@
 
     <div class="mobile-container">
         
+        <!-- SYSTEM OVERLAYS (Toasts, Auth Guard, Modals) -->
         <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-[9999]">
             <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm border border-slate-700">
                 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -103,58 +104,7 @@
             <p id="auth-status-text" class="text-xs text-slate-500">Verifying live server profile...</p>
         </div>
 
-        <div id="completionModal" class="absolute inset-0 z-[3000] modal-overlay flex items-center justify-center p-6 hidden">
-            <div class="glass-panel w-full max-w-sm rounded-[40px] p-8 text-center relative overflow-hidden transform scale-95 opacity-0 transition-all duration-500" id="completion-content">
-                <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
-                
-                <div class="relative z-10 flex flex-col items-center">
-                    <div class="w-24 h-24 rounded-[24px] bg-white p-1 shadow-xl shadow-emerald-900/10 ring-1 ring-slate-100 mb-6 relative">
-                        <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
-                        <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
-                    </div>
-                    
-                    <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
-                    <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
-                    
-                    <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-rotate-right"></i> Refresh Portal
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
-            <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
-                <div class="relative mx-auto w-24 h-24 mb-6">
-                    <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
-                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
-                </div>
-                <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
-                <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
-                <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
-                    <div class="space-y-4 mb-6 text-left">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
-                            <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
-                            <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
-                            <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" required>
-                        </div>
-                    </div>
-                    <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect mb-3">
-                        Initialize Portal <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                    <button type="button" onclick="manualSync()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">Data already exists? Force Sync</button>
-                </form>
-            </div>
-        </div>
-        
+        <!-- GLOBAL HEADER -->
         <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
             <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
                 <div class="flex items-center gap-2">
@@ -168,426 +118,34 @@
             </div>
         </header>
 
-        <!-- ROUTER INJECTION ROOT -->
+        <!-- ROUTER INJECTION ROOT (Subtabs go here) -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-32" id="portal-root">
             
             <!-- HOME TAB -->
             <div id="tab-home" class="tab-content active space-y-5">
-                
-                <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
-                    <div class="relative z-10 flex justify-between items-start mb-8">
-                        <div>
-                            <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mb-1.5" id="dyn-vetting-badge">Pending Vetting</p>
-                            <h1 id="dyn-fullname-home" class="text-2xl font-bold leading-tight tracking-tight">Loading...</h1>
-                        </div>
-                        <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-sm border border-white/10">
-                            <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse"></span> Active
-                        </div>
-                    </div>
-                    <div class="relative z-10 flex gap-8">
-                        <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Student ID</p><p id="dyn-id-home" class="font-bold text-sm">--</p></div>
-                        <div><p class="text-blue-100 text-[10px] uppercase font-bold tracking-wider mb-1">Room</p><p id="dyn-room-home" class="font-bold text-sm">--</p></div>
-                    </div>
-                </section>
-
-                <section id="gateway-unlock-card" class="bg-white card-shadow soft-border rounded-[28px] p-5 relative overflow-hidden transition-all duration-300 border-2 border-transparent">
-                    <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-50 to-transparent pointer-events-none"></div>
-                    <div class="flex items-center gap-4 relative z-10 mb-4">
-                        <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/100x100/0f172a/ffffff?text=PR'" class="w-14 h-14 rounded-[18px] object-cover shadow-sm border border-slate-100 flex-shrink-0 bg-slate-100">
-                        <div>
-                            <div class="flex items-center gap-2 mb-0.5"><h3 class="text-sm font-black text-slate-900 tracking-tight">Gateway Protocol</h3><i id="gateway-lock-icon" class="fa-solid fa-lock text-rose-500 text-xs"></i></div>
-                            <p id="gateway-status-text" class="text-[10px] text-slate-500 font-medium leading-snug pr-2">Finish setting up your profile to unlock Wi-Fi & Transit.</p>
-                        </div>
-                    </div>
-                    
-                    <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300">
-                    </div>
-                </section>
-
-                <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500 mt-2">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
-                    <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-cyan-400 opacity-10 rounded-full blur-2xl pointer-events-none"></div>
-                    
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div class="pr-2">
-                            <h3 class="text-base font-black text-slate-900 mb-1 tracking-tight">Accommodation Lease</h3>
-                            <p class="text-[11px] text-slate-600 font-medium leading-relaxed">Review the terms of residency. You will be able to officially sign the contract once administration approves your vetting status.</p>
-                        </div>
-                        <div class="flex flex-col items-center flex-shrink-0 pt-1">
-                            <button onclick="checkVettingStatus(this)" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-blue-600 flex items-center justify-center text-sm shadow-sm hover:bg-blue-50 transition-colors tap-effect group" title="Check Vetting Status">
-                                <i class="fa-solid fa-rotate group-hover:rotate-180 transition-transform duration-500"></i>
-                            </button>
-                            <span class="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1 text-center">Refresh<br>Status</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] p-4 flex flex-col gap-4 relative z-10 shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-blue-100/80 text-blue-600 flex items-center justify-center text-lg shadow-sm flex-shrink-0">
-                                <i class="fa-solid fa-file-signature"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800 tracking-tight">2026 Academic Year Lease</p>
-                                <p id="home-lease-status" class="text-[10px] text-rose-500 font-bold uppercase tracking-widest mt-0.5">
-                                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Status Pending
-                                </p>
-                            </div>
-                        </div>
-                        <button onclick="handleLeaseReview(this)" id="btn-home-lease" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3 text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 tap-effect">
-                            Review Terms <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <section>
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 ml-2">Building Access</h3>
-                    <div class="flex gap-3">
-                        <button class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors border border-blue-50 shadow-sm"><i class="fa-solid fa-key text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Turnstiles</span></button>
-                        <button id="btn-visitor-pin" onclick="handleVisitorPinClick()" class="flex-1 bg-[#e8f1fb] hover:bg-blue-100 py-4 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-all border border-blue-50 shadow-sm"><i class="fa-solid fa-user-plus text-blue-500 text-xl"></i><span class="text-xs font-semibold text-slate-700">Visitor PIN</span></button>
-                    </div>
-                </section>
-                
-                <div id="pin-display-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-[20px] p-4 text-center mt-2 shadow-sm animate-[fadeIn_0.3s_ease-in-out]">
-                    <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Active Visitor PIN</p>
-                    <p id="generated-pin" class="text-3xl font-mono font-bold text-slate-800 tracking-widest">------</p>
-                    <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
-                </div>
+                <!-- ✂️ PASTE HOME TAB CONTENT HERE ✂️ -->
             </div>
 
             <!-- WI-FI MODULE -->
             <div id="tab-wifi" class="tab-content space-y-5">
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
-                    <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4">
-                        <i class="fa-solid fa-wifi"></i>
-                    </div>
-                    <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight">ReziFlow_5G</h2>
-                    <p class="text-sm text-slate-500 mb-6 font-medium">High-Speed Campus Network</p>
-                    
-                    <div class="bg-slate-50 rounded-[20px] p-4 text-left border border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Your Unique Password</p>
-                        <div class="flex items-center justify-between">
-                            <p id="wifi-pass" class="font-mono text-lg font-bold text-slate-800 tracking-widest blur-sm transition-all duration-300">------</p>
-                            <button onclick="togglePasswordVisibility()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 tap-effect hover:bg-slate-100 shadow-sm transition-all">
-                                <i id="eye-icon" class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <section class="mt-6 text-left">
-                    <div class="flex justify-between items-center mb-3 ml-2 mr-2">
-                        <h3 class="text-sm font-bold text-slate-800">Connected Devices (2/3)</h3>
-                    </div>
-                    <div class="bg-white card-shadow soft-border rounded-[28px] p-3 space-y-2">
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-mobile-screen"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev1">Mobile Device</p>
-                                    <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                                </div>
-                            </div>
-                            <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100/50">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-[#e8f1fb] text-blue-500 flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-laptop"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-slate-800 tracking-tight" id="dyn-wifi-dev2">Laptop</p>
-                                    <p class="text-[11px] text-emerald-500 font-medium mt-0.5">Connected</p>
-                                </div>
-                            </div>
-                            <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-colors tap-effect" onclick="showToast('Device disconnected.', 'success')">Disconnect</button>
-                        </div>
-                    </div>
-                </section>
+                <!-- ✂️ PASTE WI-FI TAB CONTENT HERE ✂️ -->
             </div>
 
             <!-- PREMIUM SNAGS MODULE -->
             <div id="tab-snags" class="tab-content space-y-5">
-                
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-5">
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Maintenance</h2>
-                            <p class="text-xs text-slate-500 font-medium mt-0.5">Report & track room issues</p>
-                        </div>
-                        <button onclick="openModal('snagModal')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-10 h-10 flex items-center justify-center tap-effect shadow-md shadow-blue-500/30 transition-colors">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-
-                    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
-                        <div onclick="openModalWithCategory('Plumbing')" class="bg-[#f5f5f7] hover:bg-blue-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-faucet-drip"></i></div>
-                            <span class="text-[10px] font-bold text-slate-700">Plumbing</span>
-                        </div>
-                        <div onclick="openModalWithCategory('Electrical')" class="bg-[#f5f5f7] hover:bg-yellow-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-yellow-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-plug"></i></div>
-                            <span class="text-[10px] font-bold text-slate-700">Electrical</span>
-                        </div>
-                        <div onclick="openModalWithCategory('Furniture')" class="bg-[#f5f5f7] hover:bg-orange-50 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-orange-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chair"></i></div>
-                            <span class="text-[10px] font-bold text-slate-700">Furniture</span>
-                        </div>
-                        <div onclick="openModalWithCategory('Locks')" class="bg-[#f5f5f7] hover:bg-slate-100 border border-slate-100 flex-shrink-0 w-24 p-3 rounded-[20px] flex flex-col items-center gap-2 tap-effect transition-colors cursor-pointer group">
-                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-600 group-hover:scale-110 transition-transform"><i class="fa-solid fa-door-closed"></i></div>
-                            <span class="text-[10px] font-bold text-slate-700">Locks</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-bold text-slate-800 mb-3 ml-2 uppercase tracking-widest">Active Tracker</h3>
-                    <div id="active-tickets-container" class="space-y-4">
-                        <div class="bg-white border border-slate-100 rounded-[28px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
-                            
-                            <div class="flex justify-between items-start mb-5">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                                        <i class="fa-solid fa-wrench text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-black text-slate-900 tracking-tight">Logged Request</h4>
-                                        <p class="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">Live Updates</p>
-                                    </div>
-                                </div>
-                                <span class="bg-blue-600 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm shadow-blue-500/30 flex items-center gap-1.5 animate-pulse">
-                                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> Processing
-                                </span>
-                            </div>
-
-                            <div class="relative pt-2 pb-5 px-1">
-                                <div class="absolute left-0 top-[13px] w-full h-1 bg-slate-100 rounded-full z-0"></div>
-                                <div class="absolute left-0 top-[13px] w-[33%] h-1 bg-blue-500 rounded-full z-0 transition-all duration-1000 ease-in-out"></div>
-                                
-                                <div class="relative z-10 flex justify-between">
-                                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm"></div>
-                                    <div class="w-3.5 h-3.5 bg-blue-500 rounded-full ring-4 ring-white shadow-sm ring-offset-1 ring-offset-blue-100"></div>
-                                    <div class="w-3.5 h-3.5 bg-slate-200 rounded-full ring-4 ring-white shadow-sm"></div>
-                                    <div class="w-3.5 h-3.5 bg-slate-200 rounded-full ring-4 ring-white shadow-sm"></div>
-                                </div>
-                                
-                                <div class="flex justify-between mt-2 -mx-2">
-                                    <span class="text-[8px] font-black text-blue-600 uppercase w-1/4 text-center">Logged</span>
-                                    <span class="text-[8px] font-bold text-slate-500 uppercase w-1/4 text-center">Assigned</span>
-                                    <span class="text-[8px] font-bold text-slate-400 uppercase w-1/4 text-center">Fixing</span>
-                                    <span class="text-[8px] font-bold text-slate-400 uppercase w-1/4 text-center">Resolved</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-2 bg-[#f5f5f7] rounded-[20px] overflow-hidden border border-slate-100 transition-all duration-300">
-                                <button onclick="toggleSnagInlineChat('active-mock')" class="w-full py-3.5 px-4 flex justify-between items-center tap-effect">
-                                    <span class="text-[11px] font-bold text-slate-700 flex items-center gap-2">
-                                        <i class="fa-regular fa-comments text-blue-500 text-sm"></i> Live Officer Chat
-                                    </span>
-                                    <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-400 transition-transform duration-300" id="chat-icon-active-mock">
-                                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                                    </div>
-                                </button>
-
-                                <div id="chat-body-active-mock" class="hidden bg-white px-4 pb-4 pt-2 border-t border-slate-100">
-                                    <div class="h-32 overflow-y-auto custom-scroll space-y-3 pr-2 mb-3 flex flex-col text-left" id="chat-history-active-mock">
-                                        <div class="flex justify-center"><span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Ticket logged into ReziFlow Node</span></div>
-                                    </div>
-                                    <div class="flex gap-2 items-center bg-[#f5f5f7] p-1.5 rounded-2xl border border-slate-200">
-                                        <input type="text" id="chat-input-active-mock" placeholder="Type a message..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400">
-                                        <button onclick="sendSnagInlineMessage('active-mock')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 transition-all">
-                                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+                <!-- ✂️ PASTE MAINTENANCE/SNAGS TAB CONTENT HERE ✂️ -->
             </div>
 
             <!-- SECURITY MODULE -->
             <div id="tab-security" class="tab-content space-y-5">
-                <section class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
-                    <h2 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Emergency SOS</h2>
-                    <p class="text-[11px] text-slate-500 mb-6 font-medium">Tap to alert on-site security immediately</p>
-                    
-                    <div class="relative w-36 h-36 mx-auto mb-6 flex items-center justify-center">
-                        <div class="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-70"></div>
-                        <div class="absolute inset-4 bg-red-200 rounded-full"></div>
-                        <button id="btn-sos" onclick="triggerSOS()" class="relative z-10 w-24 h-24 bg-red-600 text-white rounded-full flex flex-col items-center justify-center tap-effect shadow-xl shadow-red-500/30 active:scale-90 transition-all duration-300">
-                            <i id="sos-icon" class="fa-solid fa-light-emergency-on text-2xl mb-1"></i>
-                            <span id="sos-text" class="font-bold text-sm">SOS</span>
-                        </button>
-                    </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Your room and ID are shared with security.</p>
-                </section>
-
-                <section class="bg-white card-shadow soft-border rounded-[28px] p-6">
-                    <h2 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">Ping Security</h2>
-                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Choose the type of help you need</p>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-regular fa-eye text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Suspicious Person</span>
-                        </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option">
-                            <i class="fa-solid fa-location-dot text-blue-600 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-900">Escort Request</span>
-                        </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Disturbance')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-solid fa-triangle-exclamation text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Disturbance</span>
-                        </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Medical Help')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-solid fa-phone text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Medical Help</span>
-                        </button>
-                    </div>
-
-                    <input type="hidden" id="selected-security-type" value="Escort Request">
-                    <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all" placeholder="Add details for 'Escort Request'..."></textarea>
-                    
-                    <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-blue-500/20 transition-colors flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-paper-plane"></i> Send Alert
-                    </button>
-                </section>
+                <!-- ✂️ PASTE SECURITY TAB CONTENT HERE ✂️ -->
             </div>
             
             <!-- PROFILE TAB -->
             <div id="tab-profile" class="tab-content space-y-5">
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-5 flex items-center gap-4">
-                    <div class="relative flex-shrink-0">
-                        <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-inner overflow-hidden" id="profile-initials">--</div>
-                        <button id="btn-profile-upload" onclick="document.getElementById('profile-upload').click()" class="hidden absolute -bottom-1 -right-1 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] shadow-sm border-2 border-white tap-effect hover:bg-blue-600 transition-colors">
-                            <i class="fa-solid fa-camera"></i>
-                        </button>
-                        <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
-                    </div>
-                    <div>
-                        <h2 id="dyn-fullname-profile" class="text-lg font-bold text-slate-900 leading-tight tracking-tight">--</h2>
-                        <p id="dyn-details-profile" class="text-xs font-medium text-blue-500 mt-0.5">--</p>
-                    </div>
-                </div>
-
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-regular fa-address-card text-blue-500 mr-2"></i> Personal Information</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">ID Number</span><span id="dyn-id-number" class="text-xs font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Gender</span><span id="dyn-gender" class="text-xs font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-mobile" class="text-xs font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Home Address</span><span id="dyn-address" class="text-xs font-bold text-slate-800 text-right max-w-[180px] truncate">--</span></div>
-                    </div>
-                </div>
-
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-6">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-shield-heart text-indigo-500 mr-2"></i> Guardian Details</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Name</span><span id="dyn-guardian-name" class="text-xs font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Relationship</span><span id="dyn-guardian-rel" class="text-xs font-bold text-slate-800">--</span></div>
-                        <div class="flex justify-between"><span class="text-xs text-slate-500 font-medium">Contact Number</span><span id="dyn-guardian-num" class="text-xs font-bold text-slate-800">--</span></div>
-                    </div>
-                    
-                    <!-- NEW MEDICAL CONDITIONS DISPLAY BLOCK - RESTYLED IN RED -->
-                    <div class="pt-3 border-t border-slate-100 mt-3">
-                        <span class="text-[10px] text-rose-600 font-bold uppercase tracking-widest block mb-1"><i class="fa-solid fa-notes-medical mr-1"></i> Medical Conditions & Allergies</span>
-                        <span id="dyn-medical" class="text-xs font-bold text-slate-800 leading-relaxed block">None</span>
-                    </div>
-                </div>
-
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mb-4">
-                    <div class="flex justify-between items-start mb-5">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900 mb-1 tracking-tight">Digital Vault</h3>
-                            <p class="text-[11px] text-slate-500 font-medium">Access your securely uploaded files.</p>
-                        </div>
-                        <button onclick="manualSync()" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm hover:bg-blue-100 transition-colors" title="Sync Vault"><i class="fa-solid fa-rotate-right"></i></button>
-                    </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-id-card"></i></div>
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Identity Document</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">ID / Passport</p>
-                                </div>
-                            </div>
-                            <div id="doc-btn-id"></div>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Academic Registration</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium" id="dyn-course-name">--</p>
-                                </div>
-                            </div>
-                            <div id="doc-btn-reg"></div>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-landmark"></i></div>
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Funding Pipeline</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 capitalize font-medium" id="dyn-funding-type">--</p>
-                                </div>
-                            </div>
-                            <div id="doc-btn-fund"></div>
-                        </div>
-
-                        <div id="profile-vault-payslip" class="hidden flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Latest Payslip</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Cash Payer Docs</p>
-                                </div>
-                            </div>
-                            <div id="doc-btn-payslip"></div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-[20px] border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm"><i class="fa-solid fa-file-signature"></i></div>
-                                <div>
-                                    <p class="text-sm font-semibold text-slate-800 tracking-tight">Signed Lease</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Legally Binding Contract</p>
-                                </div>
-                            </div>
-                            <div id="doc-btn-lease"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-blue-100">
-                        <i class="fa-solid fa-shield-check text-blue-500 text-lg mt-0.5"></i>
-                        <div>
-                            <p class="text-xs font-bold text-slate-800">Automania Architecture</p>
-                            <p class="text-[10px] text-slate-500 mt-0.5 leading-relaxed font-medium">Files are stored securely in encrypted cloud nodes.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ADMINISTRATIVE ACTIONS -->
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 mb-4">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 tracking-tight"><i class="fa-solid fa-sliders text-slate-500 mr-2"></i> Administrative Actions</h3>
-                    <div class="space-y-3">
-                        <button id="btn-room-change" onclick="openAdminRequestModal('Room Change')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-person-shelter text-blue-500 text-sm"></i> Request Room Change</span>
-                            <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
-                        </button>
-                        <button id="btn-terminate-lease" onclick="openAdminRequestModal('Terminate Lease')" class="w-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold rounded-xl py-3.5 text-xs transition-all shadow-sm flex items-center justify-between px-4 tap-effect">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-file-circle-xmark text-rose-500 text-sm"></i> Terminate Lease</span>
-                            <i class="fa-solid fa-chevron-right text-rose-400 text-[10px]"></i>
-                        </button>
-                    </div>
-                </div>
-
+                <!-- ✂️ PASTE PROFILE TAB CONTENT HERE ✂️ -->
             </div>
+
         </main>
 
         <!-- FIXED BOTTOM NAVIGATION BAR -->
@@ -601,6 +159,62 @@
             </div>
             <div class="w-1/3 h-1 bg-slate-300 rounded-full mx-auto mt-4"></div>
         </nav>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- GLOBAL MODALS (Leave these in the Mother File) -->
+    <!-- ============================================== -->
+
+    <div id="completionModal" class="absolute inset-0 z-[3000] modal-overlay flex items-center justify-center p-6 hidden">
+        <div class="glass-panel w-full max-w-sm rounded-[40px] p-8 text-center relative overflow-hidden transform scale-95 opacity-0 transition-all duration-500" id="completion-content">
+            <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col items-center">
+                <div class="w-24 h-24 rounded-[24px] bg-white p-1 shadow-xl shadow-emerald-900/10 ring-1 ring-slate-100 mb-6 relative">
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
+                    <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
+                </div>
+                
+                <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
+                <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
+                
+                <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Portal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
+        <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
+            <div class="relative mx-auto w-24 h-24 mb-6">
+                <div class="absolute inset-0 bg-white rounded-2xl blur-md opacity-80"></div>
+                <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" alt="Phumelela Logo" class="relative w-full h-full object-cover rounded-2xl shadow-xl shadow-blue-900/10 ring-4 ring-white">
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Welcome to Phumelela</h2>
+            <p class="text-slate-500 mb-6 text-xs font-medium leading-relaxed">Please confirm your name and student number to initialize your secure portal.</p>
+            <form id="welcomeForm" onsubmit="submitWelcomeSetup(event)">
+                <div class="space-y-4 mb-6 text-left">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label>
+                        <input type="text" id="setup-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label>
+                        <input type="text" id="setup-sname" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold focus:outline-none focus:border-blue-500 transition-colors" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label>
+                        <input type="text" id="setup-student-num" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-semibold font-mono focus:outline-none focus:border-blue-500 transition-colors" required>
+                    </div>
+                </div>
+                <button type="submit" id="btn-init-portal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 tap-effect mb-3">
+                    Initialize Portal <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button type="button" onclick="manualSync()" class="text-[10px] text-slate-400 font-bold hover:text-blue-500 transition-colors underline">Data already exists? Force Sync</button>
+            </form>
+        </div>
     </div>
 
     <!-- NEW ADMIN REQUEST MODAL -->
@@ -979,7 +593,9 @@
         </div>
     </div>
 
+    <!-- ============================================== -->
     <!-- CORE WORKFLOW ENGINE SCRIPT -->
+    <!-- ============================================== -->
     <script>
         let gatewayPercentage = 0;
         let profilePercentage = 0;
@@ -1001,6 +617,12 @@
             'Street_Address', 'City', 'Postal_Code', 'Guardian_Name', 
             'Guardian_Number', 'Guardian_Relationship'
         ];
+
+        // Safe DOM Text Setter to prevent crashes if Subtabs are empty
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
 
         function getSessionData() {
             let rawSession = localStorage.getItem('reziflow_session');
@@ -1174,27 +796,27 @@
             const session = overrideSession || getSessionData();
             
             const initials = (String(session.First_Name || 'R').charAt(0) + String(session.Surname || 'F').charAt(0)).toUpperCase();
-            document.getElementById('header-initials').textContent = initials;
-            document.getElementById('profile-initials').textContent = initials;
+            safeSetText('header-initials', initials);
+            safeSetText('profile-initials', initials);
             
             const fullName = `${session.First_Name || 'New'} ${session.Surname || ''}`.trim();
-            document.getElementById('dyn-fullname-home').textContent = fullName;
-            document.getElementById('dyn-fullname-profile').textContent = fullName;
+            safeSetText('dyn-fullname-home', fullName);
+            safeSetText('dyn-fullname-profile', fullName);
             
             const studentId = isValidData(session.Student_Number) ? String(session.Student_Number) : '--';
-            document.getElementById('dyn-id-home').textContent = studentId;
-            document.getElementById('dyn-id-number').textContent = studentId;
+            safeSetText('dyn-id-home', studentId);
+            safeSetText('dyn-id-number', studentId);
             
             try {
                 if (studentId !== '--') {
-                    document.getElementById('wifi-pass').textContent = `${initials}-${studentId.substring(0,6)}`;
-                    document.getElementById('dyn-wifi-dev1').textContent = `${session.First_Name || 'Resident'}'s Phone`;
-                    document.getElementById('dyn-wifi-dev2').textContent = `${session.First_Name || 'Resident'}'s Laptop`;
+                    safeSetText('wifi-pass', `${initials}-${studentId.substring(0,6)}`);
+                    safeSetText('dyn-wifi-dev1', `${session.First_Name || 'Resident'}'s Phone`);
+                    safeSetText('dyn-wifi-dev2', `${session.First_Name || 'Resident'}'s Laptop`);
                 }
             } catch(e) { console.warn("Wi-Fi sync bypass"); }
 
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? String(session.Room_Allocation) : 'Unassigned';
-            document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
+            safeSetText('dyn-room-home', roomAllocatedStr);
             
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
@@ -1210,15 +832,11 @@
                 }
             });
 
-            // Action elements safeguard
             const actionElements = [document.getElementById('btn-visitor-pin'), document.getElementById('btn-room-change'), document.getElementById('btn-terminate-lease')];
             actionElements.forEach(el => {
                 if (el) {
-                    if (shouldUnlockTabs) {
-                        el.classList.remove('opacity-50', 'grayscale');
-                    } else {
-                        el.classList.add('opacity-50', 'grayscale');
-                    }
+                    if (shouldUnlockTabs) { el.classList.remove('opacity-50', 'grayscale'); } 
+                    else { el.classList.add('opacity-50', 'grayscale'); }
                 }
             });
 
@@ -1230,19 +848,18 @@
 
             if (session.Profile_Pic) applyProfilePic(session.Profile_Pic);
 
-            document.getElementById('dyn-details-profile').textContent = `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`;
-            document.getElementById('dyn-gender').textContent = isValidData(session.Gender) ? session.Gender : '--';
-            document.getElementById('dyn-mobile').textContent = isValidData(session.Mobile_Number) ? session.Mobile_Number : '--';
-            document.getElementById('dyn-address').textContent = `${isValidData(session.Street_Address) ? session.Street_Address : ''}, ${isValidData(session.City) ? session.City : ''}`.replace(/^, /, '');
-            document.getElementById('dyn-guardian-name').textContent = isValidData(session.Guardian_Name) ? session.Guardian_Name : '--';
-            document.getElementById('dyn-guardian-rel').textContent = isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--';
-            document.getElementById('dyn-guardian-num').textContent = isValidData(session.Guardian_Number) ? session.Guardian_Number : '--';
+            safeSetText('dyn-details-profile', `${isValidData(session.Year_Level) ? session.Year_Level : 'Student'} • ${isValidData(session.Campus_Hub) ? session.Campus_Hub : 'Campus'}`);
+            safeSetText('dyn-gender', isValidData(session.Gender) ? session.Gender : '--');
+            safeSetText('dyn-mobile', isValidData(session.Mobile_Number) ? session.Mobile_Number : '--');
+            safeSetText('dyn-address', `${isValidData(session.Street_Address) ? session.Street_Address : ''}, ${isValidData(session.City) ? session.City : ''}`.replace(/^, /, ''));
+            safeSetText('dyn-guardian-name', isValidData(session.Guardian_Name) ? session.Guardian_Name : '--');
+            safeSetText('dyn-guardian-rel', isValidData(session.Guardian_Relationship) ? session.Guardian_Relationship : '--');
+            safeSetText('dyn-guardian-num', isValidData(session.Guardian_Number) ? session.Guardian_Number : '--');
             
             const medVal = session.Medical || session.Medical_Condition;
-            document.getElementById('dyn-medical').textContent = isValidData(medVal) ? medVal : 'None';
-            
-            document.getElementById('dyn-course-name').textContent = isValidData(session.Course) ? session.Course : '--';
-            document.getElementById('dyn-funding-type').textContent = isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending';
+            safeSetText('dyn-medical', isValidData(medVal) ? medVal : 'None');
+            safeSetText('dyn-course-name', isValidData(session.Course) ? session.Course : '--');
+            safeSetText('dyn-funding-type', isValidData(session.Funding_Type) ? session.Funding_Type : 'Pending');
 
             const renderDocButton = (containerId, url) => {
                 const container = document.getElementById(containerId);
@@ -1342,20 +959,21 @@
             } 
             else if (isAdminAlerted || (profilePercentage >= 100 && vaultPercentage >= 100)) {
                 if (isAdminAlerted) {
-                    gatewayCardContent.innerHTML = progressBarsHtml + `
-                        <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
-                            <div>
-                                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
-                                <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once vetting is approved.</p>
+                    if (gatewayCardContent) {
+                        gatewayCardContent.innerHTML = progressBarsHtml + `
+                            <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Admin Alerted</p>
+                                    <p class="text-xs text-emerald-600 font-medium leading-tight mt-0.5">Vetting in progress. Please review your lease below. You will be able to sign it once vetting is approved.</p>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
-                    lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
-                    statusText.textContent = isVettingApproved ? "Vetting Approved. Please sign your lease." : "All systems active. Stand by for Gateway unlock.";
-                    
-                    if(vettingBadge) vettingBadge.textContent = isVettingApproved ? 'Vetting Approved' : 'Pending Vetting';
+                        `;
+                    }
+                    if (gatewayCard) gatewayCard.classList.add('border-emerald-200', 'bg-emerald-50/30');
+                    if (lockIcon) lockIcon.className = 'fa-solid fa-lock-open text-emerald-500 text-xs';
+                    if (statusText) statusText.textContent = isVettingApproved ? "Vetting Approved. Please sign your lease." : "All systems active. Stand by for Gateway unlock.";
+                    if (vettingBadge) vettingBadge.textContent = isVettingApproved ? 'Vetting Approved' : 'Pending Vetting';
                     
                     if(leaseSlot) {
                         leaseSlot.classList.remove('hidden');
@@ -1408,24 +1026,26 @@
                     }
                 } 
                 else {
-                    gatewayCardContent.innerHTML = progressBarsHtml + `
-                        <div class="mt-2 pt-3 border-t border-slate-100">
-                            <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
-                                <i class="fa-solid fa-paper-plane animate-pulse text-blue-200"></i> Finalize & Alert Admin
-                            </button>
-                        </div>
-                    `;
+                    if (gatewayCardContent) {
+                        gatewayCardContent.innerHTML = progressBarsHtml + `
+                            <div class="mt-2 pt-3 border-t border-slate-100">
+                                <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
+                                    <i class="fa-solid fa-paper-plane animate-pulse text-blue-200"></i> Finalize & Alert Admin
+                                </button>
+                            </div>
+                        `;
+                    }
                     if(leaseSlot) leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
-                    lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
-                    statusText.textContent = "Profile complete. Please alert the admin to finalize your application.";
+                    if (lockIcon) lockIcon.className = 'fa-solid fa-unlock text-blue-500 text-xs';
+                    if (statusText) statusText.textContent = "Profile complete. Please alert the admin to finalize your application.";
                     if(vettingBadge) vettingBadge.textContent = 'Action Required';
                 }
             } else {
-                gatewayCardContent.innerHTML = progressBarsHtml;
+                if (gatewayCardContent) gatewayCardContent.innerHTML = progressBarsHtml;
                 if(leaseSlot) leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
-                lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
-                statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
-                gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
+                if (lockIcon) lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
+                if (statusText) statusText.textContent = "Complete your Profile Info and Documents to unlock access.";
+                if (gatewayCard) gatewayCard.classList.remove('border-emerald-200', 'bg-emerald-50/30');
                 if(vettingBadge) vettingBadge.textContent = 'Pending Vetting';
             }
 
@@ -1573,9 +1193,14 @@
             if(!base64Img) return;
             const headerAvatar = document.getElementById('header-initials');
             const profileAvatar = document.getElementById('profile-initials');
-            headerAvatar.textContent = ''; profileAvatar.textContent = '';
-            headerAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
-            profileAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
+            if (headerAvatar) {
+                headerAvatar.textContent = '';
+                headerAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
+            }
+            if (profileAvatar) {
+                profileAvatar.textContent = '';
+                profileAvatar.innerHTML = `<img src="${base64Img}" class="w-full h-full object-cover" />`;
+            }
         }
 
         // LEASE SIGNATURE SYSTEM
@@ -1678,8 +1303,11 @@
                 try { const data = await res.json(); if (data && data.pin) pinVal = data.pin; } catch(err) {} 
                 
                 closeModal('visitorModal');
-                document.getElementById('pin-display-container').classList.remove('hidden');
-                document.getElementById('generated-pin').textContent = pinVal; 
+                const pinDisplay = document.getElementById('pin-display-container');
+                if (pinDisplay) {
+                    pinDisplay.classList.remove('hidden');
+                    document.getElementById('generated-pin').textContent = pinVal; 
+                }
                 showToast("Visitor PIN Generated", "success");
                 document.getElementById('visitorForm').reset();
             } catch (error) { showToast("Failed to connect to access system.", "error"); } 
@@ -1688,7 +1316,8 @@
 
         // SNAGS MAINTENANCE SUBMISSIONS
         function openModalWithCategory(categoryStr) {
-            document.getElementById('snag-category').value = categoryStr;
+            const catInput = document.getElementById('snag-category');
+            if (catInput) catInput.value = categoryStr;
             openModal('snagModal');
         }
 
@@ -1715,39 +1344,11 @@
             finally { btn.innerHTML = ogText; btn.disabled = false; }
         }
 
-        // PREMIUM COLLAPSIBLE MOCK CHAT INTERACTION
-        function toggleSnagInlineChat(ticketId) {
-            const chatBody = document.getElementById(`chat-body-${ticketId}`);
-            const icon = document.getElementById(`chat-icon-${ticketId}`);
-            if (chatBody.classList.contains('hidden')) {
-                chatBody.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)';
-            } else {
-                chatBody.classList.add('hidden'); icon.style.transform = 'rotate(0deg)';
-            }
-        }
-
-        function sendSnagInlineMessage(ticketId) {
-            const inputField = document.getElementById(`chat-input-${ticketId}`);
-            const message = inputField.value.trim();
-            if (!message) return;
-
-            const chatHistory = document.getElementById(`chat-history-${ticketId}`);
-            const userMsgHTML = `
-                <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
-                    <div class="bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            chatHistory.insertAdjacentHTML('beforeend', userMsgHTML);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            inputField.value = '';
-        }
-
         // WIRELESS PASSWORD VISIBILITY
         function togglePasswordVisibility() {
             const passEl = document.getElementById('wifi-pass');
             const iconEl = document.getElementById('eye-icon');
+            if (!passEl || !iconEl) return;
             if (passEl.classList.contains('blur-sm')) {
                 passEl.classList.remove('blur-sm'); iconEl.className = 'fa-solid fa-eye-slash text-blue-500';
             } else {
@@ -1759,6 +1360,7 @@
         async function triggerSOS() {
             const session = getSessionData();
             const btn = document.getElementById('btn-sos'); const icon = document.getElementById('sos-icon'); const text = document.getElementById('sos-text');
+            if (!btn) return;
             btn.classList.replace('bg-red-600', 'bg-orange-500'); icon.classList.replace('fa-light-emergency-on', 'fa-circle-notch'); icon.classList.add('fa-spin');
             text.textContent = 'Sending...'; btn.disabled = true;
 
@@ -1977,7 +1579,8 @@
             if (tabId === 'transport') { openShuttleMap(); return; }
 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.add('active');
             
             if(btnElement) {
                 document.querySelectorAll('.nav-btn[onclick^="switchTab"]').forEach(btn => {
@@ -1987,8 +1590,14 @@
             }
         }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openModal(id) { 
+            const m = document.getElementById(id);
+            if (m) m.classList.add('active'); 
+        }
+        function closeModal(id) { 
+            const m = document.getElementById(id);
+            if (m) m.classList.remove('active'); 
+        }
         function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
 
         function showToast(message, type) {
