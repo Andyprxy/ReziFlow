@@ -1,8 +1,9 @@
-<div class="space-y-5 animate-[fadeIn_0.3s_ease-in-out]">
+<style>/* security tab */</style>
+
+<div class="tab-content-inner space-y-5">
     <section class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
         <h2 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Emergency SOS</h2>
         <p class="text-[11px] text-slate-500 mb-6 font-medium">Tap to alert on-site security immediately</p>
-        
         <div class="relative w-36 h-36 mx-auto mb-6 flex items-center justify-center">
             <div class="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-70"></div>
             <div class="absolute inset-4 bg-red-200 rounded-full"></div>
@@ -17,7 +18,6 @@
     <section class="bg-white card-shadow soft-border rounded-[28px] p-6">
         <h2 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">Ping Security</h2>
         <p class="text-[11px] text-slate-500 mb-4 font-medium">Choose the type of help you need</p>
-
         <div class="grid grid-cols-2 gap-3 mb-4">
             <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
                 <i class="fa-regular fa-eye text-blue-500 mb-2 block"></i>
@@ -36,13 +36,14 @@
                 <span class="text-xs font-semibold text-slate-700">Medical Help</span>
             </button>
         </div>
-
         <input type="hidden" id="selected-security-type" value="Escort Request">
         <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all" placeholder="Add details for 'Escort Request'..."></textarea>
-        
         <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-blue-500/20 transition-colors flex items-center justify-center gap-2">
             <i class="fa-regular fa-paper-plane"></i> Send Alert
         </button>
     </section>
 </div>
-<script>if(window.location.pathname.endsWith('/security/') || window.location.pathname.endsWith('/security/index.html')) window.location.href = '../';</script>
+
+<script>
+    if (typeof hydrateGatewayEngine === 'function') hydrateGatewayEngine(false);
+</script>
