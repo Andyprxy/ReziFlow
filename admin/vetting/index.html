@@ -375,25 +375,21 @@
         const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
         const total = approvedStudents.length;
         
-        // Gender Breakdown
         const male = approvedStudents.filter(s => String(s.Gender).toLowerCase().startsWith('m')).length;
         const female = approvedStudents.filter(s => String(s.Gender).toLowerCase().startsWith('f')).length;
         const malePct = total ? Math.round((male / total) * 100) : 0;
         
-        // Funding Breakdown
         const nsfas = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length;
         const bursary = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length;
         const cash = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
 
         dash.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Total Card -->
                 <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-users"></i></div>
                     <div><p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Total Approved</p><p class="text-2xl font-black text-slate-800 leading-none">${total}</p></div>
                 </div>
                 
-                <!-- Gender Card -->
                 <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex flex-col justify-center">
                     <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Gender Demographics</p>
                     <div class="flex items-center gap-3">
@@ -407,7 +403,6 @@
                     </div>
                 </div>
 
-                <!-- Funding Breakdown -->
                 <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex flex-col justify-center gap-1.5">
                     <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Funding Profile</p>
                     <div class="flex gap-2 justify-between">
@@ -423,7 +418,6 @@
     window.renderAllocationDashboard = async function() {
         const dash = document.getElementById('dynamic-dashboard');
         
-        // 1. Calculate Student Allocation Status
         let totalApproved = 0; let allocatedStudents = 0;
         if (typeof globalStudentData !== 'undefined' && globalStudentData) {
             const approved = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
@@ -433,8 +427,6 @@
         const unallocatedStudents = totalApproved - allocatedStudents;
         const studentDeg = totalApproved ? (allocatedStudents / totalApproved) * 360 : 0;
 
-        // 2. Calculate Physical Room Inventory Status
-        // Fetch inventory if missing
         if (!window.globalRoomData || window.globalRoomData.length === 0) {
             dash.innerHTML = `<div class="flex items-center justify-center py-6 text-slate-400 text-xs gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Polling Inventory Sensors...</div>`;
             try {
@@ -457,10 +449,8 @@
         const unOccupiedBeds = totalBeds - occupiedBeds;
         const roomDeg = totalBeds ? (occupiedBeds / totalBeds) * 360 : 0;
 
-        // Render Dual Charts
         dash.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Chart 1: Student Allocation -->
                 <div class="flex items-center justify-center gap-6 bg-white/70 p-4 rounded-xl border border-white shadow-sm">
                     <div class="relative w-16 h-16 shrink-0 rounded-full pie-chart-anim" style="background: conic-gradient(#3b82f6 0deg, #3b82f6 ${studentDeg}deg, #e2e8f0 ${studentDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                         <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
@@ -475,7 +465,6 @@
                     </div>
                 </div>
 
-                <!-- Chart 2: Room Inventory -->
                 <div class="flex items-center justify-center gap-6 bg-white/70 p-4 rounded-xl border border-white shadow-sm">
                     <div class="relative w-16 h-16 shrink-0 rounded-full pie-chart-anim" style="background: conic-gradient(#10b981 0deg, #10b981 ${roomDeg}deg, #e2e8f0 ${roomDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                         <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
@@ -493,6 +482,7 @@
         `;
     };
 
+    // 1. GET REZIFLOW-REQUESTS
     window.fetchAndRenderRequests = async function() {
         const tbody = document.getElementById('hub-queue-body');
         const thead = document.getElementById('hub-thead');
@@ -521,6 +511,7 @@
         }
     };
 
+    // 2. GET REZIFLOW-REJECTZ
     window.fetchAndRenderRejections = async function() {
         const tbody = document.getElementById('hub-queue-body');
         const thead = document.getElementById('hub-thead');
@@ -738,6 +729,8 @@
     // ----------------------------------------------------
     // PIPELINES & WEBHOOKS (Synchronous Await Logic)
     // ----------------------------------------------------
+    
+    // 3. POST REZIFLOW-REQUEST
     window.submitRequestDecision = async function(studentId, rowId, btnElement) {
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
@@ -796,6 +789,7 @@
         finally { btnElement.innerHTML = originalText; btnElement.disabled = false; }
     };
     
+    // 4. POST REZIFLOW-REMOVE
     window.removeAllocation = async function(studentId, btnElement) {
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
@@ -825,6 +819,7 @@
     };
     window.closeRejectModal = function() { document.getElementById('rejectModal').classList.remove('active'); currentRejectStudentId = null; };
 
+    // 5. POST PHUMELELA-REJECTIONS
     window.submitRejection = async function(e) {
         e.preventDefault(); 
         const btn = document.getElementById('btn-submit-reject'); 
@@ -836,7 +831,7 @@
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
         try {
-            await fetch('https://n8n.automania.cloud/webhook/reziflow-rejectz', {
+            await fetch('https://n8n.automania.cloud/webhook/phumelela-rejections', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
             });
@@ -890,7 +885,6 @@
         const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
         const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
         
-        // Upgraded Room Bubble Generator
         const generateRoomCard = (r) => `
             <div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-blue-300 hover:shadow-md transition-all flex flex-row items-center justify-between group gap-2">
                 <div class="flex items-center gap-3">
