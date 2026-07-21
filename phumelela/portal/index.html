@@ -5,17 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ReziFlow | Phumelela Portal</title>
     
-    <!-- STRICT AUTHENTICATION GUARD -->
+    <!-- STRICT AUTHENTICATION CLOAK -->
+    <style id="auth-cloak">body { display: none !important; }</style>
     <script>
         (function() {
+            let isValid = false;
             try {
                 const rawSession = localStorage.getItem('reziflow_session');
-                if (!rawSession) throw new Error("No session found");
-                const parsedSession = JSON.parse(rawSession);
-                if (!parsedSession.Email_Address && !parsedSession.Email) throw new Error("Invalid session signature");
-            } catch (e) {
-                // Instantly block rendering and route to the only entry gate
-                window.location.replace('/phumelela/signin/');
+                if (rawSession) {
+                    const parsedSession = JSON.parse(rawSession);
+                    if (parsedSession.Email_Address || parsedSession.Email) {
+                        isValid = true;
+                    }
+                }
+            } catch (e) {}
+
+            if (!isValid) {
+                // Instantly redirect without ever rendering the DOM
+                window.location.replace('https://reziflow.online/phumelela/signin/');
+            } else {
+                // Uncloak the body if session is valid
+                document.getElementById('auth-cloak').disabled = true;
             }
         })();
     </script>
@@ -134,7 +144,7 @@
                     <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
                     
                     <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-rotate-right"></i> Refresh Portal
+                        <i class="fa-solid fa-rotate-right"></i> Enter Portal
                     </button>
                 </div>
             </div>
@@ -367,57 +377,54 @@
                 </div>
             </div>
 
-            <!-- ENHANCED SECURITY MODULE -->
+            <!-- REVISED SECURITY MODULE -->
             <div id="tab-security" class="tab-content space-y-5">
                 
-                <!-- Premium SOS Slider -->
-                <section class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
-                    <h2 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Emergency SOS</h2>
-                    <p class="text-[11px] text-slate-500 mb-6 font-medium">Slide to alert on-site security immediately</p>
+                <div class="bg-white card-shadow soft-border rounded-[28px] p-6 relative overflow-hidden">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-blue-50 rounded-full blur-3xl pointer-events-none"></div>
                     
-                    <div id="sos-slider-container" class="relative w-full max-w-[280px] mx-auto h-[68px] bg-slate-50 rounded-full flex items-center p-2 shadow-inner border border-slate-200 overflow-hidden mb-5">
-                        <div id="sos-slider-bg" class="absolute inset-0 bg-red-500 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-                        <div class="absolute inset-0 flex justify-center items-center pointer-events-none z-0">
-                            <span id="sos-slider-text" class="text-slate-400 font-bold text-xs tracking-widest pl-8 uppercase transition-all duration-300 drop-shadow-sm">Slide to SOS <i class="fa-solid fa-angles-right ml-1"></i></span>
+                    <div class="flex items-center gap-3 mb-2 relative z-10">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <i class="fa-solid fa-shield-halved text-lg"></i>
                         </div>
-                        <div id="sos-slider-thumb" class="relative z-10 w-[52px] h-[52px] bg-red-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-red-600/40 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none">
-                            <i id="sos-icon" class="fa-solid fa-power-off"></i>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Security Dispatch</h2>
+                            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-0.5"><span class="w-2 h-2 bg-emerald-500 rounded-full inline-block animate-pulse mr-1"></span> Systems Online</p>
                         </div>
                     </div>
                     
-                    <p class="text-[10px] text-slate-400 font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-location-crosshairs text-blue-500"></i> Your room & ID will be shared with response units.</p>
-                </section>
+                    <p class="text-[11px] text-slate-500 mb-5 font-medium relative z-10 leading-relaxed">Select an alert type to notify on-site reaction units immediately. Your room allocation and identity will be securely shared with responders.</p>
 
-                <section class="bg-white card-shadow soft-border rounded-[28px] p-6">
-                    <h2 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">Ping Security</h2>
-                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Non-critical assistance requests</p>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-regular fa-eye text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Suspicious Person</span>
+                    <div class="grid grid-cols-2 gap-3 mb-5 relative z-10">
+                        <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left tap-effect transition-all flex flex-col items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500"><i class="fa-regular fa-eye"></i></div>
+                            <span class="text-xs font-bold text-slate-700 tracking-tight">Suspicious<br>Person</span>
                         </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option shadow-sm">
-                            <i class="fa-solid fa-location-dot text-blue-600 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-blue-900">Escort Request</span>
+                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-4 text-left tap-effect transition-all active-sec-option shadow-sm flex flex-col items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 shadow-sm flex items-center justify-center text-white"><i class="fa-solid fa-location-dot"></i></div>
+                            <span class="text-xs font-bold text-blue-900 tracking-tight">Escort<br>Request</span>
                         </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Disturbance')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-solid fa-triangle-exclamation text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Disturbance</span>
+                        <button type="button" onclick="selectSecurityOption(this, 'Disturbance')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left tap-effect transition-all flex flex-col items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <span class="text-xs font-bold text-slate-700 tracking-tight">Noise /<br>Disturbance</span>
                         </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Medical Help')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
-                            <i class="fa-solid fa-phone text-blue-500 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-700">Medical Help</span>
+                        <button type="button" onclick="selectSecurityOption(this, 'Medical Help')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left tap-effect transition-all flex flex-col items-start gap-2">
+                            <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500"><i class="fa-solid fa-kit-medical"></i></div>
+                            <span class="text-xs font-bold text-slate-700 tracking-tight">Medical<br>Assistance</span>
                         </button>
                     </div>
 
                     <input type="hidden" id="selected-security-type" value="Escort Request">
-                    <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all shadow-inner" placeholder="Add details for 'Escort Request'..."></textarea>
                     
-                    <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-slate-900/20 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-paper-plane"></i> Send Alert
-                    </button>
-                </section>
+                    <div class="relative z-10 border-t border-slate-100 pt-4">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-1">Additional Details (Optional)</label>
+                        <textarea id="security-notes" rows="3" class="w-full bg-[#f8fafc] border border-slate-200 rounded-[16px] p-4 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all shadow-inner placeholder-slate-400" placeholder="E.g., I am waiting at the main gate..."></textarea>
+                        
+                        <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-4 text-sm tap-effect shadow-xl shadow-slate-900/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-satellite-dish"></i> Transmit Alert
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- PROFILE TAB -->
@@ -1026,12 +1033,6 @@
                     if (freshProfile) {
                         freshProfile.Email_Address = email; 
                         
-                        // Robustly lock the Signed_Lease status regardless of backend boolean/string variations
-                        let backendLeaseStatus = freshProfile.Signed_Lease;
-                        if (backendLeaseStatus === true || backendLeaseStatus === "true" || backendLeaseStatus === "Signed" || (typeof freshProfile.Doc_Lease_URL === 'string' && freshProfile.Doc_Lease_URL.startsWith('http'))) {
-                            freshProfile.Signed_Lease = "Signed";
-                        }
-
                         let mergedSession = { ...session };
                         for (let key in freshProfile) {
                             if (isValidData(freshProfile[key])) {
@@ -1045,11 +1046,12 @@
                             mergedSession.Medical = freshProfile.Medical;
                         }
 
-                        if (session.Signed_Lease === "Signed" && freshProfile.Signed_Lease !== "Signed") {
-                            mergedSession.Signed_Lease = "Signed"; 
-                        }
-                        if (session.Doc_Lease_URL === "vaulted_locally" && (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10)) {
-                            mergedSession.Doc_Lease_URL = "vaulted_locally";
+                        // Strictly enforce signed status to prevent looping backward
+                        if (session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || session.Doc_Lease_URL === "vaulted_locally") {
+                            mergedSession.Signed_Lease = "Signed";
+                            if (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10) {
+                                mergedSession.Doc_Lease_URL = "vaulted_locally";
+                            }
                         }
                         
                         localStorage.setItem('reziflow_session', JSON.stringify(mergedSession));
@@ -1071,7 +1073,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.replace('/phumelela/signin/');
+                window.location.replace('https://reziflow.online/phumelela/signin/');
                 return;
             }
 
@@ -1093,9 +1095,6 @@
                 }
                 hydrateGatewayEngine(false, mergedSession);
             }
-
-            // Initialize Security SOS Slider logic
-            initSOSSlider();
         });
 
         async function submitWelcomeSetup(e) {
@@ -1163,7 +1162,7 @@
                     document.getElementById('dyn-wifi-dev1').textContent = `${session.First_Name || 'Resident'}'s Phone`;
                     document.getElementById('dyn-wifi-dev2').textContent = `${session.First_Name || 'Resident'}'s Laptop`;
                 }
-            } catch(e) { console.warn("Wi-Fi sync bypass"); }
+            } catch(e) {}
 
             const roomAllocatedStr = isValidData(session.Room_Allocation) ? String(session.Room_Allocation) : 'Unassigned';
             document.getElementById('dyn-room-home').textContent = roomAllocatedStr;
@@ -1171,8 +1170,9 @@
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
             
-            // Fix applied: ensuring the 'Signed' status explicitly bypasses the lease logic loop.
-            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
+            // STRICT LEASE SIGNED RULE TO PREVENT LOOPING
+            const isFullySigned = (session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true") || 
+                                  isValidData(session.Doc_Lease_URL);
             
             const shouldUnlockTabs = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
@@ -1306,15 +1306,21 @@
             const isAdAlerted = isValidData(session.AD_ALERT) && String(session.AD_ALERT).trim().toLowerCase() === 'alerted';
             const isAdminAlerted = isAdAlerted || session.Admin_Alerted === true || session.Admin_Alerted === "true" || isVettingApproved || isFullySigned;
 
-            if(gatewayCard) gatewayCard.style.display = 'block';
-
             if (isFullySigned) {
-                if(gatewayCard) gatewayCard.style.display = 'none';
-                if(leaseSlot) leaseSlot.style.display = 'none';
+                // Instantly destroy Gateway Cards if Signed
+                if(gatewayCard) {
+                    gatewayCard.style.display = 'none';
+                    gatewayCard.classList.add('hidden');
+                }
+                if(leaseSlot) {
+                    leaseSlot.style.display = 'none';
+                    leaseSlot.classList.add('hidden');
+                }
                 if(vettingBadge) vettingBadge.textContent = 'Verified Resident';
             } 
             else if (isAdminAlerted || (profilePercentage >= 100 && vaultPercentage >= 100)) {
                 if (isAdminAlerted) {
+                    if(gatewayCard) gatewayCard.style.display = 'block';
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
                             <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm flex-shrink-0"><i class="fa-solid fa-check-double"></i></div>
@@ -1381,6 +1387,7 @@
                     }
                 } 
                 else {
+                    if(gatewayCard) gatewayCard.style.display = 'block';
                     gatewayCardContent.innerHTML = progressBarsHtml + `
                         <div class="mt-2 pt-3 border-t border-slate-100">
                             <button onclick="triggerAdminAlert(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl py-4 shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2 tap-effect text-sm">
@@ -1394,6 +1401,7 @@
                     if(vettingBadge) vettingBadge.textContent = 'Action Required';
                 }
             } else {
+                if(gatewayCard) gatewayCard.style.display = 'block';
                 gatewayCardContent.innerHTML = progressBarsHtml;
                 if(leaseSlot) leaseSlot.classList.add('hidden', 'opacity-0', 'translate-y-4');
                 lockIcon.className = 'fa-solid fa-lock text-rose-500 text-xs';
@@ -1605,6 +1613,10 @@
 
                 session.Doc_Lease_URL = "vaulted_locally"; session.Signed_Lease = "Signed"; localStorage.setItem('reziflow_session', JSON.stringify(session));
                 closeModal('leaseModal');
+                
+                // Immediately update Gateway Engine to permanently remove the Gateway UI Card
+                hydrateGatewayEngine(true, session);
+
                 const compModal = document.getElementById('completionModal'); compModal.classList.remove('hidden');
                 setTimeout(() => {
                     compModal.classList.add('active');
@@ -1957,129 +1969,7 @@
             }
         }
 
-        // --- NATIVE SWIPE-TO-SOS ENGINE ---
-        function initSOSSlider() {
-            const thumb = document.getElementById('sos-slider-thumb');
-            const container = document.getElementById('sos-slider-container');
-            const bg = document.getElementById('sos-slider-bg');
-            const text = document.getElementById('sos-slider-text');
-            const icon = document.getElementById('sos-icon');
-            if (!thumb || !container) return;
-
-            let isDragging = false;
-            let startX = 0;
-            // Accounting for internal padding inside container
-            let maxTranslate = container.offsetWidth - thumb.offsetWidth - 12;
-
-            const startDrag = (e) => {
-                if (thumb.dataset.locked === 'true') return;
-                isDragging = true;
-                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                thumb.style.transition = 'none';
-                bg.style.transition = 'none';
-            };
-
-            const onDrag = (e) => {
-                if (!isDragging) return;
-                const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                let moveX = currentX - startX;
-
-                if (moveX < 0) moveX = 0;
-                if (moveX > maxTranslate) moveX = maxTranslate;
-                
-                thumb.style.transform = `translateX(${moveX}px)`;
-                
-                // Opacity fade logic based on drag distance
-                let progress = moveX / maxTranslate;
-                bg.style.opacity = progress;
-                text.style.opacity = 1 - (progress * 1.5);
-                
-                if (moveX >= maxTranslate * 0.95) {
-                    isDragging = false;
-                    thumb.style.transform = `translateX(${maxTranslate}px)`;
-                    bg.style.opacity = '1';
-                    text.style.opacity = '0';
-                    triggerSOS(thumb, bg, text, icon);
-                }
-            };
-
-            const stopDrag = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                thumb.style.transition = 'transform 0.3s ease';
-                bg.style.transition = 'opacity 0.3s ease';
-                thumb.style.transform = 'translateX(0px)';
-                bg.style.opacity = '0';
-                text.style.opacity = '1';
-            };
-
-            thumb.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', onDrag);
-            window.addEventListener('mouseup', stopDrag);
-            
-            thumb.addEventListener('touchstart', startDrag, {passive: true});
-            window.addEventListener('touchmove', onDrag, {passive: true});
-            window.addEventListener('touchend', stopDrag);
-        }
-
-        async function triggerSOS(thumb, bg, text, icon) {
-            const session = getSessionData();
-            
-            // Lock slider UI
-            thumb.dataset.locked = 'true';
-            thumb.classList.replace('bg-red-600', 'bg-emerald-500');
-            thumb.classList.replace('shadow-red-600/40', 'shadow-emerald-600/40');
-            bg.classList.replace('bg-red-500', 'bg-emerald-500');
-            icon.classList.replace('fa-power-off', 'fa-circle-notch'); 
-            icon.classList.add('fa-spin');
-
-            text.textContent = 'DISPATCHED';
-            text.classList.replace('text-slate-400', 'text-white');
-            text.style.opacity = '1';
-            text.style.paddingLeft = '0px'; // center it
-
-            try {
-                const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: "Panic Button", Alert_Level: "CRITICAL SOS", Notes: "Triggered via mobile app slide-to-SOS" })
-                });
-                if (!res.ok) throw new Error("Network error");
-                
-                icon.classList.remove('fa-circle-notch', 'fa-spin'); 
-                icon.classList.add('fa-check');
-                showToast("Security Dispatched to your location.", "success");
-                
-                // Reset after 5 seconds
-                setTimeout(() => { resetSOSSlider(thumb, bg, text, icon); }, 5000);
-            } catch(error) {
-                showToast("Connection error. Call security directly.", "error");
-                resetSOSSlider(thumb, bg, text, icon);
-            }
-        }
-
-        function resetSOSSlider(thumb, bg, text, icon) {
-            thumb.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            bg.style.transition = 'opacity 0.4s ease';
-            
-            thumb.style.transform = 'translateX(0px)';
-            bg.style.opacity = '0';
-            
-            setTimeout(() => {
-                thumb.classList.replace('bg-emerald-500', 'bg-red-600');
-                thumb.classList.replace('shadow-emerald-600/40', 'shadow-red-600/40');
-                bg.classList.replace('bg-emerald-500', 'bg-red-500');
-                icon.classList.remove('fa-check', 'fa-circle-notch', 'fa-spin');
-                icon.classList.add('fa-power-off');
-                
-                text.textContent = 'Slide to SOS';
-                text.innerHTML = 'Slide to SOS <i class="fa-solid fa-angles-right ml-1"></i>';
-                text.classList.replace('text-white', 'text-slate-400');
-                text.style.paddingLeft = '2rem';
-                
-                thumb.dataset.locked = 'false';
-            }, 400);
-        }
-
+        // --- NEW SECURITY DISPATCH PING ENGINE ---
         async function sendSecurityPing() {
             const session = getSessionData();
             const btn = document.getElementById('btn-security-ping'); const ogText = btn.innerHTML;
@@ -2091,10 +1981,10 @@
             try {
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: pingType, Alert_Level: "Standard Ping", Notes: notes || "No additional details provided." })
+                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: pingType, Alert_Level: "Standard Dispatch", Notes: notes || "No additional details provided." })
                 });
                 if (!res.ok) throw new Error("Server error");
-                showToast(`Alert sent for: ${pingType}`, "success");
+                showToast(`Dispatch Alert Sent: ${pingType}`, "success");
                 document.getElementById('security-notes').value = '';
             } catch(error) { showToast("Transmission failed.", "error"); } 
             finally { btn.innerHTML = ogText; btn.disabled = false; }
@@ -2102,13 +1992,14 @@
 
         function selectSecurityOption(element, optionName) {
             document.querySelectorAll('.sec-option').forEach(btn => {
-                btn.className = 'sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all';
-                btn.querySelector('i').className = btn.querySelector('i').className.replace('text-blue-600', 'text-blue-500');
-                btn.querySelector('span').className = 'text-xs font-semibold text-slate-700';
+                btn.className = 'sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-4 text-left tap-effect transition-all flex flex-col items-start gap-2';
+                btn.querySelector('div').className = 'w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500';
+                btn.querySelector('span').className = 'text-xs font-bold text-slate-700 tracking-tight';
             });
-            element.className = 'sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option shadow-sm';
-            element.querySelector('i').className = element.querySelector('i').className.replace('text-blue-500', 'text-blue-600');
-            element.querySelector('span').className = 'text-xs font-semibold text-blue-900';
+            element.className = 'sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-4 text-left tap-effect transition-all active-sec-option shadow-sm flex flex-col items-start gap-2';
+            element.querySelector('div').className = 'w-8 h-8 rounded-full bg-blue-500 shadow-sm flex items-center justify-center text-white';
+            element.querySelector('span').className = 'text-xs font-bold text-blue-900 tracking-tight';
+            
             document.getElementById('selected-security-type').value = optionName;
             document.getElementById('security-notes').placeholder = `Add details for "${optionName}"...`;
         }
@@ -2263,7 +2154,8 @@
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
+            const isFullySigned = (session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true") || isValidData(session.Doc_Lease_URL);
+            
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
             if (!isAppUnlocked && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security' || tabId === 'transport')) {
@@ -2292,7 +2184,7 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.replace('/phumelela/signin/'); }
+        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.replace('https://reziflow.online/phumelela/signin/'); }
 
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
