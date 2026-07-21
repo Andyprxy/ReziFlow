@@ -139,8 +139,8 @@
         </div>
     </div>
 
-    <!-- RIGHT SIDEBAR -->
-    <div id="insp-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
+    <!-- RIGHT SIDEBAR (Default Open on Desktop) -->
+    <div id="insp-right-sidebar" class="hub-sidebar bg-transparent shrink-0">
         <div class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleInspSidebar()">
             <div class="flex items-center gap-1.5 w-full">
                 <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0"><i class="fa-solid fa-bolt"></i></div>
@@ -149,7 +149,7 @@
                     <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Progress & Analytics</span>
                 </div>
             </div>
-            <i id="insp-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
+            <i id="insp-sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[8px] pr-1"></i>
         </div>
 
         <!-- Live Analytics Block -->
@@ -361,6 +361,7 @@
         }
     };
 
+    // Auto-collapse only on mobile view
     if (window.innerWidth < 768) { window.toggleInspSidebar(); }
 
     window.toggleProgress = function() {
@@ -480,11 +481,12 @@
             return { ...item, missingCount, damagedCount, totalIssues, issuesList };
         });
 
-        // 2. Apply Region Filter
+        // 2. Apply Wing/Region Filter based on Room Name Prefix
         let regionFiltered = augmentedData.filter(item => {
             if (window.inspectionRegion === 'All') return true;
-            if (window.inspectionRegion === 'East') return String(item.RoomProfileBlock).includes('East');
-            if (window.inspectionRegion === 'West') return String(item.RoomProfileBlock).includes('West');
+            const rm = String(item.SelectedRoom).trim().toUpperCase();
+            if (window.inspectionRegion === 'East') return rm.startsWith('E');
+            if (window.inspectionRegion === 'West') return rm.startsWith('W');
             return true;
         });
 
@@ -512,12 +514,16 @@
             return true;
         });
 
-        // 5. Dynamic Sorting: Worst issues first (Most Reds, then most Oranges, then Timestamp)
-        tableFiltered.sort((a, b) => {
-            if (b.missingCount !== a.missingCount) return b.missingCount - a.missingCount;
-            if (b.damagedCount !== a.damagedCount) return b.damagedCount - a.damagedCount;
-            return new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime();
-        });
+        // 5. Dynamic Sorting: Natural Alphanumeric if All, else Severity
+        if (window.inspectionFilterStatus === 'All') {
+            tableFiltered.sort((a, b) => String(a.SelectedRoom || '').localeCompare(String(b.SelectedRoom || ''), undefined, {numeric: true, sensitivity: 'base'}));
+        } else {
+            tableFiltered.sort((a, b) => {
+                if (b.missingCount !== a.missingCount) return b.missingCount - a.missingCount;
+                if (b.damagedCount !== a.damagedCount) return b.damagedCount - a.damagedCount;
+                return new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime();
+            });
+        }
 
         if (tableFiltered.length === 0) {
             tbody.innerHTML = `<tr class="no-results"><td colspan="14" class="p-10 text-center text-slate-400 font-bold text-[10px]">No records found for this view.</td></tr>`;
@@ -650,7 +656,7 @@
         });
         if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center mt-4"><i class="fa-solid fa-check-circle"></i> Everything is in good condition.</p>';
 
-        // 4. Render Damaged Units Registry
+        // 4. Render Damaged Units Register
         const registry = document.getElementById('modal-damaged-units');
         registry.innerHTML = '';
         if (damageReports.length === 0) {
@@ -697,7 +703,7 @@
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Routing...'; btn.disabled = true;
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/phumelelela-escalate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await fetch('https://n8n.automania.cloud/webhook/phumelelela-escalate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             document.getElementById('escalateTicketModal').classList.remove('active');
             if(typeof window.showToast === 'function') window.showToast("Routed to Maintenance successfully.");
         } catch(err) { if(typeof window.showToast === 'function') window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
@@ -748,13 +754,25 @@
         });
         
         let filteredData = augmentedData.filter(item => {
-            if (window.inspectionRegion !== 'All' && !String(item.RoomProfileBlock).includes(window.inspectionRegion)) return false;
+            const rm = String(item.SelectedRoom).trim().toUpperCase();
+            if (window.inspectionRegion === 'East' && !rm.startsWith('E')) return false;
+            if (window.inspectionRegion === 'West' && !rm.startsWith('W')) return false;
             
             if (window.inspectionFilterStatus === 'Complete' && item.totalIssues > 0) return false;
             if (window.inspectionFilterStatus === 'Incomplete' && item.totalIssues === 0) return false;
             
             return JSON.stringify(item).toLowerCase().includes(searchVal);
         });
+        
+        if (window.inspectionFilterStatus === 'All') {
+            filteredData.sort((a, b) => String(a.SelectedRoom || '').localeCompare(String(b.SelectedRoom || ''), undefined, {numeric: true, sensitivity: 'base'}));
+        } else {
+            filteredData.sort((a, b) => {
+                if (b.missingCount !== a.missingCount) return b.missingCount - a.missingCount;
+                if (b.damagedCount !== a.damagedCount) return b.damagedCount - a.damagedCount;
+                return new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime();
+            });
+        }
 
         if(filteredData.length === 0) return typeof window.showToast === 'function' ? window.showToast("No data to export.", "error") : alert("No data");
 
