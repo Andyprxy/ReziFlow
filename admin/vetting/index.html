@@ -87,7 +87,13 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search records..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm">
                     </div>
-                    <button onclick="if(typeof window.fetchDatabaseData === 'function' && currentFilter !== 'requests') window.fetchDatabaseData(true); else if(currentFilter === 'requests') window.fetchAndRenderRequests();" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                    <button onclick="
+                        if(currentFilter === 'requests') window.fetchAndRenderRequests(); 
+                        else if(currentFilter === 'rejections') window.fetchAndRenderRejections(); 
+                        else if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true);" 
+                        class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]">
+                        <i class="fa-solid fa-rotate text-blue-500"></i>
+                    </button>
                 </div>
             </div>
             
@@ -116,6 +122,15 @@
             </div>
             <!-- Initial state is collapsed, so icon points left to expand -->
             <i id="hub-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[9px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Logs & History</p>
+            <div class="space-y-1.5">
+                <button onclick="window.setFilter('rejections')" class="block-btn bg-rose-600 hover:bg-rose-700 text-white justify-center gap-1.5 !py-2 shadow-md border-none transition-colors">
+                    <i class="fa-solid fa-ban text-[10px]"></i> <span class="truncate text-[9px] nav-text">Rejections List</span>
+                </button>
+            </div>
         </div>
 
         <div class="nav-block">
@@ -274,6 +289,7 @@
     var currentFilter = 'pending'; var hubSubFilter = 'all';
     var currentRejectStudentId = null; var activeAllocationStudentId = null; var selectedRoomId = null;
     window.globalRequestsData = [];
+    window.globalRejectionsData = [];
 
     // EXPLICIT WINDOW BINDINGS
     window.toggleHubSidebar = function() {
@@ -313,8 +329,8 @@
             if(type === 'requests') aEl.classList.add('accent-rose'); 
         } 
         
-        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine', 'requests': 'Service Requests' }; 
-        if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type]; 
+        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine', 'requests': 'Service Requests', 'rejections': 'Rejections Log' }; 
+        if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type] || 'Database View'; 
         
         const dash = document.getElementById('allocation-dashboard');
         if (dash) {
@@ -328,6 +344,8 @@
 
         if(type === 'requests') {
             window.fetchAndRenderRequests();
+        } else if (type === 'rejections') {
+            window.fetchAndRenderRejections();
         } else {
             window.renderUI(); 
         }
@@ -335,7 +353,6 @@
 
     window.setHubSubFilter = function(fv) { hubSubFilter = fv; window.renderUI(); };
 
-    // Dashboard updated to show Student Allocation metrics instead of raw room inventory
     window.renderAllocationDashboard = function() {
         const dash = document.getElementById('allocation-dashboard');
         if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
@@ -380,18 +397,46 @@
         tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Requests...</span></td></tr>`;
         
         try {
-            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests');
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-requests');
             if (res.ok) {
                 const data = await res.json();
                 window.globalRequestsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
-                window.renderUI(); // renderUI handles the requests state injection
+                window.renderUI(); 
             } else { throw new Error("Fetch failed"); }
         } catch(e) {
             tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500 text-[10px]">Failed to connect to request pipeline.</td></tr>`;
         }
     };
 
+    window.fetchAndRenderRejections = async function() {
+        const tbody = document.getElementById('hub-queue-body');
+        const thead = document.getElementById('hub-thead');
+        const filterContainer = document.getElementById('hub-dynamic-filters');
+        if(filterContainer) filterContainer.innerHTML = '';
+        
+        thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50">
+            <th class="w-1/4">Timestamp</th>
+            <th class="w-1/3">Student Identity</th>
+            <th class="text-right">Rejection Reason</th>
+        </tr>`;
+        
+        tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Rejections Log...</span></td></tr>`;
+        
+        try {
+            // Pointing directly to the phumelela-rejections test webhook
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections');
+            if (res.ok) {
+                const data = await res.json();
+                window.globalRejectionsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
+                window.renderUI(); 
+            } else { throw new Error("Fetch failed"); }
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-rose-500 text-[10px]">Failed to connect to rejections log.</td></tr>`;
+        }
+    };
+
     window.renderUI = function() {
+        // --- REQUESTS VIEW ---
         if(currentFilter === 'requests') {
             const tbody = document.getElementById('hub-queue-body');
             if(document.getElementById('kpi-requests')) document.getElementById('kpi-requests').textContent = window.globalRequestsData.length;
@@ -403,24 +448,25 @@
             
             let htmlStr = '';
             window.globalRequestsData.forEach(r => {
+                // Correct mapping for space-separated keys from your n8n payload
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
-                        <td><div class="text-[9px] font-bold text-slate-500">${r.Timestamp || '--'}</div></td>
+                        <td><div class="text-[9px] font-bold text-slate-500">${r['Timestamp'] || '--'}</div></td>
                         <td>
-                            <div class="font-black text-slate-800 text-[11px]">${r.Student_Number || '--'}</div>
-                            <div class="text-[9px] font-semibold text-slate-500 mt-0.5">${r.First_Name || ''} ${r.Surname || ''}</div>
-                            <div class="text-[8px] text-slate-400 mt-0.5"><i class="fa-solid fa-door-closed mr-1"></i>${r.Current_Room || 'N/A'}</div>
+                            <div class="font-black text-slate-800 text-[11px]">${r['Student Number'] || '--'}</div>
+                            <div class="text-[9px] font-semibold text-slate-500 mt-0.5">${r['First Name'] || ''} ${r['Surname'] || ''}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5"><i class="fa-solid fa-door-closed mr-1"></i>${r['Current Room'] || 'N/A'}</div>
                         </td>
                         <td>
-                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r.Request_Type || 'Issue'}</div>
-                            <div class="text-[9px] text-slate-500 mt-1 line-clamp-2">${r.Reason || '--'}</div>
+                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r['Request Type'] || 'Issue'}</div>
+                            <div class="text-[9px] text-slate-500 mt-1 line-clamp-2">${r['Reason'] || '--'}</div>
                         </td>
                         <td>
-                            <div class="text-[9px] font-bold ${r.Status === 'Resolved' ? 'text-emerald-600' : 'text-amber-600'}">${r.Status || 'Pending'}</div>
-                            <div class="text-[8px] text-slate-400 mt-0.5">Res: ${r.Resolution_Date || '--'}</div>
+                            <div class="text-[9px] font-bold ${String(r['Status']).toLowerCase().includes('resolve') ? 'text-emerald-600' : 'text-amber-600'}">${r['Status'] || 'Pending'}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5">Res: ${r['Resolution Date'] || '--'}</div>
                         </td>
                         <td class="text-right">
-                            <div class="text-[9px] text-slate-600 italic line-clamp-2">${r.Admin_Notes || 'No notes available.'}</div>
+                            <div class="text-[9px] text-slate-600 italic line-clamp-2">${r['Admin Notes'] || 'No notes available.'}</div>
                         </td>
                     </tr>
                 `;
@@ -429,9 +475,37 @@
             return;
         }
 
+        // --- REJECTIONS VIEW ---
+        if(currentFilter === 'rejections') {
+            const tbody = document.getElementById('hub-queue-body');
+            
+            if(!window.globalRejectionsData || window.globalRejectionsData.length === 0) {
+                tbody.innerHTML = `<tr class="no-results"><td colspan="3" class="p-10 text-center text-slate-400 bg-white/30 text-[10px]">No rejections found in ledger.</td></tr>`; 
+                return;
+            }
+            
+            let htmlStr = '';
+            window.globalRejectionsData.forEach(r => {
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="text-[9px] font-bold text-slate-500">${r['Timestamp'] || r.Timestamp || '--'}</div></td>
+                        <td>
+                            <div class="font-black text-slate-800 text-[11px]">${r['Student Number'] || r.Student_Number || '--'}</div>
+                            <div class="text-[9px] font-semibold text-slate-500 mt-0.5">${r['First Name'] || r.First_Name || ''} ${r['Surname'] || r.Surname || ''}</div>
+                        </td>
+                        <td class="text-right">
+                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r['Reasons'] || r.Reasons || r.Reason || 'Missing Documentation'}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+            return;
+        }
+
+        // --- CORE VIEWS (Pending, Approved, Allocation) ---
         if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
         
-        // Strict verification: Drop corrupted lines
         const validStudents = globalStudentData.filter(s => s && s.Student_Number && String(s.Student_Number).trim() !== '' && s.First_Name);
         
         const pendingStudents = validStudents.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
@@ -545,7 +619,6 @@
         finally { btnElement.innerHTML = originalText; btnElement.disabled = false; }
     };
     
-    // Unbinding logic via n8n POST
     window.removeAllocation = async function(studentId, btnElement) {
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
