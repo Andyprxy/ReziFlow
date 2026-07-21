@@ -392,7 +392,7 @@
                                 </button>
 
                                 <div id="chat-body-active-mock" class="hidden bg-white px-4 pb-4 pt-2 border-t border-slate-100">
-                                    <div class="h-32 overflow-y-auto custom-scroll space-y-3 pr-2 mb-3 flex flex-col text-left" id="chat-history-active-mock">
+                                    <div class="h-40 overflow-y-auto custom-scroll space-y-3 pr-2 mb-3 flex flex-col text-left" id="chat-history-active-mock">
                                         <div class="flex justify-center"><span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Ticket logged into ReziFlow Node</span></div>
                                     </div>
                                     <div class="flex gap-2 items-center bg-[#f5f5f7] p-1.5 rounded-2xl border border-slate-200">
@@ -1715,33 +1715,120 @@
             finally { btn.innerHTML = ogText; btn.disabled = false; }
         }
 
-        // PREMIUM COLLAPSIBLE MOCK CHAT INTERACTION
+        // PREMIUM COLLAPSIBLE MOCK CHAT INTERACTION (WHATSAPP-LIKE + TEST WEBHOOKS)
+        let chatPollInterval = null;
+
         function toggleSnagInlineChat(ticketId) {
             const chatBody = document.getElementById(`chat-body-${ticketId}`);
             const icon = document.getElementById(`chat-icon-${ticketId}`);
             if (chatBody.classList.contains('hidden')) {
-                chatBody.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)';
+                chatBody.classList.remove('hidden'); 
+                icon.style.transform = 'rotate(180deg)';
+                fetchChatHistory(ticketId); // Initial immediate fetch
+                chatPollInterval = setInterval(() => fetchChatHistory(ticketId), 5000); // 5-second polling
             } else {
-                chatBody.classList.add('hidden'); icon.style.transform = 'rotate(0deg)';
+                chatBody.classList.add('hidden'); 
+                icon.style.transform = 'rotate(0deg)';
+                if (chatPollInterval) clearInterval(chatPollInterval);
             }
         }
 
-        function sendSnagInlineMessage(ticketId) {
+        async function fetchChatHistory(ticketId) {
+            const session = getSessionData();
+            const studentNum = session.Student_Number || 'Unknown';
+            try {
+                const res = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-snag-chat?Student_Number=${studentNum}&Ticket_ID=${ticketId}&t=${Date.now()}`);
+                if (res.ok) {
+                    const messages = await res.json();
+                    renderChatMessages(ticketId, messages);
+                }
+            } catch (error) {
+                console.warn("Chat sync failed", error);
+            }
+        }
+
+        function renderChatMessages(ticketId, messages) {
+            const chatHistory = document.getElementById(`chat-history-${ticketId}`);
+            chatHistory.innerHTML = '<div class="flex justify-center"><span class="text-[9px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Ticket logged into ReziFlow Node</span></div>';
+            
+            const session = getSessionData();
+            const myStudentNum = session.Student_Number;
+
+            if (!Array.isArray(messages)) return;
+
+            messages.forEach(msg => {
+                const isMe = msg.Sender === myStudentNum || msg.Sender === 'Student';
+                const timeStr = msg.Timestamp ? new Date(msg.Timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                
+                const msgHTML = isMe ? `
+                    <div class="flex gap-2 items-end flex-row-reverse mt-2 animate-[fadeIn_0.2s_ease-in]">
+                        <div class="flex flex-col items-end">
+                            <div class="bg-emerald-500 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[85%] shadow-sm leading-snug">
+                                ${msg.Message}
+                            </div>
+                            <span class="text-[8px] text-slate-400 mt-1 font-bold mr-1 flex items-center gap-1">${timeStr} <i class="fa-solid fa-check-double text-blue-400 text-[10px]"></i></span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="flex gap-2 items-end mt-2 animate-[fadeIn_0.2s_ease-in]">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center text-slate-500 text-[10px] mb-3"><i class="fa-solid fa-headset"></i></div>
+                        <div class="flex flex-col items-start">
+                            <div class="bg-slate-100 border border-slate-200 rounded-tr-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-slate-700 font-medium max-w-[85%] shadow-sm leading-snug">
+                                ${msg.Message}
+                            </div>
+                            <span class="text-[8px] text-slate-400 mt-1 font-bold ml-1">${timeStr}</span>
+                        </div>
+                    </div>
+                `;
+                chatHistory.insertAdjacentHTML('beforeend', msgHTML);
+            });
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        async function sendSnagInlineMessage(ticketId) {
             const inputField = document.getElementById(`chat-input-${ticketId}`);
             const message = inputField.value.trim();
             if (!message) return;
 
+            const session = getSessionData();
+            const studentNum = session.Student_Number || 'Unknown';
+            const timestamp = new Date().toISOString();
+            const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Optimistic rendering for the user instantly
             const chatHistory = document.getElementById(`chat-history-${ticketId}`);
             const userMsgHTML = `
-                <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
-                    <div class="bg-blue-600 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[80%] shadow-sm">
-                        ${message}
+                <div class="flex gap-2 items-end flex-row-reverse mt-2 animate-[fadeIn_0.2s_ease-in]">
+                    <div class="flex flex-col items-end">
+                        <div class="bg-emerald-500 rounded-tl-xl rounded-bl-xl rounded-br-xl p-2.5 text-[11px] text-white font-medium max-w-[85%] shadow-sm leading-snug opacity-80">
+                            ${message}
+                        </div>
+                        <span class="text-[8px] text-slate-400 mt-1 font-bold mr-1 flex items-center gap-1">${timeStr} <i class="fa-regular fa-clock text-[9px]"></i></span>
                     </div>
                 </div>
             `;
             chatHistory.insertAdjacentHTML('beforeend', userMsgHTML);
             chatHistory.scrollTop = chatHistory.scrollHeight;
             inputField.value = '';
+
+            try {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Student_Number: studentNum,
+                        Ticket_ID: ticketId,
+                        Message: message,
+                        Sender: 'Student',
+                        Timestamp: timestamp
+                    })
+                });
+                
+                // Fetch quickly to show standard "delivered" ticks instead of the clock icon
+                setTimeout(() => fetchChatHistory(ticketId), 800);
+            } catch (error) {
+                showToast("Failed to dispatch message.", "error");
+            }
         }
 
         // WIRELESS PASSWORD VISIBILITY
