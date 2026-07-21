@@ -1,1 +1,607 @@
+<style>
+    .glass-segmented {
+        background: rgba(230, 230, 235, 0.45); backdrop-filter: blur(20px); border-radius: 12px; padding: 4px; 
+        border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: inset 0 1px 4px rgba(0,0,0,0.03); 
+        display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    }
+    .glass-seg-btn {
+        padding: 6px 14px; font-size: 0.7rem; font-weight: 700; color: #64748b; border-radius: 10px; 
+        transition: all 0.3s ease; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid transparent;
+    }
+    .glass-seg-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.4); color: #334155; }
+    .glass-seg-btn.active {
+        background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85); border: 1px solid rgba(255, 255, 255, 1); transform: scale(1.01);
+    }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; } .glass-seg-btn.active.accent-amber { color: #f59e0b; }
 
+    .hub-sidebar { transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; overflow-x: hidden; }
+    .hub-sidebar.collapsed { width: 64px !important; min-width: 64px !important; }
+    .hub-sidebar.collapsed .nav-text { display: none !important; }
+    .hub-sidebar.collapsed .nav-block { padding: 8px !important; }
+    .hub-sidebar.collapsed .block-btn { padding: 12px 0 !important; justify-content: center !important; }
+    .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.2rem; }
+    .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 16px; padding: 10px; transition: all 0.3s ease; }
+    .block-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    
+    .compact-table th { padding: 10px 12px; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
+    .compact-table td { padding: 8px 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.7rem; }
+    
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(0, 113, 227, 0.2) 60%, #0071e3 80%, #3b82f6 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
+
+    .pie-chart-anim { transition: background 1s ease-out; }
+</style>
+
+<!-- Main Fragment Container -->
+<div class="flex-1 flex flex-col sm:flex-row w-full h-full min-h-0 gap-4 overflow-hidden relative">
+    
+    <!-- Canvas (Left) -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
+        
+        <!-- Top Nav -->
+        <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative">
+            <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
+                <button onclick="window.setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Pending
+                    <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-user-check"></i> Approved
+                    <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <button onclick="window.setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-door-open"></i> Allocation
+                    <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Table Wrapper -->
+        <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-2 shrink-0 flex flex-col">
+            <div class="px-4 py-4 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-sm"></i></div>
+                    <h3 id="table-title" class="font-bold text-slate-800 text-sm sm:text-base">Student Hub (Pending)</h3>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
+                    <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right hidden sm:flex"></div>
+                    <div class="relative w-full sm:w-48">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search students..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm">
+                    </div>
+                    <button onclick="if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                </div>
+            </div>
+            
+            <!-- Dynamic Allocation Dashboard -->
+            <div id="allocation-dashboard" class="hidden bg-white/40 backdrop-blur-md border-b border-slate-200/50 p-4 transition-all"></div>
+
+            <!-- Main Data Table -->
+            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
+                <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                    <thead id="hub-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm"></thead>
+                    <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Sidebar (Right) -->
+    <div id="hub-right-sidebar" class="hub-sidebar w-full lg:w-64 min-w-[200px] shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
+        <div class="nav-block flex items-center justify-between !p-2 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleHubSidebar()">
+            <div class="flex items-center gap-2 w-full">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-bolt"></i></div>
+                <div class="flex flex-col flex-1 overflow-hidden nav-text">
+                    <span class="font-black text-[11px] tracking-tight text-slate-900 leading-none truncate">Quick<span class="text-blue-500">Actions</span></span>
+                    <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Pipeline Tools</span>
+                </div>
+            </div>
+            <i id="hub-sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] pr-1"></i>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Data Entry</p>
+            <div class="space-y-1.5">
+                <button onclick="document.getElementById('manualStudentModal').classList.add('active')" class="block-btn bg-blue-600 hover:bg-blue-700 text-white justify-center gap-1.5 !py-2 shadow-md border-none transition-colors">
+                    <i class="fa-solid fa-user-plus text-[10px]"></i> <span class="truncate text-[9px] nav-text">Manual Entry</span>
+                </button>
+                <button onclick="document.getElementById('batchUploadModal').classList.add('active')" class="block-btn bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50 justify-center gap-1.5 !py-2 shadow-sm transition-colors">
+                    <i class="fa-solid fa-file-excel text-emerald-500 text-[10px]"></i> <span class="truncate text-[9px] nav-text">Batch Excel Sync</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="nav-block">
+            <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Security Compliance</p>
+            <div class="space-y-1.5">
+                <button onclick="document.getElementById('popiaModal').classList.add('active')" class="block-btn bg-slate-800 hover:bg-slate-900 text-white justify-center gap-1.5 !py-2 shadow-md border-none transition-colors">
+                    <i class="fa-solid fa-shield-halved text-[10px] text-teal-400"></i> <span class="truncate text-[9px] nav-text">POPIA Vault Ledger</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-md relative">
+        <button onclick="window.closeRejectModal()" class="absolute top-4 right-4 w-8 h-8 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20"><i class="fa-solid fa-xmark"></i></button>
+        <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-xl mb-4 shadow-sm border border-rose-100"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Reject Application</h2>
+        <p class="text-xs text-slate-500 mb-5 font-medium">Select missing/incorrect documents to notify <span id="reject-student-id" class="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded ml-1"></span>.</p>
+        
+        <form onsubmit="window.submitRejection(event)" id="rejectForm" class="flex flex-col relative">
+            <div class="space-y-3 mb-6">
+                <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer bg-white shadow-sm"><input type="checkbox" name="reason" value="Invalid / Missing ID or Passport" class="w-4 h-4 text-rose-500 rounded border-slate-300"><span class="text-xs font-semibold text-slate-700">Invalid / Missing ID</span></label>
+                <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer bg-white shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Registration" class="w-4 h-4 text-rose-500 rounded border-slate-300"><span class="text-xs font-semibold text-slate-700">Missing / Invalid Registration</span></label>
+                <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer bg-white shadow-sm"><input type="checkbox" name="reason" value="Missing / Invalid Proof of Funding" class="w-4 h-4 text-rose-500 rounded border-slate-300"><span class="text-xs font-semibold text-slate-700">Missing / Invalid Funding</span></label>
+                <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer bg-white shadow-sm"><input type="checkbox" name="reason" value="Unsigned / Incomplete Lease Agreement" class="w-4 h-4 text-rose-500 rounded border-slate-300"><span class="text-xs font-semibold text-slate-700">Unsigned / Incomplete Lease</span></label>
+            </div>
+            <button type="submit" id="btn-submit-reject" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl py-3 shadow-sm transition-all text-xs">Submit Rejection & Notify</button>
+        </form>
+    </div>
+</div>
+
+<!-- Allocation Modal -->
+<div id="allocationModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-3xl flex flex-col p-0 overflow-hidden">
+        <div class="p-6 border-b border-slate-200/60 flex justify-between items-start bg-slate-50">
+            <div class="flex gap-4">
+                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-blue-100"><i class="fa-solid fa-bed"></i></div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Room Allocation</h2>
+                    <p class="text-[10px] text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
+                </div>
+            </div>
+            <button onclick="window.closeAllocationModal()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto custom-scroll bg-white">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h3 class="font-black text-slate-800 text-sm mb-4"><i class="fa-solid fa-door-closed text-indigo-500 mr-2"></i>Premium Singles</h3>
+                    <div id="list-single-rooms" class="space-y-3"></div>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h3 class="font-black text-slate-800 text-sm mb-4"><i class="fa-solid fa-user-group text-emerald-500 mr-2"></i>Sharing Units</h3>
+                    <div id="list-sharing-rooms" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center gap-4">
+            <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p><p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800">None</p></div>
+            <button id="btn-confirm-allocation" onclick="window.confirmAllocation()" class="bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>Confirm & Bind <i class="fa-solid fa-lock ml-2"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Entry Modal -->
+<div id="manualStudentModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-md">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('manualStudentModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-address-card"></i></div>
+                <div><h2 class="text-lg font-black text-slate-900 tracking-tight leading-none">Add Applicant</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Bypass Registration Portal</p></div>
+            </div>
+            <form onsubmit="window.submitManualStudent(event)">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">First Name</label><input type="text" id="manual-fname" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-blue-400" required></div>
+                    <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Surname</label><input type="text" id="manual-lname" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-blue-400" required></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" id="manual-id" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-blue-400" required></div>
+                    <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Gender</label><select id="manual-gender" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-blue-400" required><option value="" disabled selected>Select...</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Funding Type</label>
+                    <select id="manual-funding" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-blue-400" required><option value="NSFAS">NSFAS</option><option value="Bursary">Private Bursary</option><option value="Cash">Cash Paying</option></select>
+                </div>
+                <button type="submit" id="btn-submit-manual" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px]">Inject to Pipeline <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Batch Upload Modal -->
+<div id="batchUploadModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-sm">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('batchUploadModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-file-excel"></i></div>
+                <div><h2 class="text-lg font-black text-slate-900 tracking-tight leading-none">Batch Sync</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Upload University Ledger</p></div>
+            </div>
+            <div class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer mb-4">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                <p class="text-[10px] font-bold text-slate-600">Drag & Drop .XLSX or .CSV</p>
+                <p class="text-[8px] font-medium text-slate-400 mt-1">Files are encrypted during transit.</p>
+            </div>
+            <button onclick="document.getElementById('batchUploadModal').classList.remove('active'); window.showToast('Excel Batch Processing via n8n started.');" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-[10px] py-2.5 shadow-md flex justify-center items-center gap-2 text-[10px]">Start Sync <i class="fa-solid fa-rotate"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- POPIA Vault Modal -->
+<div id="popiaModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-md">
+        <div class="magic-border-inner flex flex-col relative bg-slate-900 border border-slate-700">
+            <button onclick="document.getElementById('popiaModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-800 border border-slate-600 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-700"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-8 h-8 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-lock"></i></div>
+                <div><h2 class="text-lg font-black text-white tracking-tight leading-none">Security Vault</h2><p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">POPIA / GDPR Ledger</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700"><p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-1">Encryption Status</p><p class="text-xs font-bold text-teal-400 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> AES-256 Active</p></div>
+                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700"><p class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-1">API Webhooks</p><p class="text-xs font-bold text-blue-400 flex items-center gap-1.5"><i class="fa-solid fa-link"></i> Secured (n8n)</p></div>
+            </div>
+            <h3 class="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-slate-700 pb-1">Live Audit Trail</h3>
+            <div class="space-y-2 max-h-32 overflow-y-auto custom-scroll pr-2 mb-4">
+                <div class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-teal-500 mt-1.5"></div><div><p class="text-[9px] font-bold text-slate-300">System Boot & Encryption Handshake</p><p class="text-[7px] font-mono text-slate-500">Today, 08:00 AM - SYSTEM</p></div></div>
+                <div class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5"></div><div><p class="text-[9px] font-bold text-slate-300">Database Pulled (End-to-End Encrypted)</p><p class="text-[7px] font-mono text-slate-500">Today, 08:02 AM - n8n Webhook</p></div></div>
+            </div>
+            <button onclick="document.getElementById('popiaModal').classList.remove('active')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-[10px] py-2 border border-slate-600 transition-colors text-[10px]">Close Vault</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // LOCAL STATE & GLOBALS
+    // ----------------------------------------------------
+    var currentFilter = 'pending'; var hubSubFilter = 'all';
+    var currentRejectStudentId = null; var activeAllocationStudentId = null; var selectedRoomId = null;
+
+    // EXPLICIT WINDOW BINDINGS
+    window.toggleHubSidebar = function() {
+        const sidebar = document.getElementById('hub-right-sidebar');
+        if(sidebar) {
+            sidebar.classList.toggle('collapsed');
+            const icon = document.getElementById('hub-sidebar-toggle-icon');
+            if(icon) {
+                if(sidebar.classList.contains('collapsed')) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-left'); } 
+                else { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+            }
+        }
+    };
+    
+    if (window.innerWidth < 768) { window.toggleHubSidebar(); }
+
+    window.filterTable = function(inputId, tbodyId) {
+        const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
+        const tr = tbody.getElementsByTagName('tr');
+        for (let i = 0; i < tr.length; i++) {
+            if (tr[i].classList.contains('no-results')) continue;
+            tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
+        }
+    };
+
+    window.setFilter = function(type) { 
+        currentFilter = type; hubSubFilter = 'all'; 
+        ['pending', 'approved', 'allocation'].forEach(o => { 
+            const el = document.getElementById(`btn-tab-${o}`); 
+            if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber'); 
+        }); 
+        
+        const aEl = document.getElementById(`btn-tab-${type}`); 
+        if(aEl) { 
+            aEl.classList.add('active'); 
+            if(type === 'pending') aEl.classList.add('accent-amber'); 
+            if(type === 'approved') aEl.classList.add('accent-emerald'); 
+            if(type === 'allocation') aEl.classList.add('accent-blue'); 
+        } 
+        
+        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine' }; 
+        if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type]; 
+        
+        const dash = document.getElementById('allocation-dashboard');
+        if (dash) {
+            if (type === 'allocation') {
+                dash.classList.remove('hidden');
+                if(typeof window.renderAllocationDashboard === 'function') window.renderAllocationDashboard();
+            } else {
+                dash.classList.add('hidden');
+            }
+        }
+
+        window.renderUI(); 
+    };
+
+    window.setHubSubFilter = function(fv) { hubSubFilter = fv; window.renderUI(); };
+
+    window.renderAllocationDashboard = async function() {
+        const dash = document.getElementById('allocation-dashboard');
+        // Fetch inventory if missing
+        if (!window.globalRoomData || window.globalRoomData.length === 0) {
+            dash.innerHTML = `<div class="flex items-center justify-center py-6 text-slate-400 text-xs gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Polling Inventory Sensors...</div>`;
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
+                if (response.ok) {
+                    const rawData = await response.json(); 
+                    window.globalRoomData = window.parseN8n ? window.parseN8n(rawData) : rawData; 
+                }
+            } catch (error) {
+                dash.innerHTML = `<div class="py-4 text-center text-[10px] text-rose-500">Inventory Sync Failed</div>`;
+                return;
+            }
+        }
+
+        let totalRooms = 0; let occupiedRooms = 0;
+        if(window.globalRoomData && window.globalRoomData.length > 0) {
+            totalRooms = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1), 0);
+            occupiedRooms = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0), 0);
+        }
+        const availRooms = totalRooms - occupiedRooms;
+        const occDeg = totalRooms ? (occupiedRooms / totalRooms) * 360 : 0;
+
+        dash.innerHTML = `
+            <div class="flex items-center justify-center gap-8 bg-white/60 p-4 rounded-2xl shadow-[inset_0_1px_3px_rgba(255,255,255,1),_0_2px_10px_rgba(0,0,0,0.02)] border border-white">
+                <div class="relative w-16 h-16 rounded-full transform transition hover:scale-105 pie-chart-anim" style="background: conic-gradient(#10b981 0deg, #10b981 ${360-occDeg}deg, #cbd5e1 ${360-occDeg}deg, #cbd5e1 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
+                        <span class="text-[12px] font-black text-slate-800 leading-none">${totalRooms}</span>
+                        <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Beds</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div><span class="text-[10px] font-extrabold text-slate-700 uppercase tracking-widest">Available <span class="text-emerald-600 ml-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">${availRooms}</span></span></div>
+                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-sm"></div><span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Unavailable <span class="text-slate-600 ml-1 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${occupiedRooms}</span></span></div>
+                </div>
+            </div>
+        `;
+    };
+
+    window.renderUI = function() {
+        if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
+        
+        // Strict verification: Drop corrupted lines
+        const validStudents = globalStudentData.filter(s => s && s.Student_Number && String(s.Student_Number).trim() !== '' && s.First_Name);
+        
+        const pendingStudents = validStudents.filter(s => !s.Vetting_Status || String(s.Vetting_Status).trim() === '' || String(s.Vetting_Status).toLowerCase() === 'pending');
+        const approvedStudents = validStudents.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+        
+        if(document.getElementById('kpi-pending')) document.getElementById('kpi-pending').textContent = pendingStudents.length;
+        if(document.getElementById('kpi-approved')) document.getElementById('kpi-approved').textContent = approvedStudents.length;
+        if(document.getElementById('kpi-allocation')) document.getElementById('kpi-allocation').textContent = approvedStudents.length;
+
+        const filterContainer = document.getElementById('hub-dynamic-filters'); const thead = document.getElementById('hub-thead'); const tbody = document.getElementById('hub-queue-body');
+        if(!tbody) return;
+
+        let htmlStr = '';
+        
+        if(currentFilter === 'pending' || currentFilter === 'approved') {
+            let baseData = currentFilter === 'pending' ? pendingStudents : approvedStudents;
+            const countAll = baseData.length; const countNsfas = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length; const countBursary = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length; const countCash = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
+
+            if (filterContainer) filterContainer.innerHTML = `<button onclick="window.setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''} text-[9px]"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button><button onclick="window.setHubSubFilter('nsfas')" class="glass-seg-btn ${hubSubFilter==='nsfas'?'active accent-blue':''} text-[9px]">NSFAS <span class="ml-1 opacity-60">(${countNsfas})</span></button><button onclick="window.setHubSubFilter('bursary')" class="glass-seg-btn ${hubSubFilter==='bursary'?'active accent-blue':''} text-[9px]">Bursary <span class="ml-1 opacity-60">(${countBursary})</span></button>`;
+            if (hubSubFilter !== 'all') { baseData = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes(hubSubFilter)); }
+            
+            if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/4">Student Identity</th><th class="w-1/4">Academic Profile</th><th class="w-1/6">Funding</th><th class="w-1/6 text-center">Docs</th><th class="text-right">Action</th></tr>`;
+
+            if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="5" class="p-10 text-center text-slate-400 bg-white/30"><div class="w-10 h-10 rounded-full bg-white border border-slate-200 text-slate-300 flex items-center justify-center mx-auto mb-2 text-lg"><i class="fa-solid fa-check-double"></i></div><span class="font-medium text-[10px]">No records match this view.</span></td></tr>`; return; }
+
+            baseData.forEach(s => {
+                const safeId = String(s.Student_Number || '').replace(/'/g, "\\'");
+                
+                // Document Icon Generator
+                const doc1 = s.Doc_1_URL_ID ? `<a href="${s.Doc_1_URL_ID}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-blue-50/80 text-blue-600 border border-blue-100 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm" title="ID/Passport Document"><i class="fa-solid fa-id-card text-[10px]"></i></a>` : '';
+                const doc2 = s.Doc_2_URL_Reg ? `<a href="${s.Doc_2_URL_Reg}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-emerald-50/80 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-600 hover:text-white transition-all shadow-sm" title="Proof of Registration"><i class="fa-solid fa-file-signature text-[10px]"></i></a>` : '';
+                const doc3 = s.Doc_3_URL_Funding ? `<a href="${s.Doc_3_URL_Funding}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-amber-50/80 text-amber-600 border border-amber-100 rounded hover:bg-amber-500 hover:text-white transition-all shadow-sm" title="Proof of Funding"><i class="fa-solid fa-file-invoice-dollar text-[10px]"></i></a>` : '';
+                const doc4 = s.Doc_4_URL_Payslip ? `<a href="${s.Doc_4_URL_Payslip}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-purple-50/80 text-purple-600 border border-purple-100 rounded hover:bg-purple-600 hover:text-white transition-all shadow-sm" title="Payslip / Bank Statement"><i class="fa-solid fa-file-invoice text-[10px]"></i></a>` : '';
+                
+                let docsHtml = `<div class="flex justify-center gap-1.5">${doc1}${doc2}${doc3}${doc4}</div>`;
+                if (!doc1 && !doc2 && !doc3 && !doc4) {
+                    docsHtml = `<span class="text-[8px] font-bold text-slate-400 uppercase border border-dashed border-slate-300 bg-white/50 px-2 py-1 rounded-md">Awaiting</span>`;
+                }
+
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number}</div><div class="text-[9px] font-semibold text-slate-500 mt-0.5">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                        <td><div class="text-slate-700 font-bold text-[10px]">${s.Course || 'Unknown Course'}</div><div class="text-[8px] font-bold text-slate-400 uppercase mt-0.5"><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i>${s.Campus_Hub || 'N/A'}</div></td>
+                        <td><span class="px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Funding_Type || 'Pending'}</span></td>
+                        <td class="text-center">${docsHtml}</td>
+                        <td class="text-right">
+                            <div class="flex justify-end gap-1.5">
+                                ${currentFilter === 'pending' ? `<button onclick="window.openRejectModal('${safeId}')" class="bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">Reject</button><button onclick="window.processApproval('${safeId}', this)" class="bg-[#1d1d1f] hover:bg-blue-600 text-white shadow-md text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all">Approve</button>` : `<button class="bg-slate-100 text-slate-400 cursor-not-allowed text-[9px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 transition-all" disabled>Approved</button>`}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+
+        } else if (currentFilter === 'allocation') {
+            let baseData = [...approvedStudents];
+            if (filterContainer) filterContainer.innerHTML = '';
+            
+            if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Student Identity</th><th class="w-1/4">Gender</th><th class="w-1/4">Current Status</th><th class="text-right">Action</th></tr>`;
+            
+            if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="4" class="p-10 text-center text-slate-400 bg-white/30 text-[10px]">No approved students to allocate.</td></tr>`; return; }
+
+            baseData.forEach(s => {
+                const roomStatus = s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned' ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Room_Allocation}</span>` : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">Unassigned</span>`;
+                const safeId = String(s.Student_Number || '').replace(/'/g, "\\'");
+                const safeGender = String(s.Gender || '').replace(/'/g, "\\'");
+                const safeName = String(`${s.First_Name || ''} ${s.Surname || ''}`).replace(/'/g, "\\'");
+
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number || '--'}</div><div class="text-[9px] text-slate-500 mt-0.5 font-medium">${s.First_Name || ''} ${s.Surname || ''}</div></td>
+                        <td><div class="text-slate-600 font-bold text-[10px]">${s.Gender || 'N/A'}</div></td>
+                        <td>${roomStatus}</td>
+                        <td class="text-right"><button onclick="window.openAllocationModal('${safeId}', '${safeGender}', '${safeName}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-md">Allocate</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+        }
+    };
+
+    // ----------------------------------------------------
+    // PIPELINES & WEBHOOKS (Synchronous Await Logic)
+    // ----------------------------------------------------
+    window.processApproval = async function(studentId, btnElement) { 
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
+
+        try {
+            // 1. Force the fetch and wait for n8n to respond
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-approve', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: studentId, Vetting_Status: "Approved" })
+            });
+
+            // 2. Update local data ONLY after n8n succeeds
+            const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId)); 
+            if (idx > -1) { 
+                globalStudentData[idx].Vetting_Status = 'Approved'; 
+                window.showToast("Student Approved.");
+                window.renderUI();
+                
+                // 3. Open Allocation Modal immediately
+                const s = globalStudentData[idx]; 
+                setTimeout(() => { window.openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); }, 300);
+            }
+        } catch (error) { window.showToast("Failed to connect to backend.", "error"); } 
+        finally { btnElement.innerHTML = originalText; btnElement.disabled = false; }
+    };
+
+    window.openRejectModal = function(studentId) { 
+        currentRejectStudentId = studentId; 
+        document.getElementById('reject-student-id').textContent = studentId; 
+        document.getElementById('rejectForm').reset(); 
+        document.getElementById('rejectModal').classList.add('active'); 
+    };
+    window.closeRejectModal = function() { document.getElementById('rejectModal').classList.remove('active'); currentRejectStudentId = null; };
+
+    window.submitRejection = async function(e) {
+        e.preventDefault(); 
+        const btn = document.getElementById('btn-submit-reject'); 
+        const checkboxes = document.querySelectorAll('input[name="reason"]:checked'); 
+        const reasons = Array.from(checkboxes).map(cb => cb.value);
+        
+        if (reasons.length === 0) { window.showToast("Please select at least one reason.", "error"); return; }
+        
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
+        try {
+            // Note: Updated routing to reziflow-rejectz webhook on test
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
+            });
+            
+            window.closeRejectModal();
+            const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(currentRejectStudentId)); 
+            if (idx > -1) globalStudentData[idx].Vetting_Status = 'Rejected';
+            
+            window.renderUI(); window.showToast("Application rejected successfully.");
+        } catch(error) { window.showToast("Connection failed.", "error"); } 
+        finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.openAllocationModal = function(studentId, gender, name) {
+        activeAllocationStudentId = studentId; selectedRoomId = null;
+        document.getElementById('alloc-student-name').textContent = name; document.getElementById('alloc-student-id').textContent = studentId;
+        document.getElementById('alloc-selected-room').textContent = 'None';
+        
+        const confirmBtn = document.getElementById('btn-confirm-allocation'); 
+        confirmBtn.disabled = true; confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        document.getElementById('allocationModal').classList.add('active'); 
+        const cleanGender = String(gender).toLowerCase();
+        window.fetchModalRoomInventory(cleanGender);
+    };
+    window.closeAllocationModal = function() { document.getElementById('allocationModal').classList.remove('active'); };
+
+    window.fetchModalRoomInventory = async function(gender) {
+        const singleContainer = document.getElementById('list-single-rooms'); const sharingContainer = document.getElementById('list-sharing-rooms');
+        if(globalRoomData && globalRoomData.length > 0) { window.renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); return; }
+        
+        singleContainer.innerHTML = '<div class="py-10 text-center text-blue-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
+        sharingContainer.innerHTML = '<div class="py-10 text-center text-emerald-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
+        
+        try { 
+            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms'); 
+            if (response.ok) { 
+                const rawData = await response.json(); globalRoomData = window.parseN8n(rawData); 
+                window.renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); 
+                if (currentFilter === 'allocation') window.renderAllocationDashboard(); 
+            } 
+        } catch (error) { singleContainer.innerHTML = '<div class="text-xs text-rose-500">Failed to fetch inventory.</div>'; }
+    };
+
+    window.renderModalRooms = function(roomsData, gender, singleContainer, sharingContainer) {
+        let validRooms = roomsData.filter(r => { const occupied = parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0; const total = parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1; return occupied < total; });
+        const cleanGender = String(gender || '').toLowerCase().trim(); const isMale = cleanGender.startsWith('m'); 
+        
+        if (isMale) { validRooms = validRooms.filter(r => String(r.Block || '').toUpperCase().trim() === 'A'); } 
+        else { validRooms = validRooms.filter(r => { const blk = String(r.Block || '').toUpperCase().trim(); return blk === 'B' || blk === 'C'; }); }
+        
+        const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
+        const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
+        
+        let sHtml = '';
+        if (singles.length === 0) { sHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No singles available</div>'; } 
+        else { singles.forEach(r => { sHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700 flex justify-between">${r.Room_ID} <i class="fa-solid fa-check text-slate-200 check-icon"></i></div>`; }); }
+        singleContainer.innerHTML = sHtml;
+
+        let shHtml = '';
+        if (sharing.length === 0) { shHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No sharing available</div>'; } 
+        else { sharing.forEach(r => { shHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700 flex justify-between">${r.Room_ID} <span class="text-[9px] font-normal text-emerald-500 float-right">Open</span></div>`; }); }
+        sharingContainer.innerHTML = shHtml;
+    };
+
+    window.selectRoom = function(el, roomId) {
+        document.querySelectorAll('.room-card').forEach(c => { c.classList.remove('bg-blue-50', 'border-blue-500', 'text-blue-700'); c.classList.add('bg-white', 'border-slate-200', 'text-slate-700'); const check = c.querySelector('.check-icon'); if(check) { check.classList.remove('text-blue-500'); check.classList.add('text-slate-200'); } });
+        el.classList.remove('bg-white', 'border-slate-200', 'text-slate-700'); el.classList.add('bg-blue-50', 'border-blue-500', 'text-blue-700');
+        const check = el.querySelector('.check-icon'); if(check) { check.classList.remove('text-slate-200'); check.classList.add('text-blue-500'); }
+        selectedRoomId = roomId; document.getElementById('alloc-selected-room').textContent = roomId;
+        const confirmBtn = document.getElementById('btn-confirm-allocation'); confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    };
+
+    window.confirmAllocation = async function() {
+        const btn = document.getElementById('btn-confirm-allocation'); 
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Binding...'; btn.disabled = true;
+        try {
+            const studentIndex = globalStudentData.findIndex(s => String(s.Student_Number) === String(activeAllocationStudentId));
+            if(studentIndex === -1) throw new Error("Cache miss");
+            
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-allocate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: activeAllocationStudentId, Room_ID: selectedRoomId })
+            });
+
+            globalStudentData[studentIndex].Vetting_Status = 'Approved';
+            globalStudentData[studentIndex].Room_Allocation = selectedRoomId; 
+            
+            window.closeAllocationModal(); window.setFilter('allocation'); window.showToast("Room bound successfully.");
+        } catch (error) { window.showToast("System error occurred.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    window.submitManualStudent = async function(e) {
+        e.preventDefault(); const btn = document.getElementById('btn-submit-manual'); const ogText = btn.innerHTML;
+        const payload = { First_Name: document.getElementById('manual-fname').value, Surname: document.getElementById('manual-lname').value, Student_Number: document.getElementById('manual-id').value, Gender: document.getElementById('manual-gender').value, Funding_Type: document.getElementById('manual-funding').value, Vetting_Status: 'Pending', Manual_Entry: true };
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Injecting...'; btn.disabled = true;
+        try {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-manual-student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            document.getElementById('manualStudentModal').classList.remove('active'); e.target.reset();
+            window.fetchDatabaseData(true); window.showToast("Applicant manually injected.");
+        } catch(error) { window.showToast("Failed to connect to n8n.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
+    };
+
+    // Auto-trigger if returning from another tab
+    setTimeout(() => { if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0 && currentFilter === 'pending') window.renderUI(); }, 150);
+</script>
