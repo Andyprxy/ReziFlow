@@ -184,7 +184,7 @@
     </div>
 </div>
 
-<!-- Allocation Modal (Improved Responsiveness & Bubble UI) -->
+<!-- Allocation Modal -->
 <div id="allocationModal" class="modal-overlay">
     <div class="modal-content w-full max-w-4xl flex flex-col p-0 overflow-hidden h-[90vh] md:h-auto">
         <div class="p-4 sm:p-6 border-b border-slate-200/60 flex justify-between items-start bg-slate-50 shrink-0">
@@ -223,7 +223,7 @@
     </div>
 </div>
 
-<!-- Manual Entry & Batch Modals... (Kept identical as requested) -->
+<!-- Manual Entry Modal -->
 <div id="manualStudentModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-md">
         <div class="magic-border-inner flex flex-col relative">
@@ -536,7 +536,7 @@
         tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Rejections Log...</span></td></tr>`;
         
         try {
-            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz');
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-rejectz');
             if (res.ok) {
                 let data = await res.json();
                 window.globalRejectionsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
@@ -746,7 +746,7 @@
         const notesVal = document.getElementById(`req-notes-${rowId}`).value;
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-request', {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-request', {
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -801,7 +801,7 @@
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-remove', {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-remove', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: studentId })
             });
@@ -836,7 +836,7 @@
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz', {
+            await fetch('https://n8n.automania.cloud/webhook/reziflow-rejectz', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
             });
