@@ -23,12 +23,12 @@
     .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 16px; padding: 10px; transition: all 0.3s ease; }
     .block-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
     
-    .compact-table th { padding: 10px 12px; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
-    .compact-table td { padding: 8px 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.7rem; }
+    .compact-table th { padding: 10px 12px; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); white-space: nowrap; }
+    .compact-table td { padding: 8px 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.7rem; white-space: nowrap; }
     
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
     .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
@@ -37,6 +37,11 @@
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 
     .pie-chart-anim { transition: background 1s ease-out; }
+    
+    /* Custom Scrollbar for inner elements */
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 </style>
 
 <!-- Main Fragment Container -->
@@ -46,44 +51,44 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
         <!-- Top Nav -->
-        <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative flex-wrap gap-4">
+        <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative flex-wrap gap-3">
             <!-- Core Pipeline Tabs -->
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
                 <button onclick="window.setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Pending
-                    <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span class="hidden sm:inline">Pending</span>
+                    <span id="kpi-pending" class="bg-amber-50 border border-amber-100 text-amber-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
                 </button>
-                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <div class="w-px h-5 bg-slate-300/50 mx-0.5 sm:mx-1"></div>
                 <button onclick="window.setFilter('approved')" id="btn-tab-approved" class="glass-seg-btn accent-emerald text-[10px] sm:text-xs">
-                    <i class="fa-solid fa-user-check"></i> Approved
-                    <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                    <i class="fa-solid fa-user-check"></i> <span class="hidden sm:inline">Approved</span>
+                    <span id="kpi-approved" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
                 </button>
-                <div class="w-px h-5 bg-slate-300/50 mx-1"></div>
+                <div class="w-px h-5 bg-slate-300/50 mx-0.5 sm:mx-1"></div>
                 <button onclick="window.setFilter('allocation')" id="btn-tab-allocation" class="glass-seg-btn accent-blue text-[10px] sm:text-xs">
-                    <i class="fa-solid fa-door-open"></i> Allocation
-                    <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                    <i class="fa-solid fa-door-open"></i> <span class="hidden sm:inline">Allocation</span>
+                    <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
                 </button>
             </div>
             
             <!-- Separated Requests Tab -->
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
                 <button onclick="window.setFilter('requests')" id="btn-tab-requests" class="glass-seg-btn accent-rose text-[10px] sm:text-xs">
-                    <i class="fa-solid fa-bell"></i> Requests
-                    <span id="kpi-requests" class="bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                    <i class="fa-solid fa-bell"></i> <span class="hidden sm:inline">Requests</span>
+                    <span id="kpi-requests" class="bg-rose-50 border border-rose-100 text-rose-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
                 </button>
             </div>
         </div>
 
         <!-- Data Table Wrapper -->
-        <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-2 shrink-0 flex flex-col">
+        <div class="glass-panel rounded-[24px] lg:rounded-[32px] overflow-hidden mt-2 shrink-0 flex flex-col border border-white/50 shadow-sm">
             <div class="px-4 py-4 border-b border-white/60 flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/50 backdrop-blur-md">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-users text-sm"></i></div>
+                    <div class="w-8 h-8 shrink-0 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="hub-icon" class="fa-solid fa-layer-group text-sm"></i></div>
                     <h3 id="table-title" class="font-bold text-slate-800 text-sm sm:text-base">Student Hub (Pending)</h3>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
-                    <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right hidden sm:flex"></div>
-                    <div class="relative w-full sm:w-48">
+                <div class="flex items-center gap-2 flex-wrap md:flex-nowrap w-full md:w-auto">
+                    <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right hidden md:flex"></div>
+                    <div class="relative w-full md:w-48">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search records..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm">
                     </div>
@@ -91,18 +96,18 @@
                         if(currentFilter === 'requests') window.fetchAndRenderRequests(); 
                         else if(currentFilter === 'rejections') window.fetchAndRenderRejections(); 
                         else if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true);" 
-                        class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]">
+                        class="bg-white shrink-0 hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]">
                         <i class="fa-solid fa-rotate text-blue-500"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Dynamic Allocation Dashboard -->
-            <div id="allocation-dashboard" class="hidden bg-white/40 backdrop-blur-md border-b border-slate-200/50 p-4 transition-all"></div>
+            <!-- Dynamic Dashboard Container -->
+            <div id="dynamic-dashboard" class="hidden bg-white/60 backdrop-blur-md border-b border-slate-200/50 p-4 transition-all w-full"></div>
 
             <!-- Main Data Table -->
-            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
-                <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[60vh]">
+                <table class="w-full text-left border-collapse compact-table min-w-[800px]">
                     <thead id="hub-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm"></thead>
                     <tbody id="hub-queue-body" class="divide-y divide-slate-100/50"></tbody>
                 </table>
@@ -126,7 +131,6 @@
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Logs & History</p>
             <div class="space-y-1.5">
-                <!-- Milder Rejections Button -->
                 <button onclick="window.setFilter('rejections')" class="block-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 justify-center gap-1.5 !py-2 shadow-sm transition-colors">
                     <i class="fa-solid fa-file-circle-xmark text-slate-400 text-[10px]"></i> <span class="truncate text-[9px] nav-text">Rejections Archive</span>
                 </button>
@@ -180,39 +184,46 @@
     </div>
 </div>
 
-<!-- Allocation Modal -->
+<!-- Allocation Modal (Improved Responsiveness & Bubble UI) -->
 <div id="allocationModal" class="modal-overlay">
-    <div class="modal-content w-full max-w-3xl flex flex-col p-0 overflow-hidden">
-        <div class="p-6 border-b border-slate-200/60 flex justify-between items-start bg-slate-50">
-            <div class="flex gap-4">
-                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-blue-100"><i class="fa-solid fa-bed"></i></div>
+    <div class="modal-content w-full max-w-4xl flex flex-col p-0 overflow-hidden h-[90vh] md:h-auto">
+        <div class="p-4 sm:p-6 border-b border-slate-200/60 flex justify-between items-start bg-slate-50 shrink-0">
+            <div class="flex gap-3 sm:gap-4">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 text-blue-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-xl shadow-sm border border-blue-100 shrink-0"><i class="fa-solid fa-bed"></i></div>
                 <div>
-                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Room Allocation</h2>
-                    <p class="text-[10px] text-slate-500 mt-1 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[9px] ml-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-none mb-1">Room Allocation</h2>
+                    <p class="text-[9px] sm:text-[10px] text-slate-500 font-medium">Assigning room for <span id="alloc-student-name" class="font-bold text-slate-800"></span> <span id="alloc-student-id" class="text-[8px] sm:text-[9px] ml-1 px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono shadow-sm"></span></p>
                 </div>
             </div>
-            <button onclick="window.closeAllocationModal()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="window.closeAllocationModal()" class="w-8 h-8 sm:w-10 sm:h-10 shrink-0 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="p-5 flex-1 overflow-y-auto custom-scroll bg-white">
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <h3 class="font-black text-slate-800 text-sm mb-4"><i class="fa-solid fa-door-closed text-indigo-500 mr-2"></i>Premium Singles</h3>
-                    <div id="list-single-rooms" class="space-y-3"></div>
+        
+        <div class="p-4 sm:p-5 flex-1 overflow-y-auto custom-scroll bg-white">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Singles Column -->
+                <div class="bg-slate-50/50 p-4 sm:p-5 rounded-2xl border border-slate-100 h-full flex flex-col">
+                    <h3 class="font-black text-slate-800 text-xs sm:text-sm mb-4 flex items-center"><div class="w-6 h-6 rounded bg-indigo-100 text-indigo-500 flex items-center justify-center mr-2"><i class="fa-solid fa-door-closed text-[10px]"></i></div> Premium Singles</h3>
+                    <div id="list-single-rooms" class="flex-1 space-y-3"></div>
                 </div>
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <h3 class="font-black text-slate-800 text-sm mb-4"><i class="fa-solid fa-user-group text-emerald-500 mr-2"></i>Sharing Units</h3>
-                    <div id="list-sharing-rooms" class="space-y-3"></div>
+                <!-- Sharing Column -->
+                <div class="bg-slate-50/50 p-4 sm:p-5 rounded-2xl border border-slate-100 h-full flex flex-col">
+                    <h3 class="font-black text-slate-800 text-xs sm:text-sm mb-4 flex items-center"><div class="w-6 h-6 rounded bg-emerald-100 text-emerald-500 flex items-center justify-center mr-2"><i class="fa-solid fa-user-group text-[10px]"></i></div> Sharing Units</h3>
+                    <div id="list-sharing-rooms" class="flex-1 space-y-3"></div>
                 </div>
             </div>
         </div>
-        <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center gap-4">
-            <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p><p id="alloc-selected-room" class="font-mono text-xl font-black text-slate-800">None</p></div>
-            <button id="btn-confirm-allocation" onclick="window.confirmAllocation()" class="bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>Confirm & Bind <i class="fa-solid fa-lock ml-2"></i></button>
+        
+        <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+            <div class="text-center sm:text-left w-full sm:w-auto">
+                <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selected Unit</p>
+                <p id="alloc-selected-room" class="font-mono text-lg sm:text-xl font-black text-slate-800">None</p>
+            </div>
+            <button id="btn-confirm-allocation" onclick="window.confirmAllocation()" class="w-full sm:w-auto bg-[#1d1d1f] hover:bg-blue-600 text-white font-bold px-8 py-3.5 sm:py-3 rounded-xl shadow-lg transition-all opacity-50 cursor-not-allowed text-xs sm:text-sm" disabled>Confirm & Bind <i class="fa-solid fa-lock ml-2"></i></button>
         </div>
     </div>
 </div>
 
-<!-- Manual Entry Modal -->
+<!-- Manual Entry & Batch Modals... (Kept identical as requested) -->
 <div id="manualStudentModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-md">
         <div class="magic-border-inner flex flex-col relative">
@@ -240,7 +251,6 @@
     </div>
 </div>
 
-<!-- Batch Upload Modal -->
 <div id="batchUploadModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -259,7 +269,6 @@
     </div>
 </div>
 
-<!-- POPIA Vault Modal -->
 <div id="popiaModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-md">
         <div class="magic-border-inner flex flex-col relative bg-slate-900 border border-slate-700">
@@ -332,11 +341,15 @@
         const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine', 'requests': 'Service Requests', 'rejections': 'Rejections Log' }; 
         if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type] || 'Database View'; 
         
-        const dash = document.getElementById('allocation-dashboard');
+        // Handle Dynamic Dashboards
+        const dash = document.getElementById('dynamic-dashboard');
         if (dash) {
             if (type === 'allocation') {
                 dash.classList.remove('hidden');
                 if(typeof window.renderAllocationDashboard === 'function') window.renderAllocationDashboard();
+            } else if (type === 'approved') {
+                dash.classList.remove('hidden');
+                if(typeof window.renderApprovedDashboard === 'function') window.renderApprovedDashboard();
             } else {
                 dash.classList.add('hidden');
             }
@@ -353,28 +366,128 @@
 
     window.setHubSubFilter = function(fv) { hubSubFilter = fv; window.renderUI(); };
 
-    window.renderAllocationDashboard = function() {
-        const dash = document.getElementById('allocation-dashboard');
+    // --- ANALYTICS DASHBOARDS ---
+
+    window.renderApprovedDashboard = function() {
+        const dash = document.getElementById('dynamic-dashboard');
         if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
         
         const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
-        const totalApproved = approvedStudents.length;
-        const allocated = approvedStudents.filter(s => s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned').length;
-        const unallocated = totalApproved - allocated;
+        const total = approvedStudents.length;
         
-        const occDeg = totalApproved ? (allocated / totalApproved) * 360 : 0;
+        // Gender Breakdown
+        const male = approvedStudents.filter(s => String(s.Gender).toLowerCase().startsWith('m')).length;
+        const female = approvedStudents.filter(s => String(s.Gender).toLowerCase().startsWith('f')).length;
+        const malePct = total ? Math.round((male / total) * 100) : 0;
+        
+        // Funding Breakdown
+        const nsfas = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length;
+        const bursary = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length;
+        const cash = approvedStudents.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
 
         dash.innerHTML = `
-            <div class="flex items-center justify-center gap-8 bg-white/60 p-4 rounded-2xl shadow-[inset_0_1px_3px_rgba(255,255,255,1),_0_2px_10px_rgba(0,0,0,0.02)] border border-white">
-                <div class="relative w-16 h-16 rounded-full transform transition hover:scale-105 pie-chart-anim" style="background: conic-gradient(#3b82f6 0deg, #3b82f6 ${occDeg}deg, #e2e8f0 ${occDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                    <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
-                        <span class="text-[12px] font-black text-slate-800 leading-none">${totalApproved}</span>
-                        <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Approved</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Total Card -->
+                <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-users"></i></div>
+                    <div><p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Total Approved</p><p class="text-2xl font-black text-slate-800 leading-none">${total}</p></div>
+                </div>
+                
+                <!-- Gender Card -->
+                <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex flex-col justify-center">
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Gender Demographics</p>
+                    <div class="flex items-center gap-3">
+                        <div class="flex-1 h-3 bg-rose-200 rounded-full overflow-hidden flex shadow-inner">
+                            <div class="h-full bg-blue-500 transition-all duration-1000" style="width: ${malePct}%"></div>
+                        </div>
+                        <div class="flex gap-2 text-[9px] font-bold shrink-0">
+                            <span class="text-blue-600"><i class="fa-solid fa-mars"></i> ${male}</span>
+                            <span class="text-rose-500"><i class="fa-solid fa-venus"></i> ${female}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-2.5">
-                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div><span class="text-[10px] font-extrabold text-slate-700 uppercase tracking-widest">Allocated <span class="text-blue-600 ml-1 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${allocated}</span></span></div>
-                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-sm"></div><span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Unallocated <span class="text-slate-600 ml-1 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${unallocated}</span></span></div>
+
+                <!-- Funding Breakdown -->
+                <div class="bg-white/70 p-4 rounded-xl border border-white shadow-sm flex flex-col justify-center gap-1.5">
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Funding Profile</p>
+                    <div class="flex gap-2 justify-between">
+                        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded bg-amber-400"></div><span class="text-[9px] font-bold text-slate-600">NSFAS: ${nsfas}</span></div>
+                        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded bg-indigo-400"></div><span class="text-[9px] font-bold text-slate-600">Bursary: ${bursary}</span></div>
+                        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded bg-emerald-400"></div><span class="text-[9px] font-bold text-slate-600">Cash: ${cash}</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    window.renderAllocationDashboard = async function() {
+        const dash = document.getElementById('dynamic-dashboard');
+        
+        // 1. Calculate Student Allocation Status
+        let totalApproved = 0; let allocatedStudents = 0;
+        if (typeof globalStudentData !== 'undefined' && globalStudentData) {
+            const approved = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+            totalApproved = approved.length;
+            allocatedStudents = approved.filter(s => s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned').length;
+        }
+        const unallocatedStudents = totalApproved - allocatedStudents;
+        const studentDeg = totalApproved ? (allocatedStudents / totalApproved) * 360 : 0;
+
+        // 2. Calculate Physical Room Inventory Status
+        // Fetch inventory if missing
+        if (!window.globalRoomData || window.globalRoomData.length === 0) {
+            dash.innerHTML = `<div class="flex items-center justify-center py-6 text-slate-400 text-xs gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Polling Inventory Sensors...</div>`;
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
+                if (response.ok) {
+                    const rawData = await response.json(); 
+                    window.globalRoomData = window.parseN8n ? window.parseN8n(rawData) : rawData; 
+                }
+            } catch (error) {
+                dash.innerHTML = `<div class="py-4 text-center text-[10px] text-rose-500">Inventory Sync Failed</div>`;
+                return;
+            }
+        }
+
+        let totalBeds = 0; let occupiedBeds = 0;
+        if(window.globalRoomData && window.globalRoomData.length > 0) {
+            totalBeds = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1), 0);
+            occupiedBeds = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0), 0);
+        }
+        const unOccupiedBeds = totalBeds - occupiedBeds;
+        const roomDeg = totalBeds ? (occupiedBeds / totalBeds) * 360 : 0;
+
+        // Render Dual Charts
+        dash.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Chart 1: Student Allocation -->
+                <div class="flex items-center justify-center gap-6 bg-white/70 p-4 rounded-xl border border-white shadow-sm">
+                    <div class="relative w-16 h-16 shrink-0 rounded-full pie-chart-anim" style="background: conic-gradient(#3b82f6 0deg, #3b82f6 ${studentDeg}deg, #e2e8f0 ${studentDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
+                            <span class="text-[12px] font-black text-slate-800 leading-none">${totalApproved}</span>
+                            <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Students</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 w-full">
+                        <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1 mb-1">Student Placement</p>
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-blue-500"></div><span class="text-[9px] font-bold text-slate-600 uppercase">Allocated</span></div><span class="text-[10px] font-black text-slate-800 bg-slate-100 px-1.5 rounded">${allocatedStudents}</span></div>
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-300"></div><span class="text-[9px] font-bold text-slate-500 uppercase">Unallocated</span></div><span class="text-[10px] font-black text-slate-800 bg-slate-100 px-1.5 rounded">${unallocatedStudents}</span></div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Room Inventory -->
+                <div class="flex items-center justify-center gap-6 bg-white/70 p-4 rounded-xl border border-white shadow-sm">
+                    <div class="relative w-16 h-16 shrink-0 rounded-full pie-chart-anim" style="background: conic-gradient(#10b981 0deg, #10b981 ${roomDeg}deg, #e2e8f0 ${roomDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
+                            <span class="text-[12px] font-black text-slate-800 leading-none">${totalBeds}</span>
+                            <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Total Beds</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 w-full">
+                        <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1 mb-1">Physical Inventory</p>
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-emerald-500"></div><span class="text-[9px] font-bold text-slate-600 uppercase">Occupied</span></div><span class="text-[10px] font-black text-slate-800 bg-slate-100 px-1.5 rounded">${occupiedBeds}</span></div>
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-300"></div><span class="text-[9px] font-bold text-slate-500 uppercase">Unoccupied</span></div><span class="text-[10px] font-black text-slate-800 bg-slate-100 px-1.5 rounded">${unOccupiedBeds}</span></div>
+                    </div>
                 </div>
             </div>
         `;
@@ -542,9 +655,18 @@
         
         if(currentFilter === 'pending' || currentFilter === 'approved') {
             let baseData = currentFilter === 'pending' ? pendingStudents : approvedStudents;
-            const countAll = baseData.length; const countNsfas = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length; const countBursary = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length; const countCash = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
+            const countAll = baseData.length; 
+            const countNsfas = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('nsfas')).length; 
+            const countBursary = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('bursary')).length; 
+            const countCash = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes('cash')).length;
 
-            if (filterContainer) filterContainer.innerHTML = `<button onclick="window.setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''} text-[9px]"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button><button onclick="window.setHubSubFilter('nsfas')" class="glass-seg-btn ${hubSubFilter==='nsfas'?'active accent-blue':''} text-[9px]">NSFAS <span class="ml-1 opacity-60">(${countNsfas})</span></button><button onclick="window.setHubSubFilter('bursary')" class="glass-seg-btn ${hubSubFilter==='bursary'?'active accent-blue':''} text-[9px]">Bursary <span class="ml-1 opacity-60">(${countBursary})</span></button>`;
+            if (filterContainer) filterContainer.innerHTML = `
+                <button onclick="window.setHubSubFilter('all')" class="glass-seg-btn ${hubSubFilter==='all'?'active accent-blue':''} text-[9px]"><i class="fa-solid fa-users"></i> All <span class="ml-1 opacity-60">(${countAll})</span></button>
+                <button onclick="window.setHubSubFilter('nsfas')" class="glass-seg-btn ${hubSubFilter==='nsfas'?'active accent-blue':''} text-[9px]">NSFAS <span class="ml-1 opacity-60">(${countNsfas})</span></button>
+                <button onclick="window.setHubSubFilter('bursary')" class="glass-seg-btn ${hubSubFilter==='bursary'?'active accent-blue':''} text-[9px]">Bursary <span class="ml-1 opacity-60">(${countBursary})</span></button>
+                <button onclick="window.setHubSubFilter('cash')" class="glass-seg-btn ${hubSubFilter==='cash'?'active accent-blue':''} text-[9px]">Cash <span class="ml-1 opacity-60">(${countCash})</span></button>
+            `;
+            
             if (hubSubFilter !== 'all') { baseData = baseData.filter(s => String(s.Funding_Type).toLowerCase().includes(hubSubFilter)); }
             
             if(thead) thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/4">Student Identity</th><th class="w-1/4">Academic Profile</th><th class="w-1/6">Funding</th><th class="w-1/6 text-center">Docs</th><th class="text-right">Action</th></tr>`;
@@ -665,6 +787,7 @@
                 globalStudentData[idx].Vetting_Status = 'Approved'; 
                 window.showToast("Student Approved.");
                 window.renderUI();
+                if (currentFilter === 'approved') window.renderApprovedDashboard();
                 
                 const s = globalStudentData[idx]; 
                 setTimeout(() => { window.openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); }, 300);
@@ -688,7 +811,7 @@
                 globalStudentData[idx].Room_Allocation = 'Unassigned';
                 window.showToast("Allocation removed successfully.");
                 window.renderUI();
-                window.renderAllocationDashboard();
+                if(currentFilter === 'allocation') window.renderAllocationDashboard();
             }
         } catch (error) { window.showToast("Failed to remove allocation.", "error"); } 
         finally { if(btnElement) { btnElement.innerHTML = originalText; btnElement.disabled = false; } }
@@ -767,21 +890,40 @@
         const singles = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('single')); 
         const sharing = validRooms.filter(r => String(r.Room_Type || '').toLowerCase().includes('sharing'));
         
-        let sHtml = '';
-        if (singles.length === 0) { sHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No singles available</div>'; } 
-        else { singles.forEach(r => { sHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700 flex justify-between">${r.Room_ID} <i class="fa-solid fa-check text-slate-200 check-icon"></i></div>`; }); }
-        singleContainer.innerHTML = sHtml;
+        // Upgraded Room Bubble Generator
+        const generateRoomCard = (r) => `
+            <div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 sm:p-4 bg-white border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-blue-300 hover:shadow-md transition-all flex flex-row items-center justify-between group gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors check-icon-bg shrink-0">
+                        <i class="fa-solid fa-bed text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-slate-800 text-sm sm:text-base leading-none">${r.Room_ID}</h4>
+                        <span class="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-wide mt-1 inline-block">Available</span>
+                    </div>
+                </div>
+                <div class="w-6 h-6 shrink-0 rounded-full border-2 border-slate-200 flex items-center justify-center check-circle transition-colors">
+                    <i class="fa-solid fa-check text-[10px] text-transparent check-icon"></i>
+                </div>
+            </div>`;
 
-        let shHtml = '';
-        if (sharing.length === 0) { shHtml = '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No sharing available</div>'; } 
-        else { sharing.forEach(r => { shHtml += `<div onclick="window.selectRoom(this, '${r.Room_ID}')" class="room-card p-3 bg-white border border-slate-200 rounded-xl mb-2 cursor-pointer hover:border-blue-400 text-xs font-bold text-slate-700 flex justify-between">${r.Room_ID} <span class="text-[9px] font-normal text-emerald-500 float-right">Open</span></div>`; }); }
-        sharingContainer.innerHTML = shHtml;
+        singleContainer.innerHTML = singles.length === 0 ? '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No singles available</div>' : singles.map(generateRoomCard).join('');
+        sharingContainer.innerHTML = sharing.length === 0 ? '<div class="p-4 text-center text-[10px] text-slate-400 border border-dashed rounded-xl border-slate-200">No sharing available</div>' : sharing.map(generateRoomCard).join('');
     };
 
     window.selectRoom = function(el, roomId) {
-        document.querySelectorAll('.room-card').forEach(c => { c.classList.remove('bg-blue-50', 'border-blue-500', 'text-blue-700'); c.classList.add('bg-white', 'border-slate-200', 'text-slate-700'); const check = c.querySelector('.check-icon'); if(check) { check.classList.remove('text-blue-500'); check.classList.add('text-slate-200'); } });
-        el.classList.remove('bg-white', 'border-slate-200', 'text-slate-700'); el.classList.add('bg-blue-50', 'border-blue-500', 'text-blue-700');
-        const check = el.querySelector('.check-icon'); if(check) { check.classList.remove('text-slate-200'); check.classList.add('text-blue-500'); }
+        document.querySelectorAll('.room-card').forEach(c => { 
+            c.classList.remove('bg-blue-50/50', 'border-blue-500'); c.classList.add('bg-white', 'border-slate-100'); 
+            const circle = c.querySelector('.check-circle'); if(circle) { circle.classList.remove('border-blue-500', 'bg-blue-500'); circle.classList.add('border-slate-200'); }
+            const icon = c.querySelector('.check-icon'); if(icon) { icon.classList.remove('text-white'); icon.classList.add('text-transparent'); }
+            const bg = c.querySelector('.check-icon-bg'); if(bg) { bg.classList.remove('bg-blue-500', 'text-white'); bg.classList.add('bg-slate-50', 'text-slate-400'); }
+        });
+        
+        el.classList.remove('bg-white', 'border-slate-100'); el.classList.add('bg-blue-50/50', 'border-blue-500');
+        const circle = el.querySelector('.check-circle'); if(circle) { circle.classList.remove('border-slate-200'); circle.classList.add('border-blue-500', 'bg-blue-500'); }
+        const icon = el.querySelector('.check-icon'); if(icon) { icon.classList.remove('text-transparent'); icon.classList.add('text-white'); }
+        const bg = el.querySelector('.check-icon-bg'); if(bg) { bg.classList.remove('bg-slate-50', 'text-slate-400'); bg.classList.add('bg-blue-500', 'text-white'); }
+        
         selectedRoomId = roomId; document.getElementById('alloc-selected-room').textContent = roomId;
         const confirmBtn = document.getElementById('btn-confirm-allocation'); confirmBtn.disabled = false; confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     };
