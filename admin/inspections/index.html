@@ -20,9 +20,11 @@
     .glass-seg-btn.active.accent-blue { color: #0071e3; } 
     .glass-seg-btn.active.accent-emerald { color: #10b981; }
     .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-indigo { color: #4f46e5; }
+    .glass-seg-btn.active.accent-rose { color: #e11d48; }
 
-    /* Right Sidebar (Collapsed by default, 10% Shrink) */
-    .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
+    /* Right Sidebar */
+    .hub-sidebar { width: 22%; max-width: 240px; min-width: 180px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
     .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
     .hub-sidebar.collapsed .nav-text { display: none !important; }
     .hub-sidebar.collapsed .nav-block { padding: 6px !important; }
@@ -30,23 +32,37 @@
     .hub-sidebar.collapsed .block-btn i { margin: 0 !important; font-size: 1.1rem; }
     
     .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
-    .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
-    .block-btn-inactive { background-color: transparent; color: #64748b; }
-    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
+    .block-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
     
-    /* Compact Table Constraints */
-    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
-    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.68rem; }
+    /* Compact Table Constraints (Merged from index 45) */
+    .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); white-space: nowrap; }
+    .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.65rem; white-space: nowrap; }
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
+    
+    /* Inspection Specific UI */
+    .status-badge { padding: 3px 6px; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 6px; display: inline-block; }
+    .status-complete { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .status-incomplete { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+    
+    .item-dot { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 9px; margin: 0 auto; }
+    .item-ok { background: #ecfdf5; color: #10b981; border: 1px solid #d1fae5; }
+    .item-damaged { background: #fffbeb; color: #f97316; border: 1px solid #ffedd5; }
+    .item-missing { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+
+    .pie-chart-container { position: relative; width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(#10b981 0% 0%, #f43f5e 0% 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.05), inset 0 2px 5px rgba(255,255,255,0.5); transition: background 0.5s ease-out; margin: 0 auto; }
+    .pie-chart-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+    
+    .retractable-wrapper { transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, margin 0.4s ease; max-height: 200px; opacity: 1; overflow: hidden; }
+    .retractable-wrapper.collapsed { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; }
     
     /* High-End Modals */
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; width: 100%; }
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
     .magic-border-container { position: relative; padding: 2px; border-radius: 26px; overflow: hidden; background: transparent; }
-    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(20, 184, 166, 0.2) 60%, #14b8a6 80%, #0d9488 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
+    .magic-border-container::before { content: ''; position: absolute; top: 50%; left: 50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 40%, rgba(79, 70, 229, 0.2) 60%, #4f46e5 80%, #3730a3 100%); transform-origin: 0 0; animation: magic-spin 3s linear infinite; z-index: 0; }
     @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
     .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 </style>
@@ -60,19 +76,16 @@
         <!-- Primary KPI View Switcher -->
         <div class="flex justify-start sm:justify-center w-full mb-3 z-10 relative shrink-0">
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md max-w-full overflow-x-auto custom-scroll">
-                <button onclick="window.setInspectionFilter('all')" id="insp-btn-all" class="glass-seg-btn active accent-blue text-[9px] sm:text-[10px]">
-                    <i class="fa-solid fa-layer-group"></i> All Logs
-                    <span id="kpi-insp-all" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                <button onclick="window.setInspectionFilter('All')" id="insp-btn-all" class="glass-seg-btn active accent-blue text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-list-check"></i> All Logs
                 </button>
                 <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
-                <button onclick="window.setInspectionFilter('issues')" id="insp-btn-issues" class="glass-seg-btn accent-amber text-[9px] sm:text-[10px]">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Issues Detected
-                    <span id="kpi-insp-issues" class="bg-amber-50 border border-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                <button onclick="window.setInspectionFilter('Complete')" id="insp-btn-complete" class="glass-seg-btn accent-emerald text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-check-double"></i> Passed / Clean
                 </button>
                 <div class="w-px h-4 bg-slate-300/50 mx-1"></div>
-                <button onclick="window.setInspectionFilter('clean')" id="insp-btn-clean" class="glass-seg-btn accent-emerald text-[9px] sm:text-[10px]">
-                    <i class="fa-solid fa-check-double"></i> Clean / Verified
-                    <span id="kpi-insp-clean" class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-[8px] shadow-sm ml-1">-</span>
+                <button onclick="window.setInspectionFilter('Incomplete')" id="insp-btn-incomplete" class="glass-seg-btn accent-rose text-[9px] sm:text-[10px]">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Flagged Issues
                 </button>
             </div>
         </div>
@@ -82,32 +95,42 @@
             
             <div class="px-3 py-3 border-b border-white/60 flex flex-col xl:flex-row gap-3 justify-between xl:items-center bg-white/50 backdrop-blur-md">
                 <div class="flex items-center gap-2 shrink-0">
-                    <div class="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clipboard-check text-xs"></i></div>
-                    <h3 class="font-black text-slate-800 text-xs sm:text-sm whitespace-nowrap">Pre-Occupancy Ledger</h3>
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-clipboard-list text-xs"></i></div>
+                    <h3 class="font-black text-slate-800 text-xs sm:text-sm whitespace-nowrap">Inspection Logs</h3>
                 </div>
                 
                 <div class="flex items-center gap-2 flex-wrap xl:flex-nowrap justify-end w-full xl:w-auto">
                     <!-- Download Report Button -->
                     <button onclick="window.downloadInspectionsReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
-                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span>
                     </button>
 
                     <div class="relative w-full sm:w-48">
                         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-[9px]"></i>
-                        <input type="text" id="search-inspections" onkeyup="window.filterTable('search-inspections', 'inspections-body')" placeholder="Search logs, rooms, IDs..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-teal-400 shadow-sm">
+                        <input type="text" id="search-inspections" onkeyup="window.filterTable('search-inspections', 'inspections-body')" placeholder="Search logs, blocks..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1 pl-7 pr-2 text-[10px] outline-none focus:border-indigo-400 shadow-sm">
                     </div>
-                    <button onclick="if(typeof window.fetchInspectionsData === 'function') window.fetchInspectionsData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-teal-500"></i></button>
+                    <button onclick="if(typeof window.fetchInspectionsData === 'function') window.fetchInspectionsData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-indigo-500"></i></button>
                 </div>
             </div>
             
             <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
-                <table class="w-full text-left border-collapse compact-table min-w-[700px]">
-                    <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                <table class="w-full text-left border-collapse compact-table min-w-[1000px]">
+                    <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40 text-[9px]">
                         <tr>
-                            <th class="w-32">Timestamp</th>
-                            <th class="w-1/4">Resident & Space</th>
-                            <th class="w-1/3">Asset Condition Overview</th>
-                            <th class="text-right">Compliance Action</th>
+                            <th>Profile</th>
+                            <th>Block & Floor</th>
+                            <th>Room</th>
+                            <th class="text-center">Bed</th>
+                            <th class="text-center">Desk</th>
+                            <th class="text-center">Wardrobe</th>
+                            <th class="text-center">Chair</th>
+                            <th class="text-center">Microwave</th>
+                            <th class="text-center">Fridge</th>
+                            <th class="text-center">Stove</th>
+                            <th class="text-center">Shower</th>
+                            <th>Comments</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-right">Action</th>
                         </tr>
                     </thead>
                     <tbody id="inspections-body" class="divide-y divide-slate-100/50"></tbody>
@@ -116,40 +139,74 @@
         </div>
     </div>
 
-    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <!-- RIGHT SIDEBAR -->
     <div id="insp-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         <div class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleInspSidebar()">
             <div class="flex items-center gap-1.5 w-full">
-                <div class="w-7 h-7 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0"><i class="fa-solid fa-clipboard-check"></i></div>
+                <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0"><i class="fa-solid fa-bolt"></i></div>
                 <div class="flex flex-col flex-1 overflow-hidden nav-text">
-                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Audit<span class="text-teal-500">Ctrl</span></span>
-                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Compliance Tools</span>
+                    <span class="font-black text-[10px] tracking-tight text-slate-900 leading-none truncate">Audit<span class="text-indigo-500">Ctrl</span></span>
+                    <span class="text-[6px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Progress & Analytics</span>
                 </div>
             </div>
             <i id="insp-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[8px] pr-1"></i>
         </div>
 
-        <div class="nav-block">
-            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate nav-text">Logistics & Support</p>
+        <!-- Live Analytics Block -->
+        <div class="nav-block bg-white/80 nav-text">
+            <div class="flex justify-between items-center w-full mb-1 border-b border-slate-100 pb-1">
+                <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase">Live Progress</span>
+                <button onclick="window.toggleProgress()" class="w-4 h-4 rounded-full hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors"><i id="progress-toggle-icon" class="fa-solid fa-chevron-up text-[8px]"></i></button>
+            </div>
+
+            <!-- Block Filter (East/West) -->
+            <div class="flex justify-center mt-2 mb-1">
+                <div class="glass-segmented scale-[0.85] origin-center bg-slate-50">
+                    <button onclick="window.filterRegion('All')" id="reg-tab-all" class="glass-seg-btn active accent-indigo text-[8px] !px-2 py-0.5">All</button>
+                    <button onclick="window.filterRegion('East')" id="reg-tab-east" class="glass-seg-btn text-[8px] !px-2 py-0.5">East</button>
+                    <button onclick="window.filterRegion('West')" id="reg-tab-west" class="glass-seg-btn text-[8px] !px-2 py-0.5">West</button>
+                </div>
+            </div>
+            
+            <!-- Progress Bar Container -->
+            <div id="progress-wrapper" class="retractable-wrapper">
+                <div class="py-1 px-1">
+                    <div class="flex justify-between items-end mb-1">
+                        <span id="progress-text" class="text-[8px] font-bold text-slate-600">0 / 445</span>
+                        <span id="progress-pct" class="text-[9px] font-black text-indigo-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200/80 rounded-full h-2 shadow-inner overflow-hidden border border-slate-300">
+                        <div id="progress-fill" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-1.5 mt-1.5">
+                    <div class="bg-emerald-50 border border-emerald-100 p-1.5 rounded-lg text-center shadow-sm"><p class="text-[7px] font-bold text-emerald-600 uppercase tracking-widest mb-0.5">Passed</p><p id="stat-complete" class="text-sm font-black text-slate-800 leading-tight">0</p></div>
+                    <div class="bg-rose-50 border border-rose-100 p-1.5 rounded-lg text-center shadow-sm"><p class="text-[7px] font-bold text-rose-600 uppercase tracking-widest mb-0.5">Flagged</p><p id="stat-incomplete" class="text-sm font-black text-slate-800 leading-tight">0</p></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="window.openStatsModal()" class="block-btn bg-[#1d1d1f] hover:bg-indigo-600 text-white shadow-md transition-all nav-text group">
+            <i class="fa-solid fa-chart-pie group-hover:scale-110 transition-transform"></i> Detailed Reports
+        </button>
+
+        <!-- Actions & Routing -->
+        <div class="nav-block nav-text mt-1">
+            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate">Quick Tools</p>
             <div class="space-y-1">
                 <button onclick="document.getElementById('manualInspectionModal').classList.add('active')" class="block-btn bg-teal-600 hover:bg-teal-700 text-white justify-center gap-1 !py-1.5 shadow-sm border-none transition-colors">
-                    <i class="fa-solid fa-plus text-[9px]"></i> <span class="truncate text-[8px] nav-text">Log Walk-In Report</span>
+                    <i class="fa-solid fa-plus text-[9px]"></i> <span class="truncate text-[8px]">Log Walk-In Report</span>
+                </button>
+                <button onclick="window.setInspectionFilter('Incomplete')" class="block-btn bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
+                    <i class="fa-solid fa-screwdriver-wrench text-[9px]"></i> <span class="truncate text-[8px]">View Pending Repairs</span>
                 </button>
             </div>
         </div>
 
-        <div class="nav-block">
-            <p class="px-1 text-[6px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 truncate nav-text">Maintenance Routing</p>
-            <div class="space-y-1">
-                <button onclick="window.setInspectionFilter('issues')" class="block-btn bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 justify-center gap-1 !py-1.5 shadow-sm transition-colors">
-                    <i class="fa-solid fa-screwdriver-wrench text-[9px]"></i> <span class="truncate text-[8px] nav-text">View Pending Repairs</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2">
+        <div class="mt-auto shrink-0 bg-[#111827] p-1.5 rounded-[12px] border border-slate-700 shadow-lg flex items-center gap-2 nav-text">
             <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shrink-0"><i class="fa-solid fa-bolt text-[6px]"></i></div>
-            <div class="flex flex-col nav-text">
+            <div class="flex flex-col">
                 <span class="text-[5px] font-bold text-slate-400 uppercase tracking-widest leading-none">Engineered By</span>
                 <span class="text-[8px] font-black text-white tracking-widest mt-0.5 leading-none">AUTOMANIA</span>
             </div>
@@ -163,7 +220,7 @@
 
 <!-- Escalate to Maintenance Modal -->
 <div id="escalateTicketModal" class="modal-overlay">
-    <div class="modal-content magic-border-container w-full max-w-sm relative">
+    <div class="modal-content magic-border-container max-w-sm relative">
         <div class="magic-border-inner flex flex-col">
             <button onclick="document.getElementById('escalateTicketModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
             <div class="flex items-center gap-3 mb-4">
@@ -197,7 +254,7 @@
 
 <!-- Manual Report Modal -->
 <div id="manualInspectionModal" class="modal-overlay">
-    <div class="modal-content w-full max-w-md relative">
+    <div class="modal-content max-w-md relative">
         <button onclick="document.getElementById('manualInspectionModal').classList.remove('active')" class="absolute top-4 right-4 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 z-20"><i class="fa-solid fa-xmark text-[10px]"></i></button>
         <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-teal-50 text-teal-600 border border-teal-100 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-file-pen"></i></div>
@@ -205,15 +262,15 @@
         </div>
         <form onsubmit="window.submitManualInspection(event)">
             <div class="grid grid-cols-2 gap-3 mb-3">
-                <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number</label><input type="text" id="man-insp-id" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-teal-400 shadow-sm" required></div>
-                <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Room Assignment</label><input type="text" id="man-insp-room" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-teal-400 shadow-sm" required></div>
+                <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Student Number / Profile</label><input type="text" id="man-insp-id" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-teal-400 shadow-sm" required></div>
+                <div><label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Room / Block</label><input type="text" id="man-insp-room" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-mono outline-none focus:border-teal-400 shadow-sm" required></div>
             </div>
             <div class="mb-3">
                 <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Identified Issues (Comma Separated)</label>
                 <input type="text" id="man-insp-issues" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-teal-400 shadow-sm" placeholder="e.g. Damaged Mirror, Missing Chair">
             </div>
             <div class="mb-4">
-                <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Resident Notes</label>
+                <label class="block text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Resident Notes / General Comments</label>
                 <textarea id="man-insp-notes" rows="2" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] outline-none focus:border-teal-400 shadow-sm resize-none" placeholder="Additional details..."></textarea>
             </div>
             <button type="submit" id="btn-submit-man-insp" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] py-2 shadow-md flex justify-center items-center gap-2 text-[10px]"><i class="fa-solid fa-cloud-arrow-up"></i> Push to Ledger</button>
@@ -221,30 +278,76 @@
     </div>
 </div>
 
+<!-- DETAILED REPORTS MODAL (Imported from 45) -->
+<div id="statsModal" class="modal-overlay">
+    <div class="modal-content relative flex flex-col bg-slate-50 max-w-[900px]">
+        <button onclick="document.getElementById('statsModal').classList.remove('active')" class="absolute top-5 right-5 w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors z-20 shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+        
+        <div class="flex items-center gap-3 mb-6 px-2">
+            <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg shadow-sm border border-indigo-200"><i class="fa-solid fa-chart-pie"></i></div>
+            <div>
+                <h2 class="text-xl font-black text-slate-900 tracking-tight leading-none">Detailed Inspection Report</h2>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Overall Item Summary</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4">
+            
+            <!-- 1. Room Health Pie Chart -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center relative">
+                <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center w-full gap-2"><i class="fa-solid fa-heart-pulse text-emerald-500"></i> Overall Room Conditions</h3>
+                <div id="modal-health-pie" class="pie-chart-container scale-90 mt-2">
+                    <div class="pie-chart-inner">
+                        <span id="modal-health-pct" class="text-xl font-black text-slate-800 leading-none">0%</span>
+                        <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Good</span>
+                    </div>
+                </div>
+                <div class="flex justify-between w-full mt-4 text-[9px] font-bold">
+                    <span id="modal-good-count" class="text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">0 Good</span>
+                    <span id="modal-damaged-count" class="text-rose-600 bg-rose-50 px-2 py-1 rounded border border-rose-100">0 Damaged</span>
+                </div>
+            </div>
+
+            <!-- 2. Inspector Leaderboard -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-amber-500"></i> Inspector Leaderboard</h3>
+                <div id="modal-inspector-list" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-2">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- 3. Vulnerable Assets -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-house-crack text-rose-500"></i> Most Damaged Items</h3>
+                <div id="modal-asset-list" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-2">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Damaged Units Register -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm md:col-span-3">
+                <h3 class="text-xs font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-slate-400"></i> List of Rooms Needing Fixes</h3>
+                <div class="overflow-x-auto custom-scroll max-h-64">
+                    <table class="w-full text-left border-collapse compact-table">
+                        <thead><tr class="bg-slate-50"><th class="w-1/4 rounded-tl-lg">Unit / Room</th><th class="w-3/4 rounded-tr-lg">Identified Issues (Damaged / Missing)</th></tr></thead>
+                        <tbody id="modal-damaged-units" class="divide-y divide-slate-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // ----------------------------------------------------
-    // ARCHITECTURAL DATA PIPELINE FALLBACK
+    // STATE & CONFIG
     // ----------------------------------------------------
-    (async function initInspectionsCheck() {
-        if (typeof window.globalStudentData === 'undefined' || window.globalStudentData.length === 0) {
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data');
-                if (response.ok) { window.globalStudentData = window.parseN8n(await response.json()); }
-            } catch (e) { }
-        }
-        if (typeof window.globalInspectionsData === 'undefined' || window.globalInspectionsData.length === 0) {
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-inspections');
-                if (response.ok) { window.globalInspectionsData = window.parseN8n(await response.json()); }
-            } catch (e) { }
-        }
-        window.renderInspectionsData();
-    })();
-
-    // ----------------------------------------------------
-    // LOCAL CONFIGURATION VARS
-    // ----------------------------------------------------
-    var currentInspectionFilter = 'all';
+    window.inspectionFilterStatus = 'All'; // All, Complete, Incomplete
+    window.inspectionRegion = 'All'; // All, East, West
+    const ROOM_TOTALS = { All: 445, East: 280, West: 165 };
+    const inventoryKeys = ['Bed', 'Desk', 'Wardrobe', 'Chair', 'Microwave', 'Fridge', 'Stove', 'Shower'];
 
     window.toggleInspSidebar = function() {
         const sidebar = document.getElementById('insp-right-sidebar');
@@ -260,111 +363,306 @@
 
     if (window.innerWidth < 768) { window.toggleInspSidebar(); }
 
-    function updateSegmentedActive(pfx, val, opts) { 
-        opts.forEach(o => { const el = document.getElementById(`${pfx}-${o}`); if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber'); }); 
-        const aEl = document.getElementById(`${pfx}-${val}`); 
-        if(aEl) { 
-            aEl.classList.add('active'); 
-            if(val === 'clean') aEl.classList.add('accent-emerald'); 
-            else if(val === 'issues') aEl.classList.add('accent-amber');
-            else aEl.classList.add('accent-blue');
-        } 
-    }
+    window.toggleProgress = function() {
+        const wrapper = document.getElementById('progress-wrapper');
+        const icon = document.getElementById('progress-toggle-icon');
+        wrapper.classList.toggle('collapsed');
+        if(wrapper.classList.contains('collapsed')) { icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); } 
+        else { icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
+    };
+
+    window.filterTable = function(inputId, tbodyId) {
+        const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
+        const tr = tbody.getElementsByTagName('tr');
+        for (let i = 0; i < tr.length; i++) {
+            if (tr[i].classList.contains('no-results')) continue;
+            tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
+        }
+    };
+
+    // ----------------------------------------------------
+    // DATA PIPELINE (reziflow-inspectionz mapping)
+    // ----------------------------------------------------
+    window.fetchInspectionsData = async function(forcedRefresh = false) {
+        const body = document.getElementById('inspections-body');
+        if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="14" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-2xl"></i></td></tr>'; }
+        
+        try {
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-inspectionz', { 
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (res.ok) {
+                let rawData = await res.json();
+                if (typeof rawData === 'string') rawData = JSON.parse(rawData);
+                if (rawData.data && Array.isArray(rawData.data)) rawData = rawData.data;
+                
+                let arr = [];
+                if (Array.isArray(rawData)) { arr = rawData.flat(Infinity); } 
+                else if (typeof rawData === 'object') { arr = [rawData]; }
+                
+                arr = arr.map(i => i.json ? i.json : i);
+
+                window.globalInspectionsData = arr.map(item => ({
+                    RoomProfileBlock: item.Block_Selected || 'Unknown',
+                    SelectedFloor: item.Floor_Selected || 'Unknown',
+                    SelectedRoom: item.Room || item.Room_Selected || 'Unknown',
+                    Bed: item.Bed,
+                    Desk: item.Desk,
+                    Wardrobe: item.Wardrobe,
+                    Chair: item.Chair,
+                    Microwave: item.Microwave,
+                    Fridge: item.Fridge,
+                    Stove: item.Stove,
+                    Shower: item.Shower,
+                    General_Comments: item.General_Comments || item.Comments || '',
+                    Inspection_Status: item.Inspection_Status || 'Pending',
+                    Timestamp: item.Timestamp ? new Date(item.Timestamp).toLocaleString('en-ZA', { 
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    }) : 'Unknown Time',
+                    InspectorProfile: item.Profile || 'System'
+                }));
+                if(forcedRefresh && typeof window.showToast === 'function') window.showToast('Data refreshed successfully.', 'success');
+            }
+        } catch (error) {
+            console.error("Fetch Error Details:", error);
+        }
+        window.renderInspectionsData();
+    };
 
     // ----------------------------------------------------
     // RENDERING LOGIC MATRIX
     // ----------------------------------------------------
     window.setInspectionFilter = function(filter) {
-        currentInspectionFilter = filter;
-        updateSegmentedActive('insp-btn', filter, ['all', 'issues', 'clean']);
+        window.inspectionFilterStatus = filter;
+        ['All', 'Complete', 'Incomplete'].forEach(tab => {
+            const el = document.getElementById(`insp-btn-${tab.toLowerCase()}`);
+            if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-rose');
+        });
+        const activeEl = document.getElementById(`insp-btn-${filter.toLowerCase()}`);
+        if(activeEl) {
+            activeEl.classList.add('active');
+            if(filter === 'All') activeEl.classList.add('accent-blue');
+            if(filter === 'Complete') activeEl.classList.add('accent-emerald');
+            if(filter === 'Incomplete') activeEl.classList.add('accent-rose');
+        }
         window.renderInspectionsData();
     };
 
-    window.fetchInspectionsData = async function(forcedRefresh = true) {
-        const body = document.getElementById('inspections-body');
-        if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="4" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-teal-500 text-2xl"></i></td></tr>'; }
-        
-        try { 
-            const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-inspections'); 
-            if (response.ok) { window.globalInspectionsData = window.parseN8n(await response.json()); }
-        } catch (e) { } 
-        finally { window.renderInspectionsData(); }
+    window.filterRegion = function(region) {
+        window.inspectionRegion = region;
+        ['All', 'East', 'West'].forEach(r => {
+            const el = document.getElementById(`reg-tab-${r.toLowerCase()}`);
+            if(el) el.classList.remove('active', 'accent-indigo');
+        });
+        const activeEl = document.getElementById(`reg-tab-${region.toLowerCase()}`);
+        if(activeEl) activeEl.classList.add('active', 'accent-indigo');
+        window.renderInspectionsData();
     };
 
     window.renderInspectionsData = function() {
-        const body = document.getElementById('inspections-body'); if(!body) return;
-        let baseData = window.globalInspectionsData || [];
-
-        if (baseData.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No inspections logged yet.</td></tr>`; return; }
-
-        let allCount = 0; let cleanCount = 0; let issueCount = 0;
-
-        // Process parsing and stats
-        const parsedData = baseData.map(log => {
-            const rawList = String(log.Checklist_Data || log.Issues || '');
-            const issuesFound = (rawList.match(/Damaged/gi) || []).length + (rawList.match(/Missing/gi) || []).length;
-            
-            allCount++;
-            if (issuesFound > 0) issueCount++; else cleanCount++;
-            
-            return { ...log, issuesFound, rawList };
-        });
-
-        if(document.getElementById('kpi-insp-all')) document.getElementById('kpi-insp-all').textContent = allCount;
-        if(document.getElementById('kpi-insp-clean')) document.getElementById('kpi-insp-clean').textContent = cleanCount;
-        if(document.getElementById('kpi-insp-issues')) document.getElementById('kpi-insp-issues').textContent = issueCount;
-
-        // Apply Status Filter
-        let filteredData = parsedData;
-        if (currentInspectionFilter === 'clean') filteredData = parsedData.filter(d => d.issuesFound === 0);
-        else if (currentInspectionFilter === 'issues') filteredData = parsedData.filter(d => d.issuesFound > 0);
-
-        if (filteredData.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No records match current filter.</td></tr>`; return; }
-
-        // Sort latest first
-        filteredData.sort((a, b) => new Date(b.Timestamp || 0).getTime() - new Date(a.Timestamp || 0).getTime());
+        const tbody = document.getElementById('inspections-body');
+        if (!tbody || !window.globalInspectionsData) return;
 
         let htmlStr = '';
-        filteredData.forEach(log => {
-            const student = (window.globalStudentData || []).find(s => s.Student_Number === log.Student_Number);
-            const residentName = student ? `${student.First_Name || ''} ${student.Surname || ''}`.trim() : 'Unknown Resident';
-            let roomNo = log.Room_Allocation || log.Room; 
-            if (!roomNo || roomNo === 'TEST-01' || roomNo === '--') roomNo = student ? (student.Room_Allocation || 'Unassigned') : 'Unassigned';
-            
-            let statusBadge = log.issuesFound > 0 
-                ? `<span class="bg-white border border-amber-200 shadow-sm text-amber-600 px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-wider animate-pulse inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> ${log.issuesFound} Issues</span>` 
-                : `<span class="bg-emerald-50 border border-emerald-100 shadow-sm text-emerald-600 px-2.5 py-1 rounded text-[8px] font-bold uppercase tracking-wider inline-flex items-center gap-1"><i class="fa-solid fa-check"></i> Verified Clean</span>`;
+        let totalComplete = 0; let totalIncomplete = 0;
 
-            // Setup Escalation Vars
-            const safeId = String(log.Student_Number || '').replace(/'/g, "\\'");
-            const safeRoom = String(roomNo || '').replace(/'/g, "\\'");
-            const safeDesc = String(log.rawList || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
-
-            const actionBtn = log.issuesFound > 0 
-                ? `<button onclick="window.openEscalationModal('${safeId}', '${safeRoom}', '${safeDesc}')" class="bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-600 text-[8px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5"><i class="fa-solid fa-screwdriver-wrench"></i> Escalate to Ops</button>`
-                : `<span class="text-[8px] font-bold text-slate-400 border border-dashed border-slate-300 bg-white/50 px-2.5 py-1.5 rounded-lg">No Action Needed</span>`;
-
-            htmlStr += `
-                <tr class="${log.issuesFound > 0 ? 'bg-amber-50/20' : 'hover:bg-white/80'} transition-colors border-b border-slate-100/50">
-                    <td class="align-top"><div class="text-[10px] font-medium text-slate-500 whitespace-nowrap">${log.Timestamp ? log.Timestamp.split('T')[0] : '--'}</div><div class="text-[8px] text-slate-400 mt-0.5">${log.Timestamp ? log.Timestamp.split('T')[1]?.split('.')[0] || '' : ''}</div></td>
-                    <td class="align-top"><div class="font-black text-slate-800 text-[11px]">${residentName}</div><div class="text-[9px] font-bold text-slate-500 mt-1 flex items-center gap-1.5"><i class="fa-solid fa-bed text-blue-400"></i> ${roomNo} <span class="text-slate-300 ml-1 font-mono">${log.Student_Number || '--'}</span></div></td>
-                    <td class="align-top"><div class="mb-1.5">${statusBadge}</div><div class="text-[9px] text-slate-600 font-mono leading-relaxed max-w-[200px] sm:max-w-sm line-clamp-2 hover:line-clamp-none transition-all cursor-pointer bg-white/50 p-1.5 rounded border border-slate-100">${log.rawList || 'All clear.'}</div></td>
-                    <td class="text-right align-top"><div class="flex flex-col items-end gap-2 text-[9px] text-slate-500 italic truncate max-w-[120px]">${log.Notes && log.Notes !== 'None' ? `"${log.Notes}"` : ''} ${actionBtn}</div></td>
-                </tr>`;
+        // Apply Region Filter
+        let regionFiltered = window.globalInspectionsData.filter(item => {
+            if (window.inspectionRegion === 'All') return true;
+            if (window.inspectionRegion === 'East') return String(item.RoomProfileBlock).includes('East');
+            if (window.inspectionRegion === 'West') return String(item.RoomProfileBlock).includes('West');
+            return true;
         });
-        body.innerHTML = htmlStr;
+
+        // Analytics Update
+        regionFiltered.forEach(item => {
+            if (item.Inspection_Status === 'Complete') totalComplete++; else totalIncomplete++;
+        });
+
+        const totalCapacity = ROOM_TOTALS[window.inspectionRegion];
+        const inspectedCount = regionFiltered.length;
+        const progressPct = totalCapacity === 0 ? 0 : Math.min(100, Math.round((inspectedCount / totalCapacity) * 100));
+        
+        if (document.getElementById('progress-text')) document.getElementById('progress-text').textContent = `${inspectedCount} / ${totalCapacity}`;
+        if (document.getElementById('progress-pct')) document.getElementById('progress-pct').textContent = `${progressPct}%`;
+        if (document.getElementById('progress-fill')) document.getElementById('progress-fill').style.width = `${progressPct}%`;
+        if (document.getElementById('stat-complete')) document.getElementById('stat-complete').textContent = totalComplete;
+        if (document.getElementById('stat-incomplete')) document.getElementById('stat-incomplete').textContent = totalIncomplete;
+
+        // Apply Status Filter
+        const tableFiltered = regionFiltered.filter(item => {
+            return window.inspectionFilterStatus === 'All' || item.Inspection_Status === window.inspectionFilterStatus;
+        });
+
+        if (tableFiltered.length === 0) {
+            tbody.innerHTML = `<tr class="no-results"><td colspan="14" class="p-10 text-center text-slate-400 font-bold text-[10px]">No records found for this view.</td></tr>`;
+        } else {
+            tableFiltered.forEach(item => {
+                const getIcon = (stat) => {
+                    if (stat === 'Damaged') return '<div class="item-dot item-damaged" title="Damaged"><i class="fa-solid fa-wrench"></i></div>';
+                    if (stat === 'Missing') return '<div class="item-dot item-missing" title="Missing"><i class="fa-solid fa-xmark"></i></div>';
+                    return '<div class="item-dot item-ok" title="Good"><i class="fa-solid fa-check"></i></div>'; 
+                };
+
+                const isComplete = item.Inspection_Status === 'Complete';
+                const statusBadge = `<span class="status-badge ${isComplete ? 'status-complete' : 'status-incomplete'}">${item.Inspection_Status}</span>`;
+
+                // Calculate issues string for escalation desc
+                let issuesList = [];
+                inventoryKeys.forEach(k => {
+                    if(item[k] === 'Damaged' || item[k] === 'Missing') issuesList.push(`${k} (${item[k]})`);
+                });
+                const rawIssuesStr = issuesList.join(', ');
+
+                const safeProfile = String(item.InspectorProfile || '').replace(/'/g, "\\'");
+                const safeRoom = String(item.SelectedRoom || '').replace(/'/g, "\\'");
+                const safeDesc = String(rawIssuesStr || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+                const actionBtn = !isComplete && issuesList.length > 0
+                    ? `<button onclick="window.openEscalationModal('${safeProfile}', '${safeRoom}', '${safeDesc}')" class="bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-600 text-[8px] font-bold px-2.5 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5"><i class="fa-solid fa-screwdriver-wrench"></i> Escalate</button>`
+                    : `<span class="text-[8px] font-bold text-slate-400 border border-dashed border-slate-300 bg-white/50 px-2 py-1 rounded-lg">No Action Needed</span>`;
+
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="font-bold text-indigo-600 text-[9px]"><i class="fa-solid fa-user-pen mr-1 text-slate-400"></i> ${item.InspectorProfile}</td>
+                        <td class="text-slate-600 font-medium text-[9px]">${item.RoomProfileBlock} <span class="text-slate-400 ml-1">Fl. ${item.SelectedFloor}</span></td>
+                        <td class="font-black text-slate-800 text-[10px]">${item.SelectedRoom}</td>
+                        <td class="text-center">${getIcon(item.Bed)}</td>
+                        <td class="text-center">${getIcon(item.Desk)}</td>
+                        <td class="text-center">${getIcon(item.Wardrobe)}</td>
+                        <td class="text-center">${getIcon(item.Chair)}</td>
+                        <td class="text-center">${getIcon(item.Microwave)}</td>
+                        <td class="text-center">${getIcon(item.Fridge)}</td>
+                        <td class="text-center">${getIcon(item.Stove)}</td>
+                        <td class="text-center">${getIcon(item.Shower)}</td>
+                        <td class="text-slate-500 italic max-w-[120px] truncate" title="${item.General_Comments}">${item.General_Comments || 'None'}</td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-right">${actionBtn}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+        }
+    };
+
+    // ----------------------------------------------------
+    // DETAILED STATS MODAL LOGIC
+    // ----------------------------------------------------
+    window.openStatsModal = function() {
+        document.getElementById('statsModal').classList.add('active');
+        
+        let inspectorMap = {};
+        let itemDamageMap = {};
+        let damageReports = [];
+
+        inventoryKeys.forEach(k => itemDamageMap[k] = { damaged: 0, missing: 0 });
+
+        if(!window.globalInspectionsData) return;
+
+        window.globalInspectionsData.forEach(item => {
+            const inspector = item.InspectorProfile;
+            inspectorMap[inspector] = (inspectorMap[inspector] || 0) + 1;
+
+            let unitIssues = [];
+            inventoryKeys.forEach(key => {
+                if (item[key] === 'Damaged') { itemDamageMap[key].damaged++; unitIssues.push(`${key} (Damaged)`); }
+                if (item[key] === 'Missing') { itemDamageMap[key].missing++; unitIssues.push(`${key} (Missing)`); }
+            });
+
+            if (unitIssues.length > 0) {
+                damageReports.push({ unit: `${item.RoomProfileBlock}, Room ${item.SelectedRoom}`, issues: unitIssues, inspector: inspector });
+            }
+        });
+
+        // 1. Render Room Health Pie Chart
+        const totalLoggedRooms = window.globalInspectionsData.length;
+        const totalDamagedRooms = damageReports.length;
+        const totalGoodRooms = totalLoggedRooms - totalDamagedRooms;
+        const goodPct = totalLoggedRooms === 0 ? 0 : Math.round((totalGoodRooms / totalLoggedRooms) * 100);
+
+        document.getElementById('modal-health-pct').textContent = `${goodPct}%`;
+        document.getElementById('modal-good-count').textContent = `${totalGoodRooms} Good`;
+        document.getElementById('modal-damaged-count').textContent = `${totalDamagedRooms} Damaged`;
+        document.getElementById('modal-health-pie').style.background = `conic-gradient(#10b981 0% ${goodPct}%, #f43f5e ${goodPct}% 100%)`;
+
+        // 2. Render Inspector Leaderboard
+        const inspectorList = document.getElementById('modal-inspector-list');
+        inspectorList.innerHTML = '';
+        const sortedInspectors = Object.entries(inspectorMap).sort((a,b) => b[1] - a[1]);
+        const maxCount = sortedInspectors[0] ? sortedInspectors[0][1] : 1;
+
+        sortedInspectors.forEach(([name, count]) => {
+            const widthPct = Math.max((count / maxCount) * 100, 10);
+            inspectorList.innerHTML += `
+                <div class="flex items-center gap-3">
+                    <div class="w-16 text-[10px] font-bold text-slate-600 truncate text-right">${name}</div>
+                    <div class="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden relative">
+                        <div class="bg-indigo-400 h-full rounded-full flex items-center justify-end pr-2" style="width: ${widthPct}%;">
+                            <span class="text-[8px] font-black text-white">${count}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 3. Render Most Damaged Items List
+        const assetList = document.getElementById('modal-asset-list');
+        assetList.innerHTML = '';
+        const sortedAssets = inventoryKeys.sort((a,b) => {
+            const totalA = itemDamageMap[a].damaged + itemDamageMap[a].missing;
+            const totalB = itemDamageMap[b].damaged + itemDamageMap[b].missing;
+            return totalB - totalA;
+        });
+
+        sortedAssets.forEach(key => {
+            const issues = itemDamageMap[key].damaged + itemDamageMap[key].missing;
+            if (issues > 0) {
+                assetList.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-700">${key}</span>
+                        <div class="flex gap-2">
+                            ${itemDamageMap[key].damaged > 0 ? `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].damaged} Damaged</span>` : ''}
+                            ${itemDamageMap[key].missing > 0 ? `<span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded-md font-bold">${itemDamageMap[key].missing} Missing</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        if(assetList.innerHTML === '') assetList.innerHTML = '<p class="text-[10px] text-emerald-500 font-bold p-2 text-center mt-4"><i class="fa-solid fa-check-circle"></i> Everything is in good condition.</p>';
+
+        // 4. Render Damaged Units Registry
+        const registry = document.getElementById('modal-damaged-units');
+        registry.innerHTML = '';
+        if (damageReports.length === 0) {
+            registry.innerHTML = `<tr><td colspan="2" class="p-4 text-center text-[10px] text-slate-400">All surveyed rooms are in good condition.</td></tr>`;
+        } else {
+            damageReports.forEach(report => {
+                const issueBadges = report.issues.map(iss => {
+                    const isMissing = iss.includes('Missing');
+                    return `<span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider mb-1 mr-1 ${isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}">${iss}</span>`;
+                }).join('');
+
+                registry.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="align-top"><div class="font-bold text-[10px] text-slate-800 mt-1">${report.unit}</div><div class="text-[8px] text-slate-400 mt-0.5">Logged by ${report.inspector}</div></td>
+                        <td class="pt-2">${issueBadges}</td>
+                    </tr>
+                `;
+            });
+        }
     };
 
     // ----------------------------------------------------
     // ESCALATION & MANUAL LOGGING MODALS
     // ----------------------------------------------------
     window.openEscalationModal = function(studentId, room, description) {
-        document.getElementById('esc-student-id').value = studentId;
+        document.getElementById('esc-student-id').value = studentId; // (Using inspector profile here as placeholder if student ID isn't directly mapped in the main dataset)
         document.getElementById('esc-room').value = room;
         
-        // Clean up description for the textarea
         const cleanDesc = description.replace(/Missing /g, "Missing: ").replace(/Damaged /g, "Damaged: ");
-        document.getElementById('esc-desc').value = `Inspection flagged the following issues upon move-in: ${cleanDesc}`;
+        document.getElementById('esc-desc').value = `Inspection flagged the following issues upon audit: ${cleanDesc}`;
         
         document.getElementById('escalateTicketModal').classList.add('active');
     };
@@ -383,34 +681,30 @@
         try {
             await fetch('https://n8n.automania.cloud/webhook/reziflow-log-snag', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             document.getElementById('escalateTicketModal').classList.remove('active');
-            window.showToast("Routed to Maintenance successfully.");
-        } catch(err) { window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
+            if(typeof window.showToast === 'function') window.showToast("Routed to Maintenance successfully.");
+        } catch(err) { if(typeof window.showToast === 'function') window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
     };
 
     window.submitManualInspection = async function(e) {
         e.preventDefault(); const btn = document.getElementById('btn-submit-man-insp'); const ogHtml = btn.innerHTML;
         const payload = {
-            Student_Number: document.getElementById('man-insp-id').value,
-            Room_Allocation: document.getElementById('man-insp-room').value, // Mimic n8n structure
-            Checklist_Data: document.getElementById('man-insp-issues').value || 'Clean',
-            Notes: document.getElementById('man-insp-notes').value || 'None',
-            Timestamp: new Date().toISOString()
+            InspectorProfile: 'Manual Admin',
+            SelectedRoom: document.getElementById('man-insp-room').value,
+            General_Comments: document.getElementById('man-insp-notes').value || 'None',
+            Inspection_Status: document.getElementById('man-insp-issues').value ? 'Incomplete' : 'Complete',
+            Timestamp: new Date().toLocaleString('en-ZA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         };
         
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pushing...'; btn.disabled = true;
         try {
-            // Use your inspection webhook if it exists, otherwise pseudo-log it locally for demo
-            // await fetch('https://n8n.automania.cloud/webhook/reziflow-log-inspection', { method: 'POST', body: JSON.stringify(payload) });
-            
-            // Pseudo-Push to active array for immediate visual feedback
             if(!window.globalInspectionsData) window.globalInspectionsData = [];
             window.globalInspectionsData.unshift(payload);
             window.renderInspectionsData();
             
             document.getElementById('manualInspectionModal').classList.remove('active');
             e.target.reset();
-            window.showToast("Inspection securely logged.");
-        } catch(err) { window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
+            if(typeof window.showToast === 'function') window.showToast("Inspection securely logged.");
+        } catch(err) { if(typeof window.showToast === 'function') window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
     };
 
     window.downloadInspectionsReport = function() {
@@ -418,38 +712,28 @@
         let csvContent = "data:text/csv;charset=utf-8,";
         let filename = `ReziFlow_Inspections_Ledger`;
 
-        csvContent += "Timestamp,Student Number,Resident Name,Room,Issues Found,Checklist Data,Notes\n";
+        csvContent += "Timestamp,Inspector,Block,Floor,Room,Bed,Desk,Wardrobe,Chair,Microwave,Fridge,Stove,Shower,Comments,Status\n";
         
         let baseData = window.globalInspectionsData || [];
         
-        let filteredData = baseData.map(log => {
-            const rawList = String(log.Checklist_Data || log.Issues || '');
-            const issuesFound = (rawList.match(/Damaged/gi) || []).length + (rawList.match(/Missing/gi) || []).length;
-            return { ...log, issuesFound, rawList };
+        let filteredData = baseData.filter(item => {
+            if (window.inspectionRegion !== 'All' && !String(item.RoomProfileBlock).includes(window.inspectionRegion)) return false;
+            if (window.inspectionFilterStatus !== 'All' && item.Inspection_Status !== window.inspectionFilterStatus) return false;
+            return JSON.stringify(item).toLowerCase().includes(searchVal);
         });
 
-        if (currentInspectionFilter === 'clean') filteredData = filteredData.filter(d => d.issuesFound === 0);
-        else if (currentInspectionFilter === 'issues') filteredData = filteredData.filter(d => d.issuesFound > 0);
+        if(filteredData.length === 0) return typeof window.showToast === 'function' ? window.showToast("No data to export.", "error") : alert("No data");
 
-        filteredData = filteredData.filter(s => JSON.stringify(s).toLowerCase().includes(searchVal));
-
-        if(filteredData.length === 0) return window.showToast("No data to export.", "error");
-
-        filteredData.forEach(log => {
-            const student = (window.globalStudentData || []).find(s => s.Student_Number === log.Student_Number);
-            const residentName = student ? `${student.First_Name || ''} ${student.Surname || ''}`.trim() : 'Unknown';
-            let roomNo = log.Room_Allocation || log.Room; 
-            if (!roomNo || roomNo === 'TEST-01' || roomNo === '--') roomNo = student ? (student.Room_Allocation || 'Unassigned') : 'Unassigned';
-            
-            // Clean up commas in data to prevent CSV column breaking
-            const cleanChecklist = String(log.rawList).replace(/"/g, '""');
-            const cleanNotes = String(log.Notes || '').replace(/"/g, '""');
-            
-            csvContent += `"${log.Timestamp || ''}","${log.Student_Number || ''}","${residentName}","${roomNo}","${log.issuesFound}","${cleanChecklist}","${cleanNotes}"\n`;
+        filteredData.forEach(item => {
+            const cleanComments = String(item.General_Comments || '').replace(/"/g, '""');
+            csvContent += `"${item.Timestamp || ''}","${item.InspectorProfile || ''}","${item.RoomProfileBlock || ''}","${item.SelectedFloor || ''}","${item.SelectedRoom || ''}","${item.Bed || ''}","${item.Desk || ''}","${item.Wardrobe || ''}","${item.Chair || ''}","${item.Microwave || ''}","${item.Fridge || ''}","${item.Stove || ''}","${item.Shower || ''}","${cleanComments}","${item.Inspection_Status || ''}"\n`;
         });
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
+
+    // Auto-Fetch on script load
+    setTimeout(() => { window.fetchInspectionsData(false); }, 200);
 </script>
