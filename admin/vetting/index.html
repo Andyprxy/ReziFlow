@@ -397,7 +397,7 @@
         tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Requests...</span></td></tr>`;
         
         try {
-            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-requests');
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests');
             if (res.ok) {
                 const data = await res.json();
                 window.globalRequestsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
