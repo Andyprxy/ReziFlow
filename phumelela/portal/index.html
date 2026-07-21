@@ -4,9 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ReziFlow | Phumelela Portal</title>
+    
+    <!-- STRICT AUTHENTICATION GUARD -->
+    <script>
+        (function() {
+            try {
+                const rawSession = localStorage.getItem('reziflow_session');
+                if (!rawSession) throw new Error("No session found");
+                const parsedSession = JSON.parse(rawSession);
+                if (!parsedSession.Email_Address && !parsedSession.Email) throw new Error("Invalid session signature");
+            } catch (e) {
+                // Instantly block rendering and route to the only entry gate
+                window.location.replace('/phumelela/signin/');
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -75,7 +90,7 @@
         .doc-section { display: none; animation: fadeIn 0.4s ease forwards; }
         .doc-section.active { display: block; }
 
-        #telemetry-map { width: 100%; height: 380px; border-radius: 24px; }
+        #telemetry-map { width: 100%; height: 100%; min-height: 400px; border-radius: 24px; }
         .shuttle-marker { background: #06b6d4; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); }
         .shuttle-marker::after { content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; border: 2px solid #06b6d4; animation: radarPulse 2s infinite ease-out; }
         .student-marker { background: #2563eb; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(37, 99, 235, 0.5); }
@@ -100,9 +115,10 @@
                 <i class="fa-solid fa-layer-group"></i>
             </div>
             <h2 class="text-xl font-bold tracking-tight mb-1">Authenticating</h2>
-            <p id="auth-status-text" class="text-xs text-slate-500">Verifying live server profile...</p>
+            <p id="auth-status-text" class="text-xs text-slate-500">Verifying secure token...</p>
         </div>
 
+        <!-- COMPLETION MODAL -->
         <div id="completionModal" class="absolute inset-0 z-[3000] modal-overlay flex items-center justify-center p-6 hidden">
             <div class="glass-panel w-full max-w-sm rounded-[40px] p-8 text-center relative overflow-hidden transform scale-95 opacity-0 transition-all duration-500" id="completion-content">
                 <div class="absolute -right-12 -top-12 w-48 h-48 bg-emerald-400 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
@@ -124,6 +140,7 @@
             </div>
         </div>
 
+        <!-- WELCOME MODAL -->
         <div id="welcomeModal" class="absolute inset-0 z-[2000] bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center p-5 transition-opacity duration-500 hidden">
             <div class="bg-white w-full max-w-sm rounded-[32px] shadow-2xl relative p-8 text-center border border-white/20">
                 <div class="relative mx-auto w-24 h-24 mb-6">
@@ -350,35 +367,39 @@
                 </div>
             </div>
 
-            <!-- SECURITY MODULE -->
+            <!-- ENHANCED SECURITY MODULE -->
             <div id="tab-security" class="tab-content space-y-5">
+                
+                <!-- Premium SOS Slider -->
                 <section class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
                     <h2 class="text-lg font-bold text-slate-900 mb-1 tracking-tight">Emergency SOS</h2>
-                    <p class="text-[11px] text-slate-500 mb-6 font-medium">Tap to alert on-site security immediately</p>
+                    <p class="text-[11px] text-slate-500 mb-6 font-medium">Slide to alert on-site security immediately</p>
                     
-                    <div class="relative w-36 h-36 mx-auto mb-6 flex items-center justify-center">
-                        <div class="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-70"></div>
-                        <div class="absolute inset-4 bg-red-200 rounded-full"></div>
-                        <button id="btn-sos" onclick="triggerSOS()" class="relative z-10 w-24 h-24 bg-red-600 text-white rounded-full flex flex-col items-center justify-center tap-effect shadow-xl shadow-red-500/30 active:scale-90 transition-all duration-300">
-                            <i id="sos-icon" class="fa-solid fa-light-emergency-on text-2xl mb-1"></i>
-                            <span id="sos-text" class="font-bold text-sm">SOS</span>
-                        </button>
+                    <div id="sos-slider-container" class="relative w-full max-w-[280px] mx-auto h-[68px] bg-slate-50 rounded-full flex items-center p-2 shadow-inner border border-slate-200 overflow-hidden mb-5">
+                        <div id="sos-slider-bg" class="absolute inset-0 bg-red-500 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                        <div class="absolute inset-0 flex justify-center items-center pointer-events-none z-0">
+                            <span id="sos-slider-text" class="text-slate-400 font-bold text-xs tracking-widest pl-8 uppercase transition-all duration-300 drop-shadow-sm">Slide to SOS <i class="fa-solid fa-angles-right ml-1"></i></span>
+                        </div>
+                        <div id="sos-slider-thumb" class="relative z-10 w-[52px] h-[52px] bg-red-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-red-600/40 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none">
+                            <i id="sos-icon" class="fa-solid fa-power-off"></i>
+                        </div>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Your room and ID are shared with security.</p>
+                    
+                    <p class="text-[10px] text-slate-400 font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-location-crosshairs text-blue-500"></i> Your room & ID will be shared with response units.</p>
                 </section>
 
                 <section class="bg-white card-shadow soft-border rounded-[28px] p-6">
                     <h2 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">Ping Security</h2>
-                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Choose the type of help you need</p>
+                    <p class="text-[11px] text-slate-500 mb-4 font-medium">Non-critical assistance requests</p>
 
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <button type="button" onclick="selectSecurityOption(this, 'Suspicious Person')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
                             <i class="fa-regular fa-eye text-blue-500 mb-2 block"></i>
                             <span class="text-xs font-semibold text-slate-700">Suspicious Person</span>
                         </button>
-                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option">
+                        <button type="button" onclick="selectSecurityOption(this, 'Escort Request')" class="sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option shadow-sm">
                             <i class="fa-solid fa-location-dot text-blue-600 mb-2 block"></i>
-                            <span class="text-xs font-semibold text-slate-900">Escort Request</span>
+                            <span class="text-xs font-semibold text-blue-900">Escort Request</span>
                         </button>
                         <button type="button" onclick="selectSecurityOption(this, 'Disturbance')" class="sec-option bg-slate-50 border border-slate-100 rounded-[20px] p-3 text-left tap-effect transition-all">
                             <i class="fa-solid fa-triangle-exclamation text-blue-500 mb-2 block"></i>
@@ -391,9 +412,9 @@
                     </div>
 
                     <input type="hidden" id="selected-security-type" value="Escort Request">
-                    <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all" placeholder="Add details for 'Escort Request'..."></textarea>
+                    <textarea id="security-notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 focus:outline-none focus:border-blue-500 mb-4 resize-none transition-all shadow-inner" placeholder="Add details for 'Escort Request'..."></textarea>
                     
-                    <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-blue-500/20 transition-colors flex items-center justify-center gap-2">
+                    <button id="btn-security-ping" onclick="sendSecurityPing()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-3.5 text-sm tap-effect shadow-md shadow-slate-900/20 transition-all flex items-center justify-center gap-2">
                         <i class="fa-regular fa-paper-plane"></i> Send Alert
                     </button>
                 </section>
@@ -615,7 +636,7 @@
                         <option value="Electrical">Electrical (Lights, Plugs)</option>
                         <option value="Furniture">Furniture & Fittings</option>
                         <option value="Locks">Doors & Locks</option>
-                        <option value="Other">Other</option>
+                        <option value="Hardware">Hardware / Other</option>
                     </select>
                 </div>
                 <div class="mb-6">
@@ -629,14 +650,14 @@
         </div>
     </div>
 
-    <!-- SHUTTLE TRANSIT MODAL -->
+    <!-- ENHANCED SHUTTLE TRANSIT MODAL -->
     <div id="shuttleMapModal" class="absolute inset-0 z-[2100] modal-overlay flex items-end justify-center">
         <div class="modal-content bg-white w-full h-[92dvh] rounded-t-[40px] shadow-2xl p-6 pb-8 flex flex-col justify-between">
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-sm border border-cyan-100"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center text-sm border border-cyan-100 shadow-sm"><i class="fa-solid fa-map-location-dot"></i></div>
                     <div>
-                        <h2 class="text-base font-black text-slate-900 tracking-tight">Live Transit Tracker</h2>
+                        <h2 class="text-lg font-black text-slate-900 tracking-tight">Live Transit Tracker</h2>
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Active Loop
                         </p>
@@ -647,20 +668,21 @@
                 </button>
             </div>
 
-            <div class="my-3 flex justify-between items-center bg-slate-50 border border-slate-100 rounded-2xl p-3 shadow-sm flex-shrink-0">
-                <span class="text-xs text-slate-600 font-semibold"><i class="fa-solid fa-route text-blue-500 mr-1"></i> Destination Status</span>
-                <span id="shuttle-eta" class="text-xs font-black text-white bg-slate-900 px-3 py-1 rounded-lg">Calculating...</span>
+            <div class="my-4 flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex-shrink-0 relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 to-transparent pointer-events-none"></div>
+                <span class="text-xs text-slate-700 font-black tracking-tight"><i class="fa-solid fa-route text-blue-500 mr-1.5 text-sm"></i> Route Status</span>
+                <span id="shuttle-eta" class="text-xs font-black text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-md z-10">Calculating...</span>
             </div>
 
-            <div class="flex-1 bg-slate-100 border border-slate-200 rounded-[28px] overflow-hidden relative shadow-inner p-1">
-                <div id="telemetry-map" class="h-full w-full"></div>
+            <div class="flex-1 bg-slate-100 border-4 border-white rounded-[32px] overflow-hidden relative shadow-lg shadow-slate-200/50 p-1 mb-2">
+                <div id="telemetry-map" class="h-full w-full rounded-[24px]"></div>
             </div>
 
             <div class="mt-4 grid grid-cols-2 gap-3 flex-shrink-0">
-                <button onclick="sendShuttleRequest('Stop Request', 'Please pass by Quagga Centre on the next route.', this)" class="py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                <button onclick="sendShuttleRequest('Stop Request', 'Please pass by Quagga Centre on the next route.', this)" class="py-4 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 tap-effect">
                     <i class="fa-solid fa-map-pin text-cyan-500"></i> Quagga Stop
                 </button>
-                <button onclick="openCustomMessagePrompt()" class="py-3.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                <button onclick="openCustomMessagePrompt()" class="py-4 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 tap-effect">
                     <i class="fa-regular fa-comment-dots text-cyan-400"></i> Custom Msg
                 </button>
             </div>
@@ -1004,6 +1026,12 @@
                     if (freshProfile) {
                         freshProfile.Email_Address = email; 
                         
+                        // Robustly lock the Signed_Lease status regardless of backend boolean/string variations
+                        let backendLeaseStatus = freshProfile.Signed_Lease;
+                        if (backendLeaseStatus === true || backendLeaseStatus === "true" || backendLeaseStatus === "Signed" || (typeof freshProfile.Doc_Lease_URL === 'string' && freshProfile.Doc_Lease_URL.startsWith('http'))) {
+                            freshProfile.Signed_Lease = "Signed";
+                        }
+
                         let mergedSession = { ...session };
                         for (let key in freshProfile) {
                             if (isValidData(freshProfile[key])) {
@@ -1017,7 +1045,7 @@
                             mergedSession.Medical = freshProfile.Medical;
                         }
 
-                        if (session.Signed_Lease === "Signed" && (freshProfile.Signed_Lease !== "Signed" && freshProfile.Signed_Lease !== true)) {
+                        if (session.Signed_Lease === "Signed" && freshProfile.Signed_Lease !== "Signed") {
                             mergedSession.Signed_Lease = "Signed"; 
                         }
                         if (session.Doc_Lease_URL === "vaulted_locally" && (!isValidData(freshProfile.Doc_Lease_URL) || freshProfile.Doc_Lease_URL.length < 10)) {
@@ -1043,7 +1071,7 @@
             const welcomeModal = document.getElementById('welcomeModal');
 
             if (!email || email === 'pending@student.com' || email === 'unknown@student.com') {
-                window.location.href = '/phumelela/signin';
+                window.location.replace('/phumelela/signin/');
                 return;
             }
 
@@ -1065,6 +1093,9 @@
                 }
                 hydrateGatewayEngine(false, mergedSession);
             }
+
+            // Initialize Security SOS Slider logic
+            initSOSSlider();
         });
 
         async function submitWelcomeSetup(e) {
@@ -1139,7 +1170,9 @@
             
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            
+            // Fix applied: ensuring the 'Signed' status explicitly bypasses the lease logic loop.
+            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
             
             const shouldUnlockTabs = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
@@ -1151,7 +1184,6 @@
                 }
             });
 
-            // Action elements safeguard
             const actionElements = [document.getElementById('btn-visitor-pin'), document.getElementById('btn-room-change'), document.getElementById('btn-terminate-lease')];
             actionElements.forEach(el => {
                 if (el) {
@@ -1589,7 +1621,7 @@
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
             
             if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
                 showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); 
@@ -1797,7 +1829,7 @@
             const session = getSessionData();
             const studentNum = session.Student_Number || 'Unknown';
             try {
-                const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-snag-chat?Student_Number=${studentNum}&Ticket_ID=${ticketId}&t=${Date.now()}`);
+                const res = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-snag-chat?Student_Number=${studentNum}&Ticket_ID=${ticketId}&t=${Date.now()}`);
                 if (res.ok) {
                     const messages = await res.json();
                     renderChatMessages(ticketId, messages);
@@ -1895,7 +1927,7 @@
             inputField.value = '';
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-snag-chat-send', {
+                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1925,30 +1957,127 @@
             }
         }
 
-        // SECURITY SOS ALERTS
-        async function triggerSOS() {
+        // --- NATIVE SWIPE-TO-SOS ENGINE ---
+        function initSOSSlider() {
+            const thumb = document.getElementById('sos-slider-thumb');
+            const container = document.getElementById('sos-slider-container');
+            const bg = document.getElementById('sos-slider-bg');
+            const text = document.getElementById('sos-slider-text');
+            const icon = document.getElementById('sos-icon');
+            if (!thumb || !container) return;
+
+            let isDragging = false;
+            let startX = 0;
+            // Accounting for internal padding inside container
+            let maxTranslate = container.offsetWidth - thumb.offsetWidth - 12;
+
+            const startDrag = (e) => {
+                if (thumb.dataset.locked === 'true') return;
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                thumb.style.transition = 'none';
+                bg.style.transition = 'none';
+            };
+
+            const onDrag = (e) => {
+                if (!isDragging) return;
+                const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                let moveX = currentX - startX;
+
+                if (moveX < 0) moveX = 0;
+                if (moveX > maxTranslate) moveX = maxTranslate;
+                
+                thumb.style.transform = `translateX(${moveX}px)`;
+                
+                // Opacity fade logic based on drag distance
+                let progress = moveX / maxTranslate;
+                bg.style.opacity = progress;
+                text.style.opacity = 1 - (progress * 1.5);
+                
+                if (moveX >= maxTranslate * 0.95) {
+                    isDragging = false;
+                    thumb.style.transform = `translateX(${maxTranslate}px)`;
+                    bg.style.opacity = '1';
+                    text.style.opacity = '0';
+                    triggerSOS(thumb, bg, text, icon);
+                }
+            };
+
+            const stopDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                thumb.style.transition = 'transform 0.3s ease';
+                bg.style.transition = 'opacity 0.3s ease';
+                thumb.style.transform = 'translateX(0px)';
+                bg.style.opacity = '0';
+                text.style.opacity = '1';
+            };
+
+            thumb.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', onDrag);
+            window.addEventListener('mouseup', stopDrag);
+            
+            thumb.addEventListener('touchstart', startDrag, {passive: true});
+            window.addEventListener('touchmove', onDrag, {passive: true});
+            window.addEventListener('touchend', stopDrag);
+        }
+
+        async function triggerSOS(thumb, bg, text, icon) {
             const session = getSessionData();
-            const btn = document.getElementById('btn-sos'); const icon = document.getElementById('sos-icon'); const text = document.getElementById('sos-text');
-            btn.classList.replace('bg-red-600', 'bg-orange-500'); icon.classList.replace('fa-light-emergency-on', 'fa-circle-notch'); icon.classList.add('fa-spin');
-            text.textContent = 'Sending...'; btn.disabled = true;
+            
+            // Lock slider UI
+            thumb.dataset.locked = 'true';
+            thumb.classList.replace('bg-red-600', 'bg-emerald-500');
+            thumb.classList.replace('shadow-red-600/40', 'shadow-emerald-600/40');
+            bg.classList.replace('bg-red-500', 'bg-emerald-500');
+            icon.classList.replace('fa-power-off', 'fa-circle-notch'); 
+            icon.classList.add('fa-spin');
+
+            text.textContent = 'DISPATCHED';
+            text.classList.replace('text-slate-400', 'text-white');
+            text.style.opacity = '1';
+            text.style.paddingLeft = '0px'; // center it
 
             try {
                 const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-log-security', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: "Panic Button", Alert_Level: "CRITICAL SOS", Notes: "Triggered via mobile app" })
+                    body: JSON.stringify({ Student_Number: session.Student_Number, Room: session.Room_Allocation || 'Unassigned', Alert_Type: "Panic Button", Alert_Level: "CRITICAL SOS", Notes: "Triggered via mobile app slide-to-SOS" })
                 });
                 if (!res.ok) throw new Error("Network error");
-                btn.classList.replace('bg-orange-500', 'bg-emerald-500'); icon.classList.remove('fa-circle-notch', 'fa-spin'); icon.classList.add('fa-check');
-                text.textContent = 'Dispatched'; showToast("Security Dispatched to your location.", "success");
-                setTimeout(() => {
-                    btn.classList.replace('bg-emerald-500', 'bg-red-600'); icon.classList.replace('fa-check', 'fa-light-emergency-on');
-                    text.textContent = 'SOS'; btn.disabled = false;
-                }, 5000);
+                
+                icon.classList.remove('fa-circle-notch', 'fa-spin'); 
+                icon.classList.add('fa-check');
+                showToast("Security Dispatched to your location.", "success");
+                
+                // Reset after 5 seconds
+                setTimeout(() => { resetSOSSlider(thumb, bg, text, icon); }, 5000);
             } catch(error) {
                 showToast("Connection error. Call security directly.", "error");
-                btn.classList.replace('bg-orange-500', 'bg-red-600'); icon.classList.replace('fa-circle-notch', 'fa-light-emergency-on'); icon.classList.remove('fa-spin');
-                text.textContent = 'SOS'; btn.disabled = false;
+                resetSOSSlider(thumb, bg, text, icon);
             }
+        }
+
+        function resetSOSSlider(thumb, bg, text, icon) {
+            thumb.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            bg.style.transition = 'opacity 0.4s ease';
+            
+            thumb.style.transform = 'translateX(0px)';
+            bg.style.opacity = '0';
+            
+            setTimeout(() => {
+                thumb.classList.replace('bg-emerald-500', 'bg-red-600');
+                thumb.classList.replace('shadow-emerald-600/40', 'shadow-red-600/40');
+                bg.classList.replace('bg-emerald-500', 'bg-red-500');
+                icon.classList.remove('fa-check', 'fa-circle-notch', 'fa-spin');
+                icon.classList.add('fa-power-off');
+                
+                text.textContent = 'Slide to SOS';
+                text.innerHTML = 'Slide to SOS <i class="fa-solid fa-angles-right ml-1"></i>';
+                text.classList.replace('text-white', 'text-slate-400');
+                text.style.paddingLeft = '2rem';
+                
+                thumb.dataset.locked = 'false';
+            }, 400);
         }
 
         async function sendSecurityPing() {
@@ -1977,9 +2106,9 @@
                 btn.querySelector('i').className = btn.querySelector('i').className.replace('text-blue-600', 'text-blue-500');
                 btn.querySelector('span').className = 'text-xs font-semibold text-slate-700';
             });
-            element.className = 'sec-option bg-blue-100 border-2 border-blue-600 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option';
+            element.className = 'sec-option bg-blue-50 border-2 border-blue-500 rounded-[20px] p-3 text-left tap-effect transition-all active-sec-option shadow-sm';
             element.querySelector('i').className = element.querySelector('i').className.replace('text-blue-500', 'text-blue-600');
-            element.querySelector('span').className = 'text-xs font-semibold text-slate-900';
+            element.querySelector('span').className = 'text-xs font-semibold text-blue-900';
             document.getElementById('selected-security-type').value = optionName;
             document.getElementById('security-notes').placeholder = `Add details for "${optionName}"...`;
         }
@@ -1989,7 +2118,7 @@
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
             
             if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
                 showToast("Access Denied: Pending Vetting or Room Allocation.", "error"); return; 
@@ -1998,7 +2127,7 @@
             openModal('shuttleMapModal');
             setTimeout(() => {
                 if (!mapObj) {
-                    mapObj = L.map('telemetry-map', { zoomControl: false }).setView([-25.7479, 28.2293], 15);
+                    mapObj = L.map('telemetry-map', { zoomControl: false, attributionControl: false }).setView([-25.7479, 28.2293], 15);
                     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(mapObj);
                 }
                 if ("geolocation" in navigator) {
@@ -2061,7 +2190,7 @@
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
             
             // Check if the portal is locked
             if (!(isVettingApproved && isRoomAllocated) && !isFullySigned) { 
@@ -2134,7 +2263,7 @@
             const session = getSessionData();
             const isVettingApproved = isValidData(session.Vetting_Status) && String(session.Vetting_Status).trim().toLowerCase() === 'approved';
             const isRoomAllocated = isValidData(session.Room_Allocation) && session.Room_Allocation !== 'Unassigned' && session.Room_Allocation !== '--';
-            const isFullySigned = isValidData(session.Doc_Lease_URL) || session.Signed_Lease === "Signed";
+            const isFullySigned = session.Signed_Lease === "Signed" || session.Signed_Lease === true || session.Signed_Lease === "true" || (isValidData(session.Doc_Lease_URL) && session.Doc_Lease_URL !== "vaulted_locally");
             const isAppUnlocked = (isVettingApproved && isRoomAllocated) || isFullySigned;
 
             if (!isAppUnlocked && (tabId === 'wifi' || tabId === 'snags' || tabId === 'security' || tabId === 'transport')) {
@@ -2163,7 +2292,7 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.href = '/phumelela/signin'; }
+        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.replace('/phumelela/signin/'); }
 
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
