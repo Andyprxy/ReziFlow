@@ -120,15 +120,15 @@
                     <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Pipeline Tools</span>
                 </div>
             </div>
-            <!-- Initial state is collapsed, so icon points left to expand -->
             <i id="hub-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[9px] pr-1"></i>
         </div>
 
         <div class="nav-block">
             <p class="px-1 text-[7px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 truncate nav-text">Logs & History</p>
             <div class="space-y-1.5">
-                <button onclick="window.setFilter('rejections')" class="block-btn bg-rose-600 hover:bg-rose-700 text-white justify-center gap-1.5 !py-2 shadow-md border-none transition-colors">
-                    <i class="fa-solid fa-ban text-[10px]"></i> <span class="truncate text-[9px] nav-text">Rejections List</span>
+                <!-- Milder Rejections Button -->
+                <button onclick="window.setFilter('rejections')" class="block-btn bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 justify-center gap-1.5 !py-2 shadow-sm transition-colors">
+                    <i class="fa-solid fa-file-circle-xmark text-slate-400 text-[10px]"></i> <span class="truncate text-[9px] nav-text">Rejections Archive</span>
                 </button>
             </div>
         </div>
@@ -420,10 +420,10 @@
             <th class="text-right">Rejection Reason</th>
         </tr>`;
         
-        tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Rejections Log...</span></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Rejections Log...</span></td></tr>`;
         
         try {
-            const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections');
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz');
             if (res.ok) {
                 let data = await res.json();
                 window.globalRejectionsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
@@ -450,7 +450,7 @@
                 if (!r) return; 
                 
                 const safeId = String(r['Student Number'] || '').replace(/'/g, "\\'");
-                const rowId = r.row_number || idx; // Anchor ID for updating
+                const rowId = r.row_number || idx; 
                 
                 const statusString = String(r['Status'] || 'Pending').toLowerCase();
                 const isResolved = statusString.includes('resolve') || statusString.includes('done');
@@ -624,7 +624,7 @@
         const notesVal = document.getElementById(`req-notes-${rowId}`).value;
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests', {
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-request', {
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -635,7 +635,6 @@
                 })
             });
 
-            // Update local state and instantly render to show success
             const reqIdx = window.globalRequestsData.findIndex(r => r.row_number == rowId || r['Student Number'] == studentId);
             if(reqIdx > -1) {
                 window.globalRequestsData[reqIdx].Status = statusVal;
@@ -714,8 +713,7 @@
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
         try {
-            // FIX: Re-routed exactly to the phumelela-rejections POST endpoint
-            await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections', {
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
             });
