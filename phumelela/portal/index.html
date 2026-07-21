@@ -995,7 +995,23 @@
                     return null;
                 }
                 let profile = extract(parsed);
-                return profile || (typeof parsed === 'object' ? parsed : {});
+                let finalSession = profile || (typeof parsed === 'object' ? parsed : {});
+                
+                // --- INDESTRUCTIBLE DEVICE CACHE RECOVERY ---
+                let email = finalSession.Email_Address || finalSession.Email;
+                if (email) {
+                    let cache = JSON.parse(localStorage.getItem('rezi_device_cache_' + email) || '{}');
+                    // Recover Lease Status
+                    if (cache.Signed_Lease && (!isValidData(finalSession.Signed_Lease) || finalSession.Signed_Lease === "false")) {
+                        finalSession.Signed_Lease = cache.Signed_Lease;
+                        finalSession.Doc_Lease_URL = cache.Doc_Lease_URL;
+                    }
+                    // Recover Profile Picture
+                    if (cache.Profile_Pic && !isValidData(finalSession.Profile_Pic)) {
+                        finalSession.Profile_Pic = cache.Profile_Pic;
+                    }
+                }
+                return finalSession;
             } catch (e) { return {}; }
         }
 
@@ -1541,6 +1557,14 @@
                 if(session) {
                     session.Profile_Pic = base64Img;
                     localStorage.setItem('reziflow_session', JSON.stringify(session));
+                    
+                    // --- SAVE TO DEVICE CACHE ---
+                    let email = session.Email_Address || session.Email;
+                    if (email) {
+                        let cache = JSON.parse(localStorage.getItem('rezi_device_cache_' + email) || '{}');
+                        cache.Profile_Pic = base64Img;
+                        localStorage.setItem('rezi_device_cache_' + email, JSON.stringify(cache));
+                    }
                 }
                 applyProfilePic(base64Img);
                 showToast("Profile picture updated!", "success");
@@ -1615,7 +1639,18 @@
                 });
                 if (!res.ok) throw new Error("Server error");
 
-                session.Doc_Lease_URL = "vaulted_locally"; session.Signed_Lease = "Signed"; localStorage.setItem('reziflow_session', JSON.stringify(session));
+                session.Doc_Lease_URL = "vaulted_locally"; session.Signed_Lease = "Signed"; 
+                localStorage.setItem('reziflow_session', JSON.stringify(session));
+                
+                // --- SAVE TO DEVICE CACHE ---
+                let email = session.Email_Address || session.Email;
+                if (email) {
+                    let cache = JSON.parse(localStorage.getItem('rezi_device_cache_' + email) || '{}');
+                    cache.Signed_Lease = "Signed";
+                    cache.Doc_Lease_URL = "vaulted_locally";
+                    localStorage.setItem('rezi_device_cache_' + email, JSON.stringify(cache));
+                }
+
                 closeModal('leaseModal');
                 
                 // Immediately update Gateway Engine to permanently remove the Gateway UI Card
