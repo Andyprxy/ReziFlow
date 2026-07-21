@@ -12,7 +12,11 @@
             let isValid = false;
             try {
                 const rawSession = localStorage.getItem('reziflow_session');
-                if (rawSession) {
+                // THE SHIELD: Check for the session wristband issued by the Sign In page
+                const authToken = sessionStorage.getItem('reziAuthToken');
+                
+                // Both the profile data AND the session token must exist
+                if (rawSession && authToken) {
                     const parsedSession = JSON.parse(rawSession);
                     if (parsedSession.Email_Address || parsedSession.Email) {
                         isValid = true;
@@ -2184,7 +2188,12 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function handleLogout() { localStorage.removeItem('reziflow_session'); window.location.replace('https://reziflow.online/phumelela/signin/'); }
+        function handleLogout() { 
+            localStorage.removeItem('reziflow_session'); 
+            // THE SHIELD: Remove the wristband when logging out
+            sessionStorage.removeItem('reziAuthToken'); 
+            window.location.replace('https://reziflow.online/phumelela/signin/'); 
+        }
 
         function showToast(message, type) {
             const container = document.getElementById('toast-container'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
