@@ -399,8 +399,9 @@
         try {
             const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests');
             if (res.ok) {
-                const data = await res.json();
-                window.globalRequestsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
+                let data = await res.json();
+                // FIX: Bypass parseN8n if the data is already a perfectly flat array
+                window.globalRequestsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
                 window.renderUI(); 
             } else { throw new Error("Fetch failed"); }
         } catch(e) {
@@ -423,11 +424,11 @@
         tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Rejections Log...</span></td></tr>`;
         
         try {
-            // Pointing directly to the phumelela-rejections test webhook
             const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections');
             if (res.ok) {
-                const data = await res.json();
-                window.globalRejectionsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
+                let data = await res.json();
+                // FIX: Bypass parseN8n if the data is already a perfectly flat array
+                window.globalRejectionsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
                 window.renderUI(); 
             } else { throw new Error("Fetch failed"); }
         } catch(e) {
@@ -448,7 +449,12 @@
             
             let htmlStr = '';
             window.globalRequestsData.forEach(r => {
-                // Correct mapping for space-separated keys from your n8n payload
+                // Safeguard against missing undefined properties so the loop doesn't crash
+                if (!r) return; 
+                
+                const statusString = String(r['Status'] || 'Pending').toLowerCase();
+                const isResolved = statusString.includes('resolve') || statusString.includes('done');
+                
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
                         <td><div class="text-[9px] font-bold text-slate-500">${r['Timestamp'] || '--'}</div></td>
@@ -462,7 +468,7 @@
                             <div class="text-[9px] text-slate-500 mt-1 line-clamp-2">${r['Reason'] || '--'}</div>
                         </td>
                         <td>
-                            <div class="text-[9px] font-bold ${String(r['Status']).toLowerCase().includes('resolve') ? 'text-emerald-600' : 'text-amber-600'}">${r['Status'] || 'Pending'}</div>
+                            <div class="text-[9px] font-bold ${isResolved ? 'text-emerald-600' : 'text-amber-600'}">${r['Status'] || 'Pending'}</div>
                             <div class="text-[8px] text-slate-400 mt-0.5">Res: ${r['Resolution Date'] || '--'}</div>
                         </td>
                         <td class="text-right">
@@ -486,6 +492,7 @@
             
             let htmlStr = '';
             window.globalRejectionsData.forEach(r => {
+                if (!r) return;
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
                         <td><div class="text-[9px] font-bold text-slate-500">${r['Timestamp'] || r.Timestamp || '--'}</div></td>
@@ -494,7 +501,7 @@
                             <div class="text-[9px] font-semibold text-slate-500 mt-0.5">${r['First Name'] || r.First_Name || ''} ${r['Surname'] || r.Surname || ''}</div>
                         </td>
                         <td class="text-right">
-                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r['Reasons'] || r.Reasons || r.Reason || 'Missing Documentation'}</div>
+                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r['Reasons'] || r.Reasons || r['Reason'] || r.Reason || 'Missing Documentation'}</div>
                         </td>
                     </tr>
                 `;
