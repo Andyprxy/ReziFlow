@@ -391,16 +391,15 @@
             <th class="w-1/4">Student & Room</th>
             <th class="w-1/4">Type & Reason</th>
             <th class="w-1/6">Status & Resolution</th>
-            <th class="text-right">Admin Notes</th>
+            <th class="text-right">Action / Notes</th>
         </tr>`;
         
         tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Requests...</span></td></tr>`;
         
         try {
-            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests');
+            const res = await fetch('https://n8n.automania.cloud/webhook/reziflow-requests');
             if (res.ok) {
                 let data = await res.json();
-                // FIX: Bypass parseN8n if the data is already a perfectly flat array
                 window.globalRequestsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
                 window.renderUI(); 
             } else { throw new Error("Fetch failed"); }
@@ -427,7 +426,6 @@
             const res = await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections');
             if (res.ok) {
                 let data = await res.json();
-                // FIX: Bypass parseN8n if the data is already a perfectly flat array
                 window.globalRejectionsData = (Array.isArray(data) && data[0] && !data[0].json) ? data : (typeof window.parseN8n === 'function' ? window.parseN8n(data) : data);
                 window.renderUI(); 
             } else { throw new Error("Fetch failed"); }
@@ -448,13 +446,19 @@
             }
             
             let htmlStr = '';
-            window.globalRequestsData.forEach(r => {
-                // Safeguard against missing undefined properties so the loop doesn't crash
+            window.globalRequestsData.forEach((r, idx) => {
                 if (!r) return; 
+                
+                const safeId = String(r['Student Number'] || '').replace(/'/g, "\\'");
+                const rowId = r.row_number || idx; // Anchor ID for updating
                 
                 const statusString = String(r['Status'] || 'Pending').toLowerCase();
                 const isResolved = statusString.includes('resolve') || statusString.includes('done');
+                const isRejected = statusString.includes('reject');
+                const isApproved = statusString.includes('approv');
                 
+                const existingNotes = String(r['Admin Notes'] || '').replace(/"/g, '&quot;');
+
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
                         <td><div class="text-[9px] font-bold text-slate-500">${r['Timestamp'] || '--'}</div></td>
@@ -468,11 +472,20 @@
                             <div class="text-[9px] text-slate-500 mt-1 line-clamp-2">${r['Reason'] || '--'}</div>
                         </td>
                         <td>
-                            <div class="text-[9px] font-bold ${isResolved ? 'text-emerald-600' : 'text-amber-600'}">${r['Status'] || 'Pending'}</div>
+                            <div class="text-[9px] font-bold ${isResolved || isApproved ? 'text-emerald-600' : isRejected ? 'text-rose-600' : 'text-amber-600'}">${r['Status'] || 'Pending'}</div>
                             <div class="text-[8px] text-slate-400 mt-0.5">Res: ${r['Resolution Date'] || '--'}</div>
                         </td>
                         <td class="text-right">
-                            <div class="text-[9px] text-slate-600 italic line-clamp-2">${r['Admin Notes'] || 'No notes available.'}</div>
+                            <div class="flex flex-col gap-1.5 w-full min-w-[160px] max-w-[200px] float-right">
+                                <div class="flex gap-1.5">
+                                    <select id="req-status-${rowId}" class="bg-white border border-slate-200 text-[9px] font-bold text-slate-600 rounded-md px-1 py-1 outline-none focus:border-blue-400 shadow-sm">
+                                        <option value="Approved" ${isApproved ? 'selected' : ''}>Approve</option>
+                                        <option value="Rejected" ${isRejected ? 'selected' : ''}>Reject</option>
+                                    </select>
+                                    <input type="text" id="req-notes-${rowId}" value="${existingNotes}" placeholder="Admin notes (opt)..." class="flex-1 w-full bg-white border border-slate-200 text-[9px] rounded-md px-2 py-1 outline-none focus:border-blue-400 shadow-sm">
+                                </div>
+                                <button onclick="window.submitRequestDecision('${safeId}', '${rowId}', this)" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[9px] font-bold py-1.5 rounded-md transition-all shadow-sm flex items-center justify-center gap-1.5">Submit Decision <i class="fa-solid fa-paper-plane text-[8px]"></i></button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -603,6 +616,41 @@
     // ----------------------------------------------------
     // PIPELINES & WEBHOOKS (Synchronous Await Logic)
     // ----------------------------------------------------
+    window.submitRequestDecision = async function(studentId, rowId, btnElement) {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
+
+        const statusVal = document.getElementById(`req-status-${rowId}`).value;
+        const notesVal = document.getElementById(`req-notes-${rowId}`).value;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    Student_Number: studentId, 
+                    Status: statusVal, 
+                    Admin_Notes: notesVal,
+                    row_number: rowId
+                })
+            });
+
+            // Update local state and instantly render to show success
+            const reqIdx = window.globalRequestsData.findIndex(r => r.row_number == rowId || r['Student Number'] == studentId);
+            if(reqIdx > -1) {
+                window.globalRequestsData[reqIdx].Status = statusVal;
+                window.globalRequestsData[reqIdx]['Admin Notes'] = notesVal;
+            }
+            
+            window.showToast("Decision submitted successfully.");
+            window.renderUI();
+        } catch (error) { 
+            window.showToast("Failed to post decision.", "error"); 
+        } finally { 
+            if(btnElement) { btnElement.innerHTML = originalText; btnElement.disabled = false; }
+        }
+    };
+
     window.processApproval = async function(studentId, btnElement) { 
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
@@ -666,7 +714,8 @@
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz', {
+            // FIX: Re-routed exactly to the phumelela-rejections POST endpoint
+            await fetch('https://n8n.automania.cloud/webhook-test/phumelela-rejections', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
             });
