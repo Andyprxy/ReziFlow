@@ -1797,7 +1797,7 @@
             const session = getSessionData();
             const studentNum = session.Student_Number || 'Unknown';
             try {
-                const res = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-snag-chat?Student_Number=${studentNum}&Ticket_ID=${ticketId}&t=${Date.now()}`);
+                const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-snag-chat?Student_Number=${studentNum}&Ticket_ID=${ticketId}&t=${Date.now()}`);
                 if (res.ok) {
                     const messages = await res.json();
                     renderChatMessages(ticketId, messages);
@@ -1895,7 +1895,7 @@
             inputField.value = '';
 
             try {
-                await fetch('https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send', {
+                await fetch('https://n8n.automania.cloud/webhook/reziflow-snag-chat-send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
