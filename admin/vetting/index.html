@@ -12,7 +12,7 @@
     .glass-seg-btn.active {
         background: rgba(255, 255, 255, 0.95); color: #1d1d1f; box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.85); border: 1px solid rgba(255, 255, 255, 1); transform: scale(1.01);
     }
-    .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; } .glass-seg-btn.active.accent-amber { color: #f59e0b; }
+    .glass-seg-btn.active.accent-blue { color: #0071e3; } .glass-seg-btn.active.accent-emerald { color: #10b981; } .glass-seg-btn.active.accent-amber { color: #f59e0b; } .glass-seg-btn.active.accent-rose { color: #e11d48; }
 
     .hub-sidebar { transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; overflow-x: hidden; }
     .hub-sidebar.collapsed { width: 64px !important; min-width: 64px !important; }
@@ -46,7 +46,8 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto custom-scroll pr-1 pb-10">
         
         <!-- Top Nav -->
-        <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative">
+        <div class="flex justify-center w-full shrink-0 mb-4 z-10 relative flex-wrap gap-4">
+            <!-- Core Pipeline Tabs -->
             <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
                 <button onclick="window.setFilter('pending')" id="btn-tab-pending" class="glass-seg-btn active accent-amber text-[10px] sm:text-xs">
                     <i class="fa-solid fa-clock-rotate-left"></i> Pending
@@ -63,6 +64,14 @@
                     <span id="kpi-allocation" class="bg-blue-50 border border-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
                 </button>
             </div>
+            
+            <!-- Separated Requests Tab -->
+            <div class="glass-segmented shadow-sm bg-white/50 backdrop-blur-md">
+                <button onclick="window.setFilter('requests')" id="btn-tab-requests" class="glass-seg-btn accent-rose text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-bell"></i> Requests
+                    <span id="kpi-requests" class="bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[9px] shadow-sm ml-1">-</span>
+                </button>
+            </div>
         </div>
 
         <!-- Data Table Wrapper -->
@@ -76,9 +85,9 @@
                     <div id="hub-dynamic-filters" class="glass-segmented scale-95 origin-right hidden sm:flex"></div>
                     <div class="relative w-full sm:w-48">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search students..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm">
+                        <input type="text" id="search-hub" onkeyup="window.filterTable('search-hub', 'hub-queue-body')" placeholder="Search records..." class="w-full bg-white/80 border border-slate-200 rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:border-blue-400 shadow-sm">
                     </div>
-                    <button onclick="if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true);" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
+                    <button onclick="if(typeof window.fetchDatabaseData === 'function' && currentFilter !== 'requests') window.fetchDatabaseData(true); else if(currentFilter === 'requests') window.fetchAndRenderRequests();" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center text-[10px]"><i class="fa-solid fa-rotate text-blue-500"></i></button>
                 </div>
             </div>
             
@@ -95,8 +104,8 @@
         </div>
     </div>
 
-    <!-- Quick Actions Sidebar (Right) -->
-    <div id="hub-right-sidebar" class="hub-sidebar w-full lg:w-64 min-w-[200px] shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
+    <!-- Quick Actions Sidebar (Right) - Default Collapsed -->
+    <div id="hub-right-sidebar" class="hub-sidebar collapsed w-full lg:w-64 min-w-[200px] shrink-0 flex flex-col gap-3 overflow-y-auto custom-scroll pb-10 relative">
         <div class="nav-block flex items-center justify-between !p-2 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleHubSidebar()">
             <div class="flex items-center gap-2 w-full">
                 <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-[10px] shadow-sm flex items-center justify-center text-white text-xs shrink-0"><i class="fa-solid fa-bolt"></i></div>
@@ -105,7 +114,8 @@
                     <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5 truncate">Pipeline Tools</span>
                 </div>
             </div>
-            <i id="hub-sidebar-toggle-icon" class="fa-solid fa-chevron-right text-slate-300 text-[9px] pr-1"></i>
+            <!-- Initial state is collapsed, so icon points left to expand -->
+            <i id="hub-sidebar-toggle-icon" class="fa-solid fa-chevron-left text-slate-300 text-[9px] pr-1"></i>
         </div>
 
         <div class="nav-block">
@@ -263,6 +273,7 @@
     // ----------------------------------------------------
     var currentFilter = 'pending'; var hubSubFilter = 'all';
     var currentRejectStudentId = null; var activeAllocationStudentId = null; var selectedRoomId = null;
+    window.globalRequestsData = [];
 
     // EXPLICIT WINDOW BINDINGS
     window.toggleHubSidebar = function() {
@@ -276,8 +287,6 @@
             }
         }
     };
-    
-    if (window.innerWidth < 768) { window.toggleHubSidebar(); }
 
     window.filterTable = function(inputId, tbodyId) {
         const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
@@ -290,9 +299,9 @@
 
     window.setFilter = function(type) { 
         currentFilter = type; hubSubFilter = 'all'; 
-        ['pending', 'approved', 'allocation'].forEach(o => { 
+        ['pending', 'approved', 'allocation', 'requests'].forEach(o => { 
             const el = document.getElementById(`btn-tab-${o}`); 
-            if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber'); 
+            if(el) el.classList.remove('active', 'accent-blue', 'accent-emerald', 'accent-amber', 'accent-rose'); 
         }); 
         
         const aEl = document.getElementById(`btn-tab-${type}`); 
@@ -301,9 +310,10 @@
             if(type === 'pending') aEl.classList.add('accent-amber'); 
             if(type === 'approved') aEl.classList.add('accent-emerald'); 
             if(type === 'allocation') aEl.classList.add('accent-blue'); 
+            if(type === 'requests') aEl.classList.add('accent-rose'); 
         } 
         
-        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine' }; 
+        const titles = { 'pending': 'Student Hub (Pending)', 'approved': 'Approved Students', 'allocation': 'Allocation Engine', 'requests': 'Service Requests' }; 
         if(document.getElementById('table-title')) document.getElementById('table-title').textContent = titles[type]; 
         
         const dash = document.getElementById('allocation-dashboard');
@@ -316,53 +326,109 @@
             }
         }
 
-        window.renderUI(); 
+        if(type === 'requests') {
+            window.fetchAndRenderRequests();
+        } else {
+            window.renderUI(); 
+        }
     };
 
     window.setHubSubFilter = function(fv) { hubSubFilter = fv; window.renderUI(); };
 
-    window.renderAllocationDashboard = async function() {
+    // Dashboard updated to show Student Allocation metrics instead of raw room inventory
+    window.renderAllocationDashboard = function() {
         const dash = document.getElementById('allocation-dashboard');
-        // Fetch inventory if missing
-        if (!window.globalRoomData || window.globalRoomData.length === 0) {
-            dash.innerHTML = `<div class="flex items-center justify-center py-6 text-slate-400 text-xs gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Polling Inventory Sensors...</div>`;
-            try {
-                const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms');
-                if (response.ok) {
-                    const rawData = await response.json(); 
-                    window.globalRoomData = window.parseN8n ? window.parseN8n(rawData) : rawData; 
-                }
-            } catch (error) {
-                dash.innerHTML = `<div class="py-4 text-center text-[10px] text-rose-500">Inventory Sync Failed</div>`;
-                return;
-            }
-        }
-
-        let totalRooms = 0; let occupiedRooms = 0;
-        if(window.globalRoomData && window.globalRoomData.length > 0) {
-            totalRooms = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Total_Beds) || parseInt(r.Capacity) || 1), 0);
-            occupiedRooms = window.globalRoomData.reduce((sum, r) => sum + (parseInt(r.Occupied_Beds) || parseInt(r.Occupied) || 0), 0);
-        }
-        const availRooms = totalRooms - occupiedRooms;
-        const occDeg = totalRooms ? (occupiedRooms / totalRooms) * 360 : 0;
+        if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
+        
+        const approvedStudents = globalStudentData.filter(s => String(s.Vetting_Status).toLowerCase().trim() === 'approved');
+        const totalApproved = approvedStudents.length;
+        const allocated = approvedStudents.filter(s => s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned').length;
+        const unallocated = totalApproved - allocated;
+        
+        const occDeg = totalApproved ? (allocated / totalApproved) * 360 : 0;
 
         dash.innerHTML = `
             <div class="flex items-center justify-center gap-8 bg-white/60 p-4 rounded-2xl shadow-[inset_0_1px_3px_rgba(255,255,255,1),_0_2px_10px_rgba(0,0,0,0.02)] border border-white">
-                <div class="relative w-16 h-16 rounded-full transform transition hover:scale-105 pie-chart-anim" style="background: conic-gradient(#10b981 0deg, #10b981 ${360-occDeg}deg, #cbd5e1 ${360-occDeg}deg, #cbd5e1 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div class="relative w-16 h-16 rounded-full transform transition hover:scale-105 pie-chart-anim" style="background: conic-gradient(#3b82f6 0deg, #3b82f6 ${occDeg}deg, #e2e8f0 ${occDeg}deg, #e2e8f0 360deg); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                     <div class="absolute inset-1.5 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
-                        <span class="text-[12px] font-black text-slate-800 leading-none">${totalRooms}</span>
-                        <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Beds</span>
+                        <span class="text-[12px] font-black text-slate-800 leading-none">${totalApproved}</span>
+                        <span class="text-[5px] text-slate-400 uppercase font-bold tracking-widest mt-0.5">Approved</span>
                     </div>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div><span class="text-[10px] font-extrabold text-slate-700 uppercase tracking-widest">Available <span class="text-emerald-600 ml-1 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">${availRooms}</span></span></div>
-                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-sm"></div><span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Unavailable <span class="text-slate-600 ml-1 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${occupiedRooms}</span></span></div>
+                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div><span class="text-[10px] font-extrabold text-slate-700 uppercase tracking-widest">Allocated <span class="text-blue-600 ml-1 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${allocated}</span></span></div>
+                    <div class="flex items-center gap-2.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-sm"></div><span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Unallocated <span class="text-slate-600 ml-1 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${unallocated}</span></span></div>
                 </div>
             </div>
         `;
     };
 
+    window.fetchAndRenderRequests = async function() {
+        const tbody = document.getElementById('hub-queue-body');
+        const thead = document.getElementById('hub-thead');
+        const filterContainer = document.getElementById('hub-dynamic-filters');
+        if(filterContainer) filterContainer.innerHTML = '';
+        
+        thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50">
+            <th class="w-1/6">Timestamp</th>
+            <th class="w-1/4">Student & Room</th>
+            <th class="w-1/4">Type & Reason</th>
+            <th class="w-1/6">Status & Resolution</th>
+            <th class="text-right">Admin Notes</th>
+        </tr>`;
+        
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br><span class="text-[10px] font-bold">Syncing Requests...</span></td></tr>`;
+        
+        try {
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/reziflow-requests');
+            if (res.ok) {
+                const data = await res.json();
+                window.globalRequestsData = typeof window.parseN8n === 'function' ? window.parseN8n(data) : data;
+                window.renderUI(); // renderUI handles the requests state injection
+            } else { throw new Error("Fetch failed"); }
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-rose-500 text-[10px]">Failed to connect to request pipeline.</td></tr>`;
+        }
+    };
+
     window.renderUI = function() {
+        if(currentFilter === 'requests') {
+            const tbody = document.getElementById('hub-queue-body');
+            if(document.getElementById('kpi-requests')) document.getElementById('kpi-requests').textContent = window.globalRequestsData.length;
+            
+            if(!window.globalRequestsData || window.globalRequestsData.length === 0) {
+                tbody.innerHTML = `<tr class="no-results"><td colspan="5" class="p-10 text-center text-slate-400 bg-white/30 text-[10px]">No active requests found.</td></tr>`; 
+                return;
+            }
+            
+            let htmlStr = '';
+            window.globalRequestsData.forEach(r => {
+                htmlStr += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                        <td><div class="text-[9px] font-bold text-slate-500">${r.Timestamp || '--'}</div></td>
+                        <td>
+                            <div class="font-black text-slate-800 text-[11px]">${r.Student_Number || '--'}</div>
+                            <div class="text-[9px] font-semibold text-slate-500 mt-0.5">${r.First_Name || ''} ${r.Surname || ''}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5"><i class="fa-solid fa-door-closed mr-1"></i>${r.Current_Room || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <div class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded inline-block border border-rose-100">${r.Request_Type || 'Issue'}</div>
+                            <div class="text-[9px] text-slate-500 mt-1 line-clamp-2">${r.Reason || '--'}</div>
+                        </td>
+                        <td>
+                            <div class="text-[9px] font-bold ${r.Status === 'Resolved' ? 'text-emerald-600' : 'text-amber-600'}">${r.Status || 'Pending'}</div>
+                            <div class="text-[8px] text-slate-400 mt-0.5">Res: ${r.Resolution_Date || '--'}</div>
+                        </td>
+                        <td class="text-right">
+                            <div class="text-[9px] text-slate-600 italic line-clamp-2">${r.Admin_Notes || 'No notes available.'}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = htmlStr;
+            return;
+        }
+
         if (typeof globalStudentData === 'undefined' || !globalStudentData) return;
         
         // Strict verification: Drop corrupted lines
@@ -394,7 +460,6 @@
             baseData.forEach(s => {
                 const safeId = String(s.Student_Number || '').replace(/'/g, "\\'");
                 
-                // Document Icon Generator
                 const doc1 = s.Doc_1_URL_ID ? `<a href="${s.Doc_1_URL_ID}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-blue-50/80 text-blue-600 border border-blue-100 rounded hover:bg-blue-600 hover:text-white transition-all shadow-sm" title="ID/Passport Document"><i class="fa-solid fa-id-card text-[10px]"></i></a>` : '';
                 const doc2 = s.Doc_2_URL_Reg ? `<a href="${s.Doc_2_URL_Reg}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-emerald-50/80 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-600 hover:text-white transition-all shadow-sm" title="Proof of Registration"><i class="fa-solid fa-file-signature text-[10px]"></i></a>` : '';
                 const doc3 = s.Doc_3_URL_Funding ? `<a href="${s.Doc_3_URL_Funding}" target="_blank" class="w-6 h-6 flex items-center justify-center bg-amber-50/80 text-amber-600 border border-amber-100 rounded hover:bg-amber-500 hover:text-white transition-all shadow-sm" title="Proof of Funding"><i class="fa-solid fa-file-invoice-dollar text-[10px]"></i></a>` : '';
@@ -430,7 +495,8 @@
             if(baseData.length === 0) { tbody.innerHTML = `<tr class="no-results"><td colspan="4" class="p-10 text-center text-slate-400 bg-white/30 text-[10px]">No approved students to allocate.</td></tr>`; return; }
 
             baseData.forEach(s => {
-                const roomStatus = s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned' ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Room_Allocation}</span>` : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">Unassigned</span>`;
+                const isAllocated = s.Room_Allocation && s.Room_Allocation !== '--' && s.Room_Allocation !== 'Unassigned';
+                const roomStatus = isAllocated ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">${s.Room_Allocation}</span>` : `<span class="bg-white border border-amber-200 text-amber-600 px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider shadow-sm">Unassigned</span>`;
                 const safeId = String(s.Student_Number || '').replace(/'/g, "\\'");
                 const safeGender = String(s.Gender || '').replace(/'/g, "\\'");
                 const safeName = String(`${s.First_Name || ''} ${s.Surname || ''}`).replace(/'/g, "\\'");
@@ -440,7 +506,12 @@
                         <td><div class="font-black text-slate-800 text-[11px]">${s.Student_Number || '--'}</div><div class="text-[9px] text-slate-500 mt-0.5 font-medium">${s.First_Name || ''} ${s.Surname || ''}</div></td>
                         <td><div class="text-slate-600 font-bold text-[10px]">${s.Gender || 'N/A'}</div></td>
                         <td>${roomStatus}</td>
-                        <td class="text-right"><button onclick="window.openAllocationModal('${safeId}', '${safeGender}', '${safeName}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-md">Allocate</button></td>
+                        <td class="text-right">
+                            <div class="flex justify-end gap-1.5">
+                                ${isAllocated ? `<button onclick="window.removeAllocation('${safeId}', this)" class="bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">Remove</button>` : ''}
+                                <button onclick="window.openAllocationModal('${safeId}', '${safeGender}', '${safeName}')" class="bg-[#1d1d1f] hover:bg-blue-600 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg transition-all shadow-md">Allocate</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
@@ -456,25 +527,44 @@
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
 
         try {
-            // 1. Force the fetch and wait for n8n to respond
             await fetch('https://n8n.automania.cloud/webhook/reziflow-approve', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: studentId, Vetting_Status: "Approved" })
             });
 
-            // 2. Update local data ONLY after n8n succeeds
             const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId)); 
             if (idx > -1) { 
                 globalStudentData[idx].Vetting_Status = 'Approved'; 
                 window.showToast("Student Approved.");
                 window.renderUI();
                 
-                // 3. Open Allocation Modal immediately
                 const s = globalStudentData[idx]; 
                 setTimeout(() => { window.openAllocationModal(s.Student_Number, s.Gender, `${s.First_Name || ''} ${s.Surname || ''}`); }, 300);
             }
         } catch (error) { window.showToast("Failed to connect to backend.", "error"); } 
         finally { btnElement.innerHTML = originalText; btnElement.disabled = false; }
+    };
+    
+    // Unbinding logic via n8n POST
+    window.removeAllocation = async function(studentId, btnElement) {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btnElement.disabled = true;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook-test/reziflow-remove', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Student_Number: studentId })
+            });
+
+            const idx = globalStudentData.findIndex(s => String(s.Student_Number) === String(studentId));
+            if (idx > -1) {
+                globalStudentData[idx].Room_Allocation = 'Unassigned';
+                window.showToast("Allocation removed successfully.");
+                window.renderUI();
+                window.renderAllocationDashboard();
+            }
+        } catch (error) { window.showToast("Failed to remove allocation.", "error"); } 
+        finally { if(btnElement) { btnElement.innerHTML = originalText; btnElement.disabled = false; } }
     };
 
     window.openRejectModal = function(studentId) { 
@@ -496,7 +586,6 @@
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; btn.disabled = true;
         try {
-            // Note: Updated routing to reziflow-rejectz webhook on test
             await fetch('https://n8n.automania.cloud/webhook-test/reziflow-rejectz', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Student_Number: currentRejectStudentId, Reasons: reasons.join(", ") })
@@ -527,7 +616,7 @@
 
     window.fetchModalRoomInventory = async function(gender) {
         const singleContainer = document.getElementById('list-single-rooms'); const sharingContainer = document.getElementById('list-sharing-rooms');
-        if(globalRoomData && globalRoomData.length > 0) { window.renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); return; }
+        if(window.globalRoomData && window.globalRoomData.length > 0) { window.renderModalRooms(window.globalRoomData, gender, singleContainer, sharingContainer); return; }
         
         singleContainer.innerHTML = '<div class="py-10 text-center text-blue-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
         sharingContainer.innerHTML = '<div class="py-10 text-center text-emerald-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>';
@@ -535,9 +624,8 @@
         try { 
             const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-rooms'); 
             if (response.ok) { 
-                const rawData = await response.json(); globalRoomData = window.parseN8n(rawData); 
-                window.renderModalRooms(globalRoomData, gender, singleContainer, sharingContainer); 
-                if (currentFilter === 'allocation') window.renderAllocationDashboard(); 
+                const rawData = await response.json(); window.globalRoomData = typeof window.parseN8n === 'function' ? window.parseN8n(rawData) : rawData; 
+                window.renderModalRooms(window.globalRoomData, gender, singleContainer, sharingContainer); 
             } 
         } catch (error) { singleContainer.innerHTML = '<div class="text-xs text-rose-500">Failed to fetch inventory.</div>'; }
     };
@@ -598,10 +686,10 @@
         try {
             await fetch('https://n8n.automania.cloud/webhook/reziflow-manual-student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             document.getElementById('manualStudentModal').classList.remove('active'); e.target.reset();
-            window.fetchDatabaseData(true); window.showToast("Applicant manually injected.");
+            if(typeof window.fetchDatabaseData === 'function') window.fetchDatabaseData(true); window.showToast("Applicant manually injected.");
         } catch(error) { window.showToast("Failed to connect to n8n.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
     };
 
-    // Auto-trigger if returning from another tab
+    // Auto-trigger UI render if dataset exists
     setTimeout(() => { if (typeof globalStudentData !== 'undefined' && globalStudentData.length > 0 && currentFilter === 'pending') window.renderUI(); }, 150);
 </script>
