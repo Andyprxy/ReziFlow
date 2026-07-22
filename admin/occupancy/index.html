@@ -1,3 +1,6 @@
+<!-- Chart.js Injection for High-End Analytics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     /* ---------------------------------------------------
        FLUID COMPACT LAYOUT & SIDEBAR CONFIG
@@ -45,6 +48,9 @@
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    /* Canvas sizing for charts */
+    .chart-container { position: relative; height: 160px; width: 100%; display: flex; justify-content: center; align-items: center; }
 </style>
 
 <!-- Main Component Structure -->
@@ -68,10 +74,10 @@
             </div>
         </div>
 
-        <!-- Data Grid -->
+        <!-- Data Grid & Analytics Area -->
         <div class="glass-panel rounded-[20px] lg:rounded-[24px] overflow-hidden mt-1 shrink-0 flex flex-col">
             
-            <div class="px-3 py-3 border-b border-white/60 flex flex-col xl:flex-row gap-3 justify-between xl:items-center bg-white/50 backdrop-blur-md">
+            <div class="px-3 py-3 border-b border-white/60 flex flex-col xl:flex-row gap-3 justify-between xl:items-center bg-white/50 backdrop-blur-md z-20 relative">
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"><i id="occ-icon" class="fa-solid fa-chart-pie text-xs"></i></div>
                     <h3 id="occupancy-title" class="font-black text-slate-800 text-xs sm:text-sm whitespace-nowrap">Allocated Students</h3>
@@ -81,10 +87,10 @@
                     <!-- Adaptive Filter Segment Control (Blocks A, B, C & Wings) -->
                     <div id="occupancy-room-filters" class="hidden flex-wrap gap-1.5 w-full sm:w-auto">
                         <div class="glass-segmented max-w-full overflow-x-auto custom-scroll">
-                            <button onclick="window.setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px]">All</button>
-                            <button onclick="window.setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Blk A</button>
-                            <button onclick="window.setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Blk B</button>
-                            <button onclick="window.setOccupancyBlock('C')" id="occ-blk-C" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Blk C</button>
+                            <button onclick="window.setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-emerald text-[8px] sm:text-[9px]">All</button>
+                            <button onclick="window.setOccupancyBlock('A')" id="occ-blk-A" class="glass-seg-btn accent-emerald text-[8px] sm:text-[9px]">Blk A</button>
+                            <button onclick="window.setOccupancyBlock('B')" id="occ-blk-B" class="glass-seg-btn accent-emerald text-[8px] sm:text-[9px]">Blk B</button>
+                            <button onclick="window.setOccupancyBlock('C')" id="occ-blk-C" class="glass-seg-btn accent-emerald text-[8px] sm:text-[9px]">Blk C</button>
                         </div>
                         <div class="glass-segmented max-w-full overflow-x-auto custom-scroll">
                             <button onclick="window.setOccupancyGender('all')" id="occ-gen-all" class="glass-seg-btn active accent-emerald text-[8px] sm:text-[9px]">All Wings</button>
@@ -93,7 +99,7 @@
                         </div>
                     </div>
 
-                    <!-- NEW: Download Report Button -->
+                    <!-- Download Report Button -->
                     <button onclick="window.downloadOccupancyReport()" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
                         <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Report</span>
                     </button>
@@ -106,11 +112,33 @@
                 </div>
             </div>
             
-            <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm max-h-[65vh]">
-                <table class="w-full text-left border-collapse compact-table min-w-[650px]">
-                    <thead id="occupancy-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40"></thead>
-                    <tbody id="stats-inventory-body" class="divide-y divide-slate-100/50"></tbody>
-                </table>
+            <div class="overflow-y-auto custom-scroll max-h-[70vh] bg-white/40 backdrop-blur-sm relative">
+                
+                <!-- NEW: High-End Analytics Dashboard (Visible only on Rooms tab) -->
+                <div id="analytics-dashboard" class="hidden grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b border-slate-200/60 bg-slate-50/50">
+                    <!-- Chart 1: Capacity -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-chart-pie mr-1 text-emerald-500"></i> Overall Capacity</h4>
+                        <div class="chart-container"><canvas id="chartCapacity"></canvas></div>
+                    </div>
+                    <!-- Chart 2: Gender Demographics -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-venus-mars mr-1 text-blue-500"></i> Gender Ratio</h4>
+                        <div class="chart-container"><canvas id="chartGender"></canvas></div>
+                    </div>
+                    <!-- Chart 3: Funding Types -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-landmark mr-1 text-amber-500"></i> Funding Distribution</h4>
+                        <div class="chart-container"><canvas id="chartFunding"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse compact-table min-w-[650px]">
+                        <thead id="occupancy-thead" class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40"></thead>
+                        <tbody id="stats-inventory-body" class="divide-y divide-slate-100/50"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -148,55 +176,71 @@
 </div>
 
 <!-- ========================================== -->
-<!-- MODALS & DOSSIERS OVERLAYS                -->
+<!-- MODALS & FILES OVERLAYS                    -->
 <!-- ========================================== -->
 
-<!-- High-End Personal Info Resident Dossier -->
-<div id="residentDossierModal" class="modal-overlay">
-    <div class="modal-content w-full max-w-xl flex flex-col p-0 overflow-hidden">
-        <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-start">
-            <div class="flex gap-3">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl flex items-center justify-center text-lg shadow-inner"><i class="fa-solid fa-user-graduate"></i></div>
+<!-- High-End Personal Info Resident File (Formerly Dossier) -->
+<div id="residentFileModal" class="modal-overlay">
+    <div class="modal-content w-full max-w-2xl flex flex-col p-0 overflow-hidden bg-white">
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-start relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 text-slate-200/50 transform rotate-12 pointer-events-none"><i class="fa-solid fa-file-invoice text-9xl"></i></div>
+            <div class="flex gap-4 relative z-10">
+                <div class="w-14 h-14 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl flex items-center justify-center text-2xl shadow-inner"><i class="fa-solid fa-user-graduate"></i></div>
                 <div>
-                    <h2 id="dos-name" class="text-base font-black text-slate-900 tracking-tight leading-none">--</h2>
-                    <p id="dos-id" class="text-[10px] font-mono font-bold text-slate-400 mt-1">--</p>
-                    <div class="mt-1.5 flex gap-1.5">
-                        <span id="dos-room" class="bg-emerald-50 text-emerald-600 text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border border-emerald-100 shadow-sm">Room: --</span>
-                        <span id="dos-funding" class="bg-white text-slate-600 text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border border-slate-200 shadow-sm">Fund: --</span>
+                    <h2 id="dos-name" class="text-xl font-black text-slate-900 tracking-tight leading-none">--</h2>
+                    <p id="dos-id" class="text-xs font-mono font-bold text-slate-500 mt-1.5">--</p>
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        <span id="dos-status" class="bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-slate-200 shadow-sm"><i class="fa-solid fa-shield-halved mr-1"></i> --</span>
+                        <span id="dos-room" class="bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-100 shadow-sm">Room: --</span>
+                        <span id="dos-funding" class="bg-amber-50 text-amber-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-amber-100 shadow-sm">Fund: --</span>
                     </div>
                 </div>
             </div>
-            <button onclick="document.getElementById('residentDossierModal').classList.remove('active')" class="w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <button onclick="document.getElementById('residentFileModal').classList.remove('active')" class="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm relative z-10 transition-colors"><i class="fa-solid fa-xmark text-xs"></i></button>
         </div>
-        <div class="p-4 bg-white flex-1 overflow-y-auto custom-scroll space-y-4 max-h-[60vh]">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <h4 class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-id-badge mr-1"></i> Demographics</h4>
-                    <div class="space-y-1 text-[10px] font-medium text-slate-700">
-                        <p><span class="text-slate-400 font-normal">ID/Passport:</span> <span id="dos-nat-id" class="font-mono font-bold">--</span></p>
-                        <p><span class="text-slate-400 font-normal">Gender:</span> <span id="dos-gender" class="font-bold">--</span></p>
-                        <p class="truncate"><span class="text-slate-400 font-normal">Program:</span> <span id="dos-course" class="font-bold">--</span></p>
+
+        <!-- Body -->
+        <div class="p-5 flex-1 overflow-y-auto custom-scroll space-y-4 max-h-[65vh]">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Academic & Demographics -->
+                <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1"><i class="fa-solid fa-id-badge mr-1"></i> Academic Profile</h4>
+                    <div class="space-y-2 text-[11px] font-medium text-slate-700">
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Nat. ID / Passport:</span> <span id="dos-nat-id" class="font-mono font-bold">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Gender:</span> <span id="dos-gender" class="font-bold">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Campus Hub:</span> <span id="dos-campus" class="font-bold text-right">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Program:</span> <span id="dos-course" class="font-bold text-right">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Year Level:</span> <span id="dos-year" class="font-bold">--</span></div>
                     </div>
                 </div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <h4 class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-address-book mr-1"></i> Direct Contact</h4>
-                    <div class="space-y-1 text-[10px] font-medium text-slate-700">
-                        <p><span class="text-slate-400 font-normal">Phone:</span> <span id="dos-phone" class="font-bold">--</span></p>
-                        <p class="truncate"><span class="text-slate-400 font-normal">Email:</span> <span id="dos-email" class="font-bold">--</span></p>
+
+                <!-- Contact & Address -->
+                <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1"><i class="fa-solid fa-address-book mr-1"></i> Contact & Location</h4>
+                    <div class="space-y-2 text-[11px] font-medium text-slate-700">
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Mobile Number:</span> <span id="dos-phone" class="font-bold font-mono">--</span></div>
+                        <div class="mt-3"><span class="text-slate-400 font-normal block mb-1">Home Address:</span> <span id="dos-address" class="font-bold block leading-tight text-slate-800 bg-white p-2 border border-slate-100 rounded-lg">--</span></div>
                     </div>
                 </div>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-rose-100">
-                <h4 class="text-[8px] font-bold text-rose-500 uppercase tracking-widest mb-2"><i class="fa-solid fa-truck-medical mr-1"></i> Guardian & Medical Details</h4>
-                <div class="grid grid-cols-2 gap-2 text-[10px] font-medium text-slate-700 mb-2">
-                    <p><span class="text-slate-400 font-normal">Guardian:</span> <span id="dos-em-name" class="font-bold">--</span></p>
-                    <p><span class="text-slate-400 font-normal">Contact No:</span> <span id="dos-em-phone" class="font-bold">--</span></p>
+
+            <!-- Guardian Details -->
+            <div class="bg-rose-50/30 p-4 rounded-xl border border-rose-100">
+                <h4 class="text-[9px] font-bold text-rose-500 uppercase tracking-widest mb-3 border-b border-rose-100 pb-1"><i class="fa-solid fa-people-roof mr-1"></i> Guardian / Emergency Info</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] font-medium text-slate-700">
+                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Full Name</span> <span id="dos-em-name" class="font-bold text-slate-900">--</span></div>
+                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Relationship</span> <span id="dos-em-rel" class="font-bold text-slate-900">--</span></div>
+                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Contact Number</span> <span id="dos-em-phone" class="font-bold font-mono text-slate-900">--</span></div>
                 </div>
-                <p class="text-[9px] font-medium text-slate-600 bg-white p-2 rounded-lg border border-slate-100" id="dos-medical">--</p>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <h4 class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-folder-open mr-1"></i> Secure Documents Vault</h4>
+
+            <!-- Secure Documents Vault -->
+            <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1"><i class="fa-solid fa-folder-open mr-1"></i> Required Documents Vault</h4>
                 <div class="flex flex-wrap gap-2" id="dos-docs-container"></div>
+                <p id="dos-timestamp" class="text-[8px] font-mono text-slate-400 mt-3 text-right">Last Sync: --</p>
             </div>
         </div>
     </div>
@@ -228,7 +272,7 @@
 
 <script>
     // ----------------------------------------------------
-    // ARCHITECTURAL DATA PIPELINE FALLBACK (Ensures 0 rows bug never happens)
+    // ARCHITECTURAL DATA PIPELINE FALLBACK
     // ----------------------------------------------------
     (async function initPipelineCheck() {
         if (typeof window.globalRoomData === 'undefined' || window.globalRoomData.length === 0) {
@@ -247,11 +291,22 @@
     })();
 
     // ----------------------------------------------------
-    // LOCAL CONFIGURATION VARS
+    // LOCAL CONFIGURATION VARS & CHART INSTANCES
     // ----------------------------------------------------
     var currentOccupancyView = 'students'; 
     var currentOccupancyBlock = 'all'; 
     var currentOccupancyGender = 'all';
+    
+    var capacityChartInstance = null;
+    var genderChartInstance = null;
+    var fundingChartInstance = null;
+
+    // Common Chart.js styling variables
+    const chartOptions = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { font: { size: 9, family: 'Inter' }, usePointStyle: true, boxWidth: 6 } } },
+        cutout: '70%', borderDashOffset: 0
+    };
 
     window.toggleOccSidebar = function() {
         const sidebar = document.getElementById('occ-right-sidebar');
@@ -281,6 +336,7 @@
 
         const title = document.getElementById('occupancy-title'); 
         const filters = document.getElementById('occupancy-room-filters');
+        const analyticsPanel = document.getElementById('analytics-dashboard');
         const icon = document.getElementById('occ-icon');
         const searchInput = document.getElementById('search-occupancy');
         
@@ -289,19 +345,21 @@
         if(view === 'rooms') { 
             if(title) title.textContent = 'Live Room Inventory'; 
             if(filters) { filters.classList.remove('hidden'); filters.classList.add('flex'); }
+            if(analyticsPanel) { analyticsPanel.classList.remove('hidden'); analyticsPanel.classList.add('grid'); }
             if(icon) { icon.className = "fa-solid fa-bed text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
         } else { 
             if(title) title.textContent = 'Allocated Students'; 
             if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } 
-            if(icon) { icon.className = "fa-solid fa-chart-pie text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"; }
+            if(analyticsPanel) { analyticsPanel.classList.remove('grid'); analyticsPanel.classList.add('hidden'); }
+            if(icon) { icon.className = "fa-solid fa-users text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"; }
         }
         window.processStatsData();
     };
 
     window.setOccupancyBlock = function(block) {
         currentOccupancyBlock = block;
-        ['all', 'A', 'B', 'C'].forEach(b => document.getElementById(`occ-blk-${b}`)?.classList.remove('active', 'accent-blue'));
-        document.getElementById(`occ-blk-${block}`)?.classList.add('active', 'accent-blue');
+        ['all', 'A', 'B', 'C'].forEach(b => document.getElementById(`occ-blk-${b}`)?.classList.remove('active', 'accent-emerald'));
+        document.getElementById(`occ-blk-${block}`)?.classList.add('active', 'accent-emerald');
         window.processStatsData();
     };
 
@@ -312,6 +370,77 @@
         window.processStatsData();
     };
 
+    // ----------------------------------------------------
+    // CHART RENDERING ENGINE
+    // ----------------------------------------------------
+    window.renderAnalyticsCharts = function(filteredRooms, filteredStudents) {
+        if(currentOccupancyView !== 'rooms') return; // Only process when visible
+
+        // 1. Process Capacity Data
+        let total = 0, occ = 0;
+        filteredRooms.forEach(r => { total += parseInt(r.Total_Beds||r.Capacity||0); occ += parseInt(r.Occupied_Beds||r.Occupied||0); });
+        let avail = Math.max(0, total - occ);
+
+        if(capacityChartInstance) capacityChartInstance.destroy();
+        const ctxCap = document.getElementById('chartCapacity').getContext('2d');
+        capacityChartInstance = new Chart(ctxCap, {
+            type: 'doughnut',
+            data: {
+                labels: ['Allocated', 'Unallocated'],
+                datasets: [{ data: [occ, avail], backgroundColor: ['#10b981', '#e2e8f0'], borderWidth: 0, hoverOffset: 4 }]
+            },
+            options: chartOptions
+        });
+
+        // 2. Process Gender Data (from currently filtered students)
+        let males = 0, females = 0;
+        filteredStudents.forEach(s => {
+            if(String(s.Gender).toLowerCase().includes('male')) {
+                if(String(s.Gender).toLowerCase().includes('female')) females++; else males++;
+            }
+        });
+
+        if(genderChartInstance) genderChartInstance.destroy();
+        const ctxGen = document.getElementById('chartGender').getContext('2d');
+        genderChartInstance = new Chart(ctxGen, {
+            type: 'doughnut',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [{ data: [males, females], backgroundColor: ['#3b82f6', '#ec4899'], borderWidth: 0, hoverOffset: 4 }]
+            },
+            options: chartOptions
+        });
+
+        // 3. Process Funding Data
+        let fundingObj = {};
+        filteredStudents.forEach(s => {
+            let type = s.Funding_Type || 'Unknown';
+            if(type.trim() === '') type = 'Unknown';
+            fundingObj[type] = (fundingObj[type] || 0) + 1;
+        });
+
+        if(fundingChartInstance) fundingChartInstance.destroy();
+        const ctxFund = document.getElementById('chartFunding').getContext('2d');
+        fundingChartInstance = new Chart(ctxFund, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(fundingObj),
+                datasets: [{
+                    label: 'Students', data: Object.values(fundingObj),
+                    backgroundColor: '#f59e0b', borderRadius: 4, barThickness: 15
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }, grid: { display: false } },
+                    y: { ticks: { font: { size: 9 }, stepSize: 1 }, grid: { borderDash: [2, 4], color: '#f1f5f9' } }
+                }
+            }
+        });
+    };
+
     window.processStatsData = function() {
         if (typeof globalRoomData === 'undefined' || typeof globalStudentData === 'undefined') return;
 
@@ -319,10 +448,12 @@
         if(globalRoomData && globalRoomData.length > 0) {
             globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || r.Capacity || 0); occupiedBeds += parseInt(r.Occupied_Beds || r.Occupied || 0); });
         }
-        const allocatedStudents = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--').length;
+        
+        // Base Allocated Students
+        const allAllocated = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--');
         
         if(document.getElementById('stat-available-beds')) document.getElementById('stat-available-beds').textContent = Math.max(0, totalBeds - occupiedBeds);
-        if(document.getElementById('stat-allocated-beds')) document.getElementById('stat-allocated-beds').textContent = allocatedStudents;
+        if(document.getElementById('stat-allocated-beds')) document.getElementById('stat-allocated-beds').textContent = allAllocated.length;
 
         const thead = document.getElementById('occupancy-thead'); const tbody = document.getElementById('stats-inventory-body');
         if(!tbody || !thead) return;
@@ -341,6 +472,21 @@
                 }
                 return matchBlock && matchGender;
             });
+
+            // Filter students specifically for the charts to match room filters
+            let chartStudents = allAllocated.filter(s => {
+                let matchBlock = true; let matchGender = true;
+                let roomAlloc = String(s.Room_Allocation || '').toUpperCase();
+                if (currentOccupancyBlock !== 'all') matchBlock = roomAlloc.startsWith(currentOccupancyBlock);
+                if (currentOccupancyGender !== 'all') {
+                    if (currentOccupancyGender === 'male') matchGender = roomAlloc.startsWith('A');
+                    else if (currentOccupancyGender === 'female') matchGender = (roomAlloc.startsWith('B') || roomAlloc.startsWith('C'));
+                }
+                return matchBlock && matchGender;
+            });
+            
+            // Trigger Chart Rendering
+            window.renderAnalyticsCharts(filteredRooms, chartStudents);
             
             if(filteredRooms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No rooms match filters.</td></tr>'; return; }
 
@@ -360,9 +506,9 @@
             tbody.innerHTML = htmlStr;
 
         } else {
-            thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Resident Identity</th><th class="w-1/4">Room Assignment</th><th class="w-1/4">Gender / Block</th><th class="text-right">Dossier</th></tr>`;
+            thead.innerHTML = `<tr class="bg-white/40 text-slate-400 uppercase tracking-widest font-bold text-[9px] border-b border-slate-200/50"><th class="w-1/3">Resident Details</th><th class="w-1/4">Room Assignment</th><th class="w-1/4">Gender / Block</th><th class="text-right">Files</th></tr>`;
             
-            const allocated = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--' && s.First_Name);
+            const allocated = allAllocated.filter(s => s.First_Name);
             if(allocated.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No resident data active.</td></tr>'; return; }
 
             allocated.forEach(s => {
@@ -376,7 +522,7 @@
                         <td><div class="font-black text-slate-800 text-[10px]">${s.First_Name || ''} ${s.Surname || ''}</div><div class="text-[8px] font-mono font-bold text-slate-400 mt-0.5">${s.Student_Number || '--'}</div></td>
                         <td><span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-bold border border-emerald-100 shadow-sm">${s.Room_Allocation}</span></td>
                         <td><div class="text-[9px] font-bold text-slate-600"><i class="fa-solid ${icon} ${blockColor} mr-1"></i> ${s.Gender || 'N/A'} (Blk ${blockChar})</div></td>
-                        <td class="text-right"><button onclick="window.viewResidentDossier('${safeId}')" class="bg-white border border-slate-200 text-slate-500 hover:text-blue-600 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm">View File</button></td>
+                        <td class="text-right"><button onclick="window.viewResidentFile('${safeId}')" class="bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm"><i class="fa-solid fa-folder-open mr-1"></i> View File</button></td>
                     </tr>`;
             });
             tbody.innerHTML = htmlStr;
@@ -384,38 +530,52 @@
     };
 
     // ----------------------------------------------------
-    // DOSSIER CONTROLLER (Pulls complete secure registration data)
+    // LIVE FILES CONTROLLER (Maps to reziflow-admin-data)
     // ----------------------------------------------------
-    window.viewResidentDossier = function(studentId) {
+    window.viewResidentFile = function(studentId) {
+        // Find real-time data from fetched webhook array
         const student = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); 
-        if(!student) return window.showToast("Student data not found", "error");
+        if(!student) return window.showToast("Student data not found in ledger.", "error");
 
+        // Top Header
         document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
-        document.getElementById('dos-id').textContent = student.Student_Number; 
+        document.getElementById('dos-id').textContent = student.Student_Number || '--'; 
+        document.getElementById('dos-status').innerHTML = `<i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> ${student.Vetting_Status || 'Pending'}`;
         document.getElementById('dos-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
-        document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || 'Pending'}`;
+        document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || '--'}`;
         
-        document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || 'Not Provided';
-        document.getElementById('dos-gender').textContent = student.Gender || 'Not Provided';
-        document.getElementById('dos-course').textContent = student.Course || 'Not Provided';
+        // Academics & Demographics
+        document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || '--';
+        document.getElementById('dos-gender').textContent = student.Gender || '--';
+        document.getElementById('dos-campus').textContent = student.Campus_Hub || '--';
+        document.getElementById('dos-course').textContent = student.Course || '--';
+        document.getElementById('dos-year').textContent = student.Year_Level || '--';
         
-        document.getElementById('dos-phone').textContent = student.Phone || student.Contact_Number || 'N/A'; 
-        document.getElementById('dos-email').textContent = student.Email || student.Email_Address || 'N/A';
+        // Contact & Location
+        document.getElementById('dos-phone').textContent = student.Mobile_Number || student.Contact_Number || '--'; 
+        const street = student.Street_Address || '';
+        const city = student.City || '';
+        const zip = student.Postal_Code || '';
+        const fullAddr = [street, city, zip].filter(Boolean).join(', ');
+        document.getElementById('dos-address').textContent = fullAddr !== '' ? fullAddr : 'Address not specified.';
         
-        document.getElementById('dos-em-name').textContent = student.Emergency_Contact_Name || student.Guardian_Name || 'N/A'; 
-        document.getElementById('dos-em-phone').textContent = student.Emergency_Contact_Number || student.Emergency_Phone || 'N/A'; 
+        // Guardian Details
+        document.getElementById('dos-em-name').textContent = student.Guardian_Name || '--'; 
+        document.getElementById('dos-em-rel').textContent = student.Guardian_Relationship || '--'; 
+        document.getElementById('dos-em-phone').textContent = student.Guardian_Number || '--'; 
         
-        const med = student.Medical_Conditions || student.Medical_Notes;
-        document.getElementById('dos-medical').textContent = med && String(med).trim() !== '' && String(med).toLowerCase() !== 'none' ? med : 'No notes indicated.';
-
+        // Documents Vault
         const docContainer = document.getElementById('dos-docs-container');
         let docsHtml = '';
-        if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded text-[8px] font-bold text-slate-600 hover:text-blue-600 transition-colors shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> ID File</a>`;
-        if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded text-[8px] font-bold text-slate-600 hover:text-indigo-600 transition-colors shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration</a>`;
-        if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-1 bg-white border border-slate-200 px-2 py-1 rounded text-[8px] font-bold text-slate-600 hover:text-emerald-600 transition-colors shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Funding</a>`;
+        if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity Document</a>`;
+        if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration Proof</a>`;
+        if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Funding Proof</a>`;
+        if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm"><i class="fa-solid fa-file-invoice text-amber-500"></i> Payslip / Sponsor</a>`;
         
-        docContainer.innerHTML = docsHtml || '<span class="text-[8px] font-medium text-slate-400 italic">No files available.</span>';
-        document.getElementById('residentDossierModal').classList.add('active');
+        docContainer.innerHTML = docsHtml || '<span class="text-[9px] font-medium text-slate-400 italic">No files synchronized for this resident.</span>';
+        
+        document.getElementById('dos-timestamp').textContent = `Last System Sync: ${student.Timestamp || 'Unknown Date'}`;
+        document.getElementById('residentFileModal').classList.add('active');
     };
 
     window.processRoomSwap = async function(e) {
