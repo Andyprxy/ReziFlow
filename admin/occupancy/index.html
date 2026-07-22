@@ -36,8 +36,6 @@
     
     .nav-block { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 1); box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05); border-radius: 14px; padding: 8px; transition: all 0.3s ease; }
     .block-btn { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; cursor: pointer; white-space: nowrap; overflow: hidden; }
-    .block-btn-inactive { background-color: transparent; color: #64748b; }
-    .block-btn-inactive:hover { background-color: rgba(255,255,255,0.6); color: #334155; }
     
     /* Table Compression Layout */
     .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
@@ -114,7 +112,7 @@
             
             <div class="overflow-y-auto custom-scroll max-h-[70vh] bg-white/40 backdrop-blur-sm relative">
                 
-                <!-- NEW: High-End Analytics Dashboard (Visible only on Rooms tab) -->
+                <!-- High-End Analytics Dashboard (Visible only on Rooms tab) -->
                 <div id="analytics-dashboard" class="hidden grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b border-slate-200/60 bg-slate-50/50">
                     <!-- Chart 1: Capacity -->
                     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
@@ -143,7 +141,7 @@
         </div>
     </div>
 
-    <!-- RIGHT SIDEBAR (Collapsed by Default, 10% Shrunk Ratio) -->
+    <!-- RIGHT SIDEBAR -->
     <div id="occ-right-sidebar" class="hub-sidebar collapsed bg-transparent shrink-0">
         <div class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors" onclick="window.toggleOccSidebar()">
             <div class="flex items-center gap-1.5 w-full">
@@ -179,7 +177,7 @@
 <!-- MODALS & FILES OVERLAYS                    -->
 <!-- ========================================== -->
 
-<!-- High-End Personal Info Resident File (Formerly Dossier) -->
+<!-- High-End Personal Info Resident File -->
 <div id="residentFileModal" class="modal-overlay">
     <div class="modal-content w-full max-w-2xl flex flex-col p-0 overflow-hidden bg-white">
         <!-- Header -->
@@ -226,13 +224,21 @@
                 </div>
             </div>
 
-            <!-- Guardian Details -->
-            <div class="bg-rose-50/30 p-4 rounded-xl border border-rose-100">
-                <h4 class="text-[9px] font-bold text-rose-500 uppercase tracking-widest mb-3 border-b border-rose-100 pb-1"><i class="fa-solid fa-people-roof mr-1"></i> Guardian / Emergency Info</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] font-medium text-slate-700">
-                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Full Name</span> <span id="dos-em-name" class="font-bold text-slate-900">--</span></div>
-                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Relationship</span> <span id="dos-em-rel" class="font-bold text-slate-900">--</span></div>
-                    <div><span class="text-slate-400 font-normal block text-[9px] uppercase tracking-widest mb-0.5">Contact Number</span> <span id="dos-em-phone" class="font-bold font-mono text-slate-900">--</span></div>
+            <!-- Guardian & Medical Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Guardian Details -->
+                <div class="bg-rose-50/30 p-4 rounded-xl border border-rose-100">
+                    <h4 class="text-[9px] font-bold text-rose-500 uppercase tracking-widest mb-3 border-b border-rose-100 pb-1"><i class="fa-solid fa-people-roof mr-1"></i> Guardian / Emergency</h4>
+                    <div class="space-y-2 text-[11px] font-medium text-slate-700">
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Full Name:</span> <span id="dos-em-name" class="font-bold text-slate-900">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Relationship:</span> <span id="dos-em-rel" class="font-bold text-slate-900">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Contact No:</span> <span id="dos-em-phone" class="font-bold font-mono text-slate-900">--</span></div>
+                    </div>
+                </div>
+                <!-- Medical Details -->
+                <div class="bg-amber-50/30 p-4 rounded-xl border border-amber-100">
+                    <h4 class="text-[9px] font-bold text-amber-600 uppercase tracking-widest mb-3 border-b border-amber-100 pb-1"><i class="fa-solid fa-truck-medical mr-1"></i> Medical Profile</h4>
+                    <p id="dos-medical" class="text-[10px] font-bold text-slate-700 bg-white p-2 rounded-lg border border-amber-50 leading-relaxed min-h-[40px] shadow-sm">--</p>
                 </div>
             </div>
 
@@ -347,13 +353,17 @@
             if(filters) { filters.classList.remove('hidden'); filters.classList.add('flex'); }
             if(analyticsPanel) { analyticsPanel.classList.remove('hidden'); analyticsPanel.classList.add('grid'); }
             if(icon) { icon.className = "fa-solid fa-bed text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
+            
+            // Timeout ensures the browser paints 'display: grid' before Chart.js calculates sizes
+            setTimeout(() => { window.processStatsData(); }, 20);
         } else { 
             if(title) title.textContent = 'Allocated Students'; 
             if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } 
             if(analyticsPanel) { analyticsPanel.classList.remove('grid'); analyticsPanel.classList.add('hidden'); }
             if(icon) { icon.className = "fa-solid fa-users text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm"; }
+            
+            window.processStatsData();
         }
-        window.processStatsData();
     };
 
     window.setOccupancyBlock = function(block) {
@@ -374,7 +384,7 @@
     // CHART RENDERING ENGINE
     // ----------------------------------------------------
     window.renderAnalyticsCharts = function(filteredRooms, filteredStudents) {
-        if(currentOccupancyView !== 'rooms') return; // Only process when visible
+        if(currentOccupancyView !== 'rooms') return;
 
         // 1. Process Capacity Data
         let total = 0, occ = 0;
@@ -522,7 +532,7 @@
                         <td><div class="font-black text-slate-800 text-[10px]">${s.First_Name || ''} ${s.Surname || ''}</div><div class="text-[8px] font-mono font-bold text-slate-400 mt-0.5">${s.Student_Number || '--'}</div></td>
                         <td><span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] font-bold border border-emerald-100 shadow-sm">${s.Room_Allocation}</span></td>
                         <td><div class="text-[9px] font-bold text-slate-600"><i class="fa-solid ${icon} ${blockColor} mr-1"></i> ${s.Gender || 'N/A'} (Blk ${blockChar})</div></td>
-                        <td class="text-right"><button onclick="window.viewResidentFile('${safeId}')" class="bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm"><i class="fa-solid fa-folder-open mr-1"></i> View File</button></td>
+                        <td class="text-right"><button onclick="window.viewResidentFile('${safeId}', this)" class="bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 text-[8px] font-bold px-2.5 py-1.5 rounded transition-all shadow-sm flex items-center gap-1.5 inline-flex"><i class="fa-solid fa-folder-open"></i> <span>View File</span></button></td>
                     </tr>`;
             });
             tbody.innerHTML = htmlStr;
@@ -530,52 +540,93 @@
     };
 
     // ----------------------------------------------------
-    // LIVE FILES CONTROLLER (Maps to reziflow-admin-data)
+    // LIVE FILES CONTROLLER (Webhook Integration)
     // ----------------------------------------------------
-    window.viewResidentFile = function(studentId) {
-        // Find real-time data from fetched webhook array
-        const student = globalStudentData.find(s => String(s.Student_Number) === String(studentId)); 
-        if(!student) return window.showToast("Student data not found in ledger.", "error");
+    window.viewResidentFile = async function(studentId, btnElement) {
+        const originalHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Syncing...</span>';
+        btnElement.disabled = true;
 
-        // Top Header
-        document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
-        document.getElementById('dos-id').textContent = student.Student_Number || '--'; 
-        document.getElementById('dos-status').innerHTML = `<i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> ${student.Vetting_Status || 'Pending'}`;
-        document.getElementById('dos-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
-        document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || '--'}`;
-        
-        // Academics & Demographics
-        document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || '--';
-        document.getElementById('dos-gender').textContent = student.Gender || '--';
-        document.getElementById('dos-campus').textContent = student.Campus_Hub || '--';
-        document.getElementById('dos-course').textContent = student.Course || '--';
-        document.getElementById('dos-year').textContent = student.Year_Level || '--';
-        
-        // Contact & Location
-        document.getElementById('dos-phone').textContent = student.Mobile_Number || student.Contact_Number || '--'; 
-        const street = student.Street_Address || '';
-        const city = student.City || '';
-        const zip = student.Postal_Code || '';
-        const fullAddr = [street, city, zip].filter(Boolean).join(', ');
-        document.getElementById('dos-address').textContent = fullAddr !== '' ? fullAddr : 'Address not specified.';
-        
-        // Guardian Details
-        document.getElementById('dos-em-name').textContent = student.Guardian_Name || '--'; 
-        document.getElementById('dos-em-rel').textContent = student.Guardian_Relationship || '--'; 
-        document.getElementById('dos-em-phone').textContent = student.Guardian_Number || '--'; 
-        
-        // Documents Vault
-        const docContainer = document.getElementById('dos-docs-container');
-        let docsHtml = '';
-        if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity Document</a>`;
-        if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration Proof</a>`;
-        if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Funding Proof</a>`;
-        if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm"><i class="fa-solid fa-file-invoice text-amber-500"></i> Payslip / Sponsor</a>`;
-        
-        docContainer.innerHTML = docsHtml || '<span class="text-[9px] font-medium text-slate-400 italic">No files synchronized for this resident.</span>';
-        
-        document.getElementById('dos-timestamp').textContent = `Last System Sync: ${student.Timestamp || 'Unknown Date'}`;
-        document.getElementById('residentFileModal').classList.add('active');
+        try {
+            // Trigger Live Data Fetch via webhook passing the student_number
+            const response = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-occupancy?student_number=${studentId}`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error("Network response failed");
+            let data = await response.json();
+            
+            // Unpack n8n array/json structure safely
+            let student = Array.isArray(data) ? data[0] : data;
+            if (student && student.data && Array.isArray(student.data)) student = student.data[0];
+            if (student && student.json) student = student.json;
+            
+            // Fallback: If webhook data is completely empty, try local cached global array
+            if (!student || Object.keys(student).length === 0) {
+                student = globalStudentData.find(s => String(s.Student_Number) === String(studentId));
+                if (!student) throw new Error("Student data not found on server or cache.");
+            }
+
+            // --- Populate DOM Elements ---
+            
+            // Top Header
+            document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
+            document.getElementById('dos-id').textContent = student.Student_Number || '--'; 
+            document.getElementById('dos-status').innerHTML = `<i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> ${student.Vetting_Status || 'Pending'}`;
+            document.getElementById('dos-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
+            document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || '--'}`;
+            
+            // Academics & Demographics
+            document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || '--';
+            document.getElementById('dos-gender').textContent = student.Gender || '--';
+            document.getElementById('dos-campus').textContent = student.Campus_Hub || '--';
+            document.getElementById('dos-course').textContent = student.Course || '--';
+            document.getElementById('dos-year').textContent = student.Year_Level || '--';
+            
+            // Contact & Location
+            document.getElementById('dos-phone').textContent = student.Mobile_Number || student.Contact_Number || '--'; 
+            const street = student.Street_Address || '';
+            const city = student.City || '';
+            const zip = student.Postal_Code || '';
+            const fullAddr = [street, city, zip].filter(Boolean).join(', ');
+            document.getElementById('dos-address').textContent = fullAddr !== '' ? fullAddr : 'Address not specified.';
+            
+            // Guardian Details
+            document.getElementById('dos-em-name').textContent = student.Guardian_Name || '--'; 
+            document.getElementById('dos-em-rel').textContent = student.Guardian_Relationship || '--'; 
+            document.getElementById('dos-em-phone').textContent = student.Guardian_Number || '--'; 
+            
+            // Medical Profile
+            const medInfo = student.Medical_Conditions || student.Medical_Notes || student.Medical_Info;
+            document.getElementById('dos-medical').textContent = medInfo && String(medInfo).trim() !== '' && String(medInfo).toLowerCase() !== 'none' 
+                ? medInfo 
+                : 'No medical conditions declared on file.';
+
+            // Documents Vault
+            const docContainer = document.getElementById('dos-docs-container');
+            let docsHtml = '';
+            if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity Document</a>`;
+            if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration Proof</a>`;
+            if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Funding Proof</a>`;
+            if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm"><i class="fa-solid fa-file-invoice text-amber-500"></i> Payslip / Sponsor</a>`;
+            
+            docContainer.innerHTML = docsHtml || '<span class="text-[9px] font-medium text-slate-400 italic">No files synchronized for this resident.</span>';
+            
+            document.getElementById('dos-timestamp').textContent = `Last System Sync: ${student.Timestamp || 'Unknown Date'}`;
+            
+            // Open Modal
+            document.getElementById('residentFileModal').classList.add('active');
+
+        } catch (error) {
+            console.error("Live Fetch Error:", error);
+            if(typeof window.showToast === 'function') window.showToast("Failed to retrieve live data.", "error");
+            else alert("Failed to retrieve live data.");
+        } finally {
+            // Restore button state
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+        }
     };
 
     window.processRoomSwap = async function(e) {
