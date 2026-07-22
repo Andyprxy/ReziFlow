@@ -26,7 +26,7 @@
     .glass-seg-btn.active.accent-blue { color: #0071e3; } 
     .glass-seg-btn.active.accent-emerald { color: #10b981; }
 
-    /* Right Sidebar (10% Size Reduction applied) */
+    /* Right Sidebar */
     .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
     .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
     .hub-sidebar.collapsed .nav-text { display: none !important; }
@@ -42,13 +42,15 @@
     .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.68rem; }
     .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
     
+    /* Modals */
     .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
-    /* Canvas sizing for charts */
-    .chart-container { position: relative; height: 160px; width: 100%; display: flex; justify-content: center; align-items: center; }
+    /* Enforced Chart Layouting */
+    .chart-container { position: relative; height: 170px; width: 100%; display: flex; justify-content: center; align-items: center; }
+    canvas { max-height: 100%; max-width: 100%; }
 </style>
 
 <!-- Main Component Structure -->
@@ -192,6 +194,7 @@
                         <span id="dos-status" class="bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-slate-200 shadow-sm"><i class="fa-solid fa-shield-halved mr-1"></i> --</span>
                         <span id="dos-room" class="bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-emerald-100 shadow-sm">Room: --</span>
                         <span id="dos-funding" class="bg-amber-50 text-amber-600 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-amber-100 shadow-sm">Fund: --</span>
+                        <span id="dos-account" class="hidden text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border shadow-sm"></span>
                     </div>
                 </div>
             </div>
@@ -208,8 +211,8 @@
                     <div class="space-y-2 text-[11px] font-medium text-slate-700">
                         <div class="flex justify-between"><span class="text-slate-400 font-normal">Nat. ID / Passport:</span> <span id="dos-nat-id" class="font-mono font-bold">--</span></div>
                         <div class="flex justify-between"><span class="text-slate-400 font-normal">Gender:</span> <span id="dos-gender" class="font-bold">--</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Campus Hub:</span> <span id="dos-campus" class="font-bold text-right">--</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Program:</span> <span id="dos-course" class="font-bold text-right">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Campus Hub:</span> <span id="dos-campus" class="font-bold text-right truncate max-w-[150px]">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Program:</span> <span id="dos-course" class="font-bold text-right truncate max-w-[150px]">--</span></div>
                         <div class="flex justify-between"><span class="text-slate-400 font-normal">Year Level:</span> <span id="dos-year" class="font-bold">--</span></div>
                     </div>
                 </div>
@@ -218,7 +221,8 @@
                 <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
                     <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-200 pb-1"><i class="fa-solid fa-address-book mr-1"></i> Contact & Location</h4>
                     <div class="space-y-2 text-[11px] font-medium text-slate-700">
-                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Mobile Number:</span> <span id="dos-phone" class="font-bold font-mono">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Mobile Number:</span> <span id="dos-phone" class="font-bold font-mono text-blue-600">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 font-normal">Email Address:</span> <span id="dos-email" class="font-bold truncate max-w-[150px]">--</span></div>
                         <div class="mt-3"><span class="text-slate-400 font-normal block mb-1">Home Address:</span> <span id="dos-address" class="font-bold block leading-tight text-slate-800 bg-white p-2 border border-slate-100 rounded-lg">--</span></div>
                     </div>
                 </div>
@@ -236,9 +240,9 @@
                     </div>
                 </div>
                 <!-- Medical Details -->
-                <div class="bg-amber-50/30 p-4 rounded-xl border border-amber-100">
-                    <h4 class="text-[9px] font-bold text-amber-600 uppercase tracking-widest mb-3 border-b border-amber-100 pb-1"><i class="fa-solid fa-truck-medical mr-1"></i> Medical Profile</h4>
-                    <p id="dos-medical" class="text-[10px] font-bold text-slate-700 bg-white p-2 rounded-lg border border-amber-50 leading-relaxed min-h-[40px] shadow-sm">--</p>
+                <div id="medical-panel" class="p-4 rounded-xl border transition-colors">
+                    <h4 id="medical-header" class="text-[9px] font-bold uppercase tracking-widest mb-3 border-b pb-1"><i class="fa-solid fa-truck-medical mr-1"></i> Medical Profile</h4>
+                    <p id="dos-medical" class="text-[10px] font-bold bg-white p-2 rounded-lg border leading-relaxed min-h-[40px] shadow-sm">--</p>
                 </div>
             </div>
 
@@ -307,7 +311,6 @@
     var genderChartInstance = null;
     var fundingChartInstance = null;
 
-    // Common Chart.js styling variables
     const chartOptions = {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { position: 'right', labels: { font: { size: 9, family: 'Inter' }, usePointStyle: true, boxWidth: 6 } } },
@@ -354,8 +357,10 @@
             if(analyticsPanel) { analyticsPanel.classList.remove('hidden'); analyticsPanel.classList.add('grid'); }
             if(icon) { icon.className = "fa-solid fa-bed text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
             
-            // Timeout ensures the browser paints 'display: grid' before Chart.js calculates sizes
-            setTimeout(() => { window.processStatsData(); }, 20);
+            // Wait for display:grid to render before calculating Chart sizes
+            requestAnimationFrame(() => {
+                setTimeout(() => { window.processStatsData(); }, 50);
+            });
         } else { 
             if(title) title.textContent = 'Allocated Students'; 
             if(filters) { filters.classList.remove('flex'); filters.classList.add('hidden'); } 
@@ -391,18 +396,20 @@
         filteredRooms.forEach(r => { total += parseInt(r.Total_Beds||r.Capacity||0); occ += parseInt(r.Occupied_Beds||r.Occupied||0); });
         let avail = Math.max(0, total - occ);
 
-        if(capacityChartInstance) capacityChartInstance.destroy();
-        const ctxCap = document.getElementById('chartCapacity').getContext('2d');
-        capacityChartInstance = new Chart(ctxCap, {
-            type: 'doughnut',
-            data: {
-                labels: ['Allocated', 'Unallocated'],
-                datasets: [{ data: [occ, avail], backgroundColor: ['#10b981', '#e2e8f0'], borderWidth: 0, hoverOffset: 4 }]
-            },
-            options: chartOptions
-        });
+        const ctxCap = document.getElementById('chartCapacity');
+        if(ctxCap) {
+            if(capacityChartInstance) capacityChartInstance.destroy();
+            capacityChartInstance = new Chart(ctxCap.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Allocated', 'Unallocated'],
+                    datasets: [{ data: [occ, avail], backgroundColor: ['#10b981', '#e2e8f0'], borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: chartOptions
+            });
+        }
 
-        // 2. Process Gender Data (from currently filtered students)
+        // 2. Process Gender Data
         let males = 0, females = 0;
         filteredStudents.forEach(s => {
             if(String(s.Gender).toLowerCase().includes('male')) {
@@ -410,16 +417,18 @@
             }
         });
 
-        if(genderChartInstance) genderChartInstance.destroy();
-        const ctxGen = document.getElementById('chartGender').getContext('2d');
-        genderChartInstance = new Chart(ctxGen, {
-            type: 'doughnut',
-            data: {
-                labels: ['Male', 'Female'],
-                datasets: [{ data: [males, females], backgroundColor: ['#3b82f6', '#ec4899'], borderWidth: 0, hoverOffset: 4 }]
-            },
-            options: chartOptions
-        });
+        const ctxGen = document.getElementById('chartGender');
+        if(ctxGen) {
+            if(genderChartInstance) genderChartInstance.destroy();
+            genderChartInstance = new Chart(ctxGen.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{ data: [males, females], backgroundColor: ['#3b82f6', '#ec4899'], borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: chartOptions
+            });
+        }
 
         // 3. Process Funding Data
         let fundingObj = {};
@@ -429,26 +438,28 @@
             fundingObj[type] = (fundingObj[type] || 0) + 1;
         });
 
-        if(fundingChartInstance) fundingChartInstance.destroy();
-        const ctxFund = document.getElementById('chartFunding').getContext('2d');
-        fundingChartInstance = new Chart(ctxFund, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(fundingObj),
-                datasets: [{
-                    label: 'Students', data: Object.values(fundingObj),
-                    backgroundColor: '#f59e0b', borderRadius: 4, barThickness: 15
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }, grid: { display: false } },
-                    y: { ticks: { font: { size: 9 }, stepSize: 1 }, grid: { borderDash: [2, 4], color: '#f1f5f9' } }
+        const ctxFund = document.getElementById('chartFunding');
+        if(ctxFund) {
+            if(fundingChartInstance) fundingChartInstance.destroy();
+            fundingChartInstance = new Chart(ctxFund.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(fundingObj),
+                    datasets: [{
+                        label: 'Students', data: Object.values(fundingObj),
+                        backgroundColor: '#f59e0b', borderRadius: 4, barThickness: 15
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }, grid: { display: false } },
+                        y: { ticks: { font: { size: 9 }, stepSize: 1 }, grid: { borderDash: [2, 4], color: '#f1f5f9' } }
+                    }
                 }
-            }
-        });
+            });
+        }
     };
 
     window.processStatsData = function() {
@@ -459,7 +470,6 @@
             globalRoomData.forEach(r => { totalBeds += parseInt(r.Total_Beds || r.Capacity || 0); occupiedBeds += parseInt(r.Occupied_Beds || r.Occupied || 0); });
         }
         
-        // Base Allocated Students
         const allAllocated = globalStudentData.filter(s => s && s.Room_Allocation && s.Room_Allocation !== 'Unassigned' && s.Room_Allocation !== '--');
         
         if(document.getElementById('stat-available-beds')) document.getElementById('stat-available-beds').textContent = Math.max(0, totalBeds - occupiedBeds);
@@ -483,7 +493,6 @@
                 return matchBlock && matchGender;
             });
 
-            // Filter students specifically for the charts to match room filters
             let chartStudents = allAllocated.filter(s => {
                 let matchBlock = true; let matchGender = true;
                 let roomAlloc = String(s.Room_Allocation || '').toUpperCase();
@@ -495,7 +504,6 @@
                 return matchBlock && matchGender;
             });
             
-            // Trigger Chart Rendering
             window.renderAnalyticsCharts(filteredRooms, chartStudents);
             
             if(filteredRooms.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold text-[10px]">No rooms match filters.</td></tr>'; return; }
@@ -548,8 +556,8 @@
         btnElement.disabled = true;
 
         try {
-            // Trigger Live Data Fetch via webhook passing the student_number
-            const response = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-occupancy?student_number=${studentId}`, {
+            // Fetch live payload directly mapping to reziflow-occupancy test hook
+            const response = await fetch(`https://n8n.automania.cloud/webhook/reziflow-occupancy?student_number=${studentId}`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' }
             });
@@ -557,18 +565,19 @@
             if (!response.ok) throw new Error("Network response failed");
             let data = await response.json();
             
-            // Unpack n8n array/json structure safely
+            // Extract core object securely
             let student = Array.isArray(data) ? data[0] : data;
             if (student && student.data && Array.isArray(student.data)) student = student.data[0];
             if (student && student.json) student = student.json;
+            if (student && Array.isArray(student) && student[0]) student = student[0];
             
-            // Fallback: If webhook data is completely empty, try local cached global array
+            // Fallback to cache if webhook returns strictly empty
             if (!student || Object.keys(student).length === 0) {
                 student = globalStudentData.find(s => String(s.Student_Number) === String(studentId));
-                if (!student) throw new Error("Student data not found on server or cache.");
+                if (!student) throw new Error("Student data not found.");
             }
 
-            // --- Populate DOM Elements ---
+            // --- Populate Management Interface ---
             
             // Top Header
             document.getElementById('dos-name').textContent = `${student.First_Name || ''} ${student.Surname || ''}`; 
@@ -577,45 +586,77 @@
             document.getElementById('dos-room').textContent = `Room: ${student.Room_Allocation || 'Unassigned'}`;
             document.getElementById('dos-funding').textContent = `Fund: ${student.Funding_Type || '--'}`;
             
-            // Academics & Demographics
+            // Account Alerts
+            const accBadge = document.getElementById('dos-account');
+            if (student.Account_Status === 'Active') {
+                accBadge.className = "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded shadow-sm bg-blue-50 text-blue-600 border border-blue-100 inline-block";
+                accBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Active`;
+            } else {
+                accBadge.className = "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded shadow-sm bg-slate-100 text-slate-500 border border-slate-200 inline-block";
+                accBadge.innerHTML = `Inactive`;
+            }
+
+            if (String(student.AD_ALERT).toLowerCase() === 'alerted') {
+                accBadge.className = "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded shadow-sm bg-rose-50 text-rose-600 border border-rose-200 inline-block";
+                accBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> System Alert`;
+            }
+            
+            // Academics
             document.getElementById('dos-nat-id').textContent = student.ID_Number || student.Passport_Number || '--';
             document.getElementById('dos-gender').textContent = student.Gender || '--';
             document.getElementById('dos-campus').textContent = student.Campus_Hub || '--';
             document.getElementById('dos-course').textContent = student.Course || '--';
             document.getElementById('dos-year').textContent = student.Year_Level || '--';
             
-            // Contact & Location
-            document.getElementById('dos-phone').textContent = student.Mobile_Number || student.Contact_Number || '--'; 
-            const street = student.Street_Address || '';
-            const city = student.City || '';
-            const zip = student.Postal_Code || '';
-            const fullAddr = [street, city, zip].filter(Boolean).join(', ');
+            // Phone Formatting
+            let phoneStr = String(student.Mobile_Number || '--');
+            if (phoneStr !== '--' && !phoneStr.startsWith('0') && phoneStr.length >= 9) phoneStr = '0' + phoneStr;
+            
+            // Contact
+            document.getElementById('dos-phone').textContent = phoneStr; 
+            document.getElementById('dos-email').textContent = student.Email_Address || '--';
+            const fullAddr = [student.Street_Address, student.City, student.Postal_Code].filter(Boolean).join(', ');
             document.getElementById('dos-address').textContent = fullAddr !== '' ? fullAddr : 'Address not specified.';
             
-            // Guardian Details
+            // Guardian
             document.getElementById('dos-em-name').textContent = student.Guardian_Name || '--'; 
             document.getElementById('dos-em-rel').textContent = student.Guardian_Relationship || '--'; 
-            document.getElementById('dos-em-phone').textContent = student.Guardian_Number || '--'; 
             
-            // Medical Profile
-            const medInfo = student.Medical_Conditions || student.Medical_Notes || student.Medical_Info;
-            document.getElementById('dos-medical').textContent = medInfo && String(medInfo).trim() !== '' && String(medInfo).toLowerCase() !== 'none' 
-                ? medInfo 
-                : 'No medical conditions declared on file.';
+            let guardPhone = String(student.Guardian_Number || '--');
+            if (guardPhone !== '--' && !guardPhone.startsWith('0') && guardPhone.length >= 9) guardPhone = '0' + guardPhone;
+            document.getElementById('dos-em-phone').textContent = guardPhone; 
+            
+            // Medical Highlights
+            const medInfo = student.Medical;
+            const medPanel = document.getElementById('medical-panel');
+            const medHeader = document.getElementById('medical-header');
+            const medText = document.getElementById('dos-medical');
+            
+            if (medInfo && String(medInfo).trim() !== '' && String(medInfo).toLowerCase() !== 'none') {
+                medPanel.className = "p-4 rounded-xl border transition-colors bg-rose-50/50 border-rose-200";
+                medHeader.className = "text-[9px] font-bold uppercase tracking-widest mb-3 border-b pb-1 text-rose-600 border-rose-200";
+                medText.className = "text-[10px] font-bold bg-white p-2 rounded-lg border leading-relaxed min-h-[40px] shadow-sm text-rose-700 border-rose-100";
+                medText.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1 text-rose-500"></i> ${medInfo}`;
+            } else {
+                medPanel.className = "p-4 rounded-xl border transition-colors bg-slate-50 border-slate-100";
+                medHeader.className = "text-[9px] font-bold uppercase tracking-widest mb-3 border-b pb-1 text-slate-400 border-slate-200";
+                medText.className = "text-[10px] font-bold bg-white p-2 rounded-lg border leading-relaxed min-h-[40px] shadow-sm text-slate-500 border-slate-100";
+                medText.textContent = "No conditions declared.";
+            }
 
             // Documents Vault
             const docContainer = document.getElementById('dos-docs-container');
             let docsHtml = '';
-            if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity Document</a>`;
-            if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration Proof</a>`;
+            if (student.Doc_1_URL_ID) docsHtml += `<a href="${student.Doc_1_URL_ID}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"><i class="fa-solid fa-id-card text-blue-500"></i> Identity File</a>`;
+            if (student.Doc_2_URL_Reg) docsHtml += `<a href="${student.Doc_2_URL_Reg}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Registration</a>`;
             if (student.Doc_3_URL_Funding) docsHtml += `<a href="${student.Doc_3_URL_Funding}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"><i class="fa-solid fa-landmark text-emerald-500"></i> Funding Proof</a>`;
-            if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm"><i class="fa-solid fa-file-invoice text-amber-500"></i> Payslip / Sponsor</a>`;
+            if (student.Doc_4_URL_Payslip) docsHtml += `<a href="${student.Doc_4_URL_Payslip}" target="_blank" class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-slate-600 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm"><i class="fa-solid fa-file-invoice text-amber-500"></i> Payslip</a>`;
+            if (student.Signed_Lease) docsHtml += `<a href="${student.Signed_Lease}" target="_blank" class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-[9px] font-bold text-emerald-700 hover:bg-emerald-100 transition-all shadow-sm"><i class="fa-solid fa-signature text-emerald-500"></i> Lease Agreement</a>`;
             
             docContainer.innerHTML = docsHtml || '<span class="text-[9px] font-medium text-slate-400 italic">No files synchronized for this resident.</span>';
+            document.getElementById('dos-timestamp').textContent = `Last System Sync: ${student.Timestamp || '--'}`;
             
-            document.getElementById('dos-timestamp').textContent = `Last System Sync: ${student.Timestamp || 'Unknown Date'}`;
-            
-            // Open Modal
+            // Activate Modal
             document.getElementById('residentFileModal').classList.add('active');
 
         } catch (error) {
@@ -623,7 +664,6 @@
             if(typeof window.showToast === 'function') window.showToast("Failed to retrieve live data.", "error");
             else alert("Failed to retrieve live data.");
         } finally {
-            // Restore button state
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
         }
