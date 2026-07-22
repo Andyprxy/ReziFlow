@@ -49,8 +49,8 @@
     .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
 
     /* Enforced Chart Layouting */
-    .chart-container { position: relative; height: 170px; width: 100%; display: flex; justify-content: center; align-items: center; }
-    canvas { max-height: 100%; max-width: 100%; }
+    .chart-container { position: relative; height: 160px; width: 100%; display: block; }
+    .chart-container canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
 </style>
 
 <!-- Main Component Structure -->
@@ -84,7 +84,7 @@
                 </div>
                 
                 <div class="flex items-center gap-2 flex-wrap xl:flex-nowrap justify-end w-full xl:w-auto">
-                    <!-- Adaptive Filter Segment Control (Blocks A, B, C & Wings) -->
+                    <!-- Adaptive Filter Segment Control -->
                     <div id="occupancy-room-filters" class="hidden flex-wrap gap-1.5 w-full sm:w-auto">
                         <div class="glass-segmented max-w-full overflow-x-auto custom-scroll">
                             <button onclick="window.setOccupancyBlock('all')" id="occ-blk-all" class="glass-seg-btn active accent-emerald text-[8px] sm:text-[9px]">All</button>
@@ -115,20 +115,20 @@
             <div class="overflow-y-auto custom-scroll max-h-[70vh] bg-white/40 backdrop-blur-sm relative">
                 
                 <!-- High-End Analytics Dashboard (Visible only on Rooms tab) -->
-                <div id="analytics-dashboard" class="hidden grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b border-slate-200/60 bg-slate-50/50">
+                <div id="analytics-dashboard" class="hidden grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b border-slate-200/60 bg-slate-50/50 w-full">
                     <!-- Chart 1: Capacity -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
-                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-chart-pie mr-1 text-emerald-500"></i> Overall Capacity</h4>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col h-full w-full">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-chart-pie mr-1 text-emerald-500"></i> Overall Capacity</h4>
                         <div class="chart-container"><canvas id="chartCapacity"></canvas></div>
                     </div>
                     <!-- Chart 2: Gender Demographics -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
-                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-venus-mars mr-1 text-blue-500"></i> Gender Ratio</h4>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col h-full w-full">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-venus-mars mr-1 text-blue-500"></i> Gender Ratio</h4>
                         <div class="chart-container"><canvas id="chartGender"></canvas></div>
                     </div>
                     <!-- Chart 3: Funding Types -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col">
-                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-landmark mr-1 text-amber-500"></i> Funding Distribution</h4>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 flex flex-col h-full w-full">
+                        <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2"><i class="fa-solid fa-landmark mr-1 text-amber-500"></i> Funding Distribution</h4>
                         <div class="chart-container"><canvas id="chartFunding"></canvas></div>
                     </div>
                 </div>
@@ -357,9 +357,9 @@
             if(analyticsPanel) { analyticsPanel.classList.remove('hidden'); analyticsPanel.classList.add('grid'); }
             if(icon) { icon.className = "fa-solid fa-bed text-xs"; icon.parentElement.className = "w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm"; }
             
-            // Wait for display:grid to render before calculating Chart sizes
+            // Force browser layout repaint before initializing charts
             requestAnimationFrame(() => {
-                setTimeout(() => { window.processStatsData(); }, 50);
+                setTimeout(() => { window.processStatsData(); }, 150);
             });
         } else { 
             if(title) title.textContent = 'Allocated Students'; 
@@ -390,6 +390,13 @@
     // ----------------------------------------------------
     window.renderAnalyticsCharts = function(filteredRooms, filteredStudents) {
         if(currentOccupancyView !== 'rooms') return;
+        
+        // Failsafe in case Chart.js CDN is slow to load
+        if (typeof Chart === 'undefined') {
+            console.warn("Chart.js library still initializing... retrying.");
+            setTimeout(() => window.renderAnalyticsCharts(filteredRooms, filteredStudents), 250);
+            return;
+        }
 
         // 1. Process Capacity Data
         let total = 0, occ = 0;
@@ -437,6 +444,9 @@
             if(type.trim() === '') type = 'Unknown';
             fundingObj[type] = (fundingObj[type] || 0) + 1;
         });
+        
+        // Failsafe empty state so the chart doesn't crash if no data exists
+        if(Object.keys(fundingObj).length === 0) fundingObj = { 'No Data': 0 };
 
         const ctxFund = document.getElementById('chartFunding');
         if(ctxFund) {
@@ -556,7 +566,7 @@
         btnElement.disabled = true;
 
         try {
-            // Fetch live payload directly mapping to reziflow-occupancy test hook
+            // Live Fetch against production N8N hook
             const response = await fetch(`https://n8n.automania.cloud/webhook/reziflow-occupancy?student_number=${studentId}`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' }
@@ -588,6 +598,7 @@
             
             // Account Alerts
             const accBadge = document.getElementById('dos-account');
+            accBadge.classList.remove('hidden');
             if (student.Account_Status === 'Active') {
                 accBadge.className = "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded shadow-sm bg-blue-50 text-blue-600 border border-blue-100 inline-block";
                 accBadge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Active`;
