@@ -39,7 +39,7 @@
         .glass-seg-btn.active.accent-amber { color: #f59e0b; }
         .glass-seg-btn.active.accent-rose { color: #e11d48; }
 
-        /* Right Sidebar (Open by Default) */
+        /* Right Sidebar */
         .hub-sidebar { width: 22%; max-width: 224px; min-width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem; transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.4s; position: relative; }
         .hub-sidebar.collapsed { width: 48px !important; min-width: 48px !important; }
         .hub-sidebar.collapsed .nav-text { display: none !important; }
@@ -64,14 +64,14 @@
 
         /* Compact Table Constraints */
         .compact-table th { padding: 8px 10px; font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 800; color: #94a3b8; border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
-        .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: top; font-size: 0.68rem; }
+        .compact-table td { padding: 6px 10px; border-bottom: 1px solid rgba(226, 232, 240, 0.4); vertical-align: middle; font-size: 0.68rem; }
         .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border-radius: 20px; }
         
         .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* High-End Modals */
+        /* High-End Modals & Chat Elements */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
@@ -82,8 +82,8 @@
         @keyframes magic-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
         .magic-border-inner { position: relative; z-index: 10; background: #ffffff; border-radius: 24px; width: 100%; height: 100%; padding: 1.25rem; }
 
-        /* Detail Row Transition */
-        .detail-row-content { animation: paneFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .detail-row-content { animation: paneFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .tap-effect:active { transform: scale(0.96); transition: transform 0.1s ease; }
     </style>
 </head>
 <body class="flex flex-col lg:flex-row h-screen w-full relative overflow-hidden bg-[#f5f5f7]">
@@ -158,10 +158,10 @@
                             <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
                                 <tr>
                                     <th class="w-24">Ticket ID</th>
-                                    <th class="w-32">Location</th>
+                                    <th class="w-32">Location & Reporter</th>
                                     <th class="w-20">Category</th>
                                     <th>Status Summary</th>
-                                    <th class="w-24 text-right">Action</th>
+                                    <th class="w-32 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="maintenance-body" class="divide-y divide-slate-100/50"></tbody>
@@ -193,10 +193,10 @@
                             <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
                                 <tr>
                                     <th class="w-24">Ticket ID</th>
-                                    <th class="w-32">Location</th>
+                                    <th class="w-32">Location & Reporter</th>
                                     <th class="w-20">Category</th>
-                                    <th>Status Summary</th>
-                                    <th class="w-24 text-right">Action</th>
+                                    <th>Resolution Summary</th>
+                                    <th class="w-24 text-right">View</th>
                                 </tr>
                             </thead>
                             <tbody id="history-body" class="divide-y divide-slate-100/50"></tbody>
@@ -256,7 +256,7 @@
 
         </div>
 
-        <!-- RIGHT SIDEBAR (Open by Default) -->
+        <!-- RIGHT SIDEBAR -->
         <div id="maint-right-sidebar" class="hub-sidebar bg-transparent shrink-0">
             
             <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
@@ -428,7 +428,6 @@
             if (!d) return []; let arr = []; 
             if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
             arr = arr.map(i => i.json ? i.json : i); 
-            // Ensures we grab anything that's an object without strict key requirements
             return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0).reverse(); 
         };
 
@@ -456,7 +455,7 @@
                     if (response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
                 } catch (e) { }
             }
-            
+            window.activeChats = {}; // Store conversations locally per ticket
             window.renderMaintenanceData();
         })();
 
@@ -543,7 +542,7 @@
         };
 
         // ----------------------------------------------------
-        // ROW EXPANSION LOGIC
+        // ROW EXPANSION & CHAT LOGIC
         // ----------------------------------------------------
         window.toggleRowDetails = function(ticketId) {
             const detailRow = document.getElementById(`detail-${ticketId}`);
@@ -553,9 +552,125 @@
                     // Add entry animation to child
                     const innerDiv = detailRow.querySelector('.detail-row-content');
                     if(innerDiv) { innerDiv.style.animation = 'none'; void innerDiv.offsetWidth; innerDiv.style.animation = null; }
+                    
+                    // Trigger chat fetch for this ticket
+                    window.loadChatForTicket(ticketId);
                 } else {
                     detailRow.classList.add('hidden');
                 }
+            }
+        };
+
+        window.loadChatForTicket = async function(ticketId) {
+            const historyEl = document.getElementById(`chat-history-${ticketId}`);
+            if(!historyEl) return;
+            
+            historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i></div>`;
+            
+            try {
+                // Dual Webhook System: Fetching specific ticket chat via GET
+                const url = `https://n8n.automania.cloud/webhook-test/reziflow-get-snag-chat?Ticket_ID=${ticketId}`;
+                const res = await fetch(url, { method: 'GET', mode: 'cors' }).catch(() => null);
+                
+                let chats = [];
+                if(res && res.ok) {
+                    const data = await res.json();
+                    chats = window.parseN8n(data);
+                }
+                window.activeChats[ticketId] = chats;
+                window.renderChatUI(ticketId);
+            } catch(e) {
+                historyEl.innerHTML = `<div class="flex justify-center mt-4"><span class="text-[8px] font-bold text-slate-400 bg-white/60 px-2 py-0.5 rounded-full shadow-sm">No active conversation.</span></div>`;
+            }
+        };
+
+        window.renderChatUI = function(ticketId) {
+            const historyEl = document.getElementById(`chat-history-${ticketId}`);
+            if(!historyEl) return;
+            
+            const chats = window.activeChats[ticketId] || [];
+            
+            if(chats.length === 0) {
+                historyEl.innerHTML = `
+                    <div class="flex justify-center mt-4">
+                        <span class="text-[8px] font-bold text-slate-400 bg-white/60 px-2 py-0.5 rounded-full shadow-sm">Start of conversation</span>
+                    </div>`;
+                return;
+            }
+            
+            let html = '';
+            chats.forEach(c => {
+                const isOutgoing = (c.Sender === "Crew" || c.Role === "Officer" || c.Role === "Maintenance Officer");
+                const time = window.formatSafeDate(c.Timestamp).time || '--:--';
+                
+                if(isOutgoing) {
+                    html += `
+                    <div class="flex gap-2 items-end flex-row-reverse mt-2 animate-paneFade">
+                        <div class="bg-indigo-600 rounded-2xl rounded-br-sm p-2.5 text-[10px] text-white max-w-[85%] shadow-sm relative">
+                            <p>${c.Message}</p>
+                            <span class="text-[7px] text-indigo-200 block mt-1 text-right font-bold tracking-wider">${time} <i class="fa-solid fa-check-double text-indigo-300 ml-0.5"></i></span>
+                        </div>
+                    </div>`;
+                } else {
+                    html += `
+                    <div class="flex gap-2 items-end mt-2 animate-paneFade">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 shadow-inner">
+                            <i class="fa-solid fa-user text-[9px] text-slate-500"></i>
+                        </div>
+                        <div class="bg-white/80 backdrop-blur-md border border-white rounded-2xl rounded-bl-sm p-2.5 text-[10px] text-slate-700 max-w-[85%] shadow-sm relative font-medium leading-relaxed">
+                            <p>${c.Message}</p>
+                            <span class="text-[7px] text-slate-400 block mt-1 text-right font-bold">${time}</span>
+                        </div>
+                    </div>`;
+                }
+            });
+            historyEl.innerHTML = html;
+            historyEl.scrollTop = historyEl.scrollHeight;
+        };
+
+        window.handleChatEnter = function(event, ticketId, room, studentId) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                window.sendChatMsg(ticketId, room, studentId);
+            }
+        };
+
+        window.sendChatMsg = async function(ticketId, room, studentId) {
+            const inputEl = document.getElementById(`chat-input-${ticketId}`);
+            const msg = inputEl.value.trim();
+            if(!msg) return;
+            
+            const now = new Date();
+            const newMsg = {
+                Ticket_ID: ticketId,
+                Sender: "Crew",
+                Role: "Maintenance Officer",
+                Message: msg,
+                Timestamp: now.toISOString()
+            };
+            
+            if(!window.activeChats[ticketId]) window.activeChats[ticketId] = [];
+            window.activeChats[ticketId].push(newMsg);
+            window.renderChatUI(ticketId);
+            inputEl.value = '';
+            
+            // Dual Webhook System: Sending via GET
+            const params = new URLSearchParams({
+                Ticket_ID: ticketId,
+                Student_Number: studentId || 'Unknown',
+                Room: room || 'Unassigned',
+                Sender: "Crew",
+                Role: "Maintenance Officer",
+                Message: msg,
+                Timestamp: now.toISOString()
+            });
+            
+            const url = `https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send?${params.toString()}`;
+            try {
+                // Firing GET payload
+                await fetch(url, { method: 'GET', mode: 'no-cors' });
+            } catch(e) {
+                console.error("Chat dispatch error", e);
             }
         };
 
@@ -644,6 +759,9 @@
                 
                 const cat = String(log.Category).toLowerCase(); const desc = String(log.Description).toLowerCase();
                 const isCritical = (cat.includes('elect') || cat.includes('plumb') || desc.includes('leak') || desc.includes('power'));
+                
+                // Simulating unread message logic (Using Unread attribute if available, otherwise simulating based on critical status for UX demonstration)
+                const hasUnread = log.Unread || (isCritical && String(log.Ticket_ID).length % 2 === 0);
 
                 const statusBadge = isCritical 
                     ? `<div class="flex items-center gap-1 text-rose-500 font-bold text-[7px] sm:text-[8px] uppercase tracking-widest animate-pulse"><i class="fa-solid fa-fire"></i> Critical</div>`
@@ -652,59 +770,95 @@
                 const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
 
                 htmlStr += `
-                    <tr class="${isCritical ? 'bg-rose-50/20' : 'bg-transparent'} hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 cursor-pointer" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
-                        <td class="align-top">
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100/50 cursor-pointer group" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
+                        <td class="align-middle">
                             <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                             <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
                         </td>
-                        <td class="align-top">
+                        <td class="align-middle">
                             <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
                             <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
                         </td>
-                        <td class="align-top">
-                            <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span>
+                        <td class="align-middle">
+                            <span class="bg-white border ${isCritical ? 'border-rose-200 text-rose-600' : 'border-blue-200 text-blue-600'} px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span>
                         </td>
-                        <td class="align-top">
+                        <td class="align-middle">
                             <p class="text-[9px] sm:text-[10px] text-slate-700 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate" title="${log.Description || '--'}">${log.Description || '--'}</p>
                             ${statusBadge}
                         </td>
                         <td class="text-right align-middle">
-                            <button class="bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-sm whitespace-nowrap transition-colors"><i class="fa-solid fa-expand mr-1"></i> View</button>
+                            <div class="flex items-center justify-end gap-3">
+                                <div class="relative inline-block" title="${hasUnread ? 'Unread Message' : 'Chat'}">
+                                    <i class="fa-solid fa-comment-dots text-[14px] ${hasUnread ? 'text-indigo-500' : 'text-slate-300'}"></i>
+                                    ${hasUnread ? `<span class="absolute -top-1 -right-1 flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500 border border-white"></span></span>` : ''}
+                                </div>
+                                <button class="bg-white border border-slate-200 text-slate-500 group-hover:bg-indigo-50 group-hover:border-indigo-200 group-hover:text-indigo-600 text-[8px] font-bold px-3 py-1.5 rounded-lg shadow-sm whitespace-nowrap transition-colors"><i class="fa-solid fa-expand mr-1"></i> View</button>
+                            </div>
                         </td>
                     </tr>
                     
                     <!-- EXPANDED DETAIL ROW (HIDDEN BY DEFAULT) -->
-                    <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
-                        <td colspan="5" class="p-0 border-b border-slate-200/50">
-                            <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <tr id="detail-${safeId}" class="hidden bg-[#f0f4f8]/50 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row border-b-2 border-indigo-100">
+                        <td colspan="5" class="p-0">
+                            <div class="detail-row-content p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
                                 
-                                <!-- Left Col: Info -->
-                                <div class="space-y-4 border-r border-slate-200/50 pr-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm"><i class="fa-solid fa-image"></i></div>
-                                        <div>
-                                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Attached Media</p>
-                                            <p class="text-[10px] font-medium text-slate-600 italic">No image provided by reporter.</p>
+                                <!-- Left Col: Fault Info & Resolution Engine -->
+                                <div class="flex flex-col gap-4">
+                                    
+                                    <div class="glass-panel p-3.5 flex flex-col shadow-sm border border-white/80 rounded-[20px]">
+                                        <div class="flex items-start justify-between border-b border-slate-200/50 pb-2 mb-2">
+                                            <div>
+                                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</p>
+                                                <p class="text-[10px] font-bold text-slate-700">${res.name} <span class="font-medium text-slate-500">(${log.Student_Number || '--'})</span></p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</p>
+                                                <p class="text-[10px] font-bold text-slate-700">${t.time}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
+                                        <div class="${isCritical ? 'bg-rose-50/80 border border-rose-100 p-2.5 rounded-xl text-rose-700 font-bold' : 'bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-slate-700 font-medium'} text-[10px] leading-relaxed shadow-sm">
+                                            ${log.Description || 'No details provided.'}
                                         </div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                                        <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
-                                        <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details provided.'}</p>
+
+                                    <div class="glass-panel p-3.5 flex flex-col shadow-sm border border-white/80 rounded-[20px]">
+                                        <label class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-wrench mr-1"></i> Technician Resolution Notes</label>
+                                        <textarea id="resolve-note-${safeId}" rows="2" class="w-full bg-white border border-indigo-100 rounded-xl py-2 px-3 text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400 shadow-sm resize-none mb-3" placeholder="Enter findings, parts used, and repair status..."></textarea>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="document.getElementById('requestPartsModal').classList.add('active'); document.getElementById('req-ref').value = '${safeId}';" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl py-2 shadow-sm text-[9px] transition-colors"><i class="fa-solid fa-boxes-stacked mr-1"></i> Need Parts</button>
+                                            <button type="button" onclick="window.resolveMaintenance('${safeId}', this)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-2 shadow-md flex items-center justify-center gap-1.5 text-[10px] transition-all"><i class="fa-solid fa-check-double"></i> Mark Resolved</button>
+                                        </div>
                                     </div>
-                                    <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
-                                        <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span>${res.name} (${log.Student_Number || '--'})</div>
-                                        <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
-                                    </div>
+
                                 </div>
 
-                                <!-- Right Col: Resolution Action -->
-                                <div class="flex flex-col">
-                                    <label class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5 pl-1"><i class="fa-solid fa-wrench mr-1"></i> Technician Resolution Notes</label>
-                                    <textarea id="resolve-note-${safeId}" rows="3" class="w-full bg-white border border-indigo-100 rounded-xl py-2 px-3 text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400 shadow-sm resize-none mb-3 flex-1" placeholder="Enter findings, parts used, and repair status..."></textarea>
-                                    <div class="flex gap-2 mt-auto">
-                                        <button type="button" onclick="document.getElementById('requestPartsModal').classList.add('active'); document.getElementById('req-ref').value = '${safeId}';" class="w-1/3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl py-2 shadow-sm text-[9px] transition-colors"><i class="fa-solid fa-boxes-stacked mr-1"></i> Need Parts</button>
-                                        <button type="button" onclick="window.resolveMaintenance('${safeId}', this)" class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-2 shadow-md flex items-center justify-center gap-2 text-[10px] transition-all"><i class="fa-solid fa-check-double"></i> Mark Resolved</button>
+                                <!-- Right Col: In-Line Premium Chat Interface -->
+                                <div class="glass-panel border border-white/80 shadow-lg rounded-[20px] flex flex-col h-[320px] overflow-hidden bg-white/40">
+                                    
+                                    <div class="bg-white/60 backdrop-blur-md px-3 py-2.5 border-b border-white shadow-sm flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner text-xs">
+                                            <i class="fa-solid fa-comment-dots"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-[11px] font-black tracking-tight text-slate-800 leading-none">Chat with ${res.name.split(' ')[0]}</h4>
+                                            <p class="text-[8px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5">Live Connection</p>
+                                        </div>
                                     </div>
+                                    
+                                    <div id="chat-history-${safeId}" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30">
+                                        <!-- Messages injected via JS -->
+                                    </div>
+                                    
+                                    <div class="p-2 border-t border-white/60 bg-white/60 backdrop-blur-md">
+                                        <div class="flex gap-1.5 items-center bg-white border border-slate-200 p-1.5 rounded-[16px] focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all shadow-sm">
+                                            <input type="text" id="chat-input-${safeId}" placeholder="Message resident..." class="flex-1 bg-transparent border-none px-2 py-1 text-[10px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="window.handleChatEnter(event, '${safeId}', '${log.Room}', '${log.Student_Number}')">
+                                            <button onclick="window.sendChatMsg('${safeId}', '${log.Room}', '${log.Student_Number}')" class="bg-indigo-600 text-white w-8 h-8 rounded-[12px] flex items-center justify-center tap-effect hover:bg-indigo-700 transition-all flex-shrink-0 shadow-md shadow-indigo-600/30">
+                                                <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                             </div>
@@ -737,16 +891,16 @@
 
                 htmlStr += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
-                        <td class="align-top">
+                        <td class="align-middle">
                             <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                             <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
                         </td>
-                        <td class="align-top">
+                        <td class="align-middle">
                             <div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div>
                             <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
                         </td>
-                        <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span></td>
-                        <td class="align-top">
+                        <td class="align-middle"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span></td>
+                        <td class="align-middle">
                             <p class="text-[9px] sm:text-[10px] text-slate-600 font-medium leading-tight max-w-[120px] sm:max-w-[200px] truncate">${log.Description || '--'}</p>
                             <div class="flex items-center gap-1 text-emerald-500 font-bold text-[7px] sm:text-[8px] uppercase tracking-widest mt-1"><i class="fa-solid fa-check-double"></i> Closed</div>
                         </td>
