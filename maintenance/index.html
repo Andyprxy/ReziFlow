@@ -450,7 +450,7 @@
                 const [adminRes, maintRes, chatRes] = await Promise.all([
                     fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data').catch(()=>null),
                     fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance').catch(()=>null),
-                    fetch('https://n8n.automania.cloud/webhook-test/reziflow-get-snag-allchat').catch(()=>null)
+                    fetch('https://n8n.automania.cloud/webhook/reziflow-get-snag-allchat').catch(()=>null)
                 ]);
 
                 if (adminRes && adminRes.ok) { window.globalStudentData = window.parseN8n(await adminRes.json()); }
@@ -686,7 +686,7 @@
                 Timestamp: now.toISOString()
             });
             
-            const url = `https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send?${params.toString()}`;
+            const url = `https://n8n.automania.cloud/webhook/reziflow-snag-chat-send?${params.toString()}`;
             try {
                 await fetch(url, { method: 'GET', mode: 'no-cors' });
             } catch(e) {
@@ -703,7 +703,7 @@
             const endpointPath = status === 'Assigned' ? 'status-update-assign' : 'status-update-fixing';
 
             try {
-                await fetch(`https://n8n.automania.cloud/webhook-test/${endpointPath}`, {
+                await fetch(`https://n8n.automania.cloud/webhook/${endpointPath}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Ticket_ID: ticketId, Status: status, Timestamp: new Date().toISOString() })
@@ -736,7 +736,7 @@
             try { 
                 const [maintRes, chatRes] = await Promise.all([
                     fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance').catch(()=>null),
-                    fetch('https://n8n.automania.cloud/webhook-test/reziflow-get-snag-allchat').catch(()=>null)
+                    fetch('https://n8n.automania.cloud/webhook/reziflow-get-snag-allchat').catch(()=>null)
                 ]);
 
                 if (maintRes && maintRes.ok) { window.globalMaintenanceData = window.parseN8n(await maintRes.json()); }
