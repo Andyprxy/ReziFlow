@@ -388,48 +388,66 @@
                     </div>
                 </div>
 
-                <!-- NEW: Isolated WhatsApp-Style Maintenance Chat -->
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col mt-4" style="height: 420px;">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                <!-- EXPANDABLE SNAG CHAT BUBBLE WIDGET -->
+                <div id="snag-chat-widget" class="mt-4 transition-all duration-300">
+                    <!-- Collapsed Floating Bubble Button -->
+                    <button id="snag-chat-bubble" onclick="toggleChatBubble('snag')" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 flex items-center justify-between shadow-lg shadow-blue-500/25 tap-effect transition-all">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
-                                <i class="fa-solid fa-headset"></i>
+                            <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg">
+                                <i class="fa-solid fa-comments"></i>
                             </div>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900 tracking-tight">Maintenance Desk</h3>
-                                <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Online</p>
+                            <div class="text-left">
+                                <h4 class="text-sm font-bold tracking-tight">Maintenance Desk Chat</h4>
+                                <p class="text-[10px] text-blue-100 font-medium">Tap to open conversation</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Chat History -->
-                    <div id="snag-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col space-y-3 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
-                        
-                        <div class="flex justify-center mt-1 mb-2">
-                            <span class="text-[9px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">Yesterday</span>
+                        <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </span>
+                    </button>
+
+                    <!-- Expanded WhatsApp-Style Chat Window -->
+                    <div id="snag-chat-window" class="hidden bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col transition-all duration-300" style="height: 420px;">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-headset"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 tracking-tight">Maintenance Desk</h3>
+                                    <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Online
+                                    </p>
+                                </div>
+                            </div>
+                            <button onclick="toggleChatBubble('snag')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors tap-effect" title="Minimize Chat">
+                                <i class="fa-solid fa-compress text-xs"></i>
+                            </button>
                         </div>
                         
-                        <div class="flex gap-2 items-end">
-                            <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                <i class="fa-solid fa-wrench text-[10px] text-blue-600"></i>
+                        <!-- Chat History -->
+                        <div id="snag-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col space-y-3 bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
+                            <div class="flex justify-center my-1">
+                                <span id="snag-chat-date-badge" class="text-[9px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">Today</span>
                             </div>
-                            <div class="bg-white border border-slate-200 rounded-2xl rounded-bl-sm p-3 text-xs text-slate-700 max-w-[80%] shadow-sm relative">
-                                <p>Hi! Your ticket has been logged. An artisan will be assigned to your room shortly.</p>
-                                <span class="text-[8px] text-slate-400 block mt-1.5 text-right font-medium">14:30</span>
+                            <div class="flex gap-2 items-end">
+                                <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 shadow-inner">
+                                    <i class="fa-solid fa-wrench text-[10px] text-blue-600"></i>
+                                </div>
+                                <div class="bg-white border border-slate-200 rounded-2xl rounded-bl-sm p-3 text-xs text-slate-700 max-w-[80%] shadow-sm relative">
+                                    <p>Hi! Your ticket has been logged. An artisan will be assigned to your room shortly.</p>
+                                    <span id="snag-initial-time" class="text-[8px] text-slate-400 block mt-1.5 text-right font-medium">14:30</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-center mt-2 mb-2" id="snag-date-today">
-                            <span class="text-[9px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">Today</span>
+                        <!-- Input Area -->
+                        <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-sm">
+                            <input type="text" id="snag-chat-input" placeholder="Message maintenance..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'snag')">
+                            <button onclick="sendAppChat('snag')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
                         </div>
-                    </div>
-
-                    <!-- Input Area -->
-                    <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-sm">
-                        <input type="text" id="snag-chat-input" placeholder="Message maintenance..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'snag')">
-                        <button onclick="sendAppChat('snag')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                        </button>
                     </div>
                 </div>
 
@@ -484,46 +502,69 @@
                     </button>
                 </section>
 
-                <!-- NEW: Isolated WhatsApp-Style Security Chat -->
-                <div class="bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col mt-4" style="height: 420px;">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                <!-- EXPANDABLE SECURITY CHAT BUBBLE WIDGET -->
+                <div id="security-chat-widget" class="mt-4 transition-all duration-300">
+                    <!-- Collapsed Floating Bubble Button -->
+                    <button id="security-chat-bubble" onclick="toggleChatBubble('security')" class="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-full p-4 flex items-center justify-between shadow-lg shadow-slate-900/25 tap-effect transition-all">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-sm">
+                            <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-lg">
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900 tracking-tight">Dispatch Center</h3>
-                                <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> 24/7 Active</p>
+                            <div class="text-left">
+                                <h4 class="text-sm font-bold tracking-tight">Security Dispatch Chat</h4>
+                                <p class="text-[10px] text-slate-300 font-medium">Tap to open conversation</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Chat History -->
-                    <div id="security-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col space-y-3 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
-                        
-                        <div class="flex justify-center mt-2 mb-2" id="security-date-today">
-                            <span class="text-[9px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">Today</span>
-                        </div>
-                        
-                        <div class="flex gap-2 items-end">
-                            <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                <i class="fa-solid fa-shield text-[10px] text-slate-600"></i>
-                            </div>
-                            <div class="bg-white border border-slate-200 rounded-2xl rounded-bl-sm p-3 text-xs text-slate-700 max-w-[80%] shadow-sm relative">
-                                <p>Security is active. Use the buttons above for emergencies, or type here for general inquiries.</p>
-                                <span class="text-[8px] text-slate-400 block mt-1.5 text-right font-medium">System</span>
-                            </div>
-                        </div>
-                    </div>
+                        <span class="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </span>
+                    </button>
 
-                    <!-- Input Area -->
-                    <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-200 transition-all shadow-sm">
-                        <input type="text" id="security-chat-input" placeholder="Message security..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'security')">
-                        <button onclick="sendAppChat('security')" class="bg-slate-900 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20">
-                            <i class="fa-solid fa-paper-plane text-xs"></i>
-                        </button>
+                    <!-- Expanded WhatsApp-Style Chat Window -->
+                    <div id="security-chat-window" class="hidden bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col transition-all duration-300" style="height: 420px;">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 tracking-tight">Dispatch Center</h3>
+                                    <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> 24/7 Active
+                                    </p>
+                                </div>
+                            </div>
+                            <button onclick="toggleChatBubble('security')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors tap-effect" title="Minimize Chat">
+                                <i class="fa-solid fa-compress text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Chat History -->
+                        <div id="security-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col space-y-3 bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
+                            <div class="flex justify-center my-1">
+                                <span id="security-chat-date-badge" class="text-[9px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">Today</span>
+                            </div>
+                            <div class="flex gap-2 items-end">
+                                <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 shadow-inner">
+                                    <i class="fa-solid fa-shield text-[10px] text-slate-600"></i>
+                                </div>
+                                <div class="bg-white border border-slate-200 rounded-2xl rounded-bl-sm p-3 text-xs text-slate-700 max-w-[80%] shadow-sm relative">
+                                    <p>Security is active. Use the buttons above for emergencies, or type here for general inquiries.</p>
+                                    <span id="security-initial-time" class="text-[8px] text-slate-400 block mt-1.5 text-right font-medium">System</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-200 transition-all shadow-sm">
+                            <input type="text" id="security-chat-input" placeholder="Message security..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'security')">
+                            <button onclick="sendAppChat('security')" class="bg-slate-900 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
             </div>
             <!-- ================= END: SECURITY MODULE ================= -->
             
@@ -1169,6 +1210,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
+            initChatDates();
+
             const session = getSessionData();
             const email = session.Email_Address || session.Email;
             
@@ -2108,7 +2151,48 @@
             } catch (error) { btn.innerHTML = ogHtml; btn.disabled = false; showToast("Transmission failed.", "error"); }
         }
 
-        // ================= START: WHATSAPP-STYLE CHAT ENGINE =================
+        // ================= START: WHATSAPP-STYLE CHAT ENGINE & DYNAMIC DATES =================
+        function getChatDateHeader(date = new Date()) {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+        }
+
+        function initChatDates() {
+            const dateStr = getChatDateHeader(new Date());
+            const snagBadge = document.getElementById('snag-chat-date-badge');
+            const secBadge = document.getElementById('security-chat-date-badge');
+            if (snagBadge) snagBadge.textContent = dateStr;
+            if (secBadge) secBadge.textContent = dateStr;
+            
+            const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const snagInitTime = document.getElementById('snag-initial-time');
+            if (snagInitTime && snagInitTime.textContent === '14:30') snagInitTime.textContent = nowStr;
+        }
+
+        function toggleChatBubble(channel) {
+            const bubble = document.getElementById(`${channel}-chat-bubble`);
+            const windowEl = document.getElementById(`${channel}-chat-window`);
+            
+            if (windowEl.classList.contains('hidden')) {
+                windowEl.classList.remove('hidden');
+                bubble.classList.add('hidden');
+                const historyEl = document.getElementById(`${channel}-chat-history`);
+                if (historyEl) historyEl.scrollTop = historyEl.scrollHeight;
+            } else {
+                windowEl.classList.add('hidden');
+                bubble.classList.remove('hidden');
+            }
+        }
+
         function handleEnterKey(event, channel) {
             if (event.key === 'Enter') {
                 event.preventDefault();
