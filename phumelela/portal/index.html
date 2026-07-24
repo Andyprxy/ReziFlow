@@ -934,6 +934,72 @@
 
     <!-- CORE WORKFLOW ENGINE SCRIPT -->
     <script>
+        // --- WHATSAPP-STYLE CHAT ENGINE ---
+function handleEnterKey(event, channel) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        sendAppChat(channel);
+    }
+}
+
+async function sendAppChat(channel) {
+    const inputEl = document.getElementById(`${channel}-chat-input`);
+    const historyEl = document.getElementById(`${channel}-chat-history`);
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+
+    const session = getSessionData();
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Append User Message to UI (WhatsApp styling)
+    const userMsgHtml = `
+        <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
+            <div class="bg-blue-600 rounded-2xl rounded-br-sm p-3 text-xs text-white max-w-[80%] shadow-md shadow-blue-600/20 relative">
+                <p>${msg}</p>
+                <span class="text-[8px] text-blue-200 block mt-1.5 text-right font-medium">
+                    ${timeStr} <i class="fa-solid fa-check text-blue-300 ml-0.5 delivery-tick"></i>
+                </span>
+            </div>
+        </div>
+    `;
+    
+    historyEl.insertAdjacentHTML('beforeend', userMsgHtml);
+    historyEl.scrollTop = historyEl.scrollHeight; // Auto-scroll to bottom
+    inputEl.value = ''; // Clear input
+
+    // Determine Webhook Target via GET Method
+    const baseUrl = channel === 'snag' 
+        ? 'https://n8n.automania.cloud/webhook/reziflow-snag-chat-send' 
+        : 'https://n8n.automania.cloud/webhook/reziflow-security-chat-send';
+    
+    const params = new URLSearchParams({
+        Student_Number: session.Student_Number || 'Unknown',
+        Name: session.First_Name || 'Resident',
+        Room: session.Room_Allocation || 'Unassigned',
+        Message: msg,
+        Timestamp: now.toISOString()
+    });
+
+    try {
+        // Execute GET request as requested
+        fetch(`${baseUrl}?${params.toString()}`, { method: 'GET' })
+            .then(res => {
+                if(res.ok) {
+                    // Update checkmarks to double-check (delivered)
+                    const ticks = historyEl.querySelectorAll('.delivery-tick.fa-check');
+                    if(ticks.length > 0) {
+                        const lastTick = ticks[ticks.length - 1];
+                        lastTick.classList.replace('fa-check', 'fa-check-double');
+                        lastTick.classList.add('text-emerald-300'); // Optional: colour change on delivery
+                    }
+                }
+            })
+            .catch(e => console.warn(`${channel} chat sync pending.`));
+    } catch (error) {
+        console.error("Chat dispatch error", error);
+    }
+}
         let gatewayPercentage = 0;
         let profilePercentage = 0;
         let vaultPercentage = 0;
