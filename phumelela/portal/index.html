@@ -2172,14 +2172,14 @@
                 // Expanding
                 windowEl.classList.remove('scale-0', 'opacity-0');
                 windowEl.classList.add('scale-100', 'opacity-100');
-                fabEl.classList.add('scale-90');
+                fabEl.classList.add('rotate-[-20deg]', 'scale-90');
                 const historyEl = document.getElementById(`${channel}-chat-history`);
                 if (historyEl) historyEl.scrollTop = historyEl.scrollHeight;
             } else {
                 // Collapsing
                 windowEl.classList.add('scale-0', 'opacity-0');
                 windowEl.classList.remove('scale-100', 'opacity-100');
-                fabEl.classList.remove('scale-90');
+                fabEl.classList.remove('rotate-[-20deg]', 'scale-90');
             }
         }
 
@@ -2220,9 +2220,10 @@
             historyEl.scrollTop = historyEl.scrollHeight;
             inputEl.value = '';
 
+            // EXPLICITLY TARGETING /webhook-test/ ENDPOINTS
             const baseUrl = channel === 'snag' 
-                ? 'https://n8n.automania.cloud/webhook-/reziflow-snag-chat-send' 
-                : 'https://n8n.automania.cloud/webhook-/reziflow-security-chat-send';
+                ? 'https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send' 
+                : 'https://n8n.automania.cloud/webhook-test/reziflow-security-chat-send';
             
             const params = new URLSearchParams({
                 Student_Number: session.Student_Number || 'Unknown',
