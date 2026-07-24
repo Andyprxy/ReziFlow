@@ -696,7 +696,7 @@
                 Timestamp: now.toISOString()
             });
             
-            const url = `https://n8n.automania.cloud/webhook/reziflow-snag-chat-send?${params.toString()}`;
+            const url = `https://n8n.automania.cloud/webhook-test/reziflow-snag-chat-send?${params.toString()}`;
             try {
                 await fetch(url, { method: 'GET', mode: 'no-cors' });
             } catch(e) {
