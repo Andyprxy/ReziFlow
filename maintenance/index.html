@@ -443,7 +443,7 @@
         // ARCHITECTURAL DATA PIPELINE 
         // ----------------------------------------------------
         (async function initMaintenanceModule() {
-            window.activeChats = {}; // Store conversations locally per ticket
+            window.activeChatsByStudent = {}; // Store conversations locally per student
 
             try {
                 // Execute master concurrent pre-fetch
@@ -458,17 +458,18 @@
                 
                 if (chatRes && chatRes.ok) {
                     const allChats = window.parseN8n(await chatRes.json());
+                    window.activeChatsByStudent = {};
                     allChats.forEach(c => {
-                        const tid = c.Ticket_ID;
-                        if(tid) {
-                            if(!window.activeChats[tid]) window.activeChats[tid] = [];
-                            window.activeChats[tid].push(c);
+                        const sNum = String(c.Student_Number || c.student_number || '').trim();
+                        if(sNum && sNum !== 'undefined' && sNum !== 'null') {
+                            if(!window.activeChatsByStudent[sNum]) window.activeChatsByStudent[sNum] = [];
+                            window.activeChatsByStudent[sNum].push(c);
                         }
                     });
                     
-                    // Sort each ticket's message array chronologically
-                    for(let tid in window.activeChats) {
-                        window.activeChats[tid].sort((a,b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+                    // Sort each student's message array chronologically
+                    for(let sNum in window.activeChatsByStudent) {
+                        window.activeChatsByStudent[sNum].sort((a,b) => new Date(a.Timestamp) - new Date(b.Timestamp));
                     }
                 }
             } catch (e) { console.error("Initialization Sync Error", e); }
@@ -560,7 +561,7 @@
         // ----------------------------------------------------
         // ROW EXPANSION & PROGRESS/CHAT LOGIC
         // ----------------------------------------------------
-        window.toggleRowDetails = function(ticketId) {
+        window.toggleRowDetails = function(ticketId, studentId) {
             const detailRow = document.getElementById(`detail-${ticketId}`);
             if (detailRow) {
                 if(detailRow.classList.contains('hidden')) {
@@ -568,8 +569,8 @@
                     const innerDiv = detailRow.querySelector('.detail-row-content');
                     if(innerDiv) { innerDiv.style.animation = 'none'; void innerDiv.offsetWidth; innerDiv.style.animation = null; }
                     
-                    // Render chat instantly (data pre-fetched globally)
-                    window.renderChatUI(ticketId);
+                    // Render chat instantly using global student map
+                    window.renderChatUI(ticketId, studentId);
                 } else {
                     detailRow.classList.add('hidden');
                 }
@@ -590,7 +591,7 @@
                 setTimeout(() => body.classList.remove('opacity-0'), 50); // transition smoothly
                 chevron.classList.add('rotate-180');
                 
-                window.renderChatUI(ticketId);
+                window.renderChatUI(ticketId, studentId);
             } else {
                 // Collapse Chat
                 body.classList.add('opacity-0');
@@ -603,11 +604,11 @@
             }
         };
 
-        window.renderChatUI = function(ticketId) {
+        window.renderChatUI = function(ticketId, studentId) {
             const historyEl = document.getElementById(`chat-history-${ticketId}`);
             if(!historyEl) return;
             
-            const chats = window.activeChats[ticketId] || [];
+            const chats = window.activeChatsByStudent[String(studentId).trim()] || [];
             
             if(chats.length === 0) {
                 historyEl.innerHTML = `
@@ -619,7 +620,7 @@
             
             let html = '';
             chats.forEach(c => {
-                const isOutgoing = (c.Sender === "Crew" || c.Role === "Officer" || c.Role === "Maintenance Officer");
+                const isOutgoing = (c.Sender === "Crew" || c.Role === "Officer" || c.Role === "Maintenance Officer" || c.Role === "maintenance");
                 const time = window.formatSafeDate(c.Timestamp).time || '--:--';
                 
                 if(isOutgoing) {
@@ -662,15 +663,17 @@
             const now = new Date();
             const newMsg = {
                 Ticket_ID: ticketId,
+                Student_Number: studentId,
                 Sender: "Crew",
                 Role: "Officer",
                 Message: msg,
                 Timestamp: now.toISOString()
             };
             
-            if(!window.activeChats[ticketId]) window.activeChats[ticketId] = [];
-            window.activeChats[ticketId].push(newMsg);
-            window.renderChatUI(ticketId);
+            const sNum = String(studentId).trim();
+            if(!window.activeChatsByStudent[sNum]) window.activeChatsByStudent[sNum] = [];
+            window.activeChatsByStudent[sNum].push(newMsg);
+            window.renderChatUI(ticketId, studentId);
             inputEl.value = '';
             
             // Dispatch outgoing message via GET 
@@ -740,16 +743,16 @@
                 
                 if (chatRes && chatRes.ok) {
                     const allChats = window.parseN8n(await chatRes.json());
-                    window.activeChats = {};
+                    window.activeChatsByStudent = {};
                     allChats.forEach(c => {
-                        const tid = c.Ticket_ID;
-                        if(tid) {
-                            if(!window.activeChats[tid]) window.activeChats[tid] = [];
-                            window.activeChats[tid].push(c);
+                        const sNum = String(c.Student_Number || c.student_number || '').trim();
+                        if(sNum && sNum !== 'undefined' && sNum !== 'null') {
+                            if(!window.activeChatsByStudent[sNum]) window.activeChatsByStudent[sNum] = [];
+                            window.activeChatsByStudent[sNum].push(c);
                         }
                     });
-                    for(let tid in window.activeChats) {
-                        window.activeChats[tid].sort((a,b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+                    for(let sNum in window.activeChatsByStudent) {
+                        window.activeChatsByStudent[sNum].sort((a,b) => new Date(a.Timestamp) - new Date(b.Timestamp));
                     }
                 }
             } catch (e) { console.error("Refresh sync error", e) } 
@@ -829,9 +832,10 @@
                 
                 const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
 
-                // Detect unread messages via global chats sniffer
-                const ticketChats = window.activeChats[safeId] || [];
-                const lastMsg = ticketChats.length > 0 ? ticketChats[ticketChats.length - 1] : null;
+                // Detect unread messages via global chats sniffer mapping to Student_Number
+                const studentId = String(log.Student_Number || '').trim();
+                const studentChats = window.activeChatsByStudent[studentId] || [];
+                const lastMsg = studentChats.length > 0 ? studentChats[studentChats.length - 1] : null;
                 const hasUnread = lastMsg && (lastMsg.Role === 'Student' || lastMsg.Sender === 'Student');
 
                 const statusBadge = isCritical 
@@ -839,7 +843,7 @@
                     : `<div class="flex items-center gap-1 text-amber-500 font-bold text-[7px] sm:text-[8px] uppercase tracking-widest"><i class="fa-solid fa-clock"></i> Pending</div>`;
 
                 htmlStr += `
-                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100/50 cursor-pointer group" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100/50 cursor-pointer group" onclick="window.toggleRowDetails('${safeId}', '${studentId}')" data-ticket-id="${safeId}">
                         <td class="align-middle">
                             <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                             <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
@@ -915,7 +919,7 @@
                                 <!-- Right Col: Collapsible Compact Chat Container -->
                                 <div id="chat-container-${safeId}" class="w-full lg:w-[320px] shrink-0 glass-panel border border-white/80 shadow-lg rounded-[20px] flex flex-col bg-white/40 overflow-hidden transition-all duration-300 h-[52px]">
                                     
-                                    <div class="bg-white/60 backdrop-blur-md px-3 py-2 border-b border-white shadow-sm flex items-center justify-between cursor-pointer tap-effect" onclick="window.toggleInlineChat('${safeId}', '${log.Room}', '${log.Student_Number}')">
+                                    <div class="bg-white/60 backdrop-blur-md px-3 py-2 border-b border-white shadow-sm flex items-center justify-between cursor-pointer tap-effect" onclick="window.toggleInlineChat('${safeId}', '${log.Room}', '${studentId}')">
                                         <div class="flex items-center gap-2">
                                             <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner text-xs relative">
                                                 <i class="fa-solid fa-comment-dots"></i>
@@ -936,8 +940,8 @@
                                         
                                         <div class="p-2 border-t border-white/60 bg-white/60 backdrop-blur-md">
                                             <div class="flex gap-1.5 items-center bg-white border border-slate-200 p-1.5 rounded-[16px] focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all shadow-sm">
-                                                <input type="text" id="chat-input-${safeId}" placeholder="Message resident..." class="flex-1 bg-transparent border-none px-2 py-1 text-[10px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full" onkeypress="window.handleChatEnter(event, '${safeId}', '${log.Room}', '${log.Student_Number}')">
-                                                <button onclick="window.sendChatMsg('${safeId}', '${log.Room}', '${log.Student_Number}')" class="bg-indigo-600 text-white w-8 h-8 rounded-[12px] flex items-center justify-center tap-effect hover:bg-indigo-700 transition-all flex-shrink-0 shadow-md shadow-indigo-600/30">
+                                                <input type="text" id="chat-input-${safeId}" placeholder="Message resident..." class="flex-1 bg-transparent border-none px-2 py-1 text-[10px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full" onkeypress="window.handleChatEnter(event, '${safeId}', '${log.Room}', '${studentId}')">
+                                                <button onclick="window.sendChatMsg('${safeId}', '${log.Room}', '${studentId}')" class="bg-indigo-600 text-white w-8 h-8 rounded-[12px] flex items-center justify-center tap-effect hover:bg-indigo-700 transition-all flex-shrink-0 shadow-md shadow-indigo-600/30">
                                                     <i class="fa-solid fa-paper-plane text-[10px]"></i>
                                                 </button>
                                             </div>
@@ -973,9 +977,10 @@
                 const res = window.getResidentForRoom(log.Room);
                 const t = window.formatSafeDate(log.Timestamp);
                 const safeId = String(log.Ticket_ID || `TKT-${Math.floor(Math.random()*1000)}`);
+                const studentId = String(log.Student_Number || '').trim();
 
                 htmlStr += `
-                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}')" data-ticket-id="${safeId}">
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50 opacity-80 hover:opacity-100 cursor-pointer" onclick="window.toggleRowDetails('${safeId}', '${studentId}')" data-ticket-id="${safeId}">
                         <td class="align-middle">
                             <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                             <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
