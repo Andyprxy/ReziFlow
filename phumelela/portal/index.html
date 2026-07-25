@@ -88,7 +88,6 @@
 
     <div class="mobile-container">
         
-        <!-- ================= START: GLOBAL OVERLAYS ================= -->
         <div id="toast-container" class="absolute top-6 left-0 right-0 flex justify-center px-4 pointer-events-none z-[9999]">
             <div id="toast-message" class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center gap-3 font-medium text-sm border border-slate-700">
                 <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -114,8 +113,10 @@
                         <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-400 to-blue-500 rounded-[28px] opacity-20 blur-sm z-[-1]"></div>
                         <img src="../signup/phumelela.jpg" onerror="this.src='https://placehold.co/400x400/0f172a/ffffff?text=PR'" class="w-full h-full object-cover rounded-[20px]">
                     </div>
+                    
                     <h2 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">You're All Set!</h2>
                     <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">Thank you for confirming your lease. Your profile is finally complete and fully verified. Welcome home.</p>
+                    
                     <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-500/30 transition-all tap-effect flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> Refresh Portal
                     </button>
@@ -153,7 +154,6 @@
                 </form>
             </div>
         </div>
-        <!-- ================= END: GLOBAL OVERLAYS ================= -->
         
         <header class="flex-shrink-0 pt-6 px-5 z-40 bg-[#f0f4f8]/90 backdrop-blur-md pb-4">
             <div class="bg-white rounded-full px-5 py-3.5 flex justify-between items-center card-shadow soft-border">
@@ -171,8 +171,9 @@
         <!-- ROUTER INJECTION ROOT -->
         <main class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-5 pt-2 pb-32" id="portal-root">
             
-            <!-- ================= START: HOME MODULE ================= -->
+            <!-- HOME TAB -->
             <div id="tab-home" class="tab-content active space-y-5">
+                
                 <section id="resident-blue-card" class="bg-gradient-to-br from-blue-600 to-cyan-400 rounded-[28px] p-6 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden tap-effect">
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
                     <div class="relative z-10 flex justify-between items-start mb-8">
@@ -199,7 +200,9 @@
                             <p id="gateway-status-text" class="text-[10px] text-slate-500 font-medium leading-snug pr-2">Finish setting up your profile to unlock Wi-Fi & Transit.</p>
                         </div>
                     </div>
-                    <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300"></div>
+                    
+                    <div id="gateway-dynamic-content" class="relative z-10 bg-slate-50 rounded-xl p-3 border border-slate-100 flex flex-col gap-2 transition-all duration-300">
+                    </div>
                 </section>
 
                 <div id="lease-magic-slot" class="hidden opacity-0 translate-y-4 glass-panel rounded-[28px] p-6 relative overflow-hidden transition-all duration-500 mt-2">
@@ -251,9 +254,8 @@
                     <p class="text-[10px] text-slate-500 mt-1">Valid for 24 hours at the main gate.</p>
                 </div>
             </div>
-            <!-- ================= END: HOME MODULE ================= -->
 
-            <!-- ================= START: WI-FI MODULE ================= -->
+            <!-- WI-FI MODULE -->
             <div id="tab-wifi" class="tab-content space-y-5">
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-6 text-center">
                     <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-4">
@@ -305,10 +307,10 @@
                     </div>
                 </section>
             </div>
-            <!-- ================= END: WI-FI MODULE ================= -->
 
-            <!-- ================= START: PREMIUM SNAGS MODULE ================= -->
+            <!-- PREMIUM SNAGS MODULE -->
             <div id="tab-snags" class="tab-content space-y-5">
+                
                 <div class="bg-white card-shadow soft-border rounded-[28px] p-5">
                     <div class="flex justify-between items-center mb-4">
                         <div>
@@ -344,6 +346,7 @@
                     <h3 class="text-xs font-bold text-slate-800 mb-3 ml-2 uppercase tracking-widest">Active Tracker</h3>
                     <div id="active-tickets-container" class="space-y-4">
                         <div class="bg-white border border-slate-100 rounded-[28px] p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
+                            
                             <div class="flex justify-between items-start mb-5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-[14px] bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
@@ -380,6 +383,59 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- EXPANDABLE SNAG CHAT BUBBLE WIDGET -->
+                <div id="snag-chat-widget" class="mt-4 transition-all duration-300">
+                    <!-- Collapsed Floating Bubble Button -->
+                    <button id="snag-chat-bubble" onclick="toggleChatBubble('snag')" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 flex items-center justify-between shadow-lg shadow-blue-500/25 tap-effect transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <div class="text-left">
+                                <h4 class="text-sm font-bold tracking-tight">Maintenance Desk Chat</h4>
+                                <p class="text-[10px] text-blue-100 font-medium">Tap to open conversation</p>
+                            </div>
+                        </div>
+                        <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </span>
+                    </button>
+
+                    <!-- Expanded WhatsApp-Style Chat Window -->
+                    <div id="snag-chat-window" class="hidden bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col transition-all duration-300 transform scale-0 opacity-0" style="height: 420px;">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-headset"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 tracking-tight">Maintenance Desk</h3>
+                                    <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Online
+                                    </p>
+                                </div>
+                            </div>
+                            <button onclick="toggleChatBubble('snag')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors tap-effect" title="Minimize Chat">
+                                <i class="fa-solid fa-compress text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Chat History -->
+                        <div id="snag-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-sm">
+                            <input type="text" id="snag-chat-input" placeholder="Message maintenance..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'snag')">
+                            <button onclick="sendAppChat('snag')" class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- ================= END: PREMIUM SNAGS MODULE ================= -->
 
@@ -430,6 +486,59 @@
                         <i class="fa-regular fa-paper-plane"></i> Send Alert
                     </button>
                 </section>
+
+                <!-- EXPANDABLE SECURITY CHAT BUBBLE WIDGET -->
+                <div id="security-chat-widget" class="mt-4 transition-all duration-300">
+                    <!-- Collapsed Floating Bubble Button -->
+                    <button id="security-chat-bubble" onclick="toggleChatBubble('security')" class="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-full p-4 flex items-center justify-between shadow-lg shadow-slate-900/25 tap-effect transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-lg">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div class="text-left">
+                                <h4 class="text-sm font-bold tracking-tight">Security Dispatch Chat</h4>
+                                <p class="text-[10px] text-slate-300 font-medium">Tap to open conversation</p>
+                            </div>
+                        </div>
+                        <span class="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </span>
+                    </button>
+
+                    <!-- Expanded WhatsApp-Style Chat Window -->
+                    <div id="security-chat-window" class="hidden bg-white card-shadow soft-border rounded-[28px] p-4 flex flex-col transition-all duration-300 transform scale-0 opacity-0" style="height: 420px;">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3 px-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 tracking-tight">Dispatch Center</h3>
+                                    <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> 24/7 Active
+                                    </p>
+                                </div>
+                            </div>
+                            <button onclick="toggleChatBubble('security')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors tap-effect" title="Minimize Chat">
+                                <i class="fa-solid fa-compress text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Chat History -->
+                        <div id="security-chat-history" class="flex-1 overflow-y-auto custom-scroll pr-2 mb-3 flex flex-col bg-slate-50/50 rounded-2xl p-3 border border-slate-100 relative shadow-inner">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="flex gap-2 items-center bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-200 transition-all shadow-sm">
+                            <input type="text" id="security-chat-input" placeholder="Message security..." class="flex-1 bg-transparent border-none px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none placeholder-slate-400" onkeypress="handleEnterKey(event, 'security')">
+                            <button onclick="sendAppChat('security')" class="bg-slate-900 text-white w-9 h-9 rounded-xl flex items-center justify-center tap-effect hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- ================= END: SECURITY MODULE ================= -->
             
@@ -565,120 +674,6 @@
             <!-- ================= END: PROFILE MODULE ================= -->
 
         </main>
-
-        <!-- ================= START: FLOATING RIGHT-HALF CHAT WIDGETS ================= -->
-        <!-- SNAG CHAT WIDGET -->
-        <div id="snag-chat-wrapper" class="absolute bottom-[115px] right-5 z-[80] flex flex-col items-end pointer-events-none hidden">
-            <!-- Expanded Right-Half Chat Window -->
-            <div id="snag-chat-window" class="pointer-events-auto w-[55vw] min-w-[220px] max-w-[260px] h-[400px] max-h-[55vh] glass-panel rounded-[28px] rounded-br-xl flex flex-col transition-all duration-400 transform scale-0 origin-bottom-right mb-4 opacity-0 border border-white/60 shadow-2xl overflow-hidden">
-                
-                <!-- Premium Glass Header -->
-                <div class="flex items-center justify-between p-3.5 bg-white/40 backdrop-blur-md border-b border-white/50 shadow-sm relative z-10">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/30">
-                            <i class="fa-solid fa-headset text-[10px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-black text-slate-900 tracking-tight leading-none">Maintenance</h3>
-                            <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-sm shadow-emerald-400/50"></span> Online
-                            </p>
-                        </div>
-                    </div>
-                    <button onclick="toggleChatBubble('snag')" class="w-7 h-7 rounded-full bg-white/60 hover:bg-white text-slate-500 border border-white/50 flex items-center justify-center shadow-sm transition-all tap-effect" title="Minimize Chat">
-                        <i class="fa-solid fa-xmark text-[10px]"></i>
-                    </button>
-                </div>
-                
-                <!-- Chat History -->
-                <div id="snag-chat-history" class="flex-1 overflow-y-auto custom-scroll px-3 py-3 flex flex-col space-y-3 bg-slate-50/30 relative z-10">
-                    <div class="flex justify-center my-1">
-                        <span id="snag-chat-date-badge" class="text-[8px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white shadow-sm">Today</span>
-                    </div>
-                    <div class="flex gap-2 items-end">
-                        <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 shadow-inner">
-                            <i class="fa-solid fa-wrench text-[9px] text-blue-600"></i>
-                        </div>
-                        <div class="bg-white/90 backdrop-blur-sm border border-white rounded-2xl rounded-bl-sm p-2.5 text-[10px] text-slate-700 max-w-[85%] shadow-sm relative leading-relaxed font-medium">
-                            <p>Hi! Your ticket has been logged. An artisan will be assigned shortly.</p>
-                            <span id="snag-initial-time" class="text-[7px] text-slate-400 block mt-1.5 text-right font-bold">14:30</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Input Area -->
-                <div class="p-2 border-t border-white/50 bg-white/40 backdrop-blur-md relative z-10">
-                    <div class="flex gap-1.5 items-center bg-white/80 border border-white/60 p-1.5 rounded-[18px] focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-sm">
-                        <input type="text" id="snag-chat-input" placeholder="Message..." class="flex-1 bg-transparent border-none px-2 py-1.5 text-[10px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full" onkeypress="handleEnterKey(event, 'snag')">
-                        <button onclick="sendAppChat('snag')" class="bg-blue-600 text-white w-8 h-8 rounded-2xl flex items-center justify-center tap-effect hover:bg-blue-700 transition-all flex-shrink-0 shadow-md shadow-blue-600/30">
-                            <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Collapsed Premium FAB -->
-            <button id="snag-chat-fab" onclick="toggleChatBubble('snag')" class="pointer-events-auto w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center text-2xl tap-effect transition-all duration-400 transform border border-white/20 hover:scale-105">
-                <i class="fa-solid fa-comments text-xl"></i>
-            </button>
-        </div>
-
-        <!-- SECURITY CHAT WIDGET -->
-        <div id="security-chat-wrapper" class="absolute bottom-[115px] right-5 z-[80] flex flex-col items-end pointer-events-none hidden">
-            <!-- Expanded Right-Half Chat Window -->
-            <div id="security-chat-window" class="pointer-events-auto w-[55vw] min-w-[220px] max-w-[260px] h-[400px] max-h-[55vh] glass-panel rounded-[28px] rounded-br-xl flex flex-col transition-all duration-400 transform scale-0 origin-bottom-right mb-4 opacity-0 border border-white/60 shadow-2xl overflow-hidden">
-                
-                <!-- Premium Glass Header -->
-                <div class="flex items-center justify-between p-3.5 bg-white/40 backdrop-blur-md border-b border-white/50 shadow-sm relative z-10">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-900/30">
-                            <i class="fa-solid fa-shield-halved text-[10px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-black text-slate-900 tracking-tight leading-none">Dispatch</h3>
-                            <p class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-sm shadow-emerald-400/50"></span> Active
-                            </p>
-                        </div>
-                    </div>
-                    <button onclick="toggleChatBubble('security')" class="w-7 h-7 rounded-full bg-white/60 hover:bg-white text-slate-500 border border-white/50 flex items-center justify-center shadow-sm transition-all tap-effect" title="Minimize Chat">
-                        <i class="fa-solid fa-xmark text-[10px]"></i>
-                    </button>
-                </div>
-                
-                <!-- Chat History -->
-                <div id="security-chat-history" class="flex-1 overflow-y-auto custom-scroll px-3 py-3 flex flex-col space-y-3 bg-slate-50/30 relative z-10">
-                    <div class="flex justify-center my-1">
-                        <span id="security-chat-date-badge" class="text-[8px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white shadow-sm">Today</span>
-                    </div>
-                    <div class="flex gap-2 items-end">
-                        <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 shadow-inner">
-                            <i class="fa-solid fa-shield text-[9px] text-slate-600"></i>
-                        </div>
-                        <div class="bg-white/90 backdrop-blur-sm border border-white rounded-2xl rounded-bl-sm p-2.5 text-[10px] text-slate-700 max-w-[85%] shadow-sm relative leading-relaxed font-medium">
-                            <p>Security is active. Use the buttons for emergencies, or type here for general inquiries.</p>
-                            <span id="security-initial-time" class="text-[7px] text-slate-400 block mt-1.5 text-right font-bold">System</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Input Area -->
-                <div class="p-2 border-t border-white/50 bg-white/40 backdrop-blur-md relative z-10">
-                    <div class="flex gap-1.5 items-center bg-white/80 border border-white/60 p-1.5 rounded-[18px] focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 transition-all shadow-sm">
-                        <input type="text" id="security-chat-input" placeholder="Message..." class="flex-1 bg-transparent border-none px-2 py-1.5 text-[10px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full" onkeypress="handleEnterKey(event, 'security')">
-                        <button onclick="sendAppChat('security')" class="bg-slate-900 text-white w-8 h-8 rounded-2xl flex items-center justify-center tap-effect hover:bg-slate-800 transition-all flex-shrink-0 shadow-md shadow-slate-900/30">
-                            <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Collapsed Premium FAB -->
-            <button id="security-chat-fab" onclick="toggleChatBubble('security')" class="pointer-events-auto w-14 h-14 bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-full shadow-lg shadow-slate-900/30 flex items-center justify-center text-2xl tap-effect transition-all duration-400 transform border border-white/20 hover:scale-105">
-                <i class="fa-solid fa-shield-halved text-xl"></i>
-            </button>
-        </div>
-        <!-- ================= END: FLOATING RIGHT-HALF CHAT WIDGETS ================= -->
 
         <!-- ================= START: BOTTOM NAVIGATION ================= -->
         <nav class="flex-shrink-0 bg-white pt-3 px-6 border-t border-slate-100 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-50 pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -1071,9 +1066,8 @@
             </div>
         </div>
     </div>
-    <!-- ================= END: ALL MODALS ================= -->
 
-    <!-- ================= START: CORE WORKFLOW ENGINE SCRIPT ================= -->
+    <!-- CORE WORKFLOW ENGINE SCRIPT -->
     <script>
         let gatewayPercentage = 0;
         let profilePercentage = 0;
@@ -1188,9 +1182,39 @@
             return session;
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            initChatDates();
+        // ================= START: DATA PARSERS & HELPERS =================
+        window.parseN8n = function(d) { 
+            if (!d) return []; let arr = []; 
+            if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
+            arr = arr.map(i => i.json ? i.json : i); 
+            return arr.filter(i => i && typeof i === 'object' && Object.keys(i).length > 0); 
+        };
 
+        window.formatSafeDate = function(val) {
+            if (!val) return { date: '--', time: '' };
+            const s = String(val);
+            if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
+            if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
+            return { date: s, time: '' };
+        };
+
+        window.getChatDateHeader = function(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) {
+                return 'Today';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
             const session = getSessionData();
             const email = session.Email_Address || session.Email;
             
@@ -2138,50 +2162,113 @@
         }
 
         // ================= START: WHATSAPP-STYLE CHAT ENGINE & DYNAMIC DATES =================
-        function getChatDateHeader(date = new Date()) {
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-
-            if (date.toDateString() === today.toDateString()) {
-                return 'Today';
-            } else if (date.toDateString() === yesterday.toDateString()) {
-                return 'Yesterday';
-            } else {
-                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            }
-        }
-
-        function initChatDates() {
-            const dateStr = getChatDateHeader(new Date());
-            const snagBadge = document.getElementById('snag-chat-date-badge');
-            const secBadge = document.getElementById('security-chat-date-badge');
-            if (snagBadge) snagBadge.textContent = dateStr;
-            if (secBadge) secBadge.textContent = dateStr;
+        window.fetchChatHistory = async function(channel) {
+            const session = getSessionData();
+            const studentId = session.Student_Number || 'Unknown';
+            const endpoint = channel === 'snag' ? 'reziflow-get-snag-chat' : 'reziflow-get-snag-chat0';
+            const url = `https://n8n.automania.cloud/webhook/${endpoint}?Student_Number=${studentId}&studentn=${studentId}`;
             
-            const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const snagInitTime = document.getElementById('snag-initial-time');
-            if (snagInitTime && snagInitTime.textContent === '14:30') snagInitTime.textContent = nowStr;
-        }
+            try {
+                const res = await fetch(url, { method: 'GET', mode: 'cors' });
+                if(res.ok) {
+                    const data = await res.json();
+                    let chats = window.parseN8n(data);
+                    chats.sort((a,b) => new Date(a.createdAt || a.Timestamp) - new Date(b.createdAt || b.Timestamp));
+                    return chats;
+                }
+            } catch(e) { console.error("Error fetching chat", e); }
+            return [];
+        };
 
-        function toggleChatBubble(channel) {
+        window.renderChatHistory = function(channel, chats) {
+            const historyEl = document.getElementById(`${channel}-chat-history`);
+            if(!historyEl) return;
+            
+            if(chats.length === 0) {
+                historyEl.innerHTML = `
+                    <div class="flex justify-center mt-4">
+                        <span class="text-[9px] font-bold text-slate-400 bg-white/60 px-3 py-1 rounded-full shadow-sm">Start of conversation</span>
+                    </div>`;
+                return;
+            }
+            
+            let html = '';
+            let lastDateHeader = '';
+            
+            const isSec = channel === 'security';
+            const gradientColors = isSec ? 'from-slate-700 to-slate-900 shadow-slate-900/30' : 'from-blue-600 to-indigo-600 shadow-blue-500/30';
+            const tickColors = isSec ? 'text-slate-400' : 'text-blue-300';
+            const timeColor = isSec ? 'text-slate-300' : 'text-blue-200';
+            
+            chats.forEach(c => {
+                const role = String(c.sender_role || c.Role || c.Sender || '').toLowerCase();
+                const isStudent = role === 'student'; 
+                const rawDate = c.createdAt || c.Timestamp || c.updatedAt;
+                const time = window.formatSafeDate(rawDate).time || '--:--';
+                const msgText = c.message_text || c.Message || c.message || '';
+                
+                const currentDateHeader = window.getChatDateHeader(rawDate);
+                
+                if (currentDateHeader !== lastDateHeader && currentDateHeader !== '') {
+                    html += `
+                    <div class="flex justify-center my-3 animate-paneFade">
+                        <span class="text-[8.5px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-100">${currentDateHeader}</span>
+                    </div>`;
+                    lastDateHeader = currentDateHeader;
+                }
+                
+                if (isStudent) {
+                    // Outgoing from Student perspective
+                    html += `
+                    <div class="flex gap-2 items-end flex-row-reverse mt-2 animate-paneFade">
+                        <div class="bg-gradient-to-r ${gradientColors} rounded-2xl rounded-br-sm p-2.5 text-[10px] text-white max-w-[85%] shadow-md relative">
+                            <p class="leading-relaxed font-medium whitespace-pre-wrap">${msgText}</p>
+                            <span class="text-[7px] ${timeColor} block mt-1 text-right font-bold tracking-wider">${time} <i class="fa-solid fa-check-double text-emerald-400 ml-0.5 delivery-tick"></i></span>
+                        </div>
+                    </div>`;
+                } else {
+                    // Incoming from Crew/Officer
+                    html += `
+                    <div class="flex gap-2 items-end mt-2 animate-paneFade">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 shadow-inner">
+                            <i class="fa-solid fa-headset text-[9px] text-slate-500"></i>
+                        </div>
+                        <div class="bg-white/95 backdrop-blur-md border border-slate-100 rounded-2xl rounded-bl-sm p-2.5 text-[10px] text-slate-800 max-w-[85%] shadow-md relative leading-relaxed">
+                            <p class="font-medium whitespace-pre-wrap">${msgText}</p>
+                            <span class="text-[7.5px] text-slate-400 block mt-1 text-right font-bold tracking-wider">${time}</span>
+                        </div>
+                    </div>`;
+                }
+            });
+            historyEl.innerHTML = html;
+            setTimeout(() => { historyEl.scrollTop = historyEl.scrollHeight; }, 50);
+        };
+
+        window.toggleChatBubble = async function(channel) {
             const windowEl = document.getElementById(`${channel}-chat-window`);
             const fabEl = document.getElementById(`${channel}-chat-fab`);
+            const historyEl = document.getElementById(`${channel}-chat-history`);
             
             if (windowEl.classList.contains('scale-0')) {
                 // Expanding
                 windowEl.classList.remove('scale-0', 'opacity-0');
                 windowEl.classList.add('scale-100', 'opacity-100');
-                fabEl.classList.add('rotate-[-20deg]', 'scale-90');
-                const historyEl = document.getElementById(`${channel}-chat-history`);
-                if (historyEl) historyEl.scrollTop = historyEl.scrollHeight;
+                fabEl.classList.add('scale-90');
+                
+                // Show loading
+                historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-xl"></i></div>`;
+                
+                // Fetch and Render
+                const chats = await window.fetchChatHistory(channel);
+                window.renderChatHistory(channel, chats);
+                
             } else {
                 // Collapsing
                 windowEl.classList.add('scale-0', 'opacity-0');
                 windowEl.classList.remove('scale-100', 'opacity-100');
-                fabEl.classList.remove('rotate-[-20deg]', 'scale-90');
+                fabEl.classList.remove('scale-90');
             }
-        }
+        };
 
         function handleEnterKey(event, channel) {
             if (event.key === 'Enter') {
@@ -2205,10 +2292,15 @@
             const tickColors = isSec ? 'text-slate-400' : 'text-blue-300';
             const timeColor = isSec ? 'text-slate-300' : 'text-blue-200';
 
+            // Clear "Start of conversation" if it exists
+            if (historyEl.innerHTML.includes("Start of conversation")) {
+                historyEl.innerHTML = '';
+            }
+
             const userMsgHtml = `
                 <div class="flex gap-2 items-end flex-row-reverse animate-[fadeIn_0.2s_ease-in] mt-2">
                     <div class="bg-gradient-to-r ${gradientColors} rounded-2xl rounded-br-sm p-2.5 text-[10px] text-white max-w-[85%] shadow-md relative">
-                        <p class="font-medium leading-relaxed">${msg}</p>
+                        <p class="leading-relaxed font-medium whitespace-pre-wrap">${msg}</p>
                         <span class="text-[7px] ${timeColor} block mt-1 text-right font-bold tracking-wider">
                             ${timeStr} <i class="fa-solid fa-check ${tickColors} ml-0.5 delivery-tick"></i>
                         </span>
@@ -2220,16 +2312,19 @@
             historyEl.scrollTop = historyEl.scrollHeight;
             inputEl.value = '';
 
-            // EXPLICITLY TARGETING /webhook-test/ ENDPOINTS
             const baseUrl = channel === 'snag' 
-                ? 'https://n8n.automania.cloud/webhook/reziflow-snag-chat-send' 
-                : 'https://n8n.automania.cloud/webhook/reziflow-security-chat-send';
+                ? 'https://n8n.automania.cloud/webhook/reziflow-snag-chat-send0' 
+                : 'https://n8n.automania.cloud/webhook/reziflow-security-chat-send0';
             
             const params = new URLSearchParams({
                 Student_Number: session.Student_Number || 'Unknown',
+                studentn: session.Student_Number || 'Unknown',
                 Name: session.First_Name || 'Resident',
                 Room: session.Room_Allocation || 'Unassigned',
+                sender_role: "Student",
+                Role: "Student",
                 Message: msg,
+                message_text: msg,
                 Timestamp: now.toISOString()
             });
 
@@ -2246,20 +2341,11 @@
 
             try {
                 const res = await fetch(fullUrl, { method: 'GET', mode: 'cors' });
-                if (res.ok) {
-                    updateTicks();
-                } else {
-                    await fetch(fullUrl, { method: 'GET', mode: 'no-cors' });
-                    updateTicks();
-                }
+                if (res.ok) { updateTicks(); } 
+                else { await fetch(fullUrl, { method: 'GET', mode: 'no-cors' }); updateTicks(); }
             } catch (error) {
-                console.warn("Retrying chat send with no-cors mode due to network restrictions...", error);
-                try {
-                    await fetch(fullUrl, { method: 'GET', mode: 'no-cors' });
-                    updateTicks();
-                } catch (fallbackError) {
-                    console.error("Critical chat dispatch error:", fallbackError);
-                }
+                try { await fetch(fullUrl, { method: 'GET', mode: 'no-cors' }); updateTicks(); } 
+                catch (e) { console.error("Chat dispatch error:", e); }
             }
         }
         // ================= END: WHATSAPP-STYLE CHAT ENGINE =================
