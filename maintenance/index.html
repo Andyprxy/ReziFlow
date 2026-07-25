@@ -70,6 +70,7 @@
         .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll { overscroll-behavior: contain; } /* Prevents page scroll when chat ends */
 
         /* High-End Modals */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
@@ -439,7 +440,7 @@
             return { date: s, time: '' };
         };
 
-        // NEW: Date Grouping Helper for Chat
+        // Date Grouping Helper for Chat
         window.getChatDateHeader = function(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -456,13 +457,14 @@
             }
         };
 
+        // Global State for WhatsApp-Style Replies
+        window.activeChatsByTicket = {};
+        window.activeReplies = {}; 
+
         // ----------------------------------------------------
-        // ARCHITECTURAL DATA PIPELINE INITIALIZATION
+        // ARCHITECTURAL DATA PIPELINE 
         // ----------------------------------------------------
         (async function initMaintenanceModule() {
-            window.activeChatsByStudent = {};
-            window.activeChatsByTicket = {};
-
             try {
                 const [adminRes, maintRes] = await Promise.all([
                     fetch('https://n8n.automania.cloud/webhook/reziflow-admin-data').catch(()=>null),
@@ -561,7 +563,7 @@
         // ----------------------------------------------------
         // ROW EXPANSION & ON-DEMAND CHAT LOGIC
         // ----------------------------------------------------
-        window.toggleRowDetails = function(ticketId, studentId) {
+        window.toggleRowDetails = function(ticketId, studentId, studentName) {
             const detailRow = document.getElementById(`detail-${ticketId}`);
             if (detailRow) {
                 if(detailRow.classList.contains('hidden')) {
@@ -575,7 +577,7 @@
         };
 
         // ON-DEMAND FETCH TRIGGER
-        window.toggleInlineChat = async function(ticketId, room, studentId) {
+        window.toggleInlineChat = async function(ticketId, room, studentId, studentName) {
             const container = document.getElementById(`chat-container-${ticketId}`);
             const body = document.getElementById(`chat-body-${ticketId}`);
             const chevron = document.getElementById(`chat-chevron-${ticketId}`);
@@ -584,65 +586,59 @@
             if (container.classList.contains('h-[52px]')) {
                 // Expand Chat Window
                 container.classList.remove('h-[52px]');
-                container.classList.add('h-[320px]');
+                container.classList.add('h-[400px]');
                 body.classList.remove('hidden');
                 setTimeout(() => body.classList.remove('opacity-0'), 50);
                 chevron.classList.add('rotate-180');
                 
-                // Show loading state
-                historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-blue-500"></i></div>`;
-
-                try {
-                    const params = new URLSearchParams({
-                        Ticket_ID: ticketId,
-                        ticket_id: ticketId,
-                        Student_Number: studentId || 'Unknown',
-                        studentn: studentId || 'Unknown'
-                    });
+                // Show loading state if no cache
+                if (!window.activeChatsByTicket[ticketId]) {
+                    historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-xl"></i></div>`;
                     
-                    const url = `https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`;
-                    const res = await fetch(url, { method: 'GET', mode: 'cors' });
+                    try {
+                        const params = new URLSearchParams({
+                            Ticket_ID: ticketId,
+                            ticket_id: ticketId,
+                            Student_Number: studentId || 'Unknown',
+                            studentn: studentId || 'Unknown'
+                        });
+                        
+                        const url = `https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`;
+                        const res = await fetch(url, { method: 'GET', mode: 'cors' });
 
-                    if (res.ok) {
-                        const data = await res.json();
-                        const chats = window.parseN8n(data);
-                        
-                        // Sort messages chronologically by DB createdAt timestamp
-                        chats.sort((a,b) => new Date(a.createdAt || a.Timestamp) - new Date(b.createdAt || b.Timestamp));
-                        
-                        const sNum = String(studentId).trim();
-                        const tNum = String(ticketId).trim();
-                        window.activeChatsByStudent[sNum] = chats;
-                        window.activeChatsByTicket[tNum] = chats;
-                    } else {
-                        window.activeChatsByTicket[String(ticketId).trim()] = [];
+                        if (res.ok) {
+                            const data = await res.json();
+                            const chats = window.parseN8n(data);
+                            chats.sort((a,b) => new Date(a.createdAt || a.Timestamp) - new Date(b.createdAt || b.Timestamp));
+                            window.activeChatsByTicket[ticketId] = chats;
+                        } else {
+                            window.activeChatsByTicket[ticketId] = [];
+                        }
+                    } catch(e) {
+                        console.error("Fetch chat error", e);
+                        window.activeChatsByTicket[ticketId] = [];
                     }
-                } catch(e) {
-                    console.error("Fetch chat error", e);
-                    window.activeChatsByTicket[String(ticketId).trim()] = [];
                 }
                 
-                window.renderChatUI(ticketId, studentId);
+                window.renderChatUI(ticketId, studentId, studentName);
             } else {
                 // Collapse Chat Window
                 body.classList.add('opacity-0');
                 chevron.classList.remove('rotate-180');
                 setTimeout(() => {
                     body.classList.add('hidden');
-                    container.classList.remove('h-[320px]');
+                    container.classList.remove('h-[400px]');
                     container.classList.add('h-[52px]');
                 }, 200); 
             }
         };
 
         // RENDER CHAT UI WITH DATABASE KEYS MAP & WHATSAPP STYLING
-        window.renderChatUI = function(ticketId, studentId) {
+        window.renderChatUI = function(ticketId, studentId, studentName) {
             const historyEl = document.getElementById(`chat-history-${ticketId}`);
             if(!historyEl) return;
             
-            const sNum = String(studentId).trim();
-            const tNum = String(ticketId).trim();
-            const chats = window.activeChatsByTicket[tNum] || window.activeChatsByStudent[sNum] || [];
+            const chats = window.activeChatsByTicket[ticketId] || [];
             
             if(chats.length === 0) {
                 historyEl.innerHTML = `
@@ -660,39 +656,67 @@
                 const isOutgoing = (role.includes('maintain') || role.includes('maintenance') || role.includes('officer') || role.includes('crew'));
                 const rawDate = c.createdAt || c.Timestamp || c.updatedAt;
                 const time = window.formatSafeDate(rawDate).time || '--:--';
-                const msgText = c.message_text || c.Message || c.message || '';
+                let rawMsg = c.message_text || c.Message || c.message || '';
                 
+                let displayMsg = rawMsg;
+                let replyBox = '';
+                
+                // Parse embedded WhatsApp-style reply
+                const replyMatch = rawMsg.match(/^\[REPLY\|\|(.*?)\|\|(.*?)\]([\s\S]*)$/);
+                if (replyMatch) {
+                    const rName = replyMatch[1];
+                    const rText = replyMatch[2];
+                    displayMsg = replyMatch[3];
+                    
+                    replyBox = `
+                        <div class="bg-black/5 border-l-[3px] ${isOutgoing ? 'border-indigo-300' : 'border-indigo-500'} rounded p-1.5 mb-1.5 text-[8.5px] leading-tight opacity-90 cursor-default">
+                            <span class="font-bold ${isOutgoing ? 'text-indigo-100' : 'text-indigo-600'}">${rName}</span><br>
+                            <span class="truncate block max-w-[150px] opacity-90">${rText}</span>
+                        </div>
+                    `;
+                }
+
                 const currentDateHeader = window.getChatDateHeader(rawDate);
                 
                 // Date Divider
                 if (currentDateHeader !== lastDateHeader && currentDateHeader !== '') {
                     html += `
                     <div class="flex justify-center my-3 animate-paneFade">
-                        <span class="text-[8px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm">${currentDateHeader}</span>
+                        <span class="text-[8.5px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-100">${currentDateHeader}</span>
                     </div>`;
                     lastDateHeader = currentDateHeader;
                 }
 
+                const senderNameForReply = isOutgoing ? 'Officer' : studentName.split(' ')[0]; 
+                const safeTextForReply = displayMsg.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                // WhatsApp-Style Hover Reply Button
+                const replyBtn = `<button type="button" onclick="window.setReply('${ticketId}', '${senderNameForReply}', '${safeTextForReply}')" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-500 transition-opacity p-1.5 mr-1 shrink-0 flex items-center justify-center"><i class="fa-solid fa-reply text-[10px]"></i></button>`;
+
                 if(isOutgoing) {
-                    // Right Side (ReziOps/Maintenance) - Blue
+                    // Right Side (ReziOps/Maintenance)
                     html += `
-                    <div class="flex gap-2 items-end flex-row-reverse mt-2 animate-paneFade">
-                        <div class="bg-blue-600 rounded-2xl rounded-br-sm p-2.5 text-[10.5px] text-white max-w-[85%] shadow-md relative">
-                            <p class="leading-relaxed font-medium">${msgText}</p>
-                            <span class="text-[7.5px] text-blue-200 block mt-1 text-right font-bold tracking-wider">${time} <i class="fa-solid fa-check-double text-blue-300 ml-0.5"></i></span>
+                    <div class="flex gap-1 items-center flex-row-reverse mt-2 animate-paneFade group">
+                        <div class="bg-indigo-600 rounded-2xl rounded-br-sm p-2.5 text-[10.5px] text-white max-w-[85%] shadow-md relative min-w-0">
+                            ${replyBox}
+                            <p class="leading-relaxed font-medium break-words whitespace-pre-wrap">${displayMsg}</p>
+                            <span class="text-[7.5px] text-indigo-200 block mt-1 text-right font-bold tracking-wider">${time} <i class="fa-solid fa-check-double text-indigo-300 ml-0.5"></i></span>
                         </div>
+                        ${replyBtn}
                     </div>`;
                 } else {
-                    // Left Side (Student) - Glass White
+                    // Left Side (Student)
                     html += `
-                    <div class="flex gap-2 items-end mt-2 animate-paneFade">
-                        <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 shadow-inner">
+                    <div class="flex gap-1.5 items-center mt-2 animate-paneFade group">
+                        <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 shadow-inner self-end mb-1">
                             <i class="fa-solid fa-user text-[9px] text-slate-500"></i>
                         </div>
-                        <div class="bg-white/95 backdrop-blur-md border border-slate-100 rounded-2xl rounded-bl-sm p-2.5 text-[10.5px] text-slate-800 max-w-[85%] shadow-md relative leading-relaxed">
-                            <p class="font-medium">${msgText}</p>
+                        <div class="bg-white/95 backdrop-blur-md border border-slate-100 rounded-2xl rounded-bl-sm p-2.5 text-[10.5px] text-slate-800 max-w-[85%] shadow-md relative leading-relaxed min-w-0">
+                            ${replyBox}
+                            <p class="font-medium break-words whitespace-pre-wrap">${displayMsg}</p>
                             <span class="text-[7.5px] text-slate-400 block mt-1 text-right font-bold tracking-wider">${time}</span>
                         </div>
+                        ${replyBtn}
                     </div>`;
                 }
             });
@@ -704,17 +728,51 @@
             }, 50);
         };
 
-        window.handleChatEnter = function(event, ticketId, room, studentId) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                window.sendChatMsg(ticketId, room, studentId);
+        // Handle Setting the Reply Banner
+        window.setReply = function(ticketId, name, text) {
+            window.activeReplies[ticketId] = { name, text };
+            const banner = document.getElementById(`reply-banner-${ticketId}`);
+            const nameEl = document.getElementById(`reply-name-${ticketId}`);
+            const textEl = document.getElementById(`reply-text-${ticketId}`);
+            const inputEl = document.getElementById(`chat-input-${ticketId}`);
+            
+            if (banner && nameEl && textEl) {
+                nameEl.textContent = name;
+                textEl.textContent = text;
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            }
+            if(inputEl) inputEl.focus();
+        };
+
+        // Handle Canceling the Reply
+        window.cancelReply = function(ticketId) {
+            delete window.activeReplies[ticketId];
+            const banner = document.getElementById(`reply-banner-${ticketId}`);
+            if (banner) {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
             }
         };
 
-        window.sendChatMsg = async function(ticketId, room, studentId) {
+        window.handleChatEnter = function(event, ticketId, room, studentId, studentName) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                window.sendChatMsg(ticketId, room, studentId, studentName);
+            }
+        };
+
+        window.sendChatMsg = async function(ticketId, room, studentId, studentName) {
             const inputEl = document.getElementById(`chat-input-${ticketId}`);
             const msg = inputEl.value.trim();
             if(!msg) return;
+            
+            let finalMsg = msg;
+            if (window.activeReplies[ticketId]) {
+                const r = window.activeReplies[ticketId];
+                finalMsg = `[REPLY||${r.name}||${r.text}]${msg}`;
+                window.cancelReply(ticketId); // clear after attaching
+            }
             
             const now = new Date();
             const newMsg = {
@@ -722,18 +780,14 @@
                 studentn: studentId,
                 sender_name: "Officer",
                 sender_role: "Maintainance",
-                message_text: msg,
+                message_text: finalMsg,
                 createdAt: now.toISOString()
             };
             
-            const sNum = String(studentId).trim();
-            const tNum = String(ticketId).trim();
-            if(!window.activeChatsByStudent[sNum]) window.activeChatsByStudent[sNum] = [];
-            window.activeChatsByStudent[sNum].push(newMsg);
-            if(!window.activeChatsByTicket[tNum]) window.activeChatsByTicket[tNum] = [];
-            window.activeChatsByTicket[tNum].push(newMsg);
+            if(!window.activeChatsByTicket[ticketId]) window.activeChatsByTicket[ticketId] = [];
+            window.activeChatsByTicket[ticketId].push(newMsg);
 
-            window.renderChatUI(ticketId, studentId);
+            window.renderChatUI(ticketId, studentId, studentName);
             inputEl.value = '';
             
             // Dispatch outgoing message via GET webhook
@@ -746,8 +800,8 @@
                 Role: "Officer",
                 sender_role: "Maintainance",
                 sender_name: "Officer",
-                Message: msg,
-                message_text: msg,
+                Message: finalMsg,
+                message_text: finalMsg,
                 Timestamp: now.toISOString()
             });
             
@@ -886,7 +940,7 @@
                     : `<div class="flex items-center gap-1 text-amber-500 font-bold text-[7px] sm:text-[8px] uppercase tracking-widest"><i class="fa-solid fa-clock"></i> Pending</div>`;
 
                 htmlStr += `
-                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100/50 cursor-pointer group" onclick="window.toggleRowDetails('${safeId}', '${studentId}')" data-ticket-id="${safeId}">
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100/50 cursor-pointer group" onclick="window.toggleRowDetails('${safeId}', '${studentId}', '${res.name.replace(/'/g, "\\'")}')" data-ticket-id="${safeId}">
                         <td class="align-middle">
                             <div class="font-mono font-bold text-slate-600 text-[10px]">${safeId}</div>
                             <div class="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">${t.date}</div>
@@ -916,10 +970,10 @@
                     <!-- EXPANDED DETAIL ROW (HIDDEN BY DEFAULT) -->
                     <tr id="detail-${safeId}" class="hidden bg-[#f0f4f8]/50 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row border-b-2 border-indigo-100">
                         <td colspan="5" class="p-0">
-                            <div class="detail-row-content p-4 sm:p-5 flex flex-col lg:flex-row gap-5 items-start">
+                            <div class="detail-row-content p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-5 items-start">
                                 
                                 <!-- Left Col: Fault Info & Resolution Engine -->
-                                <div class="flex-1 flex flex-col gap-4 w-full">
+                                <div class="flex flex-col gap-4 w-full">
                                     
                                     <div class="glass-panel p-3.5 flex flex-col shadow-sm border border-white/80 rounded-[20px]">
                                         <div class="flex items-start justify-between border-b border-slate-200/50 pb-2 mb-2">
@@ -960,32 +1014,48 @@
                                 </div>
 
                                 <!-- Right Col: Collapsible Compact Chat Container -->
-                                <div id="chat-container-${safeId}" class="w-full lg:w-[320px] shrink-0 glass-panel border border-white/80 shadow-lg rounded-[20px] flex flex-col bg-white/40 overflow-hidden transition-all duration-300 h-[52px]">
+                                <div id="chat-container-${safeId}" class="w-full shrink-0 glass-panel border border-white/80 shadow-lg rounded-[20px] flex flex-col bg-white/40 overflow-hidden transition-all duration-300 h-[52px]">
                                     
-                                    <div class="bg-white/60 backdrop-blur-md px-3 py-2 border-b border-white shadow-sm flex items-center justify-between cursor-pointer tap-effect" onclick="window.toggleInlineChat('${safeId}', '${log.Room}', '${studentId}')">
+                                    <div class="bg-white/60 backdrop-blur-md px-3 py-2 border-b border-white shadow-sm flex items-center justify-between cursor-pointer tap-effect shrink-0 z-10" onclick="window.toggleInlineChat('${safeId}', '${log.Room}', '${studentId}', '${res.name.replace(/'/g, "\\'")}')">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner text-xs relative">
+                                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner text-xs relative">
                                                 <i class="fa-solid fa-comment-dots"></i>
+                                                ${hasUnread ? `<span class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-rose-500 border border-white"></span>` : ''}
                                             </div>
                                             <div>
                                                 <h4 class="text-[11px] font-black tracking-tight text-slate-800 leading-none">Chat with ${res.name.split(' ')[0]}</h4>
-                                                <p class="text-[8px] text-blue-500 font-bold uppercase tracking-widest mt-0.5">Tap to Expand</p>
+                                                <p class="text-[8px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5">Tap to Expand</p>
                                             </div>
                                         </div>
                                         <i id="chat-chevron-${safeId}" class="fa-solid fa-chevron-down text-slate-400 text-xs pr-2 transition-transform duration-300"></i>
                                     </div>
                                     
-                                    <div id="chat-body-${safeId}" class="flex-1 flex flex-col hidden opacity-0 transition-opacity duration-300">
-                                        <div id="chat-history-${safeId}" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30">
+                                    <div id="chat-body-${safeId}" class="flex-1 flex flex-col hidden opacity-0 transition-opacity duration-300 min-h-0 relative">
+                                        
+                                        <!-- History Layer -->
+                                        <div id="chat-history-${safeId}" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30 min-h-0 pb-4">
                                             <!-- Messages injected via JS -->
                                         </div>
                                         
-                                        <div class="p-2 border-t border-white/60 bg-white/60 backdrop-blur-md">
-                                            <div class="flex gap-1.5 items-center bg-white border border-slate-200 p-1.5 rounded-[16px] focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-sm">
-                                                <input type="text" id="chat-input-${safeId}" placeholder="Message resident..." class="flex-1 bg-transparent border-none px-2 py-1 text-[10.5px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full" onkeypress="window.handleChatEnter(event, '${safeId}', '${log.Room}', '${studentId}')">
-                                                <button onclick="window.sendChatMsg('${safeId}', '${log.Room}', '${studentId}')" class="bg-blue-600 text-white w-8 h-8 rounded-[12px] flex items-center justify-center tap-effect hover:bg-blue-700 transition-all flex-shrink-0 shadow-md shadow-blue-600/30">
-                                                    <i class="fa-solid fa-paper-plane text-[10px]"></i>
-                                                </button>
+                                        <!-- Input Layer -->
+                                        <div class="border-t border-white/60 bg-white/60 backdrop-blur-md shrink-0 flex flex-col rounded-b-[20px]">
+                                            
+                                            <!-- WhatsApp-style Reply Banner -->
+                                            <div id="reply-banner-${safeId}" class="hidden mx-2 mt-2 bg-white/90 border-l-2 border-indigo-500 p-1.5 rounded shadow-sm items-start justify-between text-[9px] backdrop-blur-sm z-20">
+                                                <div class="flex flex-col min-w-0 pr-2 flex-1">
+                                                    <span id="reply-name-${safeId}" class="font-bold text-indigo-600 truncate"></span>
+                                                    <span id="reply-text-${safeId}" class="text-slate-500 truncate mt-0.5 max-w-[200px]"></span>
+                                                </div>
+                                                <button onclick="window.cancelReply('${safeId}')" class="text-slate-400 hover:text-slate-600 pl-2 shrink-0 py-1"><i class="fa-solid fa-xmark"></i></button>
+                                            </div>
+                                            
+                                            <div class="p-2 pt-1.5 pb-2.5">
+                                                <div class="flex gap-1.5 items-center bg-white border border-slate-200 p-1.5 rounded-[16px] focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all shadow-sm">
+                                                    <input type="text" id="chat-input-${safeId}" placeholder="Message resident..." class="flex-1 bg-transparent border-none px-2 py-1 text-[10.5px] font-semibold text-slate-800 focus:outline-none placeholder-slate-400 w-full min-w-0" onkeypress="window.handleChatEnter(event, '${safeId}', '${log.Room}', '${studentId}', '${res.name.replace(/'/g, "\\'")}')">
+                                                    <button onclick="window.sendChatMsg('${safeId}', '${log.Room}', '${studentId}', '${res.name.replace(/'/g, "\\'")}')" class="bg-indigo-600 text-white w-8 h-8 rounded-[12px] flex items-center justify-center tap-effect hover:bg-indigo-700 transition-all flex-shrink-0 shadow-md shadow-indigo-600/30">
+                                                        <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
