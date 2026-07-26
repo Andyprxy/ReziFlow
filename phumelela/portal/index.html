@@ -1036,6 +1036,12 @@
         let studentCoords = null;
         let telemetryInterval = null;
 
+        // Chat Engine Globals
+        let activeChatChannel = null;
+        let chatPollingInterval = null;
+        let lastChatRawData = { snag: '', security: '' };
+        let isSendingChat = false;
+
         const profileDataFields = [
             'First_Name', 'Surname', 'Mobile_Number', 'Student_Number', 'ID_Number', 
             'Gender', 'Email_Address', 'Campus_Hub', 'Course', 'Year_Level', 
@@ -2215,15 +2221,38 @@
                 // Show loading
                 historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-xl"></i></div>`;
                 
-                // Fetch and Render
+                // Fetch and Render immediately
                 const chats = await window.fetchChatHistory(channel);
+                lastChatRawData[channel] = JSON.stringify(chats);
                 window.renderChatHistory(channel, chats);
+                
+                // Start 1-second auto-polling
+                activeChatChannel = channel;
+                if (chatPollingInterval) clearInterval(chatPollingInterval);
+                chatPollingInterval = setInterval(async () => {
+                    if (activeChatChannel !== channel || isSendingChat) return;
+                    
+                    const freshChats = await window.fetchChatHistory(channel);
+                    const freshRaw = JSON.stringify(freshChats);
+                    
+                    // Only re-render if data has changed (prevents flicker)
+                    if (freshRaw !== lastChatRawData[channel]) {
+                        lastChatRawData[channel] = freshRaw;
+                        window.renderChatHistory(channel, freshChats);
+                    }
+                }, 1000);
                 
             } else {
                 // Collapsing
                 windowEl.classList.add('scale-0', 'opacity-0');
                 windowEl.classList.remove('scale-100', 'opacity-100');
                 fabEl.classList.remove('scale-90', 'rotate-[-20deg]');
+                
+                if (chatPollingInterval) {
+                    clearInterval(chatPollingInterval);
+                    chatPollingInterval = null;
+                }
+                activeChatChannel = null;
             }
         };
 
@@ -2249,7 +2278,9 @@
             const tickColors = isSec ? 'text-slate-400' : 'text-blue-300';
             const timeColor = isSec ? 'text-slate-300' : 'text-blue-200';
 
-            // Clear "Start of conversation" if it exists
+            // Temporarily pause polling to prevent UI flicker
+            isSendingChat = true;
+
             if (historyEl.innerHTML.includes("Start of conversation")) {
                 historyEl.innerHTML = '';
             }
@@ -2303,6 +2334,9 @@
             } catch (error) {
                 try { await fetch(fullUrl, { method: 'GET', mode: 'no-cors' }); updateTicks(); } 
                 catch (e) { console.error("Chat dispatch error:", e); }
+            } finally {
+                // Resume polling after 1s buffer allowing the database to catch up
+                setTimeout(() => { isSendingChat = false; }, 1000);
             }
         }
 
@@ -2319,7 +2353,7 @@
             container.innerHTML = '<div class="flex justify-center p-6"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-2xl"></i></div>';
 
             try {
-                const response = await fetch(`https://n8n.automania.cloud/webhook-test/reziflow-get-active-logs?Student_Number=${studentNum}`);
+                const response = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-active-logs?Student_Number=${studentNum}`);
                 if (!response.ok) throw new Error("Failed to fetch logs");
                 
                 let data = await response.json();
