@@ -325,24 +325,24 @@
                 <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-boxes-stacked"></i></div>
                 <h2 class="text-base font-black text-slate-900 tracking-tight">Add Stock</h2>
             </div>
-            <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); window.showToast('Stock Added Locally'); e.target.reset();">
+            <form onsubmit="window.submitStockAdd(event)">
                 <div class="mb-3">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Item Name</label>
-                    <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    <input type="text" id="stock-name" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                 </div>
                 <div class="mb-3 flex gap-2">
                     <div class="w-1/2">
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">SKU</label>
-                        <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <input type="text" id="stock-sku" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                     </div>
                     <div class="w-1/2">
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Qty</label>
-                        <input type="number" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <input type="number" id="stock-qty" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                     </div>
                 </div>
                 <div class="mb-5">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Category</label>
-                    <select class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    <select id="stock-cat" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                         <option value="" disabled selected>Select...</option>
                         <option value="plumbing">Plumbing</option><option value="electrical">Electrical</option><option value="hardware">Hardware</option><option value="furniture">Furniture</option>
                     </select>
@@ -468,7 +468,7 @@
 
         if(tabId === 'history') window.renderHistoryData();
         else if (tabId === 'snags') window.setMaintenanceStatus('all');
-        else if (tabId === 'inventory') window.renderInventoryData('all');
+        else if (tabId === 'inventory') window.fetchInventoryData(); // Triggers Webhook GET Before Render
         else if (tabId === 'vendors') window.renderProvidersData('all');
     };
 
@@ -596,7 +596,7 @@
                     </td>
                     <td class="align-top">
                         <div class="font-black text-slate-800 text-[11px] leading-tight">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                        <div class="text-[8px] text-blue-600 mt-0.5 truncate w-24 sm:w-32 font-bold" title="${res.name}"><i class="fa-solid fa-user mr-1 text-blue-400"></i>${res.name}</div>
                     </td>
                     <td class="align-top">
                         <span class="bg-white border border-blue-200 text-blue-600 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest">${log.Category || '--'}</span>
@@ -625,10 +625,10 @@
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
-                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details provided.'}</p>
+                                    <p class="text-[10px] font-medium text-red-600 leading-relaxed">${log.Description || 'No details provided.'}</p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
-                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span>${res.name} <br><span class="text-slate-400 text-[8px] font-mono">${log.Student_Number || '--'}</span></div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span><span class="text-blue-600 font-bold">${res.name}</span> <br><span class="text-slate-400 text-[8px] font-mono">${log.Student_Number || '--'}</span></div>
                                     <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
                                 </div>
                             </div>
@@ -681,7 +681,7 @@
                     </td>
                     <td class="align-top">
                         <div class="font-black text-slate-800 text-[11px]">Rm: ${log.Room || '--'}</div>
-                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-24 sm:w-32 font-medium" title="${res.name}"><i class="fa-solid fa-user mr-1 text-slate-300"></i>${res.name}</div>
+                        <div class="text-[8px] text-blue-600 mt-0.5 truncate w-24 sm:w-32 font-bold" title="${res.name}"><i class="fa-solid fa-user mr-1 text-blue-400"></i>${res.name}</div>
                     </td>
                     <td class="align-top"><span class="bg-white border border-slate-200 text-slate-500 px-1.5 py-0.5 rounded-md text-[7px] font-bold shadow-sm inline-block uppercase tracking-widest" title="${log.Category}">${log.Category || '--'}</span></td>
                     <td class="align-top">
@@ -701,10 +701,10 @@
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Original Fault Description</p>
-                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details.'}</p>
+                                    <p class="text-[10px] font-medium text-red-600 leading-relaxed">${log.Description || 'No details.'}</p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
-                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter</span>${res.name}</div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter</span><span class="text-blue-600 font-bold">${res.name}</span></div>
                                     <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
                                 </div>
                             </div>
@@ -808,6 +808,58 @@
         { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
     ];
 
+    window.fetchInventoryData = async function() {
+        const body = document.getElementById('inventory-body');
+        if (body) { body.innerHTML = '<tr><td colspan="4" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-2xl"></i></td></tr>'; }
+        
+        try {
+            const response = await fetch('https://n8n.automania.cloud/webhook/stock-get');
+            if (response.ok) { window.globalInventoryData = window.parseN8n(await response.json()); }
+        } catch (e) {
+            console.error("Failed to fetch stock from webhook", e);
+        } finally {
+            window.renderInventoryData(document.querySelector('.glass-seg-btn.active').id.replace('inv-cat-', '') || 'all');
+        }
+    };
+
+    window.submitStockAdd = async function(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const ogText = btn.innerHTML;
+        
+        const payload = {
+            item_name: document.getElementById('stock-name').value,
+            sku: document.getElementById('stock-sku').value,
+            qty: document.getElementById('stock-qty').value,
+            category: document.getElementById('stock-cat').value,
+            timestamp: new Date().toISOString()
+        };
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting...'; 
+        btn.disabled = true;
+
+        try {
+            await fetch('https://n8n.automania.cloud/webhook-test/stock-add', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            document.getElementById('stockModal').classList.remove('active'); 
+            e.target.reset();
+            window.showToast("Stock added to vault.");
+            
+            // Re-fetch to reflect new data
+            if(window.currentMaintTab === 'inventory') {
+                window.fetchInventoryData();
+            }
+        } catch(error) { 
+            window.showToast("Failed to add stock.", "error"); 
+        } finally { 
+            btn.innerHTML = ogText; 
+            btn.disabled = false; 
+        }
+    };
+
     window.setInventoryCategory = function(cat) {
         safeUpdateSegmented('inv-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
         window.renderInventoryData(cat);
@@ -815,30 +867,45 @@
 
     window.renderInventoryData = function(filterCategory = 'all') {
         const body = document.getElementById('inventory-body'); if(!body) return;
-        let filtered = dummyInventory;
-        if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
+        
+        // Uses fetched global data if available, else falls back to dummy data
+        let baseData = window.globalInventoryData && window.globalInventoryData.length > 0 ? window.globalInventoryData : dummyInventory;
+        let filtered = baseData;
+        
+        if(filterCategory !== 'all') filtered = baseData.filter(i => (i.cat || i.category) === filterCategory);
 
         if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return; }
 
         let htmlStr = '';
         filtered.forEach(item => {
-            const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
+            const stockLevel = item.stock || item.qty || 0;
+            const itemCap = item.cap || 50; 
+            const ratio = stockLevel / itemCap; 
+            const isLow = ratio < 0.25; 
+            const widthPct = Math.max(5, Math.floor(ratio * 100));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
             const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
+            
+            // Standardize object keys between dummy data and external webhook schema
+            const itemName = item.name || item.item_name || 'Unknown Item';
+            const itemSku = item.sku || 'N/A';
+            const itemCat = item.cat || item.category || 'other';
+            const itemIcon = item.icon || 'fa-boxes-stacked';
+            const itemColor = item.color || 'slate';
 
             htmlStr += `
                 <tr class="${isLow ? 'bg-rose-50/20' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
                     <td class="align-middle">
-                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${item.name}</div>
-                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${itemName}</div>
+                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${itemSku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                        <span class="text-[6px] sm:text-[7px] font-bold text-${itemColor}-500 capitalize bg-white border border-${itemColor}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${itemIcon} mr-1"></i><span class="hidden sm:inline">${itemCat}</span></span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
                         <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
-                            <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
-                            <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
+                            <span class="${isLow ? 'text-rose-600' : ''}">${stockLevel}</span>
+                            <span class="text-slate-400 hidden sm:inline">Cap: ${itemCap}</span>
                         </div>
                         <div class="w-full bg-slate-200/70 rounded-full h-1 overflow-hidden shadow-inner"><div class="${barColor} h-full rounded-full transition-all" style="width: ${widthPct}%"></div></div>
                     </td>
