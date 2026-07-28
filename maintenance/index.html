@@ -584,7 +584,7 @@
             }
         };
 
-        // 2-SECOND REALTIME POLLING ENGINE FOR MESSAGES & TICKETS
+        // 1-SECOND REALTIME POLLING ENGINE FOR MESSAGES & TICKETS
         setInterval(async function pollRealtimeData() {
             // 1. Silent Ticket Refresher
             try {
@@ -605,7 +605,9 @@
                 if (container && !container.classList.contains('h-[52px]')) {
                     try {
                         const params = new URLSearchParams({ Ticket_ID: ticketId, ticket_id: ticketId });
-                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`);
+                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`, {
+                            method: 'GET'
+                        });
                         if (res.ok) {
                             const chats = window.parseN8n(await res.json());
                             chats.sort((a,b) => new Date(a.createdAt || a.Timestamp) - new Date(b.createdAt || b.Timestamp));
@@ -621,7 +623,7 @@
                     } catch(e) {}
                 }
             }
-        }, 2000);
+        }, 1000);
 
         var currentMaintenanceStatus = 'all';
         var currentMaintTab = 'snags';
@@ -727,7 +729,9 @@
                     
                     try {
                         const params = new URLSearchParams({ Ticket_ID: ticketId, ticket_id: ticketId });
-                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`);
+                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`, {
+                            method: 'GET'
+                        });
 
                         if (res.ok) {
                             const data = await res.json();
