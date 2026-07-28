@@ -196,7 +196,42 @@
             </div>
         </div>
 
-        <!-- TAB 4: Vendors (Hidden by Default) -->
+        <!-- TAB 4: Stock Logs History (Hidden by Default) -->
+        <div id="maint-pane-stock-logs" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
+            <div class="glass-panel overflow-hidden flex flex-col h-full">
+                <div class="px-3 py-3 border-b border-white/40 flex flex-col sm:flex-row justify-between sm:items-center bg-white/50 backdrop-blur-md gap-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-file-invoice text-[10px]"></i></div>
+                        <h3 class="font-black text-slate-800 text-xs sm:text-sm tracking-tight">Stock Log History</h3>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="window.fetchStockLogs(null, true)" class="bg-[#1d1d1f] hover:bg-[#333336] text-white font-bold px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 shrink-0 text-[10px] transition-all">
+                            <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Refresh Logs</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto custom-scroll bg-white/40 backdrop-blur-sm flex-1">
+                    <table class="w-full text-left border-collapse compact-table min-w-[700px]">
+                        <thead class="bg-white/70 sticky top-0 backdrop-blur-md z-10 shadow-sm border-b border-slate-200/40">
+                            <tr>
+                                <th class="w-32">Timestamp</th>
+                                <th>Requested By</th>
+                                <th>Item Requested</th>
+                                <th class="w-24 text-center">Quantity Req.</th>
+                                <th class="w-24 text-center">Stock @ Request</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-logs-body" class="divide-y divide-white/60">
+                            <tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium text-[9px]">Initializing logs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: Vendors (Hidden by Default) -->
         <div id="maint-pane-vendors" class="maint-dashboard-tab hidden flex-col h-full animate-paneFade">
             <div class="mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
                 <div><h2 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">Service Providers</h2></div>
@@ -253,7 +288,7 @@
                     <i class="fa-solid fa-boxes-packing text-slate-500 text-[9px]"></i> 
                     <span class="nav-text truncate text-[8px]">Add Stock</span>
                 </button>
-                <button onclick="window.fetchStockLogs(this)" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Request Log History">
+                <button id="btn-nav-stock-logs" onclick="window.switchMaintTab('stock-logs', this, false); window.fetchStockLogs(this);" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Request Log History">
                     <i class="fa-solid fa-file-invoice text-slate-500 text-[9px]"></i> 
                     <span class="nav-text truncate text-[8px]">Log History</span>
                 </button>
@@ -356,43 +391,6 @@
         </div>
     </div>
 </div>
-
-<!-- Stock Log History Modal -->
-<div id="stockLogModal" class="modal-overlay">
-    <div class="modal-content magic-border-container w-full max-w-lg">
-        <div class="magic-border-inner flex flex-col relative">
-            <button onclick="document.getElementById('stockLogModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
-            <div class="flex items-center justify-between mb-4 pr-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-file-invoice"></i></div>
-                    <div>
-                        <h2 class="text-base font-black text-slate-900 tracking-tight">Stock Log History</h2>
-                        <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Audit trail & stock movements</p>
-                    </div>
-                </div>
-                <button onclick="window.fetchStockLogs(null, true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm shrink-0 text-[10px] flex items-center gap-1"><i class="fa-solid fa-rotate text-indigo-500 text-[10px]"></i> Refresh</button>
-            </div>
-            
-            <div class="overflow-x-auto custom-scroll max-h-[350px] bg-slate-50/50 rounded-xl border border-slate-200/60 p-1">
-                <table class="w-full text-left border-collapse compact-table">
-                    <thead class="bg-white sticky top-0 shadow-sm border-b border-slate-200">
-                        <tr>
-                            <th>Date / Time</th>
-                            <th>Item</th>
-                            <th>Qty / Action</th>
-                            <th>Category</th>
-                            <th>Logged By / Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stock-logs-body" class="divide-y divide-slate-100">
-                        <tr><td colspan="5" class="p-6 text-center text-slate-400 text-[9px]">No log history loaded yet.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <script>
     // ----------------------------------------------------
@@ -509,20 +507,19 @@
 
         if(tabId === 'history') window.renderHistoryData();
         else if (tabId === 'snags') window.setMaintenanceStatus('all');
-        else if (tabId === 'inventory') window.fetchInventoryData(); // Triggers Webhook GET Before Render
+        else if (tabId === 'inventory') window.fetchInventoryData(); 
         else if (tabId === 'vendors') window.renderProvidersData('all');
+        // 'stock-logs' is triggered within the onclick, data is fetched via fetchStockLogs
     };
 
     // ----------------------------------------------------
     // ROW EXPANSION LOGIC
     // ----------------------------------------------------
     window.toggleRowDetails = function(ticketId, event) {
-        // Prevent row expansion if clicking inside the expansion or on an input/button
         if (event && (event.target.tagName === 'BUTTON' || event.target.closest('button') || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
             return;
         }
         
-        // Find all matching detail rows to ensure we toggle both if necessary, though IDs should be unique
         const detailRows = document.querySelectorAll(`#detail-${ticketId}`);
         detailRows.forEach(detailRow => {
             if(detailRow.classList.contains('hidden')) {
@@ -790,7 +787,6 @@
         
         let techNotes = 'Resolved by Admin';
         
-        // Differentiate between the inline quick-comment and the expanded detail comment
         if (source === 'inline') {
             const inlineNote = document.getElementById(`inline-comment-${ticketId}`);
             if (inlineNote && inlineNote.value.trim() !== '') techNotes = inlineNote.value;
@@ -865,10 +861,7 @@
 
     window.fetchStockLogs = async function(btnElement, forcedRefresh = false) {
         const body = document.getElementById('stock-logs-body');
-        const modal = document.getElementById('stockLogModal');
-        
-        if (modal) modal.classList.add('active');
-        if (body) body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
+        if (body) body.innerHTML = '<tr><td colspan="6" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
 
         const ogHtml = btnElement ? btnElement.innerHTML : '';
         if (btnElement) { 
@@ -877,16 +870,16 @@
         }
         
         try {
-            const response = await fetch('https://n8n.automania.cloud/webhook-test/stock-get-logs');
+            const response = await fetch('https://n8n.automania.cloud/webhook/stock-get-logs');
             if (response.ok) {
                 const logs = window.parseN8n(await response.json());
                 window.globalStockLogs = logs;
                 window.renderStockLogsData(logs);
             } else {
-                if (body) body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[9px]">Failed to fetch stock logs.</td></tr>';
+                if (body) body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-rose-500 font-bold text-[9px]">Failed to fetch stock logs.</td></tr>';
             }
         } catch(e) {
-            if (body) body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[9px]">Network error fetching stock logs.</td></tr>';
+            if (body) body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-rose-500 font-bold text-[9px]">Network error fetching stock logs.</td></tr>';
         } finally {
             if (btnElement) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; }
         }
@@ -897,33 +890,30 @@
         if (!body) return;
         
         if (!logs || logs.length === 0) {
-            body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[9px]">No stock logs found.</td></tr>';
+            body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium text-[9px]">No stock logs found.</td></tr>';
             return;
         }
 
         let htmlStr = '';
         logs.forEach(log => {
             const t = window.formatSafeDate(log.Timestamp || log.timestamp || log.Date || log.date || new Date().toISOString());
-            const item = log.Item || log.item_name || log.item || log.Name || '--';
-            const qty = log.Qty || log.qty || log.Quantity || log.quantity || '--';
-            const action = log.Action || log.action || (qty !== '--' && parseInt(qty, 10) > 0 ? `+${qty}` : `${qty}`);
-            const cat = log.Category || log.category || log.cat || 'General';
-            const notes = log.Notes || log.notes || log.User || log.user || 'Logged';
+            const requestedBy = log.Requested_By || log['Requested By'] || log.User || log.user || '--';
+            const item = log.Item || log['Item Requested'] || log.item_name || log.item || log.Name || '--';
+            const qty = log.Qty || log['Quantity Requested'] || log.Quantity || log.quantity || '--';
+            const stockAtReq = log.Stock_At_Request || log['Stock at Request'] || log.Stock || '--';
+            const notes = log.Notes || log.notes || '--';
 
             htmlStr += `
-                <tr class="hover:bg-white transition-colors border-b border-slate-100">
-                    <td class="align-top">
+                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100/50">
+                    <td class="align-middle">
                         <div class="font-bold text-slate-700 text-[9px]">${t.date}</div>
                         <div class="text-[7px] text-slate-400 font-mono">${t.time}</div>
                     </td>
-                    <td class="align-top font-bold text-slate-800 text-[9px]">${item}</td>
-                    <td class="align-top">
-                        <span class="bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold px-1.5 py-0.5 rounded text-[8px] inline-block">${action}</span>
-                    </td>
-                    <td class="align-top">
-                        <span class="text-slate-500 text-[8px] font-bold uppercase">${cat}</span>
-                    </td>
-                    <td class="align-top text-[8px] text-slate-600 font-medium truncate max-w-[120px]" title="${notes}">${notes}</td>
+                    <td class="align-middle font-bold text-blue-600 text-[9px]"><i class="fa-solid fa-user text-blue-400 mr-1"></i>${requestedBy}</td>
+                    <td class="align-middle font-black text-slate-800 text-[9px]">${item}</td>
+                    <td class="align-middle text-center font-bold text-slate-700 text-[9px]">${qty}</td>
+                    <td class="align-middle text-center font-bold text-slate-500 text-[9px]">${stockAtReq}</td>
+                    <td class="align-middle text-[8px] text-slate-600 font-medium truncate max-w-[120px]" title="${notes}">${notes}</td>
                 </tr>
             `;
         });
@@ -956,7 +946,6 @@
             e.target.reset();
             window.showToast("Stock added to vault.");
             
-            // Re-fetch to reflect new data
             if(window.currentMaintTab === 'inventory') {
                 window.fetchInventoryData();
             }
@@ -977,7 +966,6 @@
     window.renderInventoryData = function(filterCategory = 'all') {
         const body = document.getElementById('inventory-body'); if(!body) return;
         
-        // Uses fetched global data if available, else falls back to dummy data
         let baseData = window.globalInventoryData && window.globalInventoryData.length > 0 ? window.globalInventoryData : dummyInventory;
         let filtered = baseData;
         
@@ -992,7 +980,6 @@
 
         let htmlStr = '';
         filtered.forEach(item => {
-            // Flexible parsing across all potential keys returned by backend
             const itemName = item.Item || item['Item Name'] || item.name || item.item_name || 'Unknown Item';
             const itemSku = item.SKU || item.sku || (item.row_number ? `SKU-00${item.row_number}` : 'N/A');
             const itemCatRaw = item.Category || item.cat || item.category || 'General';
@@ -1006,7 +993,6 @@
             const widthPct = Math.min(100, Math.max(5, Math.floor(ratio * 100)));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
             
-            // Check if status is explicitly provided, else fallback to calculation
             const statusStr = String(item.Status || item.status || (isLow ? 'Low' : 'Healthy')).toLowerCase();
             const isActuallyLow = statusStr.includes('low') || isLow;
 
@@ -1014,7 +1000,6 @@
                 ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` 
                 : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
             
-            // Generate icon and color mapping dynamically if backend categories vary
             const itemIcon = item.icon || (itemCat.includes('elect') ? 'fa-bolt' : itemCat.includes('plumb') ? 'fa-droplet' : itemCat.includes('furn') ? 'fa-chair' : 'fa-boxes-stacked');
             const itemColor = item.color || (itemCat.includes('elect') ? 'amber' : itemCat.includes('plumb') ? 'blue' : itemCat.includes('furn') ? 'indigo' : 'slate');
 
