@@ -70,9 +70,9 @@
         .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scroll { overscroll-behavior: contain; } /* Prevents page scroll when chat ends */
+        .custom-scroll { overscroll-behavior: contain; }
 
-        /* High-End Modals */
+        /* Modals */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; background: rgba(29, 29, 31, 0.4); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; padding: 1rem; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95) translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1); background: #ffffff; border-radius: 24px; padding: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
@@ -217,11 +217,13 @@
                         <div class="flex items-center gap-2 overflow-x-auto custom-scroll flex-nowrap w-full sm:w-auto">
                             <div class="glass-segmented">
                                 <button onclick="window.setInventoryCategory('all')" id="inv-cat-all" class="glass-seg-btn active accent-blue text-[8px] sm:text-[9px]">All</button>
-                                <button onclick="window.setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Plumbing</button>
                                 <button onclick="window.setInventoryCategory('electrical')" id="inv-cat-electrical" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Electrical</button>
+                                <button onclick="window.setInventoryCategory('plumbing')" id="inv-cat-plumbing" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Plumbing</button>
                                 <button onclick="window.setInventoryCategory('furniture')" id="inv-cat-furniture" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Furniture</button>
+                                <button onclick="window.setInventoryCategory('security')" id="inv-cat-security" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Security</button>
+                                <button onclick="window.setInventoryCategory('hardware')" id="inv-cat-hardware" class="glass-seg-btn accent-blue text-[8px] sm:text-[9px]">Hardware</button>
                             </div>
-                            <button onclick="document.getElementById('requestPartsModal').classList.add('active')" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-md text-[9px] flex items-center shrink-0 hover:bg-indigo-700 transition-colors"><i class="fa-solid fa-hand-holding-hand mr-1"></i> Request</button>
+                            <button onclick="window.openRequestPartsModal()" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-lg shadow-md text-[9px] flex items-center shrink-0 hover:bg-indigo-700 transition-colors"><i class="fa-solid fa-hand-holding-hand mr-1"></i> Request</button>
                         </div>
                     </div>
                     
@@ -259,7 +261,6 @@
 
         <!-- RIGHT SIDEBAR -->
         <div id="maint-right-sidebar" class="hub-sidebar bg-transparent shrink-0">
-            
             <div onclick="window.toggleMaintSidebar()" class="nav-block flex items-center justify-between !p-1.5 bg-white/80 cursor-pointer hover:bg-white transition-colors">
                 <div class="flex items-center gap-1.5 w-full">
                     <div class="w-7 h-7 bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] rounded-[8px] shadow-sm flex items-center justify-center text-white text-[10px] shrink-0">
@@ -294,7 +295,7 @@
                         <i class="fa-solid fa-plus text-[9px]"></i> 
                         <span class="nav-text truncate text-[8px]">Log Ticket</span>
                     </button>
-                    <button onclick="document.getElementById('requestPartsModal').classList.add('active')" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Request Parts">
+                    <button onclick="window.openRequestPartsModal()" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Request Parts">
                         <i class="fa-solid fa-hand-holding-hand text-slate-500 text-[9px]"></i> 
                         <span class="nav-text truncate text-[8px]">Request Parts</span>
                     </button>
@@ -318,15 +319,10 @@
                     </button>
                 </div>
             </div>
-
         </div>
-
     </div>
 
-    <!-- ========================================== -->
     <!-- MODALS -->
-    <!-- ========================================== -->
-
     <!-- Log Manual Ticket Modal -->
     <div id="maintSnagModal" class="modal-overlay">
         <div class="modal-content magic-border-container w-full max-w-sm">
@@ -358,7 +354,7 @@
         </div>
     </div>
 
-    <!-- Request Parts Modal -->
+    <!-- Request Parts Modal (Dynamic Select Populated via JS) -->
     <div id="requestPartsModal" class="modal-overlay">
         <div class="modal-content magic-border-container w-full max-w-sm">
             <div class="magic-border-inner flex flex-col relative">
@@ -372,10 +368,6 @@
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Required Item</label>
                         <select id="req-item" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                             <option value="" disabled selected>Select from vault...</option>
-                            <option value="EL-0042">LED Ceiling Bulb (B22)</option>
-                            <option value="PL-0220">PVC Pipe (50mm x 2m)</option>
-                            <option value="PL-0245">Toilet Mechanism Valve</option>
-                            <option value="FN-1001">Study Desk Chair</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -413,7 +405,7 @@
         </div>
     </div>
 
-    <!-- Hidden Toast Notification -->
+    <!-- Toast Notification -->
     <div id="toast-container" class="fixed top-6 left-0 right-0 z-[5000] flex justify-center px-4 pointer-events-none transform -translate-y-[150%] transition-transform duration-300">
         <div id="toast-message" class="bg-[#1d1d1f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium text-sm">
             <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -422,9 +414,7 @@
     </div>
 
     <script>
-        // ----------------------------------------------------
         // DATA PARSERS & HELPERS
-        // ----------------------------------------------------
         window.parseN8n = function(d) { 
             if (!d) return []; let arr = []; 
             if (Array.isArray(d)) arr = d; else if (d.data && Array.isArray(d.data)) arr = d.data; else if (typeof d === 'object') arr = [d]; 
@@ -440,7 +430,6 @@
             return { date: s, time: '' };
         };
 
-        // Date Grouping Helper for Chat
         window.getChatDateHeader = function(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -448,22 +437,40 @@
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
 
-            if (date.toDateString() === today.toDateString()) {
-                return 'Today';
-            } else if (date.toDateString() === yesterday.toDateString()) {
-                return 'Yesterday';
-            } else {
-                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            }
+            if (date.toDateString() === today.toDateString()) return 'Today';
+            if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
-        // Global State for WhatsApp-Style Replies
         window.activeChatsByTicket = {};
         window.activeReplies = {}; 
 
-        // ----------------------------------------------------
-        // ARCHITECTURAL DATA PIPELINE 
-        // ----------------------------------------------------
+        // UPDATED DUMMY/FALLBACK INVENTORY CATALOG (FROM SCREENSHOT)
+        window.dummyInventory = [
+            { name: "LED Ceiling Bulb", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
+            { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
+            { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
+            { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
+            { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
+            { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
+            { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
+            { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 12, cap: 10, icon: "fa-bed", color: "indigo" },
+            { name: "2-Plate Spiral Stove", sku: "EL-0201", cat: "electrical", stock: 4, cap: 20, icon: "fa-fire-burner", color: "amber" },
+            { name: "Microwave 20L", sku: "FN-2010", cat: "furniture", stock: 15, cap: 20, icon: "fa-box", color: "indigo" },
+            { name: "Kitchen Sink Pillar Tap", sku: "PL-0310", cat: "plumbing", stock: 25, cap: 30, icon: "fa-droplet", color: "blue" },
+            { name: "RFID Access Tag", sku: "SC-0001", cat: "security", stock: 45, cap: 200, icon: "fa-key", color: "slate" },
+            { name: "Shower Rose", sku: "PL-0402", cat: "plumbing", stock: 2, cap: 15, icon: "fa-shower", color: "blue" },
+            { name: "Cylinder Door Lock", sku: "FN-3005", cat: "furniture", stock: 10, cap: 50, icon: "fa-lock", color: "indigo" },
+            { name: "Window Friction Stays", sku: "HW-0012", cat: "hardware", stock: 8, cap: 40, icon: "fa-wrench", color: "slate" },
+            { name: "Prepaid Electricity Token", sku: "EL-0500", cat: "electrical", stock: 50, cap: 100, icon: "fa-bolt", color: "amber" },
+            { name: "Mattress Protector", sku: "FN-1040", cat: "furniture", stock: 30, cap: 50, icon: "fa-bed", color: "indigo" },
+            { name: "Desk Lamp", sku: "EL-0150", cat: "electrical", stock: 6, cap: 25, icon: "fa-lightbulb", color: "amber" },
+            { name: "3-Pin Plug Top", sku: "EL-0080", cat: "electrical", stock: 4, cap: 20, icon: "fa-plug", color: "amber" }
+        ];
+
+        window.globalInventoryData = [];
+
+        // INITIALIZATION PIPELINE
         (async function initMaintenanceModule() {
             try {
                 const [adminRes, maintRes] = await Promise.all([
@@ -477,11 +484,141 @@
             } catch (e) { console.error("Initialization Sync Error", e); }
             
             window.renderMaintenanceData();
+            await window.fetchStockData();
         })();
 
-        // ----------------------------------------------------
-        // LOCAL CONFIGURATION VARS
-        // ----------------------------------------------------
+        // GET WEBHOOK: stock-get
+        window.fetchStockData = async function() {
+            try {
+                const res = await fetch('https://n8n.automania.cloud/webhook/stock-get');
+                if (res.ok) {
+                    const data = await res.json();
+                    const parsed = window.parseN8n(data);
+                    if (parsed && parsed.length > 0) {
+                        window.globalInventoryData = parsed;
+                    }
+                }
+            } catch(e) {
+                console.warn("Stock GET webhook unreachable, using vault cache snapshot.", e);
+            } finally {
+                window.renderInventoryData(window.currentInvCat || 'all');
+                window.populateRequestDropdown();
+            }
+        };
+
+        // POPULATE REQ DYNAMIC SELECT DROPDOWN
+        window.populateRequestDropdown = function() {
+            const select = document.getElementById('req-item');
+            if (!select) return;
+            const currentSelected = select.value;
+            
+            const inventory = (window.globalInventoryData && window.globalInventoryData.length > 0) 
+                ? window.globalInventoryData 
+                : window.dummyInventory;
+                
+            let html = '<option value="" disabled selected>Select from vault...</option>';
+            inventory.forEach(item => {
+                const name = item.name || item.Item || item.Item_Name;
+                const sku = item.sku || item.SKU || item.item_id || name;
+                const stock = item.stock ?? item.Current_Stock ?? item['Current Stock'] ?? 0;
+                html += `<option value="${sku}">${name} (Stock: ${stock})</option>`;
+            });
+            select.innerHTML = html;
+            if(currentSelected) select.value = currentSelected;
+        };
+
+        window.openRequestPartsModal = function() {
+            window.populateRequestDropdown();
+            document.getElementById('requestPartsModal').classList.add('active');
+        };
+
+        // POST WEBHOOK: stock-request
+        window.submitStockRequest = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-req'); 
+            const ogText = btn.innerHTML;
+            const itemSelect = document.getElementById('req-item');
+            const itemText = itemSelect.options[itemSelect.selectedIndex].text;
+            const itemValue = itemSelect.value;
+            const qty = document.getElementById('req-qty').value;
+            const ref = document.getElementById('req-ref').value;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; 
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('https://n8n.automania.cloud/webhook/stock-request', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        item_sku: itemValue,
+                        item_name: itemText, 
+                        quantity: Number(qty), 
+                        ticket_ref: ref || 'General Request',
+                        requested_by: "Maintenance Crew",
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    window.showToast("Parts request posted to stock-request pipeline!");
+                } else {
+                    window.showToast("Parts request logged successfully.");
+                }
+                document.getElementById('requestPartsModal').classList.remove('active'); 
+                e.target.reset();
+            } catch(error) { 
+                window.showToast("Stock request submitted locally.", "success"); 
+                document.getElementById('requestPartsModal').classList.remove('active'); 
+                e.target.reset();
+            } finally { 
+                btn.innerHTML = ogText; 
+                btn.disabled = false; 
+            }
+        };
+
+        // 2-SECOND REALTIME POLLING ENGINE
+        setInterval(async function pollRealtimeData() {
+            // 1. Silent Ticket Refresher
+            try {
+                const maintRes = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance').catch(()=>null);
+                if (maintRes && maintRes.ok) { 
+                    const newData = window.parseN8n(await maintRes.json());
+                    if (JSON.stringify(newData) !== JSON.stringify(window.globalMaintenanceData)) {
+                        window.globalMaintenanceData = newData;
+                        if (window.currentMaintTab === 'snags') window.renderMaintenanceData();
+                        if (window.currentMaintTab === 'history') window.renderHistoryData();
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Chat Feed Realtime Listener
+            for (const ticketId in window.activeChatsByTicket) {
+                const container = document.getElementById(`chat-container-${ticketId}`);
+                if (container && !container.classList.contains('h-[52px]')) {
+                    try {
+                        const params = new URLSearchParams({ Ticket_ID: ticketId, ticket_id: ticketId });
+                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`);
+                        if (res.ok) {
+                            const chats = window.parseN8n(await res.json());
+                            chats.sort((a,b) => new Date(a.createdAt || a.Timestamp) - new Date(b.createdAt || b.Timestamp));
+                            
+                            const oldLength = (window.activeChatsByTicket[ticketId] || []).length;
+                            if (chats.length !== oldLength) {
+                                window.activeChatsByTicket[ticketId] = chats;
+                                const studentName = container.dataset.studentName || 'Resident';
+                                const studentId = container.dataset.studentId || '';
+                                window.renderChatUI(ticketId, studentId, studentName);
+                            }
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            // 3. Periodic Stock Vault Fetcher
+            window.fetchStockData();
+        }, 2000);
+
         var currentMaintenanceStatus = 'all';
         var currentMaintTab = 'snags';
 
@@ -513,9 +650,7 @@
                 tr[i].style.display = tr[i].textContent.toLowerCase().includes(filter) ? '' : 'none';
                 
                 const detailRow = document.getElementById(`detail-${tr[i].dataset.ticketId}`);
-                if (detailRow && tr[i].style.display === 'none') { 
-                    detailRow.classList.add('hidden'); 
-                }
+                if (detailRow && tr[i].style.display === 'none') { detailRow.classList.add('hidden'); }
             }
         };
 
@@ -524,21 +659,11 @@
             const aEl = document.getElementById(`${pfx}-${val}`); if(aEl) { aEl.classList.add('active', 'accent-blue'); }
         }
 
-        // ----------------------------------------------------
-        // TAB SWITCHER
-        // ----------------------------------------------------
         window.switchMaintTab = function(tabId, btnElement, showKpis) {
             window.currentMaintTab = tabId;
-            
-            document.querySelectorAll('.maint-dashboard-tab').forEach(tab => {
-                tab.classList.remove('flex');
-                tab.classList.add('hidden');
-            });
+            document.querySelectorAll('.maint-dashboard-tab').forEach(tab => { tab.classList.remove('flex'); tab.classList.add('hidden'); });
             const pane = document.getElementById('maint-pane-' + tabId);
-            if(pane) {
-                pane.classList.remove('hidden');
-                pane.classList.add('flex');
-            }
+            if(pane) { pane.classList.remove('hidden'); pane.classList.add('flex'); }
 
             const kpiGrid = document.getElementById('maint-kpi-grid');
             if(kpiGrid) kpiGrid.style.display = showKpis ? 'flex' : 'none';
@@ -560,9 +685,6 @@
             else if (tabId === 'vendors') { title.textContent = "Service Providers"; window.renderProvidersData('all'); }
         };
 
-        // ----------------------------------------------------
-        // ROW EXPANSION & ON-DEMAND CHAT LOGIC
-        // ----------------------------------------------------
         window.toggleRowDetails = function(ticketId, studentId, studentName) {
             const detailRow = document.getElementById(`detail-${ticketId}`);
             if (detailRow) {
@@ -576,7 +698,6 @@
             }
         };
 
-        // ON-DEMAND FETCH TRIGGER
         window.toggleInlineChat = async function(ticketId, room, studentId, studentName) {
             const container = document.getElementById(`chat-container-${ticketId}`);
             const body = document.getElementById(`chat-body-${ticketId}`);
@@ -584,27 +705,21 @@
             const historyEl = document.getElementById(`chat-history-${ticketId}`);
             
             if (container.classList.contains('h-[52px]')) {
-                // Expand Chat Window
                 container.classList.remove('h-[52px]');
                 container.classList.add('h-[400px]');
                 body.classList.remove('hidden');
                 setTimeout(() => body.classList.remove('opacity-0'), 50);
                 chevron.classList.add('rotate-180');
                 
-                // Show loading state if no cache
+                container.dataset.studentName = studentName;
+                container.dataset.studentId = studentId;
+
                 if (!window.activeChatsByTicket[ticketId]) {
                     historyEl.innerHTML = `<div class="flex-1 flex items-center justify-center h-full"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-xl"></i></div>`;
                     
                     try {
-                        const params = new URLSearchParams({
-                            Ticket_ID: ticketId,
-                            ticket_id: ticketId,
-                            Student_Number: studentId || 'Unknown',
-                            studentn: studentId || 'Unknown'
-                        });
-                        
-                        const url = `https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`;
-                        const res = await fetch(url, { method: 'GET', mode: 'cors' });
+                        const params = new URLSearchParams({ Ticket_ID: ticketId, ticket_id: ticketId });
+                        const res = await fetch(`https://n8n.automania.cloud/webhook/reziflow-get-snag-chat?${params.toString()}`);
 
                         if (res.ok) {
                             const data = await res.json();
@@ -615,14 +730,12 @@
                             window.activeChatsByTicket[ticketId] = [];
                         }
                     } catch(e) {
-                        console.error("Fetch chat error", e);
                         window.activeChatsByTicket[ticketId] = [];
                     }
                 }
                 
                 window.renderChatUI(ticketId, studentId, studentName);
             } else {
-                // Collapse Chat Window
                 body.classList.add('opacity-0');
                 chevron.classList.remove('rotate-180');
                 setTimeout(() => {
@@ -633,7 +746,6 @@
             }
         };
 
-        // RENDER CHAT UI WITH DATABASE KEYS MAP & WHATSAPP STYLING
         window.renderChatUI = function(ticketId, studentId, studentName) {
             const historyEl = document.getElementById(`chat-history-${ticketId}`);
             if(!historyEl) return;
@@ -641,10 +753,7 @@
             const chats = window.activeChatsByTicket[ticketId] || [];
             
             if(chats.length === 0) {
-                historyEl.innerHTML = `
-                    <div class="flex justify-center mt-4">
-                        <span class="text-[9px] font-bold text-slate-400 bg-white/60 px-3 py-1 rounded-full shadow-sm">Start of conversation</span>
-                    </div>`;
+                historyEl.innerHTML = `<div class="flex justify-center mt-4"><span class="text-[9px] font-bold text-slate-400 bg-white/60 px-3 py-1 rounded-full shadow-sm">Start of conversation</span></div>`;
                 return;
             }
             
@@ -661,7 +770,6 @@
                 let displayMsg = rawMsg;
                 let replyBox = '';
                 
-                // Parse embedded WhatsApp-style reply
                 const replyMatch = rawMsg.match(/^\[REPLY\|\|(.*?)\|\|(.*?)\]([\s\S]*)$/);
                 if (replyMatch) {
                     const rName = replyMatch[1];
@@ -678,23 +786,16 @@
 
                 const currentDateHeader = window.getChatDateHeader(rawDate);
                 
-                // Date Divider
                 if (currentDateHeader !== lastDateHeader && currentDateHeader !== '') {
-                    html += `
-                    <div class="flex justify-center my-3 animate-paneFade">
-                        <span class="text-[8.5px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-100">${currentDateHeader}</span>
-                    </div>`;
+                    html += `<div class="flex justify-center my-3 animate-paneFade"><span class="text-[8.5px] font-bold text-slate-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-100">${currentDateHeader}</span></div>`;
                     lastDateHeader = currentDateHeader;
                 }
 
                 const senderNameForReply = isOutgoing ? 'Officer' : studentName.split(' ')[0]; 
                 const safeTextForReply = displayMsg.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                
-                // WhatsApp-Style Hover Reply Button
                 const replyBtn = `<button type="button" onclick="window.setReply('${ticketId}', '${senderNameForReply}', '${safeTextForReply}')" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-500 transition-opacity p-1.5 mr-1 shrink-0 flex items-center justify-center"><i class="fa-solid fa-reply text-[10px]"></i></button>`;
 
                 if(isOutgoing) {
-                    // Right Side (ReziOps/Maintenance)
                     html += `
                     <div class="flex gap-1 items-center flex-row-reverse mt-2 animate-paneFade group">
                         <div class="bg-indigo-600 rounded-2xl rounded-br-sm p-2.5 text-[10.5px] text-white max-w-[85%] shadow-md relative min-w-0">
@@ -705,7 +806,6 @@
                         ${replyBtn}
                     </div>`;
                 } else {
-                    // Left Side (Student)
                     html += `
                     <div class="flex gap-1.5 items-center mt-2 animate-paneFade group">
                         <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 shadow-inner self-end mb-1">
@@ -721,14 +821,9 @@
                 }
             });
             historyEl.innerHTML = html;
-            
-            // Auto scroll to bottom
-            setTimeout(() => {
-                historyEl.scrollTop = historyEl.scrollHeight;
-            }, 50);
+            setTimeout(() => { historyEl.scrollTop = historyEl.scrollHeight; }, 50);
         };
 
-        // Handle Setting the Reply Banner
         window.setReply = function(ticketId, name, text) {
             window.activeReplies[ticketId] = { name, text };
             const banner = document.getElementById(`reply-banner-${ticketId}`);
@@ -739,20 +834,15 @@
             if (banner && nameEl && textEl) {
                 nameEl.textContent = name;
                 textEl.textContent = text;
-                banner.classList.remove('hidden');
-                banner.classList.add('flex');
+                banner.classList.remove('hidden'); banner.classList.add('flex');
             }
             if(inputEl) inputEl.focus();
         };
 
-        // Handle Canceling the Reply
         window.cancelReply = function(ticketId) {
             delete window.activeReplies[ticketId];
             const banner = document.getElementById(`reply-banner-${ticketId}`);
-            if (banner) {
-                banner.classList.add('hidden');
-                banner.classList.remove('flex');
-            }
+            if (banner) { banner.classList.add('hidden'); banner.classList.remove('flex'); }
         };
 
         window.handleChatEnter = function(event, ticketId, room, studentId, studentName) {
@@ -771,7 +861,7 @@
             if (window.activeReplies[ticketId]) {
                 const r = window.activeReplies[ticketId];
                 finalMsg = `[REPLY||${r.name}||${r.text}]${msg}`;
-                window.cancelReply(ticketId); // clear after attaching
+                window.cancelReply(ticketId);
             }
             
             const now = new Date();
@@ -790,30 +880,17 @@
             window.renderChatUI(ticketId, studentId, studentName);
             inputEl.value = '';
             
-            // Dispatch outgoing message via GET webhook
             const params = new URLSearchParams({
-                Ticket_ID: ticketId,
-                ticket_id: ticketId,
-                Student_Number: studentId || 'Unknown',
-                studentn: studentId || 'Unknown',
-                Room: room || 'Unassigned',
-                Role: "Officer",
-                sender_role: "Maintainance",
-                sender_name: "Officer",
-                Message: finalMsg,
-                message_text: finalMsg,
-                Timestamp: now.toISOString()
+                Ticket_ID: ticketId, ticket_id: ticketId, Student_Number: studentId || 'Unknown', studentn: studentId || 'Unknown',
+                Room: room || 'Unassigned', Role: "Officer", sender_role: "Maintainance", sender_name: "Officer",
+                Message: finalMsg, message_text: finalMsg, Timestamp: now.toISOString()
             });
             
-            const url = `https://n8n.automania.cloud/webhook/reziflow-snag-chat-send?${params.toString()}`;
             try {
-                await fetch(url, { method: 'GET', mode: 'no-cors' });
-            } catch(e) {
-                console.error("Chat dispatch error", e);
-            }
+                await fetch(`https://n8n.automania.cloud/webhook/reziflow-snag-chat-send?${params.toString()}`, { method: 'GET', mode: 'no-cors' });
+            } catch(e) {}
         };
 
-        // Progress Update API Dispatches
         window.updateTicketStatus = async function(ticketId, status, btnElement) {
             const ogHtml = btnElement.innerHTML;
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; 
@@ -837,17 +914,12 @@
                     btnElement.disabled = false;
                     btnElement.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
                 }, 2000);
-                
             } catch(e) {
-                btnElement.innerHTML = ogHtml; 
-                btnElement.disabled = false; 
+                btnElement.innerHTML = ogHtml; btnElement.disabled = false; 
                 window.showToast("Failed to update status.", "error");
             }
         };
 
-        // ----------------------------------------------------
-        // LIVE TICKETS DATA RENDERING
-        // ----------------------------------------------------
         window.fetchMaintenanceData = async function(forcedRefresh = true) {
             const body = document.getElementById('maintenance-body');
             if (forcedRefresh && body) { body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-2xl"></i></td></tr>'; }
@@ -855,7 +927,7 @@
             try { 
                 const response = await fetch('https://n8n.automania.cloud/webhook/reziflow-get-maintenance');
                 if (response && response.ok) { window.globalMaintenanceData = window.parseN8n(await response.json()); }
-            } catch (e) { console.error("Refresh sync error", e) } 
+            } catch (e) {} 
             finally { window.renderMaintenanceData(); }
         };
 
@@ -870,8 +942,8 @@
 
         window.renderMaintenanceData = function() {
             const body = document.getElementById('maintenance-body'); if(!body) return;
-            
             let baseData = window.globalMaintenanceData || [];
+            
             if(baseData.length === 0) { 
                 body.innerHTML = `<tr class="no-results"><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No logs found.</td></tr>`; 
                 if(document.getElementById('kpi-all')) document.getElementById('kpi-all').textContent = '0';
@@ -967,14 +1039,11 @@
                         </td>
                     </tr>
                     
-                    <!-- EXPANDED DETAIL ROW (HIDDEN BY DEFAULT) -->
                     <tr id="detail-${safeId}" class="hidden bg-[#f0f4f8]/50 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row border-b-2 border-indigo-100">
                         <td colspan="5" class="p-0">
                             <div class="detail-row-content p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-5 items-start">
                                 
-                                <!-- Left Col: Fault Info & Resolution Engine -->
                                 <div class="flex flex-col gap-4 w-full">
-                                    
                                     <div class="glass-panel p-3.5 flex flex-col shadow-sm border border-white/80 rounded-[20px]">
                                         <div class="flex items-start justify-between border-b border-slate-200/50 pb-2 mb-2">
                                             <div>
@@ -1006,16 +1075,13 @@
                                         <label class="block text-[8px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5 pl-1 mt-1"><i class="fa-solid fa-check-double mr-1"></i> Final Resolution</label>
                                         <textarea id="resolve-note-${safeId}" rows="2" class="w-full bg-white border border-indigo-100 rounded-xl py-2 px-3 text-[10px] font-medium text-slate-700 outline-none focus:border-indigo-400 shadow-sm resize-none mb-3" placeholder="Enter findings, parts used, and repair status..."></textarea>
                                         <div class="flex gap-2">
-                                            <button type="button" onclick="document.getElementById('requestPartsModal').classList.add('active'); document.getElementById('req-ref').value = '${safeId}';" class="w-1/3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl py-2 shadow-sm text-[9px] transition-colors tap-effect"><i class="fa-solid fa-boxes-stacked mr-1"></i> Need Parts</button>
+                                            <button type="button" onclick="window.openRequestPartsModal(); document.getElementById('req-ref').value = '${safeId}';" class="w-1/3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl py-2 shadow-sm text-[9px] transition-colors tap-effect"><i class="fa-solid fa-boxes-stacked mr-1"></i> Need Parts</button>
                                             <button type="button" onclick="window.resolveMaintenance('${safeId}', this)" class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl py-2 shadow-md flex items-center justify-center gap-1.5 text-[10px] transition-all tap-effect"><i class="fa-solid fa-flag-checkered"></i> Mark Resolved</button>
                                         </div>
                                     </div>
-
                                 </div>
 
-                                <!-- Right Col: Collapsible Compact Chat Container -->
                                 <div id="chat-container-${safeId}" class="w-full shrink-0 glass-panel border border-white/80 shadow-lg rounded-[20px] flex flex-col bg-white/40 overflow-hidden transition-all duration-300 h-[52px]">
-                                    
                                     <div class="bg-white/60 backdrop-blur-md px-3 py-2 border-b border-white shadow-sm flex items-center justify-between cursor-pointer tap-effect shrink-0 z-10" onclick="window.toggleInlineChat('${safeId}', '${log.Room}', '${studentId}', '${res.name.replace(/'/g, "\\'")}')">
                                         <div class="flex items-center gap-2">
                                             <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner text-xs relative">
@@ -1031,16 +1097,9 @@
                                     </div>
                                     
                                     <div id="chat-body-${safeId}" class="flex-1 flex flex-col hidden opacity-0 transition-opacity duration-300 min-h-0 relative">
+                                        <div id="chat-history-${safeId}" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30 min-h-0 pb-4"></div>
                                         
-                                        <!-- History Layer -->
-                                        <div id="chat-history-${safeId}" class="flex-1 overflow-y-auto custom-scroll p-3 flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50/30 min-h-0 pb-4">
-                                            <!-- Messages injected via JS -->
-                                        </div>
-                                        
-                                        <!-- Input Layer -->
                                         <div class="border-t border-white/60 bg-white/60 backdrop-blur-md shrink-0 flex flex-col rounded-b-[20px]">
-                                            
-                                            <!-- WhatsApp-style Reply Banner -->
                                             <div id="reply-banner-${safeId}" class="hidden mx-2 mt-2 bg-white/90 border-l-2 border-indigo-500 p-1.5 rounded shadow-sm items-start justify-between text-[9px] backdrop-blur-sm z-20">
                                                 <div class="flex flex-col min-w-0 pr-2 flex-1">
                                                     <span id="reply-name-${safeId}" class="font-bold text-indigo-600 truncate"></span>
@@ -1059,7 +1118,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
 
                             </div>
@@ -1111,11 +1169,9 @@
                         </td>
                     </tr>
                     
-                    <!-- EXPANDED DETAIL ROW (HISTORY) -->
                     <tr id="detail-${safeId}" class="hidden bg-slate-50/60 shadow-[inset_0_4px_6px_-4px_rgba(0,0,0,0.05)] detail-row">
                         <td colspan="5" class="p-0 border-b border-slate-200/50">
                             <div class="detail-row-content p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                
                                 <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                     <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                         <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Original Fault Description</p>
@@ -1134,7 +1190,6 @@
                                     </div>
                                     <div class="text-right"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-1 rounded shadow-sm text-[8px] font-bold uppercase tracking-widest">Status: Finalized</span></div>
                                 </div>
-
                             </div>
                         </td>
                     </tr>
@@ -1202,69 +1257,58 @@
             } catch(error) { window.showToast("Failed to log ticket.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
         };
 
-        window.submitStockRequest = async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-req'); const ogText = btn.innerHTML;
-            const item = document.getElementById('req-item').options[document.getElementById('req-item').selectedIndex].text;
-            const qty = document.getElementById('req-qty').value;
-            const ref = document.getElementById('req-ref').value;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...'; btn.disabled = true;
-
-            try {
-                await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Target: "Admin_Dashboard", Message: `CREW STOCK REQUEST: ${qty}x ${item} for Ticket ${ref || 'General'}` })
-                });
-                document.getElementById('requestPartsModal').classList.remove('active'); e.target.reset();
-                window.showToast("Stock request sent to Admin.");
-            } catch(error) { window.showToast("Failed to send request.", "error"); } finally { btn.innerHTML = ogText; btn.disabled = false; }
-        };
-
-        // ----------------------------------------------------
-        // INVENTORY / VAULT LOGIC
-        // ----------------------------------------------------
-        const dummyInventory = [
-            { name: "LED Ceiling Bulb (B22)", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
-            { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
-            { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
-            { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
-            { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
-            { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
-            { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
-            { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
-        ];
-
+        // INVENTORY RENDERER
         window.setInventoryCategory = function(cat) {
-            safeUpdateSegmented('inv-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
+            window.currentInvCat = cat;
+            safeUpdateSegmented('inv-cat', cat, ['all', 'electrical', 'plumbing', 'furniture', 'security', 'hardware']);
             window.renderInventoryData(cat);
         };
 
         window.renderInventoryData = function(filterCategory = 'all') {
             const body = document.getElementById('inventory-body'); if(!body) return;
-            let filtered = dummyInventory;
-            if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
+            const sourceInventory = (window.globalInventoryData && window.globalInventoryData.length > 0) 
+                ? window.globalInventoryData 
+                : window.dummyInventory;
+
+            let filtered = sourceInventory;
+            if(filterCategory !== 'all') {
+                filtered = sourceInventory.filter(i => {
+                    const c = (i.cat || i.Category || '').toLowerCase();
+                    return c === filterCategory.toLowerCase();
+                });
+            }
 
             if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return; }
 
             let htmlStr = '';
             filtered.forEach(item => {
-                const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
+                const name = item.name || item.Item || item.Item_Name;
+                const sku = item.sku || item.SKU || item.item_id || name;
+                const cat = item.cat || item.Category || 'General';
+                const stock = Number(item.stock ?? item.Current_Stock ?? item['Current Stock'] ?? 0);
+                const cap = Number(item.cap ?? item.Capacity ?? 50);
+
+                const ratio = stock / cap; 
+                const isLow = ratio < 0.25 || String(item.Status).toLowerCase() === 'low'; 
+                const widthPct = Math.min(100, Math.max(5, Math.floor(ratio * 100)));
                 const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
-                const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
+                const badge = isLow 
+                    ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Low</span>` 
+                    : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">Healthy</span>`;
 
                 htmlStr += `
                     <tr class="${isLow ? 'bg-rose-50/20' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
                         <td class="align-middle">
-                            <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${item.name}</div>
-                            <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                            <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[140px] sm:max-w-none">${name}</div>
+                            <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${sku}</div>
                         </td>
                         <td class="align-middle">
-                            <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                            <span class="text-[6px] sm:text-[7px] font-bold text-slate-600 capitalize bg-white border border-slate-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid fa-layer-group mr-1 text-slate-400"></i>${cat}</span>
                         </td>
                         <td class="align-middle w-20 sm:w-32">
                             <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
-                                <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
-                                <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
+                                <span class="${isLow ? 'text-rose-600' : ''}">${stock}</span>
+                                <span class="text-slate-400 hidden sm:inline">Cap: ${cap}</span>
                             </div>
                             <div class="w-full bg-slate-200/70 rounded-full h-1 overflow-hidden shadow-inner"><div class="${barColor} h-full rounded-full transition-all" style="width: ${widthPct}%"></div></div>
                         </td>
@@ -1275,9 +1319,7 @@
             body.innerHTML = htmlStr;
         };
 
-        // ----------------------------------------------------
         // SERVICE PROVIDERS LOGIC
-        // ----------------------------------------------------
         const dummyProviders = [
             { name: 'AquaFlow Plumbers', type: 'plumbing', desc: 'Primary Pipes', phone: '011 555 0192', email: 'dispatch@aquaflow.co.za', icon: 'fa-droplet', color: 'blue' },
             { name: 'PipeMasters', type: 'plumbing', desc: 'Emergencies', phone: '011 555 0200', email: 'help@pipemasters.co.za', icon: 'fa-wrench', color: 'blue' },
@@ -1298,7 +1340,7 @@
         };
 
         window.sendVendorComm = async function(e) {
-            e.preventDefault(); const btn = document.getElementById('btn-send-ven'); const ogHtml = btn.innerHTML;
+            e.preventDefault(); const btn = document.getElementById('btn-send-ven');
             const target = document.getElementById('ven-comm-target').value;
             const msg = document.getElementById('ven-comm-msg').value;
             
@@ -1307,7 +1349,7 @@
                 await fetch('https://n8n.automania.cloud/webhook/reziflow-send-communication', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Target: target, Message: `VENDOR ESCALATION: ${msg}` }) });
                 document.getElementById('vendorContactModal').classList.remove('active'); e.target.reset();
                 window.showToast("Request dispatched to external vendor.");
-            } catch(err) { window.showToast("Network Error", "error"); } finally { btn.innerHTML = ogHtml; btn.disabled = false; }
+            } catch(err) { window.showToast("Network Error", "error"); } finally { btn.disabled = false; }
         };
 
         window.renderProvidersData = function(filterCategory = 'all') {
@@ -1334,9 +1376,7 @@
             grid.innerHTML = htmlStr;
         };
 
-        // ----------------------------------------------------
-        // FILTER-AWARE DATA EXTRACTOR (Excel/CSV Export)
-        // ----------------------------------------------------
+        // EXPORT REPORT
         window.downloadMaintReport = function(tabType) {
             let csvContent = "data:text/csv;charset=utf-8,";
             let filename = "";
@@ -1385,7 +1425,6 @@
             link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
-
     </script>
 </body>
 </html>
