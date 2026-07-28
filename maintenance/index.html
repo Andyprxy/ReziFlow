@@ -367,7 +367,7 @@
                     <div class="mb-3">
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Required Item</label>
                         <select id="req-item" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
-                            <option value="" disabled selected>Select from vault...</option>
+                            <option value="" disabled selected data-name="">Select from vault...</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -519,12 +519,12 @@
                 ? window.globalInventoryData 
                 : window.dummyInventory;
                 
-            let html = '<option value="" disabled selected>Select from vault...</option>';
+            let html = '<option value="" disabled selected data-name="">Select from vault...</option>';
             inventory.forEach(item => {
                 const name = item.name || item.Item || item.Item_Name;
                 const sku = item.sku || item.SKU || item.item_id || name;
                 const stock = item.stock ?? item.Current_Stock ?? item['Current Stock'] ?? 0;
-                html += `<option value="${sku}">${name} (Stock: ${stock})</option>`;
+                html += `<option value="${sku}" data-name="${name}">${name} (Stock: ${stock})</option>`;
             });
             select.innerHTML = html;
             if(currentSelected) select.value = currentSelected;
@@ -541,7 +541,8 @@
             const btn = document.getElementById('btn-submit-req'); 
             const ogText = btn.innerHTML;
             const itemSelect = document.getElementById('req-item');
-            const itemText = itemSelect.options[itemSelect.selectedIndex] ? itemSelect.options[itemSelect.selectedIndex].text : '';
+            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+            const itemText = selectedOption ? (selectedOption.getAttribute('data-name') || selectedOption.text) : '';
             const itemValue = itemSelect.value;
             const qty = document.getElementById('req-qty').value;
             const ref = document.getElementById('req-ref').value;
