@@ -357,6 +357,42 @@
     </div>
 </div>
 
+<!-- Stock Log History Modal -->
+<div id="stockLogModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-lg">
+        <div class="magic-border-inner flex flex-col relative">
+            <button onclick="document.getElementById('stockLogModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center justify-between mb-4 pr-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-file-invoice"></i></div>
+                    <div>
+                        <h2 class="text-base font-black text-slate-900 tracking-tight">Stock Log History</h2>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Audit trail & stock movements</p>
+                    </div>
+                </div>
+                <button onclick="window.fetchStockLogs(null, true)" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-bold px-2 py-1 rounded-lg shadow-sm shrink-0 text-[10px] flex items-center gap-1"><i class="fa-solid fa-rotate text-indigo-500 text-[10px]"></i> Refresh</button>
+            </div>
+            
+            <div class="overflow-x-auto custom-scroll max-h-[350px] bg-slate-50/50 rounded-xl border border-slate-200/60 p-1">
+                <table class="w-full text-left border-collapse compact-table">
+                    <thead class="bg-white sticky top-0 shadow-sm border-b border-slate-200">
+                        <tr>
+                            <th>Date / Time</th>
+                            <th>Item</th>
+                            <th>Qty / Action</th>
+                            <th>Category</th>
+                            <th>Logged By / Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stock-logs-body" class="divide-y divide-slate-100">
+                        <tr><td colspan="5" class="p-6 text-center text-slate-400 text-[9px]">No log history loaded yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script>
     // ----------------------------------------------------
@@ -402,6 +438,7 @@
     // ----------------------------------------------------
     var currentMaintenanceStatus = 'all';
     var currentMaintTab = 'snags';
+    var currentInventoryCategory = 'all';
 
     window.toggleMaintSidebar = function() {
         const sidebar = document.getElementById('maint-right-sidebar');
@@ -802,14 +839,14 @@
     // INVENTORY / VAULT LOGIC
     // ----------------------------------------------------
     const dummyInventory = [
-        { name: "LED Ceiling Bulb (B22)", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
-        { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
-        { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
-        { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
-        { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
-        { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
-        { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
-        { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
+        { Item: "LED Ceiling Bulb (B22)", sku: "EL-0042", Category: "Electrical", "Current Stock": 45, Capacity: 50, Status: "Healthy." },
+        { Item: "Fluorescent Tube 4ft", sku: "EL-0091", Category: "Electrical", "Current Stock": 12, Capacity: 40, Status: "Healthy." },
+        { Item: "Standard Wall Socket", sku: "EL-0112", Category: "Electrical", "Current Stock": 5, Capacity: 30, Status: "Low" },
+        { Item: "PVC Pipe (50mm x 2m)", sku: "PL-0220", Category: "Plumbing", "Current Stock": 8, Capacity: 20, Status: "Healthy." },
+        { Item: "Toilet Mechanism Valve", sku: "PL-0245", Category: "Plumbing", "Current Stock": 3, Capacity: 15, Status: "Low" },
+        { Item: "Basin Mixer Tap", sku: "PL-0299", Category: "Plumbing", "Current Stock": 6, Capacity: 10, Status: "Healthy." },
+        { Item: "Study Desk Chair", sku: "FN-1001", Category: "Furniture", "Current Stock": 15, Capacity: 20, Status: "Healthy." },
+        { Item: "Single Bed Mattress", sku: "FN-1033", Category: "Furniture", "Current Stock": 2, Capacity: 10, Status: "Low" }
     ];
 
     window.fetchInventoryData = async function() {
@@ -822,11 +859,17 @@
         } catch (e) {
             console.error("Failed to fetch stock from webhook", e);
         } finally {
-            window.renderInventoryData(document.querySelector('.glass-seg-btn.active').id.replace('inv-cat-', '') || 'all');
+            window.renderInventoryData(window.currentInventoryCategory || 'all');
         }
     };
 
-    window.fetchStockLogs = async function(btnElement) {
+    window.fetchStockLogs = async function(btnElement, forcedRefresh = false) {
+        const body = document.getElementById('stock-logs-body');
+        const modal = document.getElementById('stockLogModal');
+        
+        if (modal) modal.classList.add('active');
+        if (body) body.innerHTML = '<tr><td colspan="5" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
+
         const ogHtml = btnElement ? btnElement.innerHTML : '';
         if (btnElement) { 
             btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-slate-500 text-[9px]"></i> <span class="nav-text truncate text-[8px]">Fetching...</span>'; 
@@ -837,16 +880,54 @@
             const response = await fetch('https://n8n.automania.cloud/webhook/stock-get-logs');
             if (response.ok) {
                 const logs = window.parseN8n(await response.json());
-                console.log("Stock Logs Retrieved:", logs);
-                window.showToast("Log history fetched successfully.");
+                window.globalStockLogs = logs;
+                window.renderStockLogsData(logs);
             } else {
-                window.showToast("Failed to fetch log history.", "error");
+                if (body) body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[9px]">Failed to fetch stock logs.</td></tr>';
             }
         } catch(e) {
-            window.showToast("Network Error: Could not fetch log history.", "error");
+            if (body) body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-500 font-bold text-[9px]">Network error fetching stock logs.</td></tr>';
         } finally {
             if (btnElement) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; }
         }
+    };
+
+    window.renderStockLogsData = function(logs) {
+        const body = document.getElementById('stock-logs-body');
+        if (!body) return;
+        
+        if (!logs || logs.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400 font-medium text-[9px]">No stock logs found.</td></tr>';
+            return;
+        }
+
+        let htmlStr = '';
+        logs.forEach(log => {
+            const t = window.formatSafeDate(log.Timestamp || log.timestamp || log.Date || log.date || new Date().toISOString());
+            const item = log.Item || log.item_name || log.item || log.Name || '--';
+            const qty = log.Qty || log.qty || log.Quantity || log.quantity || '--';
+            const action = log.Action || log.action || (qty !== '--' && parseInt(qty, 10) > 0 ? `+${qty}` : `${qty}`);
+            const cat = log.Category || log.category || log.cat || 'General';
+            const notes = log.Notes || log.notes || log.User || log.user || 'Logged';
+
+            htmlStr += `
+                <tr class="hover:bg-white transition-colors border-b border-slate-100">
+                    <td class="align-top">
+                        <div class="font-bold text-slate-700 text-[9px]">${t.date}</div>
+                        <div class="text-[7px] text-slate-400 font-mono">${t.time}</div>
+                    </td>
+                    <td class="align-top font-bold text-slate-800 text-[9px]">${item}</td>
+                    <td class="align-top">
+                        <span class="bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold px-1.5 py-0.5 rounded text-[8px] inline-block">${action}</span>
+                    </td>
+                    <td class="align-top">
+                        <span class="text-slate-500 text-[8px] font-bold uppercase">${cat}</span>
+                    </td>
+                    <td class="align-top text-[8px] text-slate-600 font-medium truncate max-w-[120px]" title="${notes}">${notes}</td>
+                </tr>
+            `;
+        });
+        body.innerHTML = htmlStr;
     };
 
     window.submitStockAdd = async function(e) {
@@ -888,6 +969,7 @@
     };
 
     window.setInventoryCategory = function(cat) {
+        window.currentInventoryCategory = cat;
         safeUpdateSegmented('inv-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
         window.renderInventoryData(cat);
     };
@@ -910,29 +992,31 @@
 
         let htmlStr = '';
         filtered.forEach(item => {
-            // Parse integers to handle potential stringified numbers from the n8n JSON format
-            const stockLevel = parseInt(item['Current Stock'] || item.stock || item.qty || 0, 10) || 0;
-            const itemCap = parseInt(item.Capacity || item.cap || 50, 10) || 50; 
-            const ratio = stockLevel / itemCap; 
+            // Flexible parsing across all potential keys returned by backend
+            const itemName = item.Item || item['Item Name'] || item.name || item.item_name || 'Unknown Item';
+            const itemSku = item.SKU || item.sku || (item.row_number ? `SKU-00${item.row_number}` : 'N/A');
+            const itemCatRaw = item.Category || item.cat || item.category || 'General';
+            const itemCat = String(itemCatRaw).toLowerCase();
+            
+            const stockLevel = parseInt(item['Current Stock'] ?? item.stock ?? item.qty ?? item.Current_Stock ?? 0, 10) || 0;
+            const itemCap = parseInt(item.Capacity ?? item.cap ?? item.Capacity_Max ?? 50, 10) || 50; 
+            
+            const ratio = itemCap > 0 ? stockLevel / itemCap : 0; 
             const isLow = ratio < 0.25; 
-            const widthPct = Math.max(5, Math.floor(ratio * 100));
+            const widthPct = Math.min(100, Math.max(5, Math.floor(ratio * 100)));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
             
             // Check if status is explicitly provided, else fallback to calculation
             const statusStr = String(item.Status || item.status || (isLow ? 'Low' : 'Healthy')).toLowerCase();
             const isActuallyLow = statusStr.includes('low') || isLow;
 
-            const badge = isActuallyLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
-            
-            // Standardize object keys between dummy data and external webhook schema
-            const itemName = item.Item || item.name || item.item_name || 'Unknown Item';
-            const itemSku = item.sku || 'N/A'; // Note: Skipped if not present in backend
-            const itemCatRaw = item.Category || item.cat || item.category || 'other';
-            const itemCat = String(itemCatRaw).toLowerCase();
+            const badge = isActuallyLow 
+                ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` 
+                : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
             
             // Generate icon and color mapping dynamically if backend categories vary
-            const itemIcon = item.icon || (itemCat.includes('elect') ? 'fa-bolt' : itemCat.includes('plumb') ? 'fa-droplet' : 'fa-boxes-stacked');
-            const itemColor = item.color || (itemCat.includes('elect') ? 'amber' : itemCat.includes('plumb') ? 'blue' : 'slate');
+            const itemIcon = item.icon || (itemCat.includes('elect') ? 'fa-bolt' : itemCat.includes('plumb') ? 'fa-droplet' : itemCat.includes('furn') ? 'fa-chair' : 'fa-boxes-stacked');
+            const itemColor = item.color || (itemCat.includes('elect') ? 'amber' : itemCat.includes('plumb') ? 'blue' : itemCat.includes('furn') ? 'indigo' : 'slate');
 
             htmlStr += `
                 <tr class="${isActuallyLow ? 'bg-rose-50/20' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
@@ -941,7 +1025,7 @@
                         <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${itemSku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[6px] sm:text-[7px] font-bold text-${itemColor}-500 capitalize bg-white border border-${itemColor}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${itemIcon} mr-1"></i><span class="hidden sm:inline">${itemCat}</span></span>
+                        <span class="text-[6px] sm:text-[7px] font-bold text-${itemColor}-500 capitalize bg-white border border-${itemColor}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${itemIcon} mr-1"></i><span class="hidden sm:inline">${itemCatRaw}</span></span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
                         <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
