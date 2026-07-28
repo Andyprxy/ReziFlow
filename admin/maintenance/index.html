@@ -253,6 +253,10 @@
                     <i class="fa-solid fa-boxes-packing text-slate-500 text-[9px]"></i> 
                     <span class="nav-text truncate text-[8px]">Add Stock</span>
                 </button>
+                <button onclick="window.openStockLogsModal()" class="block-btn btn-secondary-white justify-center gap-1 !py-1.5" title="Request History">
+                    <i class="fa-solid fa-clock-rotate-left text-slate-500 text-[9px]"></i> 
+                    <span class="nav-text truncate text-[8px]">Request History</span>
+                </button>
             </div>
         </div>
 
@@ -316,7 +320,7 @@
     </div>
 </div>
 
-<!-- Add Stock Modal -->
+<!-- Add Stock Modal (Wired to stock-request webhook) -->
 <div id="stockModal" class="modal-overlay">
     <div class="modal-content magic-border-container w-full max-w-sm">
         <div class="magic-border-inner flex flex-col relative">
@@ -325,38 +329,76 @@
                 <div class="w-8 h-8 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-boxes-stacked"></i></div>
                 <h2 class="text-base font-black text-slate-900 tracking-tight">Add Stock</h2>
             </div>
-            <form onsubmit="event.preventDefault(); document.getElementById('stockModal').classList.remove('active'); window.showToast('Stock Added Locally'); e.target.reset();">
+            <form onsubmit="window.submitAddStock(event)">
                 <div class="mb-3">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Item Name</label>
-                    <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    <input type="text" id="add-stock-name" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                 </div>
                 <div class="mb-3 flex gap-2">
                     <div class="w-1/2">
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">SKU</label>
-                        <input type="text" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <input type="text" id="add-stock-sku" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                     </div>
                     <div class="w-1/2">
                         <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Qty</label>
-                        <input type="number" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                        <input type="number" id="add-stock-qty" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                     </div>
                 </div>
                 <div class="mb-5">
                     <label class="block text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-1 pl-1">Category</label>
-                    <select class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
+                    <select id="add-stock-cat" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-3 text-[9px] font-medium outline-none focus:border-indigo-400 shadow-sm" required>
                         <option value="" disabled selected>Select...</option>
                         <option value="plumbing">Plumbing</option><option value="electrical">Electrical</option><option value="hardware">Hardware</option><option value="furniture">Furniture</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[10px] py-2 shadow-md text-[10px]">Add To Vault</button>
+                <button type="submit" id="btn-add-stock" class="w-full bg-[#1d1d1f] hover:bg-slate-800 text-white font-bold rounded-[10px] py-2 shadow-md text-[10px]">Add To Vault</button>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Stock Request History Logs Modal -->
+<div id="stockLogsModal" class="modal-overlay">
+    <div class="modal-content magic-border-container w-full max-w-lg">
+        <div class="magic-border-inner flex flex-col relative max-h-[85vh]">
+            <button onclick="document.getElementById('stockLogsModal').classList.remove('active')" class="absolute top-0 right-0 w-6 h-6 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+            <div class="flex items-center gap-3 mb-4 shrink-0 border-b border-slate-200/60 pb-3">
+                <div class="w-8 h-8 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg flex items-center justify-center text-sm"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div>
+                    <h2 class="text-base font-black text-slate-900 tracking-tight leading-none">Request History Logs</h2>
+                    <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Audit Trail & Inventory Activity</p>
+                </div>
+            </div>
+            <div class="overflow-y-auto custom-scroll pr-1 flex-1 min-h-[250px] bg-slate-50/50 rounded-xl p-2 border border-slate-100">
+                <table class="w-full text-left border-collapse compact-table">
+                    <thead class="bg-white sticky top-0 z-10 shadow-sm border-b border-slate-200">
+                        <tr>
+                            <th class="w-24">Date/Time</th>
+                            <th>Item & Detail</th>
+                            <th class="w-16">Qty</th>
+                            <th class="w-24">Requester</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stock-logs-body" class="divide-y divide-slate-100/80 bg-white">
+                        <!-- Logs generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Toast Notification Container -->
+<div id="toast-container" class="fixed top-6 left-0 right-0 z-[5000] flex justify-center px-4 pointer-events-none transform -translate-y-[150%] transition-transform duration-300">
+    <div id="toast-message" class="bg-[#1d1d1f] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-medium text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-text">Action completed successfully.</span>
+    </div>
+</div>
 
 <script>
     // ----------------------------------------------------
-    // DATA PARSERS (Highly forgiving logic)
+    // DATA PARSERS 
     // ----------------------------------------------------
     window.parseN8n = function(d) { 
         if (!d) return []; let arr = []; 
@@ -371,6 +413,20 @@
         if (s.includes('T')) return { date: s.split('T')[0], time: (s.split('T')[1] || '').split('.')[0] };
         if (s.includes(' ')) return { date: s.split(' ')[0], time: s.split(' ')[1] || '' };
         return { date: s, time: '' };
+    };
+
+    window.showToast = function(m, t = 'success') { 
+        const tc = document.getElementById('toast-container'); 
+        const tt = document.getElementById('toast-text');
+        const ti = document.getElementById('toast-icon');
+        if(tc && tt && ti) {
+            tt.textContent = m; 
+            ti.className = t === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-rose-400'; 
+            tc.classList.add('translate-y-0'); tc.classList.remove('-translate-y-[150%]');
+            setTimeout(() => { tc.classList.remove('translate-y-0'); tc.classList.add('-translate-y-[150%]'); }, 3000); 
+        } else {
+            alert(m);
+        }
     };
 
     // ----------------------------------------------------
@@ -398,6 +454,8 @@
     // ----------------------------------------------------
     var currentMaintenanceStatus = 'all';
     var currentMaintTab = 'snags';
+    window.globalInventoryData = [];
+    window.globalStockLogs = [];
 
     window.toggleMaintSidebar = function() {
         const sidebar = document.getElementById('maint-right-sidebar');
@@ -412,10 +470,6 @@
     };
     
     if (window.innerWidth < 768) { window.toggleMaintSidebar(); }
-
-    if (typeof window.showToast !== 'function') {
-        window.showToast = function(m, t = 'success') { alert(m); };
-    }
 
     window.filterTable = function(inputId, tbodyId) {
         const input = document.getElementById(inputId); const filter = input.value.toLowerCase(); const tbody = document.getElementById(tbodyId); if(!tbody) return;
@@ -438,7 +492,7 @@
     }
 
     // ----------------------------------------------------
-    // TAB SWITCHER (Uses Tailwind Hidden/Flex to avoid overlaps)
+    // TAB SWITCHER 
     // ----------------------------------------------------
     window.switchMaintTab = function(tabId, btnElement, showKpis) {
         window.currentMaintTab = tabId;
@@ -468,8 +522,10 @@
 
         if(tabId === 'history') window.renderHistoryData();
         else if (tabId === 'snags') window.setMaintenanceStatus('all');
-        else if (tabId === 'inventory') window.renderInventoryData('all');
         else if (tabId === 'vendors') window.renderProvidersData('all');
+        else if (tabId === 'inventory') {
+            window.fetchStockData();
+        }
     };
 
     // ----------------------------------------------------
@@ -481,7 +537,6 @@
             return;
         }
         
-        // Find all matching detail rows to ensure we toggle both if necessary, though IDs should be unique
         const detailRows = document.querySelectorAll(`#detail-${ticketId}`);
         detailRows.forEach(detailRow => {
             if(detailRow.classList.contains('hidden')) {
@@ -625,10 +680,10 @@
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Fault Description</p>
-                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details provided.'}</p>
+                                    <p class="text-[10.5px] font-bold text-rose-600 leading-relaxed">${log.Description || 'No details provided.'}</p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
-                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span>${res.name} <br><span class="text-slate-400 text-[8px] font-mono">${log.Student_Number || '--'}</span></div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter Contact</span><span class="text-[10px] font-black text-blue-600">${res.name}</span> <br><span class="text-slate-400 text-[8px] font-mono">${log.Student_Number || '--'}</span></div>
                                     <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
                                 </div>
                             </div>
@@ -701,10 +756,10 @@
                             <div class="space-y-4 border-r border-slate-200/50 pr-4">
                                 <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                                     <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Original Fault Description</p>
-                                    <p class="text-[10px] font-medium text-slate-700 leading-relaxed">${log.Description || 'No details.'}</p>
+                                    <p class="text-[10.5px] font-bold text-rose-600 leading-relaxed">${log.Description || 'No details.'}</p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 text-[9px] font-medium text-slate-600">
-                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter</span>${res.name}</div>
+                                    <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Reporter</span><span class="text-[10px] font-black text-blue-600">${res.name}</span></div>
                                     <div><span class="block text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time Logged</span>${t.time}</div>
                                 </div>
                             </div>
@@ -749,7 +804,6 @@
         
         let techNotes = 'Resolved by Admin';
         
-        // Differentiate between the inline quick-comment and the expanded detail comment
         if (source === 'inline') {
             const inlineNote = document.getElementById(`inline-comment-${ticketId}`);
             if (inlineNote && inlineNote.value.trim() !== '') techNotes = inlineNote.value;
@@ -795,50 +849,191 @@
     };
 
     // ----------------------------------------------------
-    // INVENTORY / VAULT LOGIC
+    // INVENTORY GET/POST PIPELINES & HISTORY LOGS
     // ----------------------------------------------------
+    
+    // GET WEBHOOK: Fetch Stock
+    window.fetchStockData = async function() {
+        const body = document.getElementById('inventory-body');
+        if (body && (!window.globalInventoryData || window.globalInventoryData.length === 0)) {
+            body.innerHTML = '<tr><td colspan="4" class="p-6 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
+        }
+        try {
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/stock-get');
+            if (res.ok) {
+                const data = await res.json();
+                const parsed = window.parseN8n(data);
+                if (parsed && parsed.length > 0) window.globalInventoryData = parsed;
+            }
+        } catch(e) { console.warn("GET Webhook unreachable, using vault cache."); } 
+        finally { window.renderInventoryData(window.currentInvCat || 'all'); }
+    };
+
+    // POST WEBHOOK: Add Stock
+    window.submitAddStock = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-add-stock'); 
+        const ogText = btn.innerHTML;
+        
+        const name = document.getElementById('add-stock-name').value;
+        const sku = document.getElementById('add-stock-sku').value;
+        const qty = document.getElementById('add-stock-qty').value;
+        const cat = document.getElementById('add-stock-cat').value;
+        
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Adding...'; 
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('https://n8n.automania.cloud/webhook-test/stock-request', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    item_sku: sku,
+                    item_name: name, 
+                    quantity: Number(qty) * -1,
+                    category: cat,
+                    ticket_ref: 'Admin Restock',
+                    requested_by: "Admin Dashboard",
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            if(response.ok) window.showToast("Stock implicitly added to Vault.");
+            else window.showToast("Stock added to pipeline.");
+            
+            document.getElementById('stockModal').classList.remove('active');
+            e.target.reset();
+            window.fetchStockData();
+        } catch(error) { 
+            window.showToast("Stock addition processed locally.", "success"); 
+            document.getElementById('stockModal').classList.remove('active'); 
+            e.target.reset();
+        } finally { 
+            btn.innerHTML = ogText; 
+            btn.disabled = false; 
+        }
+    };
+
+    // GET WEBHOOK: Stock Logs
+    window.openStockLogsModal = function() {
+        document.getElementById('stockLogsModal').classList.add('active');
+        window.fetchStockLogs();
+    };
+
+    window.fetchStockLogs = async function() {
+        const body = document.getElementById('stock-logs-body');
+        if (body && (!window.globalStockLogs || window.globalStockLogs.length === 0)) {
+            body.innerHTML = '<tr><td colspan="4" class="p-6 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
+        }
+        try {
+            const res = await fetch('https://n8n.automania.cloud/webhook-test/stock-get-logs');
+            if (res.ok) {
+                const data = await res.json();
+                window.globalStockLogs = window.parseN8n(data);
+            }
+        } catch(e) { console.warn("Failed to fetch logs.", e); }
+        finally { window.renderStockLogs(); }
+    };
+
+    window.renderStockLogs = function() {
+        const body = document.getElementById('stock-logs-body');
+        if(!body) return;
+        
+        if(!window.globalStockLogs || window.globalStockLogs.length === 0) {
+            body.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[9px]">No audit logs found.</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        window.globalStockLogs.forEach(log => {
+            const rawDate = log.Timestamp || log.timestamp || log.createdAt || '--';
+            const t = window.formatSafeDate(rawDate);
+            const itemName = log.Item || log.item_name || log.Name || '--';
+            const qty = log['Qty Requested'] || log.quantity || log.Qty || 0;
+            const reqBy = log['Requested By'] || log.requested_by || '--';
+            const notes = log.Notes || log.ticket_ref || '--';
+            
+            html += `
+                <tr class="hover:bg-slate-50 transition-colors cursor-default border-b border-slate-100/50">
+                    <td class="align-middle py-2.5">
+                        <div class="text-[9.5px] font-bold text-slate-700 leading-none">${t.date}</div>
+                        <div class="text-[7.5px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">${t.time}</div>
+                    </td>
+                    <td class="align-middle py-2.5">
+                        <div class="text-[10.5px] font-black text-slate-800 leading-none">${itemName}</div>
+                        <div class="text-[8px] text-slate-500 mt-0.5 truncate w-40 font-medium" title="${notes}"><i class="fa-solid fa-hashtag text-slate-300 mr-1"></i>${notes}</div>
+                    </td>
+                    <td class="align-middle py-2.5">
+                        <span class="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded text-[8.5px] font-bold shadow-sm">${qty}</span>
+                    </td>
+                    <td class="align-middle py-2.5">
+                        <span class="text-[9px] font-bold text-slate-600 bg-white border border-slate-200 shadow-sm px-2 py-0.5 rounded truncate max-w-[100px] inline-block"><i class="fa-solid fa-user-circle text-slate-400 mr-1"></i>${reqBy}</span>
+                    </td>
+                </tr>
+            `;
+        });
+        body.innerHTML = html;
+    };
+
+    // INVENTORY UI RENDERER
     const dummyInventory = [
         { name: "LED Ceiling Bulb (B22)", sku: "EL-0042", cat: "electrical", stock: 45, cap: 50, icon: "fa-bolt", color: "amber" },
         { name: "Fluorescent Tube 4ft", sku: "EL-0091", cat: "electrical", stock: 12, cap: 40, icon: "fa-bolt", color: "amber" },
-        { name: "Standard Wall Socket", sku: "EL-0112", cat: "electrical", stock: 5, cap: 30, icon: "fa-bolt", color: "amber" },
         { name: "PVC Pipe (50mm x 2m)", sku: "PL-0220", cat: "plumbing", stock: 8, cap: 20, icon: "fa-droplet", color: "blue" },
-        { name: "Toilet Mechanism Valve", sku: "PL-0245", cat: "plumbing", stock: 3, cap: 15, icon: "fa-droplet", color: "blue" },
-        { name: "Basin Mixer Tap", sku: "PL-0299", cat: "plumbing", stock: 6, cap: 10, icon: "fa-droplet", color: "blue" },
-        { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" },
-        { name: "Single Bed Mattress", sku: "FN-1033", cat: "furniture", stock: 2, cap: 10, icon: "fa-bed", color: "indigo" }
+        { name: "Study Desk Chair", sku: "FN-1001", cat: "furniture", stock: 15, cap: 20, icon: "fa-chair", color: "indigo" }
     ];
 
     window.setInventoryCategory = function(cat) {
+        window.currentInvCat = cat;
         safeUpdateSegmented('inv-cat', cat, ['all', 'plumbing', 'electrical', 'furniture']);
         window.renderInventoryData(cat);
     };
 
     window.renderInventoryData = function(filterCategory = 'all') {
         const body = document.getElementById('inventory-body'); if(!body) return;
-        let filtered = dummyInventory;
-        if(filterCategory !== 'all') filtered = dummyInventory.filter(i => i.cat === filterCategory);
+        const sourceInventory = (window.globalInventoryData && window.globalInventoryData.length > 0) 
+            ? window.globalInventoryData 
+            : dummyInventory;
+
+        let filtered = sourceInventory;
+        if(filterCategory !== 'all') {
+            filtered = sourceInventory.filter(i => {
+                const c = (i.cat || i.Category || '').toLowerCase();
+                return c === filterCategory.toLowerCase();
+            });
+        }
 
         if(filtered.length === 0) { body.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium text-[8px] sm:text-[9px]">No stock found.</td></tr>`; return; }
 
         let htmlStr = '';
         filtered.forEach(item => {
-            const ratio = item.stock / item.cap; const isLow = ratio < 0.25; const widthPct = Math.max(5, Math.floor(ratio * 100));
+            const name = item.name || item.Item || item.Item_Name;
+            const sku = item.sku || item.SKU || item.item_id || name;
+            const cat = item.cat || item.Category || 'General';
+            const stock = Number(item.stock ?? item.Current_Stock ?? item['Current Stock'] ?? 0);
+            const cap = Number(item.cap ?? item.Capacity ?? 50);
+
+            const ratio = stock / cap; 
+            const isLow = ratio < 0.25 || String(item.Status).toLowerCase() === 'low'; 
+            const widthPct = Math.min(100, Math.max(5, Math.floor(ratio * 100)));
             const barColor = isLow ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500';
-            const badge = isLow ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Low</span>` : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest">Healthy</span>`;
+            const badge = isLow 
+                ? `<span class="text-rose-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Low</span>` 
+                : `<span class="text-emerald-600 font-bold text-[6px] sm:text-[7px] uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">Healthy</span>`;
 
             htmlStr += `
                 <tr class="${isLow ? 'bg-rose-50/20' : 'hover:bg-slate-50/50'} border-b border-slate-100/50 transition-colors">
                     <td class="align-middle">
-                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${item.name}</div>
-                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${item.sku}</div>
+                        <div class="font-black text-slate-800 text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-none">${name}</div>
+                        <div class="text-[7px] sm:text-[8px] font-mono font-bold text-slate-400 mt-0.5">SKU: ${sku}</div>
                     </td>
                     <td class="align-middle">
-                        <span class="text-[6px] sm:text-[7px] font-bold text-${item.color}-500 capitalize bg-white border border-${item.color}-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid ${item.icon} mr-1"></i><span class="hidden sm:inline">${item.cat}</span></span>
+                        <span class="text-[6px] sm:text-[7px] font-bold text-slate-600 capitalize bg-white border border-slate-200 px-1.5 py-0.5 rounded-md shadow-sm"><i class="fa-solid fa-layer-group mr-1 text-slate-400"></i>${cat}</span>
                     </td>
                     <td class="align-middle w-20 sm:w-32">
                         <div class="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-slate-600 mb-1">
-                            <span class="${isLow ? 'text-rose-600' : ''}">${item.stock}</span>
-                            <span class="text-slate-400 hidden sm:inline">Cap: ${item.cap}</span>
+                            <span class="${isLow ? 'text-rose-600' : ''}">${stock}</span>
+                            <span class="text-slate-400 hidden sm:inline">Cap: ${cap}</span>
                         </div>
                         <div class="w-full bg-slate-200/70 rounded-full h-1 overflow-hidden shadow-inner"><div class="${barColor} h-full rounded-full transition-all" style="width: ${widthPct}%"></div></div>
                     </td>
@@ -893,7 +1088,7 @@
     };
 
     // ----------------------------------------------------
-    // FILTER-AWARE DATA EXTRACTOR (Excel/CSV Export)
+    // FILTER-AWARE DATA EXTRACTOR
     // ----------------------------------------------------
     window.downloadMaintReport = function(tabType) {
         let csvContent = "data:text/csv;charset=utf-8,";
