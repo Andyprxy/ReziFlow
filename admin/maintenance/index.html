@@ -222,13 +222,14 @@
                                 <th class="w-32">Timestamp</th>
                                 <th>Requested By</th>
                                 <th>Item Requested</th>
-                                <th class="w-24 text-center">Quantity Req.</th>
+                                <th class="w-24 text-center">Transaction</th>
+                                <th class="w-24 text-center">Quantity</th>
                                 <th class="w-24 text-center">Stock @ Request</th>
                                 <th>Notes</th>
                             </tr>
                         </thead>
                         <tbody id="stock-logs-body" class="divide-y divide-white/60">
-                            <tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium text-[9px]">Initializing logs...</td></tr>
+                            <tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium text-[9px]">Initializing logs...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -874,7 +875,7 @@
 
     window.fetchStockLogs = async function(btnElement, forcedRefresh = false) {
         const body = document.getElementById('stock-logs-body');
-        if (body) body.innerHTML = '<tr><td colspan="6" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
+        if (body) body.innerHTML = '<tr><td colspan="7" class="p-8 text-center"><i class="fa-solid fa-circle-notch fa-spin text-indigo-500 text-xl"></i></td></tr>';
 
         const ogHtml = btnElement ? btnElement.innerHTML : '';
         if (btnElement) { 
@@ -889,10 +890,10 @@
                 window.globalStockLogs = logs;
                 window.renderStockLogsData(logs);
             } else {
-                if (body) body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-rose-500 font-bold text-[9px]">Failed to fetch stock logs.</td></tr>';
+                if (body) body.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-rose-500 font-bold text-[9px]">Failed to fetch stock logs.</td></tr>';
             }
         } catch(e) {
-            if (body) body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-rose-500 font-bold text-[9px]">Network error fetching stock logs.</td></tr>';
+            if (body) body.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-rose-500 font-bold text-[9px]">Network error fetching stock logs.</td></tr>';
         } finally {
             if (btnElement) { btnElement.innerHTML = ogHtml; btnElement.disabled = false; }
         }
@@ -903,7 +904,7 @@
         if (!body) return;
         
         if (!logs || logs.length === 0) {
-            body.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium text-[9px]">No stock logs found.</td></tr>';
+            body.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium text-[9px]">No stock logs found.</td></tr>';
             return;
         }
 
@@ -914,6 +915,15 @@
             const item = log.Item || log['Item Requested'] || log.item_name || log.item || log.Name || '--';
             
             const qty = log['Qty Requested'] || log['Quantity Requested'] || log.Qty || log.Quantity || log.quantity || '--';
+            
+            // Handles both spelling iterations of Transaction/Transection
+            const rawTrans = log.Transaction || log.Transection || log['Transection '] || log.transaction || '';
+            const isIn = String(rawTrans).trim().toLowerCase() === 'in';
+            
+            const transBadge = isIn 
+                ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase tracking-widest inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-arrow-down"></i>In</span>`
+                : `<span class="bg-amber-50 border border-amber-200 text-amber-600 font-bold px-1.5 py-0.5 rounded text-[8px] uppercase tracking-widest inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-arrow-up"></i>Out</span>`;
+            
             const stockAtReq = log.Stock_At_Request || log['Stock at Request'] || log.Stock || '--';
             const notes = log.Notes || log.notes || '--';
 
@@ -925,6 +935,7 @@
                     </td>
                     <td class="align-middle font-bold text-blue-600 text-[9px]"><i class="fa-solid fa-user text-blue-400 mr-1"></i>${requestedBy}</td>
                     <td class="align-middle font-black text-slate-800 text-[9px]">${item}</td>
+                    <td class="align-middle text-center">${transBadge}</td>
                     <td class="align-middle text-center font-bold text-slate-700 text-[9px]">${qty}</td>
                     <td class="align-middle text-center font-bold text-slate-500 text-[9px]">${stockAtReq}</td>
                     <td class="align-middle text-[8px] text-slate-600 font-medium truncate max-w-[120px]" title="${notes}">${notes}</td>
@@ -963,7 +974,6 @@
         input.value = name;
         document.getElementById('stock-name-dropdown').classList.add('hidden');
         
-        // Auto-fill category if possible based on previous items
         let baseData = window.globalInventoryData && window.globalInventoryData.length > 0 ? window.globalInventoryData : dummyInventory;
         const matchedItem = baseData.find(i => (i.Item || i['Item Name'] || i.name || i.item_name) === name);
         if (matchedItem) {
@@ -976,7 +986,6 @@
         }
     };
 
-    // Close autocomplete when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('stock-name-dropdown');
         const input = document.getElementById('stock-name');
@@ -995,6 +1004,7 @@
             qty: document.getElementById('stock-qty').value,
             category: document.getElementById('stock-cat').value,
             notes: document.getElementById('stock-notes').value,
+            transaction: "In",
             timestamp: new Date().toISOString()
         };
 
@@ -1002,7 +1012,7 @@
         btn.disabled = true;
 
         try {
-            await fetch('https://n8n.automania.cloud/webhook-test/stock-add', {
+            await fetch('https://n8n.automania.cloud/webhook/stock-add', {
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -1189,6 +1199,3 @@
     };
 
 </script>
-
-
-
