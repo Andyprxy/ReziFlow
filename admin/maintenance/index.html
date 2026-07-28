@@ -870,7 +870,7 @@
         }
         
         try {
-            const response = await fetch('https://n8n.automania.cloud/webhook-test/stock-get-logs');
+            const response = await fetch('https://n8n.automania.cloud/webhook/stock-get-logs');
             if (response.ok) {
                 const logs = window.parseN8n(await response.json());
                 window.globalStockLogs = logs;
@@ -899,7 +899,10 @@
             const t = window.formatSafeDate(log.Timestamp || log.timestamp || log.Date || log.date || new Date().toISOString());
             const requestedBy = log.Requested_By || log['Requested By'] || log.User || log.user || '--';
             const item = log.Item || log['Item Requested'] || log.item_name || log.item || log.Name || '--';
-            const qty = log.Qty || log['Quantity Requested'] || log.Quantity || log.quantity || '--';
+            
+            // Fixed line: Ensuring exact match for "Qty Requested"
+            const qty = log['Qty Requested'] || log['Quantity Requested'] || log.Qty || log.Quantity || log.quantity || '--';
+            
             const stockAtReq = log.Stock_At_Request || log['Stock at Request'] || log.Stock || '--';
             const notes = log.Notes || log.notes || '--';
 
