@@ -877,7 +877,7 @@
         }
         
         try {
-            const response = await fetch('https://n8n.automania.cloud/webhook/stock-get-logs');
+            const response = await fetch('https://n8n.automania.cloud/webhook-test/stock-get-logs');
             if (response.ok) {
                 const logs = window.parseN8n(await response.json());
                 window.globalStockLogs = logs;
